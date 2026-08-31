@@ -20,6 +20,10 @@ _Avoid_: Construction Professional, PM
 A self-contained Project Workspace with redistributable sample documents and prepared work suitable for judging the product without third-party integrations.
 _Avoid_: Fake project, sample data
 
+**Demo Session**:
+One isolated, temporary run of a Demo Project whose Assistance Requests, Professional Responses, and optional Agent Results do not carry into another run.
+_Avoid_: User account, Project Workspace
+
 **Submittal Review**:
 A construction workflow that evaluates submitted product information against the project's requirements and records findings that affect acceptance or follow-up.
 _Avoid_: Document review, PDF review
