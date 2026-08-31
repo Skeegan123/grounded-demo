@@ -201,6 +201,7 @@ function App({
     ? points
     : viewedPointSet?.professionalResponse.type === 'point_set'
       ? viewedPointSet.professionalResponse.points.map((point) => ({
+          pointNumber: point.pointNumber,
           pageId: point.page.id,
           pageLabel: point.page.label,
           pageNumber: point.page.number,
@@ -694,8 +695,8 @@ function App({
                       </button>
                       {result.professionalResponse.points.length > 0 && (
                         <ol className="point-summary">
-                          {result.professionalResponse.points.map((point, index) => (
-                            <li key={`${point.page.id}:${point.x}:${point.y}:${index}`}>
+                          {result.professionalResponse.points.map((point) => (
+                            <li key={point.pointNumber} value={point.pointNumber}>
                               {point.page.label} · {Math.round(point.x * 100)}%, {Math.round(point.y * 100)}%
                             </li>
                           ))}

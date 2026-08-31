@@ -123,7 +123,12 @@ export function PdfPageViewer({
     return () => controller.abort()
   }, [document, page.id, page.number, renderedSize, renderer])
 
-  const pagePoints = points.filter((point) => point.pageId === page.id)
+  const pagePoints = points
+    .map((point, index) => ({
+      ...point,
+      pointNumber: point.pointNumber ?? index + 1,
+    }))
+    .filter((point) => point.pageId === page.id)
   const placePoint = (event: MouseEvent<HTMLDivElement>) => {
     if (!canMark) return
     const bounds = event.currentTarget.getBoundingClientRect()
@@ -153,13 +158,13 @@ export function PdfPageViewer({
             onClick={placePoint}
             role={canMark ? 'button' : undefined}
           >
-            {pagePoints.map((point, index) => (
+            {pagePoints.map((point) => (
               <span
                 className="point-mark"
-                key={`${point.x}-${point.y}-${index}`}
+                key={`${point.x}-${point.y}-${point.pointNumber}`}
                 style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }}
               >
-                {index + 1}
+                {point.pointNumber}
               </span>
             ))}
           </div>

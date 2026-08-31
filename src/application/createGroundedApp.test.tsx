@@ -36,7 +36,7 @@ function createTestPageRenderer() {
   } satisfies PdfPageRenderer
 }
 
-test('an External Agent retrieves a durable Point Set after the Senior Project Manager responds and reloads', async () => {
+test('an External Agent retrieves stable Point Numbers for a multi-page Point Set after reload', async () => {
   const user = userEvent.setup()
   const storage = window.sessionStorage
   const databaseName = `grounded-tracer-${crypto.randomUUID()}`
@@ -75,6 +75,7 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
     expect.objectContaining({ pageNumber: 6 }),
   ))
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
+    configurable: true,
     value: () => ({
       bottom: 420,
       height: 400,
@@ -89,6 +90,33 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
   })
   fireEvent.click(drawingPage, { clientX: 110, clientY: 220 })
   await screen.findByText('1 point')
+
+  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  const secondDrawingPage = await screen.findByLabelText('Drawing page A4.3')
+  Object.defineProperty(secondDrawingPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(secondDrawingPage, { clientX: 25, clientY: 75 })
+  await screen.findByText('2 points')
+  expect(within(secondDrawingPage).getByText('2')).toBeInTheDocument()
+  fireEvent.click(secondDrawingPage, { clientX: 75, clientY: 25 })
+  await screen.findByText('3 points')
+  expect(within(secondDrawingPage).getByText('3')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Undo' }))
+  await screen.findByText('2 points')
+  expect(within(secondDrawingPage).queryByText('3')).not.toBeInTheDocument()
+
   await user.click(screen.getByRole('button', { name: 'Submit Point Set' }))
   await screen.findByText('No pending Assistance Requests')
 
@@ -126,12 +154,19 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
         },
         points: [
           {
+            pointNumber: 1,
             page: { id: 'sheet-a1.2', label: 'A1.2', number: 6 },
             x: 0.5,
             y: 0.5,
           },
+          {
+            pointNumber: 2,
+            page: { id: 'sheet-a4.3', label: 'A4.3', number: 24 },
+            x: 0.25,
+            y: 0.75,
+          },
         ],
-        count: 1,
+        count: 2,
         submittedAt: '2030-01-02T03:04:05.000Z',
       },
     }),
@@ -143,6 +178,12 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
   const reloadedMark = within(reloadedOverlay).getByText('1')
   expect(reloadedOverlay).toContainElement(reloadedMark)
   expect(reloadedMark).toHaveStyle({ left: '50%', top: '50%' })
+
+  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  const reloadedSecondOverlay = await screen.findByLabelText('Drawing page A4.3')
+  const reloadedSecondMark = within(reloadedSecondOverlay).getByText('2')
+  expect(reloadedSecondOverlay).toContainElement(reloadedSecondMark)
+  expect(reloadedSecondMark).toHaveStyle({ left: '25%', top: '75%' })
 })
 
 test('reload keeps a pending request but discards its unfinished Point Set draft', async () => {

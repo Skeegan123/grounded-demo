@@ -221,6 +221,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
             },
             points: [
               {
+                pointNumber: 1,
                 page: { id: 'sheet-a1.2', label: 'A1.2', number: 6 },
                 x: 0.25,
                 y: 0.75,
