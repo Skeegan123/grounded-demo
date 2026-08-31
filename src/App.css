@@ -628,6 +628,19 @@ dd {
   pointer-events: auto;
 }
 
+.pdf-render-cover {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #dedbd3;
+}
+
+.pdf-render-cover .pdf-render-status {
+  position: static;
+}
+
 .pdf-render-status,
 .pdf-render-error {
   padding: 9px 12px;
@@ -657,19 +670,103 @@ dd {
 
 .point-mark {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  z-index: 2;
+  width: 0;
+  height: 0;
+}
+
+.point-pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
+  padding: 0;
   color: var(--ink);
   background: var(--signal);
   border: 2px solid var(--ink);
   border-radius: 50%;
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: 1px 1px 0 var(--ink);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  transform: translate(-50%, -50%);
+  line-height: 1;
+  transform: translate(-50%, calc(-100% - 5px));
+}
+
+.point-pin::after {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 7px;
+  height: 7px;
+  content: '';
+  background: var(--signal);
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+button.point-pin {
+  cursor: pointer;
+}
+
+.remove-point {
+  position: absolute;
+  z-index: 2;
+  left: 9px;
+  top: -38px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: #fff;
+  background: var(--ink);
+  border: 2px solid #fffef9;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+  transition: opacity 100ms ease, transform 100ms ease;
+}
+
+.point-mark:hover .remove-point,
+.point-mark:focus-within .remove-point,
+.point-mark.selected .remove-point {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.undo-notice {
+  position: absolute;
+  z-index: 5;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: min(520px, calc(100% - 220px));
+  padding: 9px 11px;
+  color: var(--ink);
+  background: rgb(249 246 239 / 96%);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 4px 12px rgb(24 32 26 / 18%);
+  font-size: 0.76rem;
+}
+
+.undo-notice button {
+  flex: none;
+  padding: 5px 7px;
+  color: inherit;
+  background: #fffef9;
+  border: 1px solid var(--line-strong);
+  font: inherit;
+  font-weight: 700;
 }
 
 .request-card,

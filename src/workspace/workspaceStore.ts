@@ -20,6 +20,7 @@ export interface WorkspaceState extends DocumentBrowsingState {
   text: string
   addPoint: (point: StoredPoint) => void
   clearDraft: () => void
+  removePoint: (index: number) => void
   selectDocument: (
     documentId: string,
     documentVersionId: string,
@@ -51,6 +52,10 @@ export function createWorkspaceStore(
     addPoint: (point) =>
       set((state) => ({ points: [...state.points, point] })),
     clearDraft: () => set({ declineReason: '', points: [], note: '', text: '' }),
+    removePoint: (index) =>
+      set((state) => ({
+        points: state.points.filter((_, pointIndex) => pointIndex !== index),
+      })),
     selectDocument: (
       selectedDocumentId,
       selectedDocumentVersionId,

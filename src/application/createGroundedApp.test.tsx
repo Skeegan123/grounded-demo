@@ -300,9 +300,25 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   fireEvent.click(secondDrawingPage, { clientX: 75, clientY: 25 })
   await screen.findByText('3 points')
   expect(within(secondDrawingPage).getByText('3')).toBeInTheDocument()
+
+  await user.click(within(secondDrawingPage).getByRole('button', { name: 'Point 2' }))
+  await user.click(screen.getByRole('button', { name: 'Remove point 2' }))
+  await screen.findByText('2 points')
+  expect(within(secondDrawingPage).queryByRole('button', { name: 'Point 3' }))
+    .not.toBeInTheDocument()
+  expect(within(secondDrawingPage).getByRole('button', { name: 'Point 2' })
+    .closest('.point-mark')).toHaveStyle({ left: '75%', top: '25%' })
+
+  fireEvent.click(secondDrawingPage, { clientX: 30, clientY: 30 })
+  await screen.findByText('3 points')
+  await choosePage(user, /^A1\.2 1st Floor Plan$/)
   await user.click(screen.getByRole('button', { name: 'Undo' }))
   await screen.findByText('2 points')
-  expect(within(secondDrawingPage).queryByText('3')).not.toBeInTheDocument()
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  const undoNotice = screen.getByRole('status')
+  expect(undoNotice).toHaveTextContent('Removed the latest point from page A4.3.')
+  await user.click(within(undoNotice).getByRole('button', { name: 'View page A4.3' }))
+  expectCurrentPage(/A4\.3, Doors & Windows/)
 
   await user.click(screen.getByRole('button', { name: 'Submit Point Set' }))
   await screen.findByText('No pending Assistance Requests')
@@ -349,8 +365,8 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
           {
             pointNumber: 2,
             page: { id: 'sheet-a4.3', label: 'A4.3', number: 24 },
-            x: 0.25,
-            y: 0.75,
+            x: 0.75,
+            y: 0.25,
           },
         ],
         count: 2,
@@ -364,13 +380,22 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   const reloadedOverlay = await screen.findByLabelText('Drawing page A1.2')
   const reloadedMark = within(reloadedOverlay).getByText('1')
   expect(reloadedOverlay).toContainElement(reloadedMark)
-  expect(reloadedMark).toHaveStyle({ left: '50%', top: '50%' })
+  expect(reloadedOverlay).not.toHaveAttribute('role', 'button')
+  expect(within(reloadedOverlay).queryByRole('button', { name: /Remove point/ }))
+    .not.toBeInTheDocument()
+  expect(reloadedMark.closest('.point-mark')).toHaveStyle({
+    left: '50%',
+    top: '50%',
+  })
 
   await choosePage(user, /^A4\.3 Doors & Windows$/)
   const reloadedSecondOverlay = await screen.findByLabelText('Drawing page A4.3')
   const reloadedSecondMark = within(reloadedSecondOverlay).getByText('2')
   expect(reloadedSecondOverlay).toContainElement(reloadedSecondMark)
-  expect(reloadedSecondMark).toHaveStyle({ left: '25%', top: '75%' })
+  expect(reloadedSecondMark.closest('.point-mark')).toHaveStyle({
+    left: '75%',
+    top: '25%',
+  })
 })
 
 test('reload keeps a pending request but discards its unfinished Point Set draft', async () => {
@@ -836,4 +861,72 @@ test('supporting references preserve the Point Set draft and Return to target re
   const returnedOverlay = await screen.findByLabelText('Drawing page A1.2')
   expect(within(returnedOverlay).getByText('1')).toBeInTheDocument()
   expect(returnedOverlay).toHaveAttribute('role', 'button')
+})
+
+test('Point Set placement stays blocked while the selected page is pending or failed', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  let resolveTargetRender: (() => void) | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ pageNumber }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => { resolveTargetRender = resolve })
+      }
+      if (pageNumber === 7) {
+        return Promise.reject(new Error('The selected drawing page failed to render.'))
+      }
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  render(
+    createGroundedApp({
+      databaseName: `grounded-render-safety-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer,
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+
+  const targetOverlay = await screen.findByLabelText('Drawing page A1.2')
+  expect(targetOverlay).not.toHaveAttribute('role', 'button')
+  expect(screen.getByRole('status')).toHaveTextContent('Rendering PDF page')
+  fireEvent.click(targetOverlay, { clientX: 20, clientY: 20 })
+  expect(screen.getByText('0 points')).toBeInTheDocument()
+
+  resolveTargetRender?.()
+  await waitFor(() => expect(targetOverlay).toHaveAttribute('role', 'button'))
+  Object.defineProperty(targetOverlay, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(targetOverlay, { clientX: 20, clientY: 20 })
+  await screen.findByText('1 point')
+
+  await choosePage(user, /^A1\.3 2nd Floor Plan$/)
+  const failedOverlay = await screen.findByLabelText('Drawing page A1.3')
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'The selected drawing page failed to render.',
+  )
+  expect(failedOverlay).not.toHaveAttribute('role', 'button')
+  fireEvent.click(failedOverlay, { clientX: 20, clientY: 20 })
+  expect(screen.getByText('1 point')).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Open authoritative PDF page' }))
+    .toHaveAttribute('href', '/demo-project/virginia-farmhouse-drawing-set.pdf#page=7')
 })
