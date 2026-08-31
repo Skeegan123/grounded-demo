@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import App from '../App'
 import { createAssistance } from '../assistance/assistance'
 import {
@@ -8,6 +8,11 @@ import {
 import type { createDocuments } from '../documents/documents'
 import type { PdfPageRenderer } from '../documents/PdfPageViewer'
 import type { ModelContextAdapter } from '../webmcp/modelContext'
+import {
+  clearDocumentBrowsingState,
+  loadDocumentBrowsingState,
+  saveDocumentBrowsingState,
+} from '../workspace/documentBrowsingState'
 import { createWorkspaceStore } from '../workspace/workspaceStore'
 
 interface GroundedAppHostProps {
@@ -39,11 +44,29 @@ export function GroundedAppHost({
       createId,
       now,
     }),
-    workspaceStore: createWorkspaceStore(),
-  }), [createId, databaseName, now, sessionId])
+    workspaceStore: createWorkspaceStore(
+      loadDocumentBrowsingState(storage, sessionId),
+    ),
+  }), [createId, databaseName, now, sessionId, storage])
+  useEffect(() => {
+    const save = () => {
+      const state = session.workspaceStore.getState()
+      saveDocumentBrowsingState(storage, sessionId, {
+        selectedDocumentId: state.selectedDocumentId,
+        selectedDocumentVersionId: state.selectedDocumentVersionId,
+        selectedPageId: state.selectedPageId,
+        lastPageIdByDocument: state.lastPageIdByDocument,
+        fitPreference: state.fitPreference,
+        zoom: state.zoom,
+      })
+    }
+    save()
+    return session.workspaceStore.subscribe(save)
+  }, [session.workspaceStore, sessionId, storage])
   const startOver = useCallback(() => {
+    clearDocumentBrowsingState(storage, sessionId)
     setSessionId(startNewDemoSession({ storage, createSessionId: createId }))
-  }, [createId, storage])
+  }, [createId, sessionId, storage])
 
   return (
     <App

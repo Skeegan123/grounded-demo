@@ -69,6 +69,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   ).toBeInTheDocument()
   expect(within(currentAssistance).getByText(/Pages 1, 2/)).toBeInTheDocument()
 
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   expect(screen.getByLabelText('Rendered PDF page A1.2')).toBeInTheDocument()
   await waitFor(() => expect(pageRenderer.renderPage).toHaveBeenCalledWith(
@@ -205,6 +206,7 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
     value: () => ({
@@ -261,6 +263,16 @@ test('Start over creates an isolated Demo Session and clears transient workspace
   )
 
   await modelContext.waitForTool('create_assistance_request')
+  await user.click(
+    screen.getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  await user.selectOptions(
+    screen.getByLabelText('Document page'),
+    'door-submittal-page-2',
+  )
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
   await user.type(screen.getByLabelText('Overall note optional'), 'Discard this draft')
@@ -269,11 +281,148 @@ test('Start over creates an isolated Demo Session and clears transient workspace
 
   await screen.findByText('No pending Assistance Requests')
   expect(screen.queryByDisplayValue('Discard this draft')).not.toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Virginia Farmhouse drawing set' }))
+    .toBeInTheDocument()
+  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a0.0')
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  await user.click(
+    screen.getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  expect(screen.getByLabelText('Document page'))
+    .toHaveValue('door-submittal-page-1')
   expect(JSON.parse(window.sessionStorage.getItem(DEMO_SESSION_STORAGE_KEY)!))
     .toEqual(expect.objectContaining({ sessionId: 'session-2' }))
   await expect(
     modelContext.executeTool('get_assistance_request', { id: 'request-1' }),
   ).rejects.toThrow('does not exist in this Demo Session')
+})
+
+test('Document Browsing restores each document location and reloads the current view', async () => {
+  const user = userEvent.setup()
+  const storage = window.sessionStorage
+  const databaseName = `grounded-document-browsing-${crypto.randomUUID()}`
+  const firstRender = render(
+    createGroundedApp({
+      databaseName,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: storage,
+      createId: createIds('session-1'),
+    }),
+  )
+
+  await screen.findByText('No pending Assistance Requests')
+  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  await user.click(
+    screen.getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  await user.selectOptions(
+    screen.getByLabelText('Document page'),
+    'door-submittal-page-2',
+  )
+
+  await user.click(
+    screen.getByRole('button', { name: /Virginia Farmhouse drawing set/i }),
+  )
+  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a4.3')
+  await user.click(
+    screen.getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  expect(screen.getByLabelText('Document page'))
+    .toHaveValue('door-submittal-page-2')
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  expect(screen.getByText('110%')).toBeInTheDocument()
+
+  firstRender.unmount()
+  render(
+    createGroundedApp({
+      databaseName,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: storage,
+      createId: createIds('unused-session'),
+    }),
+  )
+
+  expect(await screen.findByRole('heading', {
+    name: 'Type C interior door product data and review cover',
+  })).toBeInTheDocument()
+  expect(screen.getByLabelText('Document page'))
+    .toHaveValue('door-submittal-page-2')
+  expect(screen.getByText('110%')).toBeInTheDocument()
+})
+
+test('an Assistance Request leaves Document Browsing in place until Go to target', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-request-navigation-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await user.click(
+    screen.getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  await user.selectOptions(
+    screen.getByLabelText('Document page'),
+    'door-submittal-page-2',
+  )
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+
+  expect(screen.getByRole('heading', {
+    name: 'Type C interior door product data and review cover',
+  })).toBeInTheDocument()
+  expect(screen.getByLabelText('Document page'))
+    .toHaveValue('door-submittal-page-2')
+  expect(screen.getByText('110%')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+
+  expect(screen.getByRole('heading', { name: 'Virginia Farmhouse drawing set' }))
+    .toBeInTheDocument()
+  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a1.2')
+  expect(screen.getByText('100%')).toBeInTheDocument()
+})
+
+test('Go to target uses the target document first page without a recommendation', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-request-fallback-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  await modelContext.executeTool('create_assistance_request', {
+    ...requestInput,
+    recommendedPageIds: [],
+  })
+  await screen.findByText(requestInput.question)
+
+  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a4.3')
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a0.0')
 })
 
 test('the workspace distinguishes Demo Session loading from an empty queue and explains unsupported WebMCP', async () => {

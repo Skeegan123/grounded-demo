@@ -158,10 +158,10 @@ function App({
         pointSetCurrent.documentVersionId,
       ) ?? defaultDocument
     : defaultDocument
-  const targetPageId =
-    pointSetCurrent?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
   const targetPage =
-    findPage(targetDocument, targetPageId) ?? targetDocument.pages[0]!
+    pointSetCurrent?.recommendedPageIds
+      .map((pageId) => findPage(targetDocument, pageId))
+      .find((page) => page !== undefined) ?? targetDocument.pages[0]!
   const recommendedPageLabels = pointSetCurrent?.recommendedPageIds
     .map((pageId) => findPage(targetDocument, pageId)?.label)
     .filter((label): label is string => Boolean(label))
@@ -209,27 +209,6 @@ function App({
           y: point.y,
         }))
       : []
-  const pointSetRequestId = pointSetCurrent?.id
-  const pointSetDocumentId = pointSetCurrent?.documentId
-  const pointSetDocumentVersionId = pointSetCurrent?.documentVersionId
-
-  useEffect(() => {
-    if (!pointSetRequestId || !pointSetDocumentId || !pointSetDocumentVersionId) {
-      return
-    }
-    selectDocument(
-      pointSetDocumentId,
-      pointSetDocumentVersionId,
-      targetPage.id,
-    )
-  }, [
-    pointSetRequestId,
-    pointSetDocumentId,
-    pointSetDocumentVersionId,
-    selectDocument,
-    targetPage.id,
-  ])
-
   const placePoint = ({ x, y }: NormalizedPoint) => {
     if (!canMark) return
     addPoint({
@@ -376,7 +355,6 @@ function App({
                   selectDocument(
                     document.id,
                     document.versionId,
-                    document.pages[0]!.id,
                   )
                 }
                 type="button"
@@ -555,21 +533,19 @@ function App({
                         Undo
                       </button>
                     </div>
-                    {!canMark && (
-                      <button
-                        className="response-page-button"
-                        onClick={() =>
-                          selectDocument(
-                            targetDocument.id,
-                            targetDocument.versionId,
-                            targetPage.id,
-                          )
-                        }
-                        type="button"
-                      >
-                        Open requested page
-                      </button>
-                    )}
+                    <button
+                      className="response-page-button"
+                      onClick={() =>
+                        selectDocument(
+                          targetDocument.id,
+                          targetDocument.versionId,
+                          targetPage.id,
+                        )
+                      }
+                      type="button"
+                    >
+                      Go to target
+                    </button>
                   </>
                 ) : (
                   <>
