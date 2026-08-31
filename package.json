@@ -2,24 +2,42 @@
   "name": "grounded",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.26.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deploy": "pnpm build && wrangler pages deploy",
     "lint": "oxlint",
+    "prepare:demo-project-index": "node scripts/generate-demo-project-index.mjs",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "typecheck": "tsc -b",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sinclair/typebox": "^0.34.52",
+    "dexie": "^4.4.5",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.6",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^30.0.1",
     "oxlint": "^1.79.0",
+    "pdfjs-dist": "6.3.289",
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.127.1"
   }
 }

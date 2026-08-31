@@ -3,8 +3,11 @@
   --ink: #18201a;
   --muted: #59635b;
   --line: #c8c8bb;
+  --line-strong: #8d938c;
+  --panel: #eae6dc;
   --signal: #d9ff57;
   --signal-dark: #4e6700;
+  --focus: #5b6fc8;
   --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', sans-serif;
   --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
@@ -24,6 +27,7 @@
 
 html {
   background: var(--paper);
+  overscroll-behavior-x: none;
 }
 
 body {

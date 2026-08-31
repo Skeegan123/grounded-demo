@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "fixtureId": "virginia-farmhouse-type-c",
+  "fixtureStatus": "replaceable-test-fixture",
+  "projectWorkspace": {
+    "id": "demo-virginia-farmhouse",
+    "title": "Virginia Farmhouse Demo Project",
+    "description": "A Project Workspace for reviewing Type C interior door product data against the contract drawings."
+  },
+  "documents": [
+    {
+      "id": "virginia-farmhouse-drawings",
+      "versionId": "virginia-farmhouse-drawings-v1",
+      "kind": "contract_drawings",
+      "title": "Virginia Farmhouse drawing set",
+      "description": "Complete 25-page contract drawing set",
+      "file": {
+        "name": "virginia-farmhouse-drawing-set.pdf",
+        "url": "/demo-project/virginia-farmhouse-drawing-set.pdf",
+        "byteSize": 5160966,
+        "sha256": "2049cb0424de69c753e4345c2c87c4632cec75b0dd3ac0c8d1462f735c8a27af",
+        "pageCount": 25
+      },
+      "pages": [
+        { "id": "sheet-a0.0", "label": "A0.0", "number": 1, "title": "Cover Page", "sheetNumber": "A0.0", "width": 1224, "height": 792, "rotation": 270 },
+        { "id": "sheet-a0.1", "label": "A0.1", "number": 2, "title": "Project Information", "sheetNumber": "A0.1", "width": 1224, "height": 792, "rotation": 270 },
+        { "id": "sheet-a0.2", "label": "A0.2", "number": 3, "title": "Project Notes", "sheetNumber": "A0.2", "width": 1224, "height": 792, "rotation": 270 },
+        { "id": "sheet-a1.0", "label": "A1.0", "number": 4, "title": "Site Plan", "sheetNumber": "A1.0", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a1.1", "label": "A1.1", "number": 5, "title": "Foundation Plan", "sheetNumber": "A1.1", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a1.2", "label": "A1.2", "number": 6, "title": "1st Floor Plan", "sheetNumber": "A1.2", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a1.3", "label": "A1.3", "number": 7, "title": "2nd Floor Plan", "sheetNumber": "A1.3", "width": 1224, "height": 792, "rotation": 270 },
+        { "id": "sheet-a1.4", "label": "A1.4", "number": 8, "title": "Roof Plan", "sheetNumber": "A1.4", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a1.5", "label": "A1.5", "number": 9, "title": "1st RCP / Electrical Plan", "sheetNumber": "A1.5", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a1.6", "label": "A1.6", "number": 10, "title": "2nd RCP / Electrical Plan", "sheetNumber": "A1.6", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a1.7", "label": "A1.7", "number": 11, "title": "Detail Plans", "sheetNumber": "A1.7", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a2.0", "label": "A2.0", "number": 12, "title": "South Elevation", "sheetNumber": "A2.0", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a2.1", "label": "A2.1", "number": 13, "title": "West Elevation", "sheetNumber": "A2.1", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a2.2", "label": "A2.2", "number": 14, "title": "North Elevation", "sheetNumber": "A2.2", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a2.3", "label": "A2.3", "number": 15, "title": "East Elevation", "sheetNumber": "A2.3", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a2.4", "label": "A2.4", "number": 16, "title": "Interior Elevations", "sheetNumber": "A2.4", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a2.5", "label": "A2.5", "number": 17, "title": "Interior Elevations", "sheetNumber": "A2.5", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a3.0", "label": "A3.0", "number": 18, "title": "Longitudinal Section", "sheetNumber": "A3.0", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a3.1", "label": "A3.1", "number": 19, "title": "Transverse Section", "sheetNumber": "A3.1", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a3.2", "label": "A3.2", "number": 20, "title": "Transverse Section", "sheetNumber": "A3.2", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a4.0", "label": "A4.0", "number": 21, "title": "Typical Details", "sheetNumber": "A4.0", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a4.1", "label": "A4.1", "number": 22, "title": "Decorative Details", "sheetNumber": "A4.1", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a4.2", "label": "A4.2", "number": 23, "title": "Exterior Details", "sheetNumber": "A4.2", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a4.3", "label": "A4.3", "number": 24, "title": "Doors & Windows", "sheetNumber": "A4.3", "width": 1224, "height": 792, "rotation": 0 },
+        { "id": "sheet-a5.0", "label": "A5.0", "number": 25, "title": "Schedules", "sheetNumber": "A5.0", "width": 1224, "height": 792, "rotation": 0 }
+      ]
+    },
+    {
+      "id": "type-c-door-submittal",
+      "versionId": "type-c-door-submittal-v1",
+      "kind": "submittal_product_data",
+      "title": "Type C interior door product data and review cover",
+      "description": "Two-page fictional product-data submittal",
+      "file": {
+        "name": "type-c-door-submittal.pdf",
+        "url": "/demo-project/type-c-door-submittal.pdf",
+        "byteSize": 4557,
+        "sha256": "b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658",
+        "pageCount": 2
+      },
+      "pages": [
+        { "id": "door-submittal-page-1", "label": "1", "number": 1, "title": "Submittal cover", "width": 612, "height": 792, "rotation": 0 },
+        { "id": "door-submittal-page-2", "label": "2", "number": 2, "title": "Hollow-core flush wood door product data", "width": 612, "height": 792, "rotation": 0 }
+      ]
+    }
+  ]
+}
