@@ -13,6 +13,7 @@ export interface PagePickerItem {
 }
 
 interface WorkbenchNavigationProps {
+  assistanceExpanded: boolean
   currentDocument: ProjectDocument
   currentPage: DocumentPage
   documents: ProjectDocument[]
@@ -23,6 +24,7 @@ interface WorkbenchNavigationProps {
 }
 
 export function WorkbenchNavigation({
+  assistanceExpanded,
   currentDocument,
   currentPage,
   documents,
@@ -130,7 +132,11 @@ export function WorkbenchNavigation({
             Next
           </button>
         </div>
-        <button onClick={onOpenAssistance} type="button">
+        <button
+          aria-expanded={assistanceExpanded}
+          onClick={onOpenAssistance}
+          type="button"
+        >
           Assistance
         </button>
         <button

@@ -23,6 +23,7 @@ export interface WorkspaceState extends DocumentBrowsingState {
   ) => void
   selectPage: (pageId: string) => void
   setAssistanceTab: (tab: 'current' | 'queue' | 'done') => void
+  setAssistanceCollapsed: (collapsed: boolean) => void
   setDeclineReason: (reason: string) => void
   setFitPreference: (preference: DocumentFitPreference) => void
   setNote: (note: string) => void
@@ -94,6 +95,7 @@ export function createWorkspaceStore(
         zoom: 1,
       })),
     setAssistanceTab: (assistanceTab) => set({ assistanceTab }),
+    setAssistanceCollapsed: (assistanceCollapsed) => set({ assistanceCollapsed }),
     setDeclineReason: (declineReason) => set({ declineReason }),
     setFitPreference: (fitPreference) => set({ fitPreference, zoom: 1 }),
     setNote: (note) => set({ note }),

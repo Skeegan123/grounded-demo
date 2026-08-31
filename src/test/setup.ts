@@ -11,10 +11,11 @@ class TestResizeObserver implements ResizeObserver {
   }
 
   observe(target: Element) {
+    const width = target.classList.contains('workspace-grid') ? 1200 : 612
     this.callback([
       {
         target,
-        contentRect: { width: 612, height: 500 },
+        contentRect: { width, height: 500 },
       } as ResizeObserverEntry,
     ], this)
   }

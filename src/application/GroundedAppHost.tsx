@@ -52,6 +52,7 @@ export function GroundedAppHost({
     const save = () => {
       const state = session.workspaceStore.getState()
       saveDocumentBrowsingState(storage, sessionId, {
+        assistanceCollapsed: state.assistanceCollapsed,
         selectedDocumentId: state.selectedDocumentId,
         selectedDocumentVersionId: state.selectedDocumentVersionId,
         selectedPageId: state.selectedPageId,
