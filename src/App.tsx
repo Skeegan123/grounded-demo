@@ -279,7 +279,7 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
                   onClick={() => selectDocument(targetDocument.id, targetPage.id)}
                   type="button"
                 >
-                  Open response page
+                  Open requested page
                 </button>
               )}
               <label htmlFor="point-set-note">Overall note <span>optional</span></label>

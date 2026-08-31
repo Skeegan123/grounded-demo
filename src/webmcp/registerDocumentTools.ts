@@ -40,21 +40,7 @@ export function registerDocumentTools(
       schema: EmptyInput,
       readOnly: true,
       execute: () => ({
-        documents: documents.list().map((document) => ({
-          id: document.id,
-          versionId: document.versionId,
-          kind: document.kind,
-          title: document.title,
-          description: document.description,
-          pageCount: document.pages.length,
-          pages: document.pages.map((page) => ({
-            id: page.id,
-            label: page.label,
-            number: page.number,
-            ...(page.sheetNumber ? { sheetNumber: page.sheetNumber } : {}),
-            title: page.title,
-          })),
-        })),
+        documents: documents.list(),
       }),
     }),
     defineTool({

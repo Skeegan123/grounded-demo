@@ -161,7 +161,7 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
   })
 })
 
-test('External Agent document inspection leaves the visible workspace and unfinished response unchanged', async () => {
+test('External Agent document inspection leaves the visible workspace and unfinished Point Set draft unchanged', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
   render(

@@ -30,7 +30,15 @@ export function createDocuments(indexSource: unknown = preparedDocumentIndexes) 
       title: demoProject.title,
       description: demoProject.description,
     }),
-    list: () => demoProject.documents,
+    list: () => demoProject.documents.map((document) => ({
+      id: document.id,
+      versionId: document.versionId,
+      kind: document.kind,
+      title: document.title,
+      description: document.description,
+      pageCount: document.pages.length,
+      pages: document.pages.map(pageReference),
+    })),
     inspectText(input: InspectDocumentTextInput) {
       const index = indexes.find(
         (candidate) =>

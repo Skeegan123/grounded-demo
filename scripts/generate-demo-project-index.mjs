@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 import { getDocument, Util, version as pdfjsVersion } from 'pdfjs-dist/legacy/build/pdf.mjs'
+import demoProjectManifest from '../src/demoProject/demoProjectManifest.json' with { type: 'json' }
 
 const projectRoot = resolve(import.meta.dirname, '..')
 const sourceDirectory = join(projectRoot, 'public', 'demo-project')
@@ -16,45 +17,11 @@ const outputPath = join(
   'demoProjectIndexes.json',
 )
 
-const documentDefinitions = [
-  {
-    id: 'virginia-farmhouse-drawings',
-    versionId: 'virginia-farmhouse-drawings-v1',
-    filename: 'virginia-farmhouse-drawing-set.pdf',
-    ocrPages: new Set([6, 24]),
-    page(number) {
-      if (number === 6) {
-        return { id: 'sheet-a1.2', label: 'A1.2', title: '1st Floor Plan', sheetNumber: 'A1.2' }
-      }
-      if (number === 24) {
-        return { id: 'sheet-a4.3', label: 'A4.3', title: 'Doors & Windows', sheetNumber: 'A4.3' }
-      }
-      return { id: `drawing-page-${number}`, label: `PDF ${number}`, title: `Drawing page ${number}` }
-    },
-  },
-  {
-    id: 'type-c-door-submittal',
-    versionId: 'type-c-door-submittal-v1',
-    filename: 'type-c-door-submittal.pdf',
-    ocrPages: new Set(),
-    page(number) {
-      return {
-        id: `door-submittal-page-${number}`,
-        label: String(number),
-        title:
-          number === 1
-            ? 'Submittal cover'
-            : 'Hollow-core flush wood door product data',
-      }
-    },
-  },
-]
-
 function normalizedBox(values) {
   return values.map((value) => Math.max(0, Math.min(1, Number(value.toFixed(6)))))
 }
 
-function extractEmbeddedRuns(page, viewport, textContent) {
+function extractEmbeddedRuns(viewport, textContent) {
   return textContent.items.flatMap((item) => {
     if (!('str' in item) || !item.str.trim()) return []
 
@@ -148,6 +115,16 @@ function extractOcrRuns(pdfPath, pageNumber, scratchDirectory) {
   }))
 }
 
+function pageReference(page) {
+  return {
+    id: page.id,
+    label: page.label,
+    number: page.number,
+    title: page.title,
+    ...(page.sheetNumber ? { sheetNumber: page.sheetNumber } : {}),
+  }
+}
+
 const scratchDirectory = mkdtempSync(join(tmpdir(), 'grounded-document-index-'))
 const indexes = []
 
@@ -156,25 +133,49 @@ try {
     encoding: 'utf8',
   }).split('\n')[0].replace('tesseract ', '')
 
-  for (const definition of documentDefinitions) {
-    const pdfPath = join(sourceDirectory, definition.filename)
-    const bytes = new Uint8Array(readFileSync(pdfPath))
-    const loadingTask = getDocument({ data: bytes, standardFontDataUrl })
+  for (const definition of demoProjectManifest.documents) {
+    const pdfPath = join(sourceDirectory, definition.file.name)
+    const sourceBytes = readFileSync(pdfPath)
+    const sourceFingerprint = createHash('sha256').update(sourceBytes).digest('hex')
+    if (
+      sourceBytes.byteLength !== definition.file.byteSize ||
+      sourceFingerprint !== definition.file.sha256
+    ) {
+      throw new Error(`PDF asset does not match the manifest: ${definition.file.name}`)
+    }
+
+    const loadingTask = getDocument({
+      data: new Uint8Array(sourceBytes),
+      standardFontDataUrl,
+    })
     const pdf = await loadingTask.promise
+    if (
+      pdf.numPages !== definition.file.pageCount ||
+      definition.pages.length !== definition.file.pageCount
+    ) {
+      throw new Error(`PDF page count does not match the manifest: ${definition.file.name}`)
+    }
+
     const pages = []
-
-    for (let number = 1; number <= pdf.numPages; number += 1) {
-      const page = await pdf.getPage(number)
+    for (const sourcePage of definition.pages) {
+      const page = await pdf.getPage(sourcePage.number)
       const viewport = page.getViewport({ scale: 1 })
-      const textContent = await page.getTextContent()
-      let runs = extractEmbeddedRuns(page, viewport, textContent)
+      if (
+        viewport.width !== sourcePage.width ||
+        viewport.height !== sourcePage.height ||
+        viewport.rotation !== sourcePage.rotation
+      ) {
+        throw new Error(`PDF page geometry does not match the manifest: ${sourcePage.id}`)
+      }
 
-      if (runs.length === 0 && definition.ocrPages.has(number)) {
-        runs = extractOcrRuns(pdfPath, number, scratchDirectory)
+      const textContent = await page.getTextContent()
+      let runs = extractEmbeddedRuns(viewport, textContent)
+      if (runs.length === 0) {
+        runs = extractOcrRuns(pdfPath, sourcePage.number, scratchDirectory)
       }
 
       pages.push({
-        page: { ...definition.page(number), number },
+        page: pageReference(sourcePage),
         width: viewport.width,
         height: viewport.height,
         rotation: viewport.rotation,
@@ -187,7 +188,7 @@ try {
       schemaVersion: 1,
       documentId: definition.id,
       documentVersionId: definition.versionId,
-      sourceFingerprint: createHash('sha256').update(readFileSync(pdfPath)).digest('hex'),
+      sourceFingerprint,
       extractor: {
         pipelineVersion: 'grounded-demo-index-1',
         pdfjsVersion,

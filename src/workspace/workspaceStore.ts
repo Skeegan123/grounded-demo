@@ -3,7 +3,6 @@ import { demoProject } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
 
 export interface WorkspaceState {
-  assistanceTab: 'current'
   points: StoredPoint[]
   note: string
   selectedDocumentId: string
@@ -23,7 +22,6 @@ export function createWorkspaceStore() {
   const initialDocument = demoProject.documents[0]!
 
   return createStore<WorkspaceState>((set) => ({
-    assistanceTab: 'current',
     points: [],
     note: '',
     selectedDocumentId: initialDocument.id,

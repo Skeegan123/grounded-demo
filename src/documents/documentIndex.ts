@@ -84,7 +84,10 @@ export function validateDocumentIndexes(
       }
       if (
         pageValue.page.id !== sourcePage.id ||
+        pageValue.page.label !== sourcePage.label ||
         pageValue.page.number !== sourcePage.number ||
+        pageValue.page.title !== sourcePage.title ||
+        pageValue.page.sheetNumber !== sourcePage.sheetNumber ||
         pageValue.width !== sourcePage.width ||
         pageValue.height !== sourcePage.height ||
         pageValue.rotation !== sourcePage.rotation

@@ -321,47 +321,6 @@ dd {
   color: var(--muted);
 }
 
-.drawing-title-block {
-  position: absolute;
-  right: 3%;
-  bottom: 3%;
-  width: 25%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-  background: #fffef9;
-  border: 2px solid currentColor;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-}
-
-.drawing-title-block span {
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.room {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  color: #344c77;
-  background: rgb(255 254 249 / 84%);
-  border: 3px double #53688c;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  font-weight: 800;
-  text-align: center;
-}
-
-.room small {
-  font-size: 0.55rem;
-}
-
-.room-one { inset: 13% 58% 55% 9%; }
-.room-two { inset: 47% 38% 12% 27%; }
-.room-three { inset: 15% 13% 56% 62%; }
-
 .point-mark {
   position: absolute;
   width: 28px;

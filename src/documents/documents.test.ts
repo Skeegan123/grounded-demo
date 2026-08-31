@@ -4,14 +4,16 @@ import { createDocuments } from './documents'
 
 test('the Project Workspace catalog exposes both immutable document versions and every PDF page', () => {
   const documents = createDocuments()
+  const catalog = documents.list()
 
   expect(
-    documents.list().map((document) => ({
+    catalog.map((document) => ({
       id: document.id,
       versionId: document.versionId,
-      pageCount: document.pages.length,
-      criticalPages: document.pages
-        .filter((page) => page.sheetNumber)
+      pageCount: document.pageCount,
+      namedSheetCount: document.pages.filter((page) => page.sheetNumber).length,
+      inspectedPages: document.pages
+        .filter((page) => ['sheet-a1.2', 'sheet-a4.3'].includes(page.id))
         .map((page) => ({
           id: page.id,
           number: page.number,
@@ -23,7 +25,8 @@ test('the Project Workspace catalog exposes both immutable document versions and
       id: 'virginia-farmhouse-drawings',
       versionId: 'virginia-farmhouse-drawings-v1',
       pageCount: 25,
-      criticalPages: [
+      namedSheetCount: 25,
+      inspectedPages: [
         { id: 'sheet-a1.2', number: 6, sheetNumber: 'A1.2' },
         { id: 'sheet-a4.3', number: 24, sheetNumber: 'A4.3' },
       ],
@@ -32,9 +35,22 @@ test('the Project Workspace catalog exposes both immutable document versions and
       id: 'type-c-door-submittal',
       versionId: 'type-c-door-submittal-v1',
       pageCount: 2,
-      criticalPages: [],
+      namedSheetCount: 0,
+      inspectedPages: [],
     },
   ])
+
+  const drawings = catalog[0]!
+  const inspection = documents.inspectText({
+    documentId: drawings.id,
+    documentVersionId: drawings.versionId,
+    pageIds: drawings.pages.map((page) => page.id),
+  })
+  expect(
+    inspection.pages.every(
+      (page) => page.status === 'indexed' && page.text.trim().length > 0,
+    ),
+  ).toBe(true)
 })
 
 test('prepared page text exposes the Type C product and contract requirement with stable page references', () => {
@@ -96,6 +112,15 @@ test('a failed prepared page requires a failure reason', () => {
   invalidIndexes[0]!.pages[0]!.status = 'failed'
 
   expect(() => createDocuments(invalidIndexes)).toThrow(
-    'Invalid DocumentIndex: failed page drawing-page-1 requires a failure reason.',
+    'Invalid DocumentIndex: failed page sheet-a0.0 requires a failure reason.',
+  )
+})
+
+test('prepared page labels must match the immutable Project Workspace reference', () => {
+  const invalidIndexes = structuredClone(preparedDocumentIndexes)
+  invalidIndexes[0]!.pages[5]!.page.label = 'A1.2 changed'
+
+  expect(() => createDocuments(invalidIndexes)).toThrow(
+    'Invalid DocumentIndex: page sheet-a1.2 does not match its immutable reference.',
   )
 })
