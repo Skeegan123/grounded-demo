@@ -91,25 +91,38 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
       name: 'create_assistance_request',
       annotations: { readOnlyHint: false, untrustedContentHint: true },
       inputSchema: {
-        type: 'object',
-        properties: {
-          question: { type: 'string', minLength: 1, pattern: '\\S' },
-          responseType: { const: 'point_set', type: 'string' },
-          documentId: { type: 'string', minLength: 1 },
-          documentVersionId: { type: 'string', minLength: 1 },
-          recommendedPageIds: {
-            type: 'array',
-            items: { type: 'string', minLength: 1 },
+        anyOf: [
+          {
+            type: 'object',
+            properties: {
+              question: { type: 'string', minLength: 1, pattern: '\\S' },
+              responseType: { const: 'point_set', type: 'string' },
+              documentId: { type: 'string', minLength: 1 },
+              documentVersionId: { type: 'string', minLength: 1 },
+              recommendedPageIds: {
+                type: 'array',
+                items: { type: 'string', minLength: 1 },
+              },
+            },
+            required: [
+              'question',
+              'responseType',
+              'documentId',
+              'documentVersionId',
+              'recommendedPageIds',
+            ],
+            additionalProperties: false,
           },
-        },
-        required: [
-          'question',
-          'responseType',
-          'documentId',
-          'documentVersionId',
-          'recommendedPageIds',
+          {
+            type: 'object',
+            properties: {
+              question: { type: 'string', minLength: 1, pattern: '\\S' },
+              responseType: { const: 'text', type: 'string' },
+            },
+            required: ['question', 'responseType'],
+            additionalProperties: false,
+          },
         ],
-        additionalProperties: false,
       },
       result: {
         id: 'request-1',
@@ -157,6 +170,90 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
           },
         },
       },
+    },
+  })
+
+  controller.abort()
+  assistance.close()
+})
+
+test('the create and get tools carry a text request through its final response', async () => {
+  const assistance = createAssistance({
+    databaseName: `grounded-webmcp-text-${crypto.randomUUID()}`,
+    sessionId: 'session-1',
+    createId: () => 'request-1',
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerAssistanceTools(modelContext, assistance, controller.signal)
+
+  await expect(
+    modelContext.executeTool('create_assistance_request', {
+      question: 'Should this submittal be revised?',
+      responseType: 'text',
+    }),
+  ).resolves.toEqual({
+    id: 'request-1',
+    state: 'pending',
+    createdAt: '2030-01-02T03:04:05.000Z',
+  })
+  await assistance.answerText({
+    requestId: 'request-1',
+    text: 'Revise and resubmit.',
+  })
+
+  await expect(
+    modelContext.executeTool('get_assistance_request', { id: 'request-1' }),
+  ).resolves.toEqual({
+    id: 'request-1',
+    state: 'answered',
+    question: 'Should this submittal be revised?',
+    createdAt: '2030-01-02T03:04:05.000Z',
+    professionalResponse: {
+      type: 'text',
+      text: 'Revise and resubmit.',
+      submittedAt: '2030-01-02T03:04:05.000Z',
+    },
+  })
+
+  controller.abort()
+  assistance.close()
+})
+
+test('the get tool returns a declined request as a distinct final state', async () => {
+  const assistance = createAssistance({
+    databaseName: `grounded-webmcp-decline-${crypto.randomUUID()}`,
+    sessionId: 'session-1',
+    createId: () => 'request-1',
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerAssistanceTools(modelContext, assistance, controller.signal)
+  await modelContext.executeTool('create_assistance_request', {
+    question: 'Mark the Type C openings.',
+    responseType: 'point_set',
+    documentId: 'virginia-farmhouse-drawings',
+    documentVersionId: 'virginia-farmhouse-drawings-v1',
+    recommendedPageIds: ['sheet-a1.2'],
+  })
+  await assistance.decline({
+    requestId: 'request-1',
+    reason: 'The drawing is not legible.',
+  })
+
+  await expect(
+    modelContext.executeTool('get_assistance_request', { id: 'request-1' }),
+  ).resolves.toEqual({
+    id: 'request-1',
+    state: 'declined',
+    question: 'Mark the Type C openings.',
+    createdAt: '2030-01-02T03:04:05.000Z',
+    professionalResponse: {
+      type: 'declined',
+      reason: 'The drawing is not legible.',
+      submittedAt: '2030-01-02T03:04:05.000Z',
     },
   })
 

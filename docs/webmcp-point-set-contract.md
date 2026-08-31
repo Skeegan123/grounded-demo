@@ -1,7 +1,8 @@
-# Point Set WebMCP contract
+# Assistance WebMCP contract
 
-This is the initial contract settled by the durable Point Set tracer. Its exact
-schemas, annotations, and pending and answered result shapes are locked by
+The durable Point Set tracer settled the initial contract. The queue extension
+adds text requests and declined responses without changing the two tool names.
+The schemas, annotations, and result shapes are locked by
 `src/webmcp/registerAssistanceTools.test.ts`; the full application path is
 locked independently by `src/application/createGroundedApp.test.tsx`.
 
@@ -14,12 +15,13 @@ Input fields:
 | Field | Shape |
 | --- | --- |
 | `question` | non-blank string |
-| `responseType` | literal `point_set` |
-| `documentId` | non-empty string |
-| `documentVersionId` | non-empty string |
-| `recommendedPageIds` | array of non-empty page identity strings |
+| `responseType` | literal `point_set` or `text` |
+| `documentId` | non-empty string, required for Point Set |
+| `documentVersionId` | non-empty string, required for Point Set |
+| `recommendedPageIds` | array of non-empty page identity strings, required for Point Set |
 
-The schema rejects additional fields. The tool is annotated with
+Text requests contain only `question` and `responseType`. Both discriminated
+shapes reject additional fields. The tool is annotated with
 `readOnlyHint: false` and `untrustedContentHint: true`.
 
 Successful creation returns after the request is committed, without waiting for
@@ -67,6 +69,33 @@ Point Set adds this final response:
 `count` is computed from `points`; it is never accepted or stored separately.
 Coordinates are normalized from the top-left of the rendered page and remain in
 the inclusive range from zero to one.
+
+An answered text request returns one non-empty plain-text value and may include
+an overall note:
+
+```json
+{
+  "professionalResponse": {
+    "type": "text",
+    "text": "Revise and resubmit.",
+    "submittedAt": "2030-01-02T03:05:06.000Z"
+  }
+}
+```
+
+A declined request uses the `declined` lifecycle state. Its final Professional
+Response may include a reason:
+
+```json
+{
+  "state": "declined",
+  "professionalResponse": {
+    "type": "declined",
+    "reason": "The drawing is not legible.",
+    "submittedAt": "2030-01-02T03:05:06.000Z"
+  }
+}
+```
 
 ## Real-client finding
 

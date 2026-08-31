@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { useStore } from 'zustand'
 import type {
+  AssistanceCompletedResult,
   AssistanceRequestView,
   createAssistance,
 } from './assistance/assistance'
@@ -28,12 +29,16 @@ type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
 
 function App({ assistance, documents, modelContext, sessionId, workspaceStore }: AppProps) {
   const [pending, setPending] = useState<AssistanceRequestView[]>([])
+  const [completed, setCompleted] = useState<AssistanceCompletedResult[]>([])
   const [registration, setRegistration] = useState<RegistrationState>(() =>
     modelContext ? 'registering' : 'unsupported',
   )
   const [registrationError, setRegistrationError] = useState('')
+  const assistanceTab = useStore(workspaceStore, (state) => state.assistanceTab)
+  const declineReason = useStore(workspaceStore, (state) => state.declineReason)
   const points = useStore(workspaceStore, (state) => state.points)
   const note = useStore(workspaceStore, (state) => state.note)
+  const text = useStore(workspaceStore, (state) => state.text)
   const selectedDocumentId = useStore(
     workspaceStore,
     (state) => state.selectedDocumentId,
@@ -48,20 +53,42 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
   const clearDraft = useStore(workspaceStore, (state) => state.clearDraft)
   const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
   const selectPage = useStore(workspaceStore, (state) => state.selectPage)
+  const setAssistanceTab = useStore(
+    workspaceStore,
+    (state) => state.setAssistanceTab,
+  )
+  const setDeclineReason = useStore(
+    workspaceStore,
+    (state) => state.setDeclineReason,
+  )
   const setNote = useStore(workspaceStore, (state) => state.setNote)
+  const setText = useStore(workspaceStore, (state) => state.setText)
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
   const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
   const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
 
   const refresh = useCallback(async () => {
-    setPending(await assistance.listPending())
+    const [nextPending, nextCompleted] = await Promise.all([
+      assistance.listPending(),
+      assistance.listCompleted(),
+    ])
+    setPending(nextPending)
+    setCompleted(nextCompleted)
   }, [assistance])
 
   useEffect(() => {
     let active = true
+    let loadRevision = 0
     const load = async () => {
-      const requests = await assistance.listPending()
-      if (active) setPending(requests)
+      const revision = ++loadRevision
+      const [nextPending, nextCompleted] = await Promise.all([
+        assistance.listPending(),
+        assistance.listCompleted(),
+      ])
+      if (active && revision === loadRevision) {
+        setPending(nextPending)
+        setCompleted(nextCompleted)
+      }
     }
     void load()
     const unsubscribe = assistance.subscribe(() => void load())
@@ -93,10 +120,15 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
 
   const defaultDocument = demoProject.documents[0]!
   const current = pending[0]
-  const targetDocument = current
-    ? findDocument(current.documentId, current.documentVersionId) ?? defaultDocument
+  const pointSetCurrent = current?.responseType === 'point_set' ? current : undefined
+  const targetDocument = pointSetCurrent
+    ? findDocument(
+        pointSetCurrent.documentId,
+        pointSetCurrent.documentVersionId,
+      ) ?? defaultDocument
     : defaultDocument
-  const targetPageId = current?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
+  const targetPageId =
+    pointSetCurrent?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
   const targetPage =
     findPage(targetDocument, targetPageId) ?? targetDocument.pages[0]!
   const selectedDocument =
@@ -106,16 +138,20 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
     selectedDocument.pages.find((page) => page.id === selectedPageId) ??
     selectedDocument.pages[0]!
   const canMark = Boolean(
-    current &&
-      selectedDocument.id === current.documentId &&
-      selectedDocument.versionId === current.documentVersionId &&
+    pointSetCurrent &&
+      selectedDocument.id === pointSetCurrent.documentId &&
+      selectedDocument.versionId === pointSetCurrent.documentVersionId &&
       selectedPage.id === targetPage.id,
   )
 
   useEffect(() => {
-    if (!current) return
-    selectDocument(current.documentId, current.documentVersionId, targetPage.id)
-  }, [current, selectDocument, targetPage.id])
+    if (!pointSetCurrent) return
+    selectDocument(
+      pointSetCurrent.documentId,
+      pointSetCurrent.documentVersionId,
+      targetPage.id,
+    )
+  }, [pointSetCurrent, selectDocument, targetPage.id])
 
   const placePoint = (event: MouseEvent<HTMLDivElement>) => {
     if (!canMark) return
@@ -133,11 +169,32 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
   }
 
   const submitPointSet = async () => {
-    if (!current) return
+    if (!pointSetCurrent) return
     await assistance.answerPointSet({
-      requestId: current.id,
+      requestId: pointSetCurrent.id,
       points,
       ...(note.trim() ? { note } : {}),
+    })
+    clearDraft()
+    await refresh()
+  }
+
+  const submitText = async () => {
+    if (current?.responseType !== 'text') return
+    await assistance.answerText({
+      requestId: current.id,
+      text,
+      ...(note.trim() ? { note } : {}),
+    })
+    clearDraft()
+    await refresh()
+  }
+
+  const declineCurrent = async () => {
+    if (!current) return
+    await assistance.decline({
+      requestId: current.id,
+      ...(declineReason.trim() ? { reason: declineReason } : {}),
     })
     clearDraft()
     await refresh()
@@ -269,57 +326,222 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
         <aside className="assistance-pane" aria-labelledby="assistance-title">
           <p className="pane-kicker">FIFO work rail</p>
           <h2 id="assistance-title">Current Assistance</h2>
-          {current ? (
-            <div className="request-card">
-              <div className="request-meta"><span>Pending</span><code>{current.id}</code></div>
-              <p className="question">{current.question}</p>
-              <dl>
-                <div><dt>Response</dt><dd>Point Set</dd></div>
-                <div><dt>Page</dt><dd>{targetPage.label}</dd></div>
-              </dl>
-              <div className="point-controls">
-                <div>
-                  <strong>{points.length} {points.length === 1 ? 'point' : 'points'}</strong>
-                  <span>
-                    {canMark
-                      ? 'Click the drawing to mark locations.'
-                      : `Open ${targetPage.label} to place points.`}
-                  </span>
-                </div>
-                <button disabled={points.length === 0} onClick={undoPoint} type="button">Undo</button>
-              </div>
-              {!canMark && (
-                <button
-                  className="response-page-button"
-                  onClick={() =>
-                    selectDocument(
-                      targetDocument.id,
-                      targetDocument.versionId,
-                      targetPage.id,
-                    )
-                  }
-                  type="button"
-                >
-                  Open requested page
-                </button>
-              )}
-              <label htmlFor="point-set-note">Overall note <span>optional</span></label>
-              <textarea
-                id="point-set-note"
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Add context for the External Agent"
-                value={note}
-              />
-              <button className="submit-button" onClick={() => void submitPointSet()} type="button">
-                Submit Point Set
+          <div className="assistance-tabs" role="tablist" aria-label="Assistance Requests">
+            {(
+              [
+                ['current', 'Current', current ? 1 : 0],
+                ['queue', 'Queue', Math.max(0, pending.length - 1)],
+                ['done', 'Done', completed.length],
+              ] as const
+            ).map(([tab, label, count]) => (
+              <button
+                aria-selected={assistanceTab === tab}
+                key={tab}
+                onClick={() => setAssistanceTab(tab)}
+                role="tab"
+                type="button"
+              >
+                {label} <span>{count}</span>
               </button>
-              {pending.length > 1 && <p className="waiting">{pending.length - 1} waiting</p>}
+            ))}
+          </div>
+
+          {assistanceTab === 'current' && (current ? (
+              <div className="request-card">
+                <div className="request-meta">
+                  <span>Pending</span>
+                  <code>{current.id}</code>
+                </div>
+                <p className="question">{current.question}</p>
+                <dl>
+                  <div>
+                    <dt>Response</dt>
+                    <dd>{current.responseType === 'point_set' ? 'Point Set' : 'Text'}</dd>
+                  </div>
+                  {current.responseType === 'point_set' && (
+                    <>
+                      <div>
+                        <dt>Document</dt>
+                        <dd>
+                          {targetDocument.title}
+                          <small>{targetDocument.versionId}</small>
+                        </dd>
+                      </div>
+                      <div><dt>Page</dt><dd>{targetPage.label}</dd></div>
+                    </>
+                  )}
+                </dl>
+
+                {current.responseType === 'point_set' ? (
+                  <>
+                    <div className="point-controls">
+                      <div>
+                        <strong>
+                          {points.length} {points.length === 1 ? 'point' : 'points'}
+                        </strong>
+                        <span>
+                          {canMark
+                            ? 'Click the drawing to mark locations.'
+                            : `Open ${targetPage.label} to place points.`}
+                        </span>
+                      </div>
+                      <button
+                        disabled={points.length === 0}
+                        onClick={undoPoint}
+                        type="button"
+                      >
+                        Undo
+                      </button>
+                    </div>
+                    {!canMark && (
+                      <button
+                        className="response-page-button"
+                        onClick={() =>
+                          selectDocument(
+                            targetDocument.id,
+                            targetDocument.versionId,
+                            targetPage.id,
+                          )
+                        }
+                        type="button"
+                      >
+                        Open requested page
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <label htmlFor="text-response">Text response</label>
+                    <textarea
+                      id="text-response"
+                      onChange={(event) => setText(event.target.value)}
+                      placeholder="Enter the Professional Response"
+                      value={text}
+                    />
+                  </>
+                )}
+
+                <label htmlFor="response-note">
+                  Overall note <span>optional</span>
+                </label>
+                <textarea
+                  id="response-note"
+                  onChange={(event) => setNote(event.target.value)}
+                  placeholder="Add context for the External Agent"
+                  value={note}
+                />
+                {current.responseType === 'point_set' ? (
+                  <button
+                    className="submit-button"
+                    onClick={() => void submitPointSet()}
+                    type="button"
+                  >
+                    Submit Point Set
+                  </button>
+                ) : (
+                  <button
+                    className="submit-button"
+                    disabled={!text.trim()}
+                    onClick={() => void submitText()}
+                    type="button"
+                  >
+                    Submit Text Response
+                  </button>
+                )}
+
+                <div className="decline-controls">
+                  <label htmlFor="decline-reason">
+                    Decline reason <span>optional</span>
+                  </label>
+                  <textarea
+                    id="decline-reason"
+                    onChange={(event) => setDeclineReason(event.target.value)}
+                    placeholder="Explain why you cannot make this judgment"
+                    value={declineReason}
+                  />
+                  <button onClick={() => void declineCurrent()} type="button">
+                    Decline Request
+                  </button>
+                </div>
+
+                {pending.length > 1 && (
+                  <div className="waiting">
+                    <strong>{pending.length - 1} waiting</strong>
+                    <span>Next: {pending[1]!.question}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="empty-request">
+                <span aria-hidden="true">✓</span>
+                <p>No pending Assistance Requests</p>
+                <small>An External Agent can queue the next judgment through WebMCP.</small>
+              </div>
+            ))}
+
+          {assistanceTab === 'queue' && (
+            <div className="request-list">
+              {pending.slice(1).length > 0 ? pending.slice(1).map((request, index) => (
+                <article className="history-card" key={request.id}>
+                  <div className="request-meta">
+                    <span>Locked · {index + 2} in line</span>
+                    <code>{request.id}</code>
+                  </div>
+                  <p className="question">{request.question}</p>
+                  <small>
+                    {request.responseType === 'point_set' ? 'Point Set' : 'Text'} response
+                  </small>
+                </article>
+              )) : (
+                <div className="empty-request">
+                  <p>No later requests in Queue</p>
+                  <small>Current must be completed before later work can be answered.</small>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="empty-request">
-              <span aria-hidden="true">✓</span>
-              <p>No pending Assistance Requests</p>
-              <small>An External Agent can queue the next judgment through WebMCP.</small>
+          )}
+
+          {assistanceTab === 'done' && (
+            <div className="request-list">
+              {completed.length > 0 ? completed.map((result) => (
+                <article className="history-card" key={result.id}>
+                  <div className="request-meta">
+                    <span>{result.state === 'answered' ? 'Answered' : 'Declined'}</span>
+                    <code>{result.id}</code>
+                  </div>
+                  <p className="question">{result.question}</p>
+                  {result.professionalResponse.type === 'point_set' && (
+                    <>
+                      <p>{result.professionalResponse.count} {result.professionalResponse.count === 1 ? 'point' : 'points'}</p>
+                      <small>
+                        {result.professionalResponse.document.id} · {result.professionalResponse.document.versionId}
+                      </small>
+                      {result.professionalResponse.points.length > 0 && (
+                        <ol className="point-summary">
+                          {result.professionalResponse.points.map((point, index) => (
+                            <li key={`${point.page.id}:${point.x}:${point.y}:${index}`}>
+                              {point.page.label} · {Math.round(point.x * 100)}%, {Math.round(point.y * 100)}%
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                    </>
+                  )}
+                  {result.professionalResponse.type === 'text' && (
+                    <p>{result.professionalResponse.text}</p>
+                  )}
+                  {result.professionalResponse.type === 'declined' && (
+                    <p>{result.professionalResponse.reason ?? 'No reason given.'}</p>
+                  )}
+                  {'note' in result.professionalResponse && result.professionalResponse.note && (
+                    <small>{result.professionalResponse.note}</small>
+                  )}
+                </article>
+              )) : (
+                <div className="empty-request">
+                  <p>No completed Assistance Requests</p>
+                </div>
+              )}
             </div>
           )}
         </aside>

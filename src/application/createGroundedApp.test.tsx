@@ -39,7 +39,7 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
   await screen.findByText(requestInput.question)
   screen.getByRole('heading', { name: 'Project Documents' })
 
-  const drawingPage = screen.getByLabelText('Drawing page A1.2')
+  const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
     value: () => ({
       bottom: 420,
@@ -121,7 +121,7 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
-  const drawingPage = screen.getByLabelText('Drawing page A1.2')
+  const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
     value: () => ({
       bottom: 100,
@@ -208,4 +208,62 @@ test('External Agent document inspection leaves the visible workspace and unfini
     assistance: expect.any(HTMLElement),
     note: expect.objectContaining({ value: 'Keep this draft' }),
   })
+})
+
+test('the Senior Project Manager works the FIFO queue through Current, Queue, and Done', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-workspace-queue-${crypto.randomUUID()}`,
+      modelContext,
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1', 'request-2', 'request-3'),
+      now: () => new Date('2030-01-02T03:04:05.000Z'),
+    }),
+  )
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await modelContext.executeTool('create_assistance_request', {
+    question: 'State the recommended disposition.',
+    responseType: 'text',
+  })
+  await modelContext.executeTool('create_assistance_request', {
+    ...requestInput,
+    question: 'Mark any other affected openings.',
+  })
+
+  await screen.findByText(requestInput.question)
+  await screen.findByText('2 waiting')
+  expect(screen.getByText('Next: State the recommended disposition.')).toBeInTheDocument()
+
+  await user.click(await screen.findByRole('tab', { name: 'Queue 2' }))
+  expect(screen.getByText('State the recommended disposition.')).toBeInTheDocument()
+  expect(screen.getByText('Mark any other affected openings.')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /^Submit/ })).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('tab', { name: 'Current 1' }))
+  await user.click(screen.getByRole('button', { name: 'Submit Point Set' }))
+  await screen.findByText('State the recommended disposition.')
+
+  await user.type(screen.getByLabelText('Text response'), 'Revise and resubmit.')
+  await user.type(
+    screen.getByLabelText('Overall note optional'),
+    'The product does not match the schedule.',
+  )
+  await user.click(screen.getByRole('button', { name: 'Submit Text Response' }))
+  await screen.findByText('Mark any other affected openings.')
+
+  await user.type(
+    screen.getByLabelText('Decline reason optional'),
+    'The page is not legible.',
+  )
+  await user.click(screen.getByRole('button', { name: 'Decline Request' }))
+  await screen.findByText('No pending Assistance Requests')
+
+  await user.click(screen.getByRole('tab', { name: 'Done 3' }))
+  expect(screen.getByText(requestInput.question)).toBeInTheDocument()
+  expect(screen.getByText('0 points')).toBeInTheDocument()
+  expect(screen.getByText('Revise and resubmit.')).toBeInTheDocument()
+  expect(screen.getByText('The page is not legible.')).toBeInTheDocument()
 })

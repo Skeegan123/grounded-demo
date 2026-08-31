@@ -343,6 +343,43 @@ dd {
   margin-top: 24px;
 }
 
+.assistance-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.assistance-tabs button {
+  padding: 9px 5px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.assistance-tabs button[aria-selected='true'] {
+  color: var(--ink);
+  background: var(--panel);
+  border-color: var(--line-strong);
+}
+
+.assistance-tabs span {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  margin-left: 2px;
+  background: #e4e0d6;
+  border-radius: 9px;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+}
+
 .request-meta {
   display: flex;
   align-items: center;
@@ -376,6 +413,16 @@ dd {
   color: var(--ink);
   font-size: 0.82rem;
   font-weight: 650;
+  text-align: right;
+}
+
+.request-card dd small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 500;
 }
 
 .point-controls {
@@ -462,12 +509,87 @@ dd {
   box-shadow: 1px 1px 0 var(--ink);
 }
 
+.decline-controls {
+  display: grid;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.decline-controls textarea {
+  min-height: 62px;
+}
+
+.decline-controls button {
+  justify-self: start;
+  margin-top: 9px;
+  padding: 8px 10px;
+  color: #72230f;
+  background: transparent;
+  border: 1px solid #c99b90;
+  border-radius: 3px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
 .waiting {
+  display: grid;
+  gap: 4px;
   margin-top: 14px;
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.72rem;
   text-align: center;
+}
+
+.waiting strong {
+  color: var(--ink);
+}
+
+.request-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.request-list .empty-request {
+  margin-top: 0;
+}
+
+.history-card {
+  padding: 14px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+
+.history-card .question {
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.history-card > p:not(.question) {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.history-card > small {
+  display: block;
+  margin-top: 9px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.point-summary {
+  display: grid;
+  gap: 4px;
+  margin: 9px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
 }
 
 .empty-request {

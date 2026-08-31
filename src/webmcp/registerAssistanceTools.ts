@@ -3,7 +3,7 @@ import type { createAssistance } from '../assistance/assistance'
 import { defineTool } from './defineTool'
 import type { ModelContextAdapter } from './modelContext'
 
-const CreateAssistanceRequestInput = Type.Object(
+const PointSetAssistanceRequestInput = Type.Object(
   {
     question: Type.String({ minLength: 1, pattern: '\\S' }),
     responseType: Type.Literal('point_set'),
@@ -13,6 +13,19 @@ const CreateAssistanceRequestInput = Type.Object(
   },
   { additionalProperties: false },
 )
+
+const TextAssistanceRequestInput = Type.Object(
+  {
+    question: Type.String({ minLength: 1, pattern: '\\S' }),
+    responseType: Type.Literal('text'),
+  },
+  { additionalProperties: false },
+)
+
+const CreateAssistanceRequestInput = Type.Union([
+  PointSetAssistanceRequestInput,
+  TextAssistanceRequestInput,
+])
 
 const GetAssistanceRequestInput = Type.Object(
   { id: Type.String({ minLength: 1 }) },
@@ -27,9 +40,9 @@ export function registerAssistanceTools(
   const tools = [
     defineTool({
       name: 'create_assistance_request',
-      title: 'Create a Point Set Assistance Request',
+      title: 'Create an Assistance Request',
       description:
-        'Queue one request for a Senior Project Manager to mark points on an immutable document version. Returns immediately with the durable request identity.',
+        'Queue one Point Set or text request for a Senior Project Manager. Returns immediately with the durable request identity.',
       schema: CreateAssistanceRequestInput,
       readOnly: false,
       execute: (input) => assistance.createRequest(input),

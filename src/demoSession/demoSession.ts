@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable } from 'dexie'
+import Dexie, { type Table } from 'dexie'
 
 export const DEMO_SESSION_STORAGE_KEY = 'grounded.demo-session-id'
 const DEMO_TAB_NAME_PREFIX = 'grounded:'
@@ -19,16 +19,26 @@ interface StoredDemoSessionIdentity {
   tabId: string
 }
 
-export interface AssistanceRequestRecord {
+interface AssistanceRequestRecordBase {
   id: string
   sessionId: string
   question: string
+  createdAt: string
+  queuePosition: number
+}
+
+export interface PointSetRequestRecord extends AssistanceRequestRecordBase {
   responseType: 'point_set'
   documentId: string
   documentVersionId: string
   recommendedPageIds: string[]
-  createdAt: string
 }
+
+export interface TextRequestRecord extends AssistanceRequestRecordBase {
+  responseType: 'text'
+}
+
+export type AssistanceRequestRecord = PointSetRequestRecord | TextRequestRecord
 
 export interface StoredPoint {
   pageId: string
@@ -38,7 +48,7 @@ export interface StoredPoint {
   y: number
 }
 
-export interface ProfessionalResponseRecord {
+export interface PointSetResponseRecord {
   requestId: string
   sessionId: string
   state: 'answered'
@@ -50,9 +60,33 @@ export interface ProfessionalResponseRecord {
   submittedAt: string
 }
 
+export interface DeclinedResponseRecord {
+  requestId: string
+  sessionId: string
+  state: 'declined'
+  type: 'declined'
+  reason?: string
+  submittedAt: string
+}
+
+export interface TextResponseRecord {
+  requestId: string
+  sessionId: string
+  state: 'answered'
+  type: 'text'
+  text: string
+  note?: string
+  submittedAt: string
+}
+
+export type ProfessionalResponseRecord =
+  | PointSetResponseRecord
+  | TextResponseRecord
+  | DeclinedResponseRecord
+
 export class DemoSessionDatabase extends Dexie {
-  requests!: EntityTable<AssistanceRequestRecord, 'id'>
-  responses!: EntityTable<ProfessionalResponseRecord, 'requestId'>
+  requests!: Table<AssistanceRequestRecord, string>
+  responses!: Table<ProfessionalResponseRecord, string>
 
   constructor(name: string) {
     super(name)
@@ -60,6 +94,30 @@ export class DemoSessionDatabase extends Dexie {
       requests: 'id, [sessionId+createdAt]',
       responses: 'requestId, sessionId',
     })
+    this.version(2)
+      .stores({
+        requests: 'id, [sessionId+queuePosition]',
+        responses: 'requestId, sessionId',
+      })
+      .upgrade(async (transaction) => {
+        const requests = await transaction
+          .table<AssistanceRequestRecord, string>('requests')
+          .toArray()
+        requests.sort(
+          (left, right) =>
+            left.sessionId.localeCompare(right.sessionId) ||
+            left.createdAt.localeCompare(right.createdAt) ||
+            left.id.localeCompare(right.id),
+        )
+        const nextPosition = new Map<string, number>()
+        for (const request of requests) {
+          const queuePosition = (nextPosition.get(request.sessionId) ?? 0) + 1
+          nextPosition.set(request.sessionId, queuePosition)
+          await transaction
+            .table<AssistanceRequestRecord, string>('requests')
+            .update(request.id, { queuePosition })
+        }
+      })
   }
 }
 

@@ -14,9 +14,27 @@ export interface CreatePointSetRequest {
   recommendedPageIds: string[]
 }
 
+export interface CreateTextRequest {
+  question: string
+  responseType: 'text'
+}
+
+export type CreateAssistanceRequest = CreatePointSetRequest | CreateTextRequest
+
 export interface PointSetDraft {
   requestId: string
   points: StoredPoint[]
+  note?: string
+}
+
+export interface DeclineDraft {
+  requestId: string
+  reason?: string
+}
+
+export interface TextDraft {
+  requestId: string
+  text: string
   note?: string
 }
 
@@ -36,19 +54,42 @@ export type AssistanceResult =
       state: 'answered'
       question: string
       createdAt: string
+      professionalResponse:
+        | {
+            type: 'point_set'
+            document: { id: string; versionId: string }
+            points: Array<{
+              page: { id: string; label: string; number: number }
+              x: number
+              y: number
+            }>
+            count: number
+            note?: string
+            submittedAt: string
+          }
+        | {
+            type: 'text'
+            text: string
+            note?: string
+            submittedAt: string
+          }
+    }
+  | {
+      id: string
+      state: 'declined'
+      question: string
+      createdAt: string
       professionalResponse: {
-        type: 'point_set'
-        document: { id: string; versionId: string }
-        points: Array<{
-          page: { id: string; label: string; number: number }
-          x: number
-          y: number
-        }>
-        count: number
-        note?: string
+        type: 'declined'
+        reason?: string
         submittedAt: string
       }
     }
+
+export type AssistanceCompletedResult = Exclude<
+  AssistanceResult,
+  { state: 'pending' }
+>
 
 export interface AssistanceOptions {
   databaseName: string
@@ -62,25 +103,42 @@ export function createAssistance(options: AssistanceOptions) {
   const listeners = new Set<() => void>()
   const notifyListeners = () => listeners.forEach((listener) => listener())
 
-  async function createRequest(input: CreatePointSetRequest) {
-    const document = findDocument(input.documentId, input.documentVersionId)
-    if (!document) throw new Error('The target document version does not exist.')
+  async function createRequest(input: CreateAssistanceRequest) {
+    if (input.responseType === 'point_set') {
+      const document = findDocument(input.documentId, input.documentVersionId)
+      if (!document) throw new Error('The target document version does not exist.')
 
-    if (
-      input.recommendedPageIds.some(
-        (pageId) => !document.pages.some((page) => page.id === pageId),
-      )
-    ) {
-      throw new Error('A recommended page does not belong to the target document.')
+      if (
+        input.recommendedPageIds.some(
+          (pageId) => !document.pages.some((page) => page.id === pageId),
+        )
+      ) {
+        throw new Error('A recommended page does not belong to the target document.')
+      }
     }
 
-    const request: AssistanceRequestRecord = {
-      ...input,
-      id: options.createId(),
-      sessionId: options.sessionId,
-      createdAt: options.now().toISOString(),
-    }
-    await database.requests.add(request)
+    const request = await database.transaction(
+      'rw',
+      database.requests,
+      async () => {
+        const lastRequest = await database.requests
+          .where('[sessionId+queuePosition]')
+          .between(
+            [options.sessionId, Dexie.minKey],
+            [options.sessionId, Dexie.maxKey],
+          )
+          .last()
+        const nextRequest: AssistanceRequestRecord = {
+          ...input,
+          id: options.createId(),
+          sessionId: options.sessionId,
+          createdAt: options.now().toISOString(),
+          queuePosition: (lastRequest?.queuePosition ?? 0) + 1,
+        }
+        await database.requests.add(nextRequest)
+        return nextRequest
+      },
+    )
     notifyListeners()
 
     return {
@@ -92,7 +150,7 @@ export function createAssistance(options: AssistanceOptions) {
 
   async function listPending(): Promise<AssistanceRequestView[]> {
     const requests = await database.requests
-      .where('[sessionId+createdAt]')
+      .where('[sessionId+queuePosition]')
       .between(
         [options.sessionId, Dexie.minKey],
         [options.sessionId, Dexie.maxKey],
@@ -112,6 +170,34 @@ export function createAssistance(options: AssistanceOptions) {
       .map((request) => ({ ...request, state: 'pending' as const }))
   }
 
+  async function listCompleted(): Promise<AssistanceCompletedResult[]> {
+    const requests = await database.requests
+      .where('[sessionId+queuePosition]')
+      .between(
+        [options.sessionId, Dexie.minKey],
+        [options.sessionId, Dexie.maxKey],
+      )
+      .toArray()
+    const responseIds = new Set(
+      (
+        await database.responses
+          .where('sessionId')
+          .equals(options.sessionId)
+          .toArray()
+      ).map((response) => response.requestId),
+    )
+    const results = await Promise.all(
+      requests
+        .filter((request) => responseIds.has(request.id))
+        .map((request) => getResult(request.id)),
+    )
+
+    return results.filter(
+      (result): result is AssistanceCompletedResult =>
+        result.state !== 'pending',
+    )
+  }
+
   async function answerPointSet(draft: PointSetDraft) {
     await database.transaction(
       'rw',
@@ -124,6 +210,9 @@ export function createAssistance(options: AssistanceOptions) {
         }
         if (await database.responses.get(request.id)) {
           throw new Error('The Professional Response is already final.')
+        }
+        if (request.responseType !== 'point_set') {
+          throw new Error('The Professional Response must use the requested response type.')
         }
 
         const pending = await listPending()
@@ -169,6 +258,80 @@ export function createAssistance(options: AssistanceOptions) {
     notifyListeners()
   }
 
+  async function answerText(draft: TextDraft) {
+    await database.transaction(
+      'rw',
+      database.requests,
+      database.responses,
+      async () => {
+        const request = await database.requests.get(draft.requestId)
+        if (!request || request.sessionId !== options.sessionId) {
+          throw new Error('The Assistance Request does not exist.')
+        }
+        if (await database.responses.get(request.id)) {
+          throw new Error('The Professional Response is already final.')
+        }
+        if (request.responseType !== 'text') {
+          throw new Error('The Professional Response must use the requested response type.')
+        }
+
+        const pending = await listPending()
+        if (pending[0]?.id !== request.id) {
+          throw new Error('Assistance Requests must be answered in FIFO order.')
+        }
+
+        const text = draft.text.trim()
+        if (!text) {
+          throw new Error('A text Professional Response cannot be empty.')
+        }
+        const note = draft.note?.trim()
+        await database.responses.add({
+          requestId: request.id,
+          sessionId: options.sessionId,
+          state: 'answered',
+          type: 'text',
+          text,
+          ...(note ? { note } : {}),
+          submittedAt: options.now().toISOString(),
+        })
+      },
+    )
+    notifyListeners()
+  }
+
+  async function decline(draft: DeclineDraft) {
+    await database.transaction(
+      'rw',
+      database.requests,
+      database.responses,
+      async () => {
+        const request = await database.requests.get(draft.requestId)
+        if (!request || request.sessionId !== options.sessionId) {
+          throw new Error('The Assistance Request does not exist.')
+        }
+        if (await database.responses.get(request.id)) {
+          throw new Error('The Professional Response is already final.')
+        }
+
+        const pending = await listPending()
+        if (pending[0]?.id !== request.id) {
+          throw new Error('Assistance Requests must be answered in FIFO order.')
+        }
+
+        const reason = draft.reason?.trim()
+        await database.responses.add({
+          requestId: request.id,
+          sessionId: options.sessionId,
+          state: 'declined',
+          type: 'declined',
+          ...(reason ? { reason } : {}),
+          submittedAt: options.now().toISOString(),
+        })
+      },
+    )
+    notifyListeners()
+  }
+
   async function getResult(id: string): Promise<AssistanceResult> {
     const request = await database.requests.get(id)
     if (!request || request.sessionId !== options.sessionId) {
@@ -181,6 +344,35 @@ export function createAssistance(options: AssistanceOptions) {
         state: 'pending',
         question: request.question,
         createdAt: request.createdAt,
+      }
+    }
+
+    if (response.state === 'declined') {
+      return {
+        id: request.id,
+        state: 'declined',
+        question: request.question,
+        createdAt: request.createdAt,
+        professionalResponse: {
+          type: 'declined',
+          ...(response.reason ? { reason: response.reason } : {}),
+          submittedAt: response.submittedAt,
+        },
+      }
+    }
+
+    if (response.type === 'text') {
+      return {
+        id: request.id,
+        state: 'answered',
+        question: request.question,
+        createdAt: request.createdAt,
+        professionalResponse: {
+          type: 'text',
+          text: response.text,
+          ...(response.note ? { note: response.note } : {}),
+          submittedAt: response.submittedAt,
+        },
       }
     }
 
@@ -215,9 +407,12 @@ export function createAssistance(options: AssistanceOptions) {
 
   return {
     answerPointSet,
+    answerText,
     close: () => database.close(),
     createRequest,
+    decline,
     getResult,
+    listCompleted,
     listPending,
     subscribe(listener: () => void) {
       listeners.add(listener)
