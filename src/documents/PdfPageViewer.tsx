@@ -169,7 +169,16 @@ export function PdfPageViewer({
         </div>
       )}
       {renderState === 'error' && (
-        <p className="pdf-render-error" role="alert">{renderError}</p>
+        <div className="pdf-render-error" role="alert">
+          <p>{renderError}</p>
+          <a
+            href={`${document.file.url}#page=${page.number}`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Open authoritative PDF page
+          </a>
+        </div>
       )}
     </div>
   )

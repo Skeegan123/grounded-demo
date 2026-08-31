@@ -23,6 +23,7 @@ interface AppProps {
   assistance: ReturnType<typeof createAssistance>
   documents: ReturnType<typeof createDocuments>
   modelContext?: ModelContextAdapter
+  onStartOver: () => void
   pageRenderer: PdfPageRenderer
   sessionId: string
   workspaceStore: ReturnType<typeof createWorkspaceStore>
@@ -34,12 +35,18 @@ function App({
   assistance,
   documents,
   modelContext,
+  onStartOver,
   pageRenderer,
   sessionId,
   workspaceStore,
 }: AppProps) {
   const [pending, setPending] = useState<AssistanceRequestView[]>([])
   const [completed, setCompleted] = useState<AssistanceCompletedResult[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [responsePending, setResponsePending] = useState(false)
+  const [responseError, setResponseError] = useState('')
+  const [responseMessage, setResponseMessage] = useState('')
   const [registration, setRegistration] = useState<RegistrationState>(() =>
     modelContext ? 'registering' : 'unsupported',
   )
@@ -92,13 +99,26 @@ function App({
     let loadRevision = 0
     const load = async () => {
       const revision = ++loadRevision
-      const [nextPending, nextCompleted] = await Promise.all([
-        assistance.listPending(),
-        assistance.listCompleted(),
-      ])
-      if (active && revision === loadRevision) {
-        setPending(nextPending)
-        setCompleted(nextCompleted)
+      try {
+        const [nextPending, nextCompleted] = await Promise.all([
+          assistance.listPending(),
+          assistance.listCompleted(),
+        ])
+        if (active && revision === loadRevision) {
+          setPending(nextPending)
+          setCompleted(nextCompleted)
+          setLoadError('')
+        }
+      } catch (error: unknown) {
+        if (active && revision === loadRevision) {
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : 'The Demo Session could not be loaded.',
+          )
+        }
+      } finally {
+        if (active && revision === loadRevision) setLoading(false)
       }
     }
     void load()
@@ -222,34 +242,66 @@ function App({
 
   const submitPointSet = async () => {
     if (!pointSetCurrent) return
-    await assistance.submitPointSetResponse({
-      requestId: pointSetCurrent.id,
-      points,
-      ...(note.trim() ? { note } : {}),
+    await saveProfessionalResponse(async () => {
+      await assistance.submitPointSetResponse({
+        requestId: pointSetCurrent.id,
+        points,
+        ...(note.trim() ? { note } : {}),
+      })
     })
-    clearDraft()
-    await refresh()
   }
 
   const submitText = async () => {
     if (current?.responseType !== 'text') return
-    await assistance.submitTextResponse({
-      requestId: current.id,
-      text,
-      ...(note.trim() ? { note } : {}),
+    if (!text.trim()) {
+      setResponseError('Enter a text Professional Response before submitting.')
+      setResponseMessage('')
+      return
+    }
+    await saveProfessionalResponse(async () => {
+      await assistance.submitTextResponse({
+        requestId: current.id,
+        text,
+        ...(note.trim() ? { note } : {}),
+      })
     })
-    clearDraft()
-    await refresh()
   }
 
   const declineCurrent = async () => {
     if (!current) return
-    await assistance.decline({
-      requestId: current.id,
-      ...(declineReason.trim() ? { reason: declineReason } : {}),
+    await saveProfessionalResponse(async () => {
+      await assistance.decline({
+        requestId: current.id,
+        ...(declineReason.trim() ? { reason: declineReason } : {}),
+      })
     })
-    clearDraft()
-    await refresh()
+  }
+
+  const saveProfessionalResponse = async (save: () => Promise<void>) => {
+    if (responsePending) return
+    setResponsePending(true)
+    setResponseError('')
+    setResponseMessage('')
+    try {
+      await save()
+      clearDraft()
+      setResponseMessage(
+        'Professional Response saved. The External Agent can retrieve it now.',
+      )
+      try {
+        await refresh()
+      } catch (error: unknown) {
+        setLoadError(
+          `${error instanceof Error ? error.message : 'The Demo Session could not be refreshed.'} The Professional Response is saved. Reload the page to continue.`,
+        )
+      }
+    } catch (error: unknown) {
+      setResponseError(
+        `${error instanceof Error ? error.message : 'The Professional Response could not be saved.'} Check the response and try again.`,
+      )
+    } finally {
+      setResponsePending(false)
+    }
   }
 
   const viewPointSet = (result: AssistanceCompletedResult) => {
@@ -281,15 +333,28 @@ function App({
           </a>
           <p>{demoProject.title}</p>
         </div>
-        <div className="session-status">
-          <span className={`status-dot status-${registration}`} aria-hidden="true" />
-          <span>{statusCopy}</span>
-          <code>{sessionId.slice(0, 8)}</code>
+        <div className="session-actions">
+          <div className="session-status">
+            <span className={`status-dot status-${registration}`} aria-hidden="true" />
+            <span>{statusCopy}</span>
+            <code>{sessionId.slice(0, 8)}</code>
+          </div>
+          <button className="start-over-button" onClick={onStartOver} type="button">
+            Start over
+          </button>
         </div>
       </header>
 
       {registration === 'error' && (
-        <p className="error-banner" role="alert">{registrationError}</p>
+        <p className="error-banner" role="alert">
+          WebMCP tools could not register. Refresh the page and try again. {registrationError}
+        </p>
+      )}
+      {registration === 'unsupported' && (
+        <p className="notice-banner">
+          Open this page in a WebMCP-capable browser to let an External Agent inspect
+          documents and create Assistance Requests. The Project Workspace remains available.
+        </p>
       )}
 
       <div className="workspace-grid">
@@ -396,7 +461,33 @@ function App({
             ))}
           </div>
 
-          {assistanceTab === 'current' && (current ? (
+          {responseError && (
+            <p className="response-feedback error" role="alert">{responseError}</p>
+          )}
+          {responseMessage && (
+            <p className="response-feedback success" role="status">
+              {responseMessage}
+            </p>
+          )}
+
+          {loading && (
+            <div
+              aria-label="Loading Demo Session"
+              className="empty-request"
+              role="status"
+            >
+              <p>Loading Demo Session</p>
+              <small>Reading this tab's queued and completed work.</small>
+            </div>
+          )}
+          {!loading && loadError && (
+            <div className="rail-error" role="alert">
+              <p>The Demo Session could not be loaded.</p>
+              <small>{loadError}</small>
+            </div>
+          )}
+
+          {!loading && !loadError && assistanceTab === 'current' && (current ? (
               <div className="request-card">
                 <div className="request-meta">
                   <span>Pending</span>
@@ -484,7 +575,10 @@ function App({
                     <label htmlFor="text-response">Text response</label>
                     <textarea
                       id="text-response"
-                      onChange={(event) => setText(event.target.value)}
+                      onChange={(event) => {
+                        setResponseError('')
+                        setText(event.target.value)
+                      }}
                       placeholder="Enter the Professional Response"
                       value={text}
                     />
@@ -503,6 +597,7 @@ function App({
                 {current.responseType === 'point_set' ? (
                   <button
                     className="submit-button"
+                    disabled={responsePending}
                     onClick={() => void submitPointSet()}
                     type="button"
                   >
@@ -511,7 +606,7 @@ function App({
                 ) : (
                   <button
                     className="submit-button"
-                    disabled={!text.trim()}
+                    disabled={responsePending}
                     onClick={() => void submitText()}
                     type="button"
                   >
@@ -529,7 +624,11 @@ function App({
                     placeholder="Explain why you cannot make this judgment"
                     value={declineReason}
                   />
-                  <button onClick={() => void declineCurrent()} type="button">
+                  <button
+                    disabled={responsePending}
+                    onClick={() => void declineCurrent()}
+                    type="button"
+                  >
                     Decline Request
                   </button>
                 </div>
@@ -549,7 +648,7 @@ function App({
               </div>
             ))}
 
-          {assistanceTab === 'queue' && (
+          {!loading && !loadError && assistanceTab === 'queue' && (
             <div className="request-list">
               {pending.slice(1).length > 0 ? pending.slice(1).map((request, index) => (
                 <article className="history-card" key={request.id}>
@@ -571,7 +670,7 @@ function App({
             </div>
           )}
 
-          {assistanceTab === 'done' && (
+          {!loading && !loadError && assistanceTab === 'done' && (
             <div className="request-list">
               {completed.length > 0 ? completed.map((result) => (
                 <article className="history-card" key={result.id}>

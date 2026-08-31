@@ -74,6 +74,22 @@ requirement at the three marked openings.
 The create-to-retrieve portion took about one minute in the local
 deployment-equivalent browser run.
 
+## Recording checklist
+
+- Open the public URL in a fresh ChatGPT in-app browser tab and verify that the
+  header says **WebMCP ready**.
+- Start recording before sending the goal prompt above.
+- Let the External Agent inspect both PDFs and create the Assistance Request.
+- In Current Assistance, verify the target is A1.2 and the supporting references
+  include A4.3 and the two submittal pages.
+- Review A1.2, place the Point Set requested by the External Agent using your
+  professional judgment, and submit the Professional Response.
+- Reload the page to prove the Demo Session and Professional Response persist.
+- Send the resume prompt if the client does not continue on its own.
+- Capture the retrieved Professional Response and the agent's disposition.
+- Select **Start over** and show an empty Current, Queue, and Done before ending
+  the recording.
+
 ## Client finding
 
 The first run discovered the documents and mismatch without extra introductory

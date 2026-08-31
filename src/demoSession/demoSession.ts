@@ -131,14 +131,7 @@ export function getOrCreateDemoSessionId({
   tabContext = window,
   createTabId = () => crypto.randomUUID(),
 }: DemoSessionIdentityOptions) {
-  const existingTabId = tabContext.name.startsWith(DEMO_TAB_NAME_PREFIX)
-    ? tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
-    : ''
-  if (!existingTabId) {
-    tabContext.name = `${DEMO_TAB_NAME_PREFIX}${createTabId()}`
-  }
-
-  const tabId = tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
+  const tabId = getOrCreateTabId(tabContext, createTabId)
   const stored = storage.getItem(DEMO_SESSION_STORAGE_KEY)
   if (stored) {
     try {
@@ -151,10 +144,33 @@ export function getOrCreateDemoSessionId({
     }
   }
 
+  return startNewDemoSession({ storage, createSessionId, tabContext, createTabId })
+}
+
+export function startNewDemoSession({
+  storage,
+  createSessionId,
+  tabContext = window,
+  createTabId = () => crypto.randomUUID(),
+}: DemoSessionIdentityOptions) {
+  const tabId = getOrCreateTabId(tabContext, createTabId)
   const sessionId = createSessionId()
   storage.setItem(
     DEMO_SESSION_STORAGE_KEY,
     JSON.stringify({ sessionId, tabId } satisfies StoredDemoSessionIdentity),
   )
   return sessionId
+}
+
+function getOrCreateTabId(
+  tabContext: BrowserTabContext,
+  createTabId: () => string,
+) {
+  const existingTabId = tabContext.name.startsWith(DEMO_TAB_NAME_PREFIX)
+    ? tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
+    : ''
+  if (!existingTabId) {
+    tabContext.name = `${DEMO_TAB_NAME_PREFIX}${createTabId()}`
+  }
+  return tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
 }

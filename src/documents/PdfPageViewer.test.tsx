@@ -112,6 +112,37 @@ test('changing pages cancels stale work and caches only the neighboring pages', 
   await waitFor(() => expect(prefetched).toEqual([[1, 3]]))
 })
 
+test('a document-render failure keeps the authoritative PDF available', async () => {
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const renderer: PdfPageRenderer = {
+    async renderPage() {
+      throw new Error('The document request failed.')
+    },
+    prefetchPages() {},
+  }
+
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      onPlacePoint={() => {}}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+
+  const alert = await screen.findByRole('alert')
+  expect(alert).toHaveTextContent('The document request failed.')
+  expect(screen.getByRole('link', { name: 'Open authoritative PDF page' }))
+    .toHaveAttribute('href', `${document.file.url}#page=${page.number}`)
+})
+
 type RenderPageRequestWithResolve = RenderPageRequest & {
   resolve: () => void
 }

@@ -1,13 +1,10 @@
 import { createElement } from 'react'
-import { createAssistance } from '../assistance/assistance'
-import { getOrCreateDemoSessionId } from '../demoSession/demoSession'
 import { createDocuments } from '../documents/documents'
 import type { PdfPageRenderer } from '../documents/PdfPageViewer'
 import { createPdfJsPageRenderer } from '../documents/pdfJsPageRenderer'
 import { createBrowserModelContext } from '../webmcp/browserModelContext'
 import type { ModelContextAdapter } from '../webmcp/modelContext'
-import { createWorkspaceStore } from '../workspace/workspaceStore'
-import App from '../App'
+import { GroundedAppHost } from './GroundedAppHost'
 
 export interface GroundedEnvironment {
   databaseName?: string
@@ -21,24 +18,13 @@ export interface GroundedEnvironment {
 export function createGroundedApp(environment: GroundedEnvironment = {}) {
   const createId = environment.createId ?? (() => crypto.randomUUID())
   const storage = environment.sessionStorage ?? window.sessionStorage
-  const sessionId = getOrCreateDemoSessionId({
-    storage,
-    createSessionId: createId,
-  })
-  const assistance = createAssistance({
-    databaseName: environment.databaseName ?? 'grounded',
-    sessionId,
+  return createElement(GroundedAppHost, {
     createId,
-    now: environment.now ?? (() => new Date()),
-  })
-  const documents = createDocuments()
-
-  return createElement(App, {
-    assistance,
-    documents,
+    databaseName: environment.databaseName ?? 'grounded',
+    documents: createDocuments(),
     modelContext: environment.modelContext ?? createBrowserModelContext(),
+    now: environment.now ?? (() => new Date()),
     pageRenderer: environment.pageRenderer ?? createPdfJsPageRenderer(),
-    sessionId,
-    workspaceStore: createWorkspaceStore(),
+    storage,
   })
 }

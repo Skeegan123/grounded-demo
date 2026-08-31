@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { createGroundedApp } from './createGroundedApp'
 import type { PdfPageRenderer } from '../documents/PdfPageViewer'
+import { DEMO_SESSION_STORAGE_KEY } from '../demoSession/demoSession'
 import { createRecordingModelContext } from '../webmcp/recordingModelContext'
 
 const requestInput = {
@@ -202,6 +203,80 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
     count: '0 points',
     note: expect.objectContaining({ value: '' }),
   })
+})
+
+test('Start over creates an isolated Demo Session and clears transient workspace state', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-start-over-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1', 'session-2'),
+      now: () => new Date('2030-01-02T03:04:05.000Z'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  await user.type(screen.getByLabelText('Overall note optional'), 'Discard this draft')
+
+  await user.click(screen.getByRole('button', { name: 'Start over' }))
+
+  await screen.findByText('No pending Assistance Requests')
+  expect(screen.queryByDisplayValue('Discard this draft')).not.toBeInTheDocument()
+  expect(JSON.parse(window.sessionStorage.getItem(DEMO_SESSION_STORAGE_KEY)!))
+    .toEqual(expect.objectContaining({ sessionId: 'session-2' }))
+  await expect(
+    modelContext.executeTool('get_assistance_request', { id: 'request-1' }),
+  ).rejects.toThrow('does not exist in this Demo Session')
+})
+
+test('the workspace distinguishes Demo Session loading from an empty queue and explains unsupported WebMCP', async () => {
+  render(
+    createGroundedApp({
+      databaseName: `grounded-feedback-${crypto.randomUUID()}`,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1'),
+    }),
+  )
+
+  expect(screen.getByRole('status', { name: 'Loading Demo Session' }))
+    .toBeInTheDocument()
+  await screen.findByText('No pending Assistance Requests')
+  expect(screen.getByText(/Open this page in a WebMCP-capable browser/))
+    .toBeInTheDocument()
+})
+
+test('a validation failure explains how to submit the requested Professional Response', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-validation-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', {
+    question: 'State the recommended disposition.',
+    responseType: 'text',
+  })
+  await screen.findByText('State the recommended disposition.')
+
+  await user.click(screen.getByRole('button', { name: 'Submit Text Response' }))
+
+  expect(screen.getByRole('alert')).toHaveTextContent(
+    'Enter a text Professional Response before submitting.',
+  )
 })
 
 test('External Agent document inspection leaves the visible workspace and unfinished Point Set draft unchanged', async () => {

@@ -47,13 +47,28 @@ tool sequence are recorded in
 
 ## Run locally
 
+Grounded requires Node.js 22 or later and pnpm 10.26.0. Install dependencies,
+then start Vite:
+
 ```bash
 pnpm install
 pnpm dev
 ```
 
 Open the URL printed by Vite in a WebMCP-capable client. The workspace status
-changes to **WebMCP ready** once both tools register.
+changes to **WebMCP ready** once all five tools register. A normal browser can
+still open the Project Workspace, but it cannot expose the tools to an External
+Agent.
+
+Create a production build with:
+
+```bash
+pnpm build
+pnpm preview
+```
+
+Deploy that build to the configured Cloudflare Pages project with `pnpm
+deploy`. Wrangler reads `wrangler.jsonc` and uploads only `dist/`.
 
 ## Verify
 
@@ -69,6 +84,23 @@ The high-level behavioral test crosses the recording adapter, real application
 composition, fake IndexedDB, and visible UI for create, respond, reload, and
 retrieve. The Playwright test runs in Chrome against the actual drawing PDF and
 checks PDF.js rendering plus Point Set alignment on Sheet A1.2.
+
+## Judge test
+
+1. Open the deployed URL in ChatGPT's in-app browser without signing in to
+   Grounded.
+2. Confirm the header says **WebMCP ready**.
+3. Give the External Agent the goal prompt in
+   [`docs/type-c-submittal-review-demo.md`](docs/type-c-submittal-review-demo.md).
+4. Submit the Point Set in Current Assistance, reload the page, then use the
+   documented resume prompt.
+5. Confirm the agent retrieves the Professional Response and recommends revise
+   and resubmit.
+6. Select **Start over** and confirm Current, Queue, and Done are empty in the
+   new Demo Session.
+
+The same demo guide records the verified tool sequence and the short recording
+checklist. It describes observed client behavior, not a scripted agent result.
 
 ## Demo Project documents
 
@@ -96,3 +128,9 @@ WebMCP adds three read-only document tools:
 - `get_project_workspace` introduces the Demo Project.
 - `list_project_documents` returns immutable document versions and page refs.
 - `inspect_document_text` returns prepared positioned text for requested pages.
+
+## License
+
+Grounded source code is available under the [MIT License](LICENSE). The bundled
+Demo Project documents retain their separate licenses and attribution in
+[`public/demo-project/ASSET-NOTICES.md`](public/demo-project/ASSET-NOTICES.md).
