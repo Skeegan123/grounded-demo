@@ -23,6 +23,146 @@ test('one zoom-in click scales the actual PDF page to 110%', async ({ page }) =>
   expect(zoomedBounds.width).toBeCloseTo(bounds.width * 1.1, 0)
 })
 
+test('the fixed canvas zooms around the pointer and exposes every edge at 400%', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  const viewer = page.locator('.pdf-page-viewer')
+  const stage = page.locator('.drawing-stage')
+  const canvas = page.getByLabel('Rendered PDF page A0.0')
+  await expect(canvas).toBeVisible()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+
+  const [viewerBounds, initialCanvasBounds, stageBounds, initialScrollHeight] =
+    await Promise.all([
+      viewer.boundingBox(),
+      canvas.boundingBox(),
+      stage.boundingBox(),
+      page.evaluate(() => document.documentElement.scrollHeight),
+    ])
+  if (!viewerBounds || !initialCanvasBounds || !stageBounds) {
+    throw new Error('The map canvas has no browser bounds.')
+  }
+
+  const pointer = {
+    x: initialCanvasBounds.x + initialCanvasBounds.width * 0.25,
+    y: initialCanvasBounds.y + initialCanvasBounds.height * 0.35,
+  }
+  await page.mouse.move(pointer.x, pointer.y)
+  await page.mouse.wheel(0, -420)
+  await expect.poll(() => zoomPercentage(page)).toBeGreaterThan(100)
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const pointerZoomBounds = await canvas.boundingBox()
+  if (!pointerZoomBounds) throw new Error('The zoomed PDF canvas has no bounds.')
+  expect((pointer.x - pointerZoomBounds.x) / pointerZoomBounds.width)
+    .toBeCloseTo(0.25, 1)
+  expect((pointer.y - pointerZoomBounds.y) / pointerZoomBounds.height)
+    .toBeCloseTo(0.35, 1)
+
+  await page.mouse.wheel(0, -10_000)
+  await expect(page.getByText('400%')).toBeVisible()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Zoom in' })).toBeDisabled()
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollHeight))
+    .toBe(initialScrollHeight)
+  const maximumStageBounds = await stage.boundingBox()
+  expect(maximumStageBounds?.height).toBeCloseTo(stageBounds.height, 0)
+
+  await dragRepeatedly(page, viewer, 'toward-start')
+  const startBounds = await canvas.boundingBox()
+  if (!startBounds) throw new Error('The panned PDF canvas has no bounds.')
+  expect(startBounds.x).toBeCloseTo(viewerBounds.x, 0)
+  expect(startBounds.y).toBeCloseTo(viewerBounds.y, 0)
+
+  await dragRepeatedly(page, viewer, 'toward-end')
+  const endBounds = await canvas.boundingBox()
+  if (!endBounds) throw new Error('The panned PDF canvas has no bounds.')
+  expect(endBounds.x + endBounds.width)
+    .toBeCloseTo(viewerBounds.x + viewerBounds.width, 0)
+  expect(endBounds.y + endBounds.height)
+    .toBeCloseTo(viewerBounds.y + viewerBounds.height, 0)
+
+  await page.keyboard.press('0')
+  await expect(page.getByText('100%')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Fit page' }))
+    .toHaveAttribute('aria-pressed', 'true')
+  await page.keyboard.press('Shift+0')
+  await expect(page.getByRole('button', { name: 'Fit width' }))
+    .toHaveAttribute('aria-pressed', 'true')
+  await expect.poll(async () => (await canvas.boundingBox())?.width ?? 0)
+    .toBeCloseTo(viewerBounds.width, 0)
+
+  await page.keyboard.press('+')
+  await expect(page.getByText('110%')).toBeVisible()
+  await page.keyboard.press('-')
+  await expect(page.getByText('100%')).toBeVisible()
+
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByLabel('Rendered PDF page A0.1')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Fit page' }))
+    .toHaveAttribute('aria-pressed', 'true')
+})
+
+test('two touch pointers pinch around their gesture center', async ({ page }) => {
+  await page.goto('/')
+  const viewer = page.locator('.pdf-page-viewer')
+  const canvas = page.getByLabel('Rendered PDF page A0.0')
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const bounds = await viewer.boundingBox()
+  if (!bounds) throw new Error('The map canvas has no browser bounds.')
+
+  const center = {
+    x: bounds.x + bounds.width * 0.45,
+    y: bounds.y + bounds.height * 0.4,
+  }
+  await viewer.dispatchEvent('pointerdown', {
+    button: 0,
+    clientX: center.x - 40,
+    clientY: center.y,
+    pointerId: 41,
+    pointerType: 'touch',
+  })
+  await viewer.dispatchEvent('pointerdown', {
+    button: 0,
+    clientX: center.x + 40,
+    clientY: center.y,
+    pointerId: 42,
+    pointerType: 'touch',
+  })
+  await viewer.dispatchEvent('pointermove', {
+    button: 0,
+    buttons: 1,
+    clientX: center.x + 100,
+    clientY: center.y,
+    pointerId: 42,
+    pointerType: 'touch',
+  })
+  await viewer.dispatchEvent('pointerup', {
+    button: 0,
+    clientX: center.x + 100,
+    clientY: center.y,
+    pointerId: 42,
+    pointerType: 'touch',
+  })
+  await viewer.dispatchEvent('pointerup', {
+    button: 0,
+    clientX: center.x - 40,
+    clientY: center.y,
+    pointerId: 41,
+    pointerType: 'touch',
+  })
+
+  await expect.poll(() => zoomPercentage(page)).toBeGreaterThan(100)
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const zoomedBounds = await canvas.boundingBox()
+  if (!zoomedBounds) throw new Error('The pinched PDF canvas has no bounds.')
+  expect(center.x).toBeGreaterThan(zoomedBounds.x)
+  expect(center.x).toBeLessThan(zoomedBounds.x + zoomedBounds.width)
+  expect(center.y).toBeGreaterThan(zoomedBounds.y)
+  expect(center.y).toBeLessThan(zoomedBounds.y + zoomedBounds.height)
+})
+
 test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', async ({
   page,
 }) => {
@@ -95,6 +235,34 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   if (!zoomedBounds) throw new Error('The zoomed Point Set overlay has no browser bounds.')
   await expectSameBounds(canvas, overlay)
   await expectPointAt(mark, { x: 0.5, y: 0.25 })
+  await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
+
+  for (let step = 0; step < 4; step += 1) {
+    await page.getByRole('button', { name: 'Zoom in' }).click()
+  }
+  await expect(page.getByText('150%')).toBeVisible()
+  const viewer = page.locator('.pdf-page-viewer')
+  const viewerBounds = await viewer.boundingBox()
+  if (!viewerBounds) throw new Error('The map canvas has no browser bounds.')
+  await page.mouse.move(
+    viewerBounds.x + viewerBounds.width * 0.6,
+    viewerBounds.y + viewerBounds.height * 0.6,
+  )
+  await page.mouse.down()
+  await page.mouse.move(
+    viewerBounds.x + viewerBounds.width * 0.3,
+    viewerBounds.y + viewerBounds.height * 0.3,
+    { steps: 4 },
+  )
+  await page.mouse.up()
+  await expect(page.getByText('1 point')).toBeVisible()
+  await expectSameBounds(canvas, overlay)
+  await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
+
+  await page.setViewportSize({ width: 1100, height: 800 })
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await expectSameBounds(canvas, overlay)
+  await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
 })
 
 test('wide workbenches show Assistance by default and remember manual collapse', async ({
@@ -254,6 +422,58 @@ async function createPointSetRequest(page: import('@playwright/test').Page) {
       }],
     })
   })
+}
+
+async function expectMarkerAligned(
+  canvas: Locator,
+  mark: Locator,
+  expected: { x: number; y: number },
+) {
+  const [canvasBounds, markBounds] = await Promise.all([
+    canvas.boundingBox(),
+    mark.boundingBox(),
+  ])
+  if (!canvasBounds || !markBounds) {
+    throw new Error('The PDF canvas or Point Set marker has no browser bounds.')
+  }
+  expect(markBounds.x + markBounds.width / 2)
+    .toBeCloseTo(canvasBounds.x + canvasBounds.width * expected.x, 0)
+  expect(markBounds.y + markBounds.height / 2)
+    .toBeCloseTo(canvasBounds.y + canvasBounds.height * expected.y, 0)
+}
+
+async function zoomPercentage(page: import('@playwright/test').Page) {
+  const copy = await page.locator('.zoom-controls [aria-live="polite"]').textContent()
+  return Number(copy?.replace('%', ''))
+}
+
+async function dragRepeatedly(
+  page: import('@playwright/test').Page,
+  viewer: Locator,
+  direction: 'toward-start' | 'toward-end',
+) {
+  const bounds = await viewer.boundingBox()
+  if (!bounds) throw new Error('The map canvas has no browser bounds.')
+  const inset = 8
+  const start = direction === 'toward-start'
+    ? { x: bounds.x + inset, y: bounds.y + inset }
+    : {
+        x: bounds.x + bounds.width * 0.72,
+        y: bounds.y + bounds.height * 0.72,
+      }
+  const end = direction === 'toward-start'
+    ? {
+        x: bounds.x + bounds.width * 0.72,
+        y: bounds.y + bounds.height * 0.72,
+      }
+    : { x: bounds.x + inset, y: bounds.y + inset }
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await page.mouse.move(start.x, start.y)
+    await page.mouse.down()
+    await page.mouse.move(end.x, end.y, { steps: 2 })
+    await page.mouse.up()
+  }
 }
 
 declare global {
