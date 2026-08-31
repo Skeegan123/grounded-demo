@@ -240,7 +240,10 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   )
 
   await modelContext.waitForTool('create_assistance_request')
-  await modelContext.executeTool('create_assistance_request', requestInput)
+  await modelContext.executeTool('create_assistance_request', {
+    ...requestInput,
+    recommendedPageIds: ['sheet-a1.2', 'sheet-a4.3'],
+  })
 
   await screen.findByRole('heading', { name: 'Current Assistance' })
   await screen.findByText(requestInput.question)
@@ -254,6 +257,16 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
     ),
   ).toBeInTheDocument()
   expect(within(currentAssistance).getByText(/Pages 1, 2/)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  let pagePicker = screen.getByRole('dialog', { name: 'Choose a page' })
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A1\.2 1st Floor Plan$/,
+  })).toHaveAccessibleDescription('Recommended')
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A4\.3 Doors & Windows$/,
+  })).toHaveAccessibleDescription('Recommended')
+  await user.keyboard('{Escape}')
 
   await user.click(screen.getByRole('button', { name: 'Go to target' }))
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
@@ -278,7 +291,17 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   fireEvent.click(drawingPage, { clientX: 110, clientY: 220 })
   await screen.findByText('1 point')
 
-  await choosePage(user, /^A4\.3 Doors & Windows$/)
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  pagePicker = screen.getByRole('dialog', { name: 'Choose a page' })
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A1\.2 1st Floor Plan$/,
+  })).toHaveAccessibleDescription('Recommended, 1 draft point')
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A4\.3 Doors & Windows$/,
+  })).toHaveAccessibleDescription('Recommended')
+  await user.click(within(pagePicker).getByRole('option', {
+    name: /^A4\.3 Doors & Windows$/,
+  }))
   const secondDrawingPage = await screen.findByLabelText('Drawing page A4.3')
   Object.defineProperty(secondDrawingPage, 'getBoundingClientRect', {
     configurable: true,
@@ -300,6 +323,16 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   fireEvent.click(secondDrawingPage, { clientX: 75, clientY: 25 })
   await screen.findByText('3 points')
   expect(within(secondDrawingPage).getByText('3')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  pagePicker = screen.getByRole('dialog', { name: 'Choose a page' })
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A1\.2 1st Floor Plan$/,
+  })).toHaveAccessibleDescription('Recommended, 1 draft point')
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A4\.3 Doors & Windows$/,
+  })).toHaveAccessibleDescription('Recommended, 2 draft points')
+  await user.keyboard('{Escape}')
 
   await user.click(within(secondDrawingPage).getByRole('button', { name: 'Point 2' }))
   await user.click(screen.getByRole('button', { name: 'Remove point 2' }))
@@ -388,7 +421,17 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
     top: '50%',
   })
 
-  await choosePage(user, /^A4\.3 Doors & Windows$/)
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  pagePicker = screen.getByRole('dialog', { name: 'Choose a page' })
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A1\.2 1st Floor Plan$/,
+  })).toHaveAccessibleDescription('1 submitted point')
+  expect(within(pagePicker).getByRole('option', {
+    name: /^A4\.3 Doors & Windows$/,
+  })).toHaveAccessibleDescription('1 submitted point')
+  await user.click(within(pagePicker).getByRole('option', {
+    name: /^A4\.3 Doors & Windows$/,
+  }))
   const reloadedSecondOverlay = await screen.findByLabelText('Drawing page A4.3')
   const reloadedSecondMark = within(reloadedSecondOverlay).getByText('2')
   expect(reloadedSecondOverlay).toContainElement(reloadedSecondMark)
@@ -757,6 +800,11 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
   expect(screen.getByText('0 points')).toBeInTheDocument()
   expect(screen.getByText('Revise and resubmit.')).toBeInTheDocument()
   expect(screen.getByText('The page is not legible.')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', {
+    name: 'View Point Set on drawing',
+  }))
+  expectCurrentPage(/A0\.0, Cover Page/)
 })
 
 test('Assistance collapse survives reload and View request restores the rail', async () => {
@@ -856,7 +904,10 @@ test('supporting references preserve the Point Set draft and Return to target re
   expect(screen.getByText(requestInput.question)).toBeInTheDocument()
   expect(screen.getByText('1 point')).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Return to target' }))
+  await user.click(screen.getByRole('button', { name: 'Collapse Assistance' }))
+  const strip = screen.getByLabelText('Active Assistance Request')
+  expect(within(strip).getByText('Point Set, 1 marked')).toBeInTheDocument()
+  await user.click(within(strip).getByRole('button', { name: 'Return to target' }))
   expectCurrentPage(/A1\.2, 1st Floor Plan/)
   const returnedOverlay = await screen.findByLabelText('Drawing page A1.2')
   expect(within(returnedOverlay).getByText('1')).toBeInTheDocument()

@@ -482,6 +482,39 @@ dd {
   justify-self: end;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-point-set-status {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.recommended-page-badge {
+  padding: 3px 5px;
+  color: var(--signal-dark);
+  background: #e7e8dc;
+  border: 1px solid #c7cabb;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .more-popup {
   right: 12px;
   width: min(320px, calc(100% - 24px));

@@ -10,6 +10,7 @@ import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 export interface PagePickerItem {
   page: DocumentPage
   adornment?: ReactNode
+  description?: string
 }
 
 interface WorkbenchNavigationProps {
@@ -215,9 +216,10 @@ export function WorkbenchNavigation({
             value={pageSearch}
           />
           <div aria-label="Document pages" className="page-options" role="listbox">
-            {filteredPages.map(({ page, adornment }) => (
+            {filteredPages.map(({ page, adornment, description }) => (
               <button
                 aria-label={`${page.sheetNumber ?? page.label} ${page.title}`}
+                aria-describedby={description ? `page-status-${page.id}` : undefined}
                 aria-selected={page.id === currentPage.id}
                 className="page-option"
                 key={page.id}
@@ -232,7 +234,15 @@ export function WorkbenchNavigation({
                   <strong>{page.sheetNumber ?? page.label}</strong>
                   <small>{page.title}</small>
                 </span>
-                {adornment && <span className="page-option-adornment">{adornment}</span>}
+                {adornment && (
+                  <span
+                    className="page-option-adornment"
+                    id={`page-status-${page.id}`}
+                  >
+                    <span className="visually-hidden">{description}</span>
+                    <span aria-hidden="true">{adornment}</span>
+                  </span>
+                )}
               </button>
             ))}
           </div>
