@@ -296,6 +296,27 @@ function App({
           y: point.y,
         }))
       : []
+  const selectedDocumentIsTarget = Boolean(
+    pointSetCurrent &&
+      selectedDocument.id === pointSetCurrent.documentId &&
+      selectedDocument.versionId === pointSetCurrent.documentVersionId,
+  )
+  const selectedDocumentIsViewedPointSet = Boolean(
+    viewedPointSet?.professionalResponse.type === 'point_set' &&
+      selectedDocument.id === viewedPointSet.professionalResponse.document.id &&
+      selectedDocument.versionId ===
+        viewedPointSet.professionalResponse.document.versionId,
+  )
+  const selectedDocumentHasDraft = Boolean(
+    !viewedPointSet && selectedDocumentIsTarget,
+  )
+  const pagePointCounts = countPointsByPage(
+    selectedDocumentIsViewedPointSet
+      ? visiblePoints
+      : selectedDocumentHasDraft
+        ? points
+        : [],
+  )
   const placePoint = ({ x, y }: NormalizedPoint) => {
     if (!canMark) return
     addPoint({
@@ -498,7 +519,35 @@ function App({
               selectDocument(document.id, document.versionId)
             }
             onSelectPage={(page) => selectPage(page.id)}
-            pageItems={selectedDocument.pages.map((page) => ({ page }))}
+            pageItems={selectedDocument.pages.map((page) => {
+              const isRecommended = Boolean(
+                selectedDocumentIsTarget &&
+                  pointSetCurrent?.recommendedPageIds.includes(page.id),
+              )
+              const pointCount = pagePointCounts.get(page.id) ?? 0
+              const pointStatus = pointCount > 0
+                ? `${pointCount} ${selectedDocumentIsViewedPointSet ? 'submitted' : 'draft'} ${pointCount === 1 ? 'point' : 'points'}`
+                : ''
+              const statuses = [isRecommended ? 'Recommended' : '', pointStatus]
+                .filter(Boolean)
+
+              return {
+                page,
+                ...(statuses.length > 0
+                  ? {
+                      adornment: (
+                        <span className="page-point-set-status">
+                          {isRecommended && (
+                            <span className="recommended-page-badge">Recommended</span>
+                          )}
+                          {pointStatus && <span>{pointStatus}</span>}
+                        </span>
+                      ),
+                      description: statuses.join(', '),
+                    }
+                  : {}),
+              }
+            })}
           />
           {current && (isConstrained || assistanceCollapsed) && (
             <div className="request-strip" aria-label="Active Assistance Request">
@@ -907,6 +956,14 @@ function isEditableTarget(target: EventTarget | null) {
   return target instanceof HTMLElement && (
     target.matches('input, textarea, select') || target.isContentEditable
   )
+}
+
+function countPointsByPage(points: Array<{ pageId: string }>) {
+  const counts = new Map<string, number>()
+  for (const point of points) {
+    counts.set(point.pageId, (counts.get(point.pageId) ?? 0) + 1)
+  }
+  return counts
 }
 
 export default App
