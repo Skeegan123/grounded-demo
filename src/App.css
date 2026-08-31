@@ -135,8 +135,7 @@ code {
   font-weight: 700;
 }
 
-.error-banner,
-.notice-banner {
+.error-banner {
   padding: 10px 24px;
   font-size: 0.85rem;
 }
@@ -145,12 +144,6 @@ code {
   color: #72230f;
   background: #f1ded7;
   border-bottom: 1px solid #d9b0a5;
-}
-
-.notice-banner {
-  color: #3f4a42;
-  background: #e7e8dc;
-  border-bottom: 1px solid var(--line);
 }
 
 .workspace-grid {

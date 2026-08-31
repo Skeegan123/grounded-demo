@@ -361,13 +361,6 @@ function App({
           WebMCP tools could not register. Refresh the page and try again. {registrationError}
         </p>
       )}
-      {registration === 'unsupported' && (
-        <p className="notice-banner">
-          Open this page in a WebMCP-capable browser to let an External Agent inspect
-          documents and create Assistance Requests. The Project Workspace remains available.
-        </p>
-      )}
-
       <div
         className={`workspace-grid${isConstrained ? ' is-constrained' : ''}${assistanceCollapsed ? ' assistance-collapsed' : ''}`}
         ref={workspaceGridRef}

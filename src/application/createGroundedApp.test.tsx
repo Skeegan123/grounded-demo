@@ -712,7 +712,7 @@ test('Go to target uses the target document first page without a recommendation'
   expectCurrentPage(/A0\.0, Cover Page/)
 })
 
-test('the workspace distinguishes Demo Session loading from an empty queue and explains unsupported WebMCP', async () => {
+test('the workspace distinguishes Demo Session loading from an empty queue', async () => {
   render(
     createGroundedApp({
       databaseName: `grounded-feedback-${crypto.randomUUID()}`,
@@ -725,8 +725,6 @@ test('the workspace distinguishes Demo Session loading from an empty queue and e
   expect(screen.getByRole('status', { name: 'Loading Demo Session' }))
     .toBeInTheDocument()
   await screen.findByText('No pending Assistance Requests')
-  expect(screen.getByText(/Open this page in a WebMCP-capable browser/))
-    .toBeInTheDocument()
 })
 
 test('a validation failure explains how to submit the requested Professional Response', async () => {
