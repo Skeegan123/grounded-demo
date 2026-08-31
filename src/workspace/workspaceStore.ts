@@ -6,11 +6,16 @@ export interface WorkspaceState {
   points: StoredPoint[]
   note: string
   selectedDocumentId: string
+  selectedDocumentVersionId: string
   selectedPageId: string
   zoom: number
   addPoint: (point: StoredPoint) => void
   clearDraft: () => void
-  selectDocument: (documentId: string, pageId: string) => void
+  selectDocument: (
+    documentId: string,
+    documentVersionId: string,
+    pageId: string,
+  ) => void
   selectPage: (pageId: string) => void
   setNote: (note: string) => void
   undoPoint: () => void
@@ -25,13 +30,17 @@ export function createWorkspaceStore() {
     points: [],
     note: '',
     selectedDocumentId: initialDocument.id,
+    selectedDocumentVersionId: initialDocument.versionId,
     selectedPageId: initialDocument.pages[0]!.id,
     zoom: 1,
     addPoint: (point) =>
       set((state) => ({ points: [...state.points, point] })),
     clearDraft: () => set({ points: [], note: '' }),
-    selectDocument: (selectedDocumentId, selectedPageId) =>
-      set({ selectedDocumentId, selectedPageId }),
+    selectDocument: (
+      selectedDocumentId,
+      selectedDocumentVersionId,
+      selectedPageId,
+    ) => set({ selectedDocumentId, selectedDocumentVersionId, selectedPageId }),
     selectPage: (selectedPageId) => set({ selectedPageId }),
     setNote: (note) => set({ note }),
     undoPoint: () =>

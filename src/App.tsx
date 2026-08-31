@@ -38,6 +38,10 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
     workspaceStore,
     (state) => state.selectedDocumentId,
   )
+  const selectedDocumentVersionId = useStore(
+    workspaceStore,
+    (state) => state.selectedDocumentVersionId,
+  )
   const selectedPageId = useStore(workspaceStore, (state) => state.selectedPageId)
   const zoom = useStore(workspaceStore, (state) => state.zoom)
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
@@ -96,7 +100,7 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
   const targetPage =
     findPage(targetDocument, targetPageId) ?? targetDocument.pages[0]!
   const selectedDocument =
-    demoProject.documents.find((document) => document.id === selectedDocumentId) ??
+    findDocument(selectedDocumentId, selectedDocumentVersionId) ??
     defaultDocument
   const selectedPage =
     selectedDocument.pages.find((page) => page.id === selectedPageId) ??
@@ -110,7 +114,7 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
 
   useEffect(() => {
     if (!current) return
-    selectDocument(current.documentId, targetPage.id)
+    selectDocument(current.documentId, current.documentVersionId, targetPage.id)
   }, [current, selectDocument, targetPage.id])
 
   const placePoint = (event: MouseEvent<HTMLDivElement>) => {
@@ -174,10 +178,19 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
           <nav aria-label="Project documents">
             {demoProject.documents.map((document) => (
               <button
-                className={document.id === selectedDocument.id ? 'document active' : 'document'}
-                key={document.id}
+                className={
+                  document.id === selectedDocument.id &&
+                  document.versionId === selectedDocument.versionId
+                    ? 'document active'
+                    : 'document'
+                }
+                key={`${document.id}:${document.versionId}`}
                 onClick={() =>
-                  selectDocument(document.id, document.pages[0]!.id)
+                  selectDocument(
+                    document.id,
+                    document.versionId,
+                    document.pages[0]!.id,
+                  )
                 }
                 type="button"
               >
@@ -278,7 +291,13 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
               {!canMark && (
                 <button
                   className="response-page-button"
-                  onClick={() => selectDocument(targetDocument.id, targetPage.id)}
+                  onClick={() =>
+                    selectDocument(
+                      targetDocument.id,
+                      targetDocument.versionId,
+                      targetPage.id,
+                    )
+                  }
                   type="button"
                 >
                   Open requested page
