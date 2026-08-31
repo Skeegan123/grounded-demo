@@ -1,5 +1,28 @@
 import { expect, test, type Locator } from '@playwright/test'
 
+test('one zoom-in click scales the actual PDF page to 110%', async ({ page }) => {
+  await page.goto('/')
+
+  const canvas = page.getByLabel('Rendered PDF page A0.0')
+  await expect(canvas).toBeVisible()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const bounds = await canvas.boundingBox()
+  if (!bounds) throw new Error('The PDF canvas has no browser bounds.')
+
+  await page.getByRole('button', { name: 'Zoom in' }).click()
+  await expect(page.getByText('110%')).toBeVisible()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await canvas.evaluate(async () => {
+    for (let frame = 0; frame < 10; frame += 1) {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    }
+  })
+
+  const zoomedBounds = await canvas.boundingBox()
+  if (!zoomedBounds) throw new Error('The zoomed PDF canvas has no browser bounds.')
+  expect(zoomedBounds.width).toBeCloseTo(bounds.width * 1.1, 0)
+})
+
 test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', async ({
   page,
 }) => {
