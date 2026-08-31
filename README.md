@@ -4,15 +4,18 @@ Grounded is a shared construction workspace where External Agents and Senior
 Project Managers collaborate on judgments that depend on precise construction
 document interpretation.
 
-The current tracer proves one durable Point Set round trip in a browser-local
-Demo Project:
+The current demo proves one complete Type C door Submittal Review in a
+browser-local Demo Project:
 
-1. An External Agent creates a queued Assistance Request through WebMCP.
-2. The Senior Project Manager marks a normalized point on Sheet A1.2 and
-   submits a final Professional Response.
-3. The page reloads without changing its Demo Session.
-4. The External Agent retrieves the persisted response through a later WebMCP
-   call.
+1. An External Agent inspects the drawing set and fictional submittal through
+   WebMCP and finds the hollow-core versus solid-wood mismatch.
+2. The agent creates a queued Point Set Assistance Request with immutable
+   target and supporting document references.
+3. The Senior Project Manager marks the WC, Utility, and Coats openings on
+   Sheet A1.2 and submits a final Professional Response.
+4. The page reloads without changing its Demo Session.
+5. The agent retrieves the persisted response and recommends revise and
+   resubmit.
 
 Committed requests and responses live in IndexedDB through Dexie. The Demo
 Session identity is tab-scoped in session storage. Unfinished marks and notes
@@ -37,6 +40,10 @@ Both input contracts are TypeBox schemas used for TypeScript inference, browser
 registration, and runtime validation. The application also includes a recording
 model-context adapter so the same behavior can run under Vitest without browser
 WebMCP support.
+
+The tested goal prompt, resume prompt, observed client behavior, and verified
+tool sequence are recorded in
+[`docs/type-c-submittal-review-demo.md`](docs/type-c-submittal-review-demo.md).
 
 ## Run locally
 

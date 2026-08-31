@@ -11,6 +11,13 @@ const requestInput = {
   documentId: 'virginia-farmhouse-drawings',
   documentVersionId: 'virginia-farmhouse-drawings-v1',
   recommendedPageIds: ['sheet-a1.2'],
+  supportingDocumentReferences: [
+    {
+      documentId: 'type-c-door-submittal',
+      documentVersionId: 'type-c-door-submittal-v1',
+      pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+    },
+  ],
 } as const
 
 function createIds(...ids: string[]) {
@@ -51,6 +58,15 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
   await screen.findByRole('heading', { name: 'Current Assistance' })
   await screen.findByText(requestInput.question)
   screen.getByRole('heading', { name: 'Project Documents' })
+  const currentAssistance = screen
+    .getByRole('heading', { name: 'Current Assistance' })
+    .closest('aside')!
+  expect(
+    within(currentAssistance).getByText(
+      'Type C interior door product data and review cover',
+    ),
+  ).toBeInTheDocument()
+  expect(within(currentAssistance).getByText(/Pages 1, 2/)).toBeInTheDocument()
 
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   expect(screen.getByLabelText('Rendered PDF page A1.2')).toBeInTheDocument()

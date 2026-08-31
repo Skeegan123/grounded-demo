@@ -28,6 +28,49 @@ test('the create tool rejects a blank question through its TypeBox contract', as
   assistance.close()
 })
 
+test('a Point Set request carries supporting document references into the queue', async () => {
+  const assistance = createAssistance({
+    databaseName: `grounded-webmcp-supporting-documents-${crypto.randomUUID()}`,
+    sessionId: 'session-1',
+    createId: () => 'request-1',
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerAssistanceTools(modelContext, assistance, controller.signal)
+
+  await modelContext.executeTool('create_assistance_request', {
+    question: 'Mark the Type C openings affected by the product mismatch.',
+    responseType: 'point_set',
+    documentId: 'virginia-farmhouse-drawings',
+    documentVersionId: 'virginia-farmhouse-drawings-v1',
+    recommendedPageIds: ['sheet-a1.2'],
+    supportingDocumentReferences: [
+      {
+        documentId: 'type-c-door-submittal',
+        documentVersionId: 'type-c-door-submittal-v1',
+        pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+      },
+    ],
+  })
+
+  await expect(assistance.listPending()).resolves.toEqual([
+    expect.objectContaining({
+      id: 'request-1',
+      supportingDocumentReferences: [
+        {
+          documentId: 'type-c-door-submittal',
+          documentVersionId: 'type-c-door-submittal-v1',
+          pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+        },
+      ],
+    }),
+  ])
+
+  controller.abort()
+  assistance.close()
+})
+
 test('the recording adapter locks the initial Point Set tool contract', async () => {
   const assistance = createAssistance({
     databaseName: `grounded-webmcp-contract-${crypto.randomUUID()}`,
@@ -102,6 +145,25 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
               recommendedPageIds: {
                 type: 'array',
                 items: { type: 'string', minLength: 1 },
+              },
+              supportingDocumentReferences: {
+                type: 'array',
+                minItems: 1,
+                items: {
+                  type: 'object',
+                  properties: {
+                    documentId: { type: 'string', minLength: 1 },
+                    documentVersionId: { type: 'string', minLength: 1 },
+                    pageIds: {
+                      type: 'array',
+                      minItems: 1,
+                      uniqueItems: true,
+                      items: { type: 'string', minLength: 1 },
+                    },
+                  },
+                  required: ['documentId', 'documentVersionId', 'pageIds'],
+                  additionalProperties: false,
+                },
               },
             },
             required: [

@@ -88,6 +88,19 @@ code {
   overflow-wrap: anywhere;
 }
 
+.supporting-documents {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.supporting-documents li,
+.supporting-documents small {
+  display: block;
+}
+
 .error-banner {
   padding: 10px 24px;
   color: #72230f;

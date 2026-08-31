@@ -146,6 +146,21 @@ function App({
     .map((pageId) => findPage(targetDocument, pageId)?.label)
     .filter((label): label is string => Boolean(label))
     .join(', ')
+  const supportingDocuments = pointSetCurrent?.supportingDocumentReferences
+    ?.map((reference) => {
+      const document = findDocument(
+        reference.documentId,
+        reference.documentVersionId,
+      )
+      if (!document) return undefined
+      const pageLabels = reference.pageIds
+        .map((pageId) => findPage(document, pageId)?.label)
+        .filter((label): label is string => Boolean(label))
+      return { document, pageLabels }
+    })
+    .filter((reference): reference is NonNullable<typeof reference> =>
+      Boolean(reference),
+    )
   const selectedDocument =
     findDocument(selectedDocumentId, selectedDocumentVersionId) ??
     defaultDocument
@@ -406,6 +421,23 @@ function App({
                         <dt>Recommended pages</dt>
                         <dd>{recommendedPageLabels || 'None'}</dd>
                       </div>
+                      {supportingDocuments && supportingDocuments.length > 0 && (
+                        <div>
+                          <dt>Supporting documents</dt>
+                          <dd>
+                            <ul className="supporting-documents">
+                              {supportingDocuments.map(({ document, pageLabels }) => (
+                                <li key={`${document.id}:${document.versionId}`}>
+                                  <span>{document.title}</span>
+                                  <small>
+                                    {document.versionId} · Pages {pageLabels.join(', ')}
+                                  </small>
+                                </li>
+                              ))}
+                            </ul>
+                          </dd>
+                        </div>
+                      )}
                     </>
                   )}
                 </dl>

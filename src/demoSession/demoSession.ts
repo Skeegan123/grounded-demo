@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie'
+import type { SupportingDocumentReference } from '../demoProject/demoProject'
 
 export const DEMO_SESSION_STORAGE_KEY = 'grounded.demo-session-id'
 const DEMO_TAB_NAME_PREFIX = 'grounded:'
@@ -32,6 +33,7 @@ export interface PointSetAssistanceRequestRecord extends AssistanceRequestRecord
   documentId: string
   documentVersionId: string
   recommendedPageIds: string[]
+  supportingDocumentReferences?: SupportingDocumentReference[]
 }
 
 export interface TextAssistanceRequestRecord extends AssistanceRequestRecordBase {

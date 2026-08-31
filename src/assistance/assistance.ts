@@ -1,5 +1,9 @@
 import Dexie from 'dexie'
-import { findDocument, findPage } from '../demoProject/demoProject'
+import {
+  findDocument,
+  findPage,
+  type SupportingDocumentReference,
+} from '../demoProject/demoProject'
 import {
   DemoSessionDatabase,
   type AssistanceRequestRecord,
@@ -12,6 +16,7 @@ export interface CreatePointSetAssistanceRequest {
   documentId: string
   documentVersionId: string
   recommendedPageIds: string[]
+  supportingDocumentReferences?: SupportingDocumentReference[]
 }
 
 export interface CreateTextAssistanceRequest {
@@ -116,6 +121,26 @@ export function createAssistance(options: AssistanceOptions) {
         )
       ) {
         throw new Error('A recommended page does not belong to the target document.')
+      }
+
+      for (const reference of input.supportingDocumentReferences ?? []) {
+        const supportingDocument = findDocument(
+          reference.documentId,
+          reference.documentVersionId,
+        )
+        if (!supportingDocument) {
+          throw new Error('A supporting document version does not exist.')
+        }
+        if (
+          reference.pageIds.some(
+            (pageId) =>
+              !supportingDocument.pages.some((page) => page.id === pageId),
+          )
+        ) {
+          throw new Error(
+            'A supporting page does not belong to its document version.',
+          )
+        }
       }
     }
 

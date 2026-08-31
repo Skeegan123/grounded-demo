@@ -32,6 +32,12 @@ export interface DocumentVersionReference {
   versionId: string
 }
 
+export interface SupportingDocumentReference {
+  documentId: string
+  documentVersionId: string
+  pageIds: string[]
+}
+
 function projectDocumentKind(kind: string): ProjectDocument['kind'] {
   if (kind === 'contract_drawings' || kind === 'submittal_product_data') {
     return kind

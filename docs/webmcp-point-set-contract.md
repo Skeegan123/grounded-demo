@@ -20,10 +20,17 @@ Input fields:
 | `documentId` | non-empty string, required for Point Set |
 | `documentVersionId` | non-empty string, required for Point Set |
 | `recommendedPageIds` | array of non-empty page identity strings, required for Point Set |
+| `supportingDocumentReferences` | optional array of immutable document-version references, each with one or more page identities |
 
 An Assistance Request with a text response type contains only `question` and
 `responseType`. Both discriminated shapes reject additional fields. The tool is annotated with
 `readOnlyHint: false` and `untrustedContentHint: true`.
+
+Supporting references give the Senior Project Manager the documents that
+informed the request without changing the Point Set target. Each reference has
+`documentId`, `documentVersionId`, and `pageIds`. Grounded rejects document
+versions outside the Project Workspace and pages outside the referenced
+version.
 
 Successful creation returns after the request is committed, without waiting for
 a Professional Response:
@@ -105,3 +112,9 @@ accepted their TypeBox-generated JSON schemas and annotations, executed the
 create and pending-read calls, observed the visible point submission, reloaded
 the page, and retrieved the answered response with its document version, page
 identity, normalized coordinates, count, and timestamps intact.
+
+The complete Type C review run on the same date also discovered all three
+document tools, identified the hollow-core versus solid-wood mismatch, created
+one request with structured supporting references, and retrieved the final
+three-point response after reload. The tested prompts and sequence are in
+[`type-c-submittal-review-demo.md`](type-c-submittal-review-demo.md).
