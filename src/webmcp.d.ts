@@ -18,26 +18,11 @@ declare global {
     ) => Promise<unknown>
   }
 
-  interface WebMCPRegisteredTool {
-    name: string
-    title?: string
-    description: string
-    inputSchema?: string
-    origin: string
-    window: Window
-  }
-
   interface WebMCPModelContext {
     registerTool: (
       tool: WebMCPTool,
       options?: { signal?: AbortSignal },
     ) => Promise<void>
-    getTools: () => Promise<WebMCPRegisteredTool[]>
-    executeTool: (
-      tool: WebMCPRegisteredTool,
-      input?: Record<string, unknown>,
-      options?: { signal?: AbortSignal },
-    ) => Promise<string>
   }
 
   interface Document {

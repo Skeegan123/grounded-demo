@@ -1,51 +1,37 @@
 # Grounded
 
-Grounded is an early WebMCP Hackathon project exploring how AI agents and
-construction professionals can review construction documents together.
+Grounded is a shared construction workspace where External Agents and Senior
+Project Managers collaborate on judgments that depend on precise construction
+document interpretation.
 
-Construction drawings demand exact counts, measurements, and spatial judgment.
-An agent can gather files, extract text, compare requirements, and organize the
-result. When a question depends on reading the drawing correctly, Grounded will
-give the agent a direct way to ask an experienced person and receive structured,
-usable input.
+The current tracer proves one durable Point Set round trip in a browser-local
+Demo Project:
 
-The goal is a faster, more reliable review process, not full automation.
+1. An External Agent creates a queued Assistance Request through WebMCP.
+2. The Senior Project Manager marks a normalized point on Sheet A1.2 and
+   submits a final Professional Response.
+3. The page reloads without changing its Demo Session.
+4. The External Agent retrieves the persisted response through a later WebMCP
+   call.
 
-## Current status
+Committed requests and responses live in IndexedDB through Dexie. The Demo
+Session identity is tab-scoped in session storage. Unfinished marks and notes
+are transient Zustand state and intentionally disappear on reload.
 
-This repository contains the starting web application and one WebMCP experiment:
+## WebMCP tools
 
-- Vite
-- React
-- TypeScript
-- Oxlint
-- An imperative `ask_construction_professional` WebMCP tool
+The real-client tracer locked the initial Point Set contract documented in
+[`docs/webmcp-point-set-contract.md`](docs/webmcp-point-set-contract.md):
 
-There is no backend, document viewer, markup system, or persistence yet. Those
-choices are intentionally still open.
+- `create_assistance_request` persists one request and returns its identity
+  immediately.
+- `get_assistance_request` returns the pending request or its final Professional
+  Response.
 
-## Test the WebMCP promise flow
-
-The `ask_construction_professional` tool receives a question from an agent. Its
-`execute` callback opens an in-page response dialog and returns a promise that
-stays pending until the person submits an answer. The resolved tool result is:
-
-```json
-{
-  "answer": "The person's response"
-}
-```
-
-For local testing in Chrome:
-
-1. Open `chrome://flags/#enable-webmcp-testing`.
-2. Enable the WebMCP testing flag and relaunch Chrome.
-3. Run `pnpm dev` and open the URL printed by Vite.
-4. Click **Run test tool**, or call the tool with a WebMCP-capable agent.
-
-The page reports whether the browser accepted the registration. Dismissing the
-dialog or cancelling the agent call rejects the pending promise instead of
-returning an empty answer.
+Both input contracts are TypeBox schemas used for TypeScript inference, browser
+registration, and runtime validation. The application also includes a recording
+model-context adapter so the same behavior can run under Vitest without browser
+WebMCP support.
 
 ## Run locally
 
@@ -54,11 +40,18 @@ pnpm install
 pnpm dev
 ```
 
-Then open the local URL printed by Vite.
+Open the URL printed by Vite in a WebMCP-capable client. The workspace status
+changes to **WebMCP ready** once both tools register.
 
-## Checks
+## Verify
 
 ```bash
 pnpm lint
+pnpm typecheck
+pnpm test
 pnpm build
 ```
+
+The high-level behavioral test crosses the recording adapter, real application
+composition, fake IndexedDB, and visible UI for create, respond, reload, and
+retrieve.

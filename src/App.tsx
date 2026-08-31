@@ -1,348 +1,226 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState, type MouseEvent } from 'react'
+import { useStore } from 'zustand'
+import type {
+  AssistanceRequestView,
+  createAssistance,
+} from './assistance/assistance'
+import { demoProject, findPage } from './demoProject/demoProject'
+import { registerAssistanceTools } from './webmcp/registerAssistanceTools'
+import type { ModelContextAdapter } from './webmcp/modelContext'
+import type { createWorkspaceStore } from './workspace/workspaceStore'
 import './App.css'
 
-const TOOL_NAME = 'ask_construction_professional'
-
-type RegistrationStatus = 'checking' | 'ready' | 'unsupported' | 'error'
-
-interface RequestView {
-  id: number
-  question: string
+interface AppProps {
+  assistance: ReturnType<typeof createAssistance>
+  modelContext?: ModelContextAdapter
+  sessionId: string
+  workspaceStore: ReturnType<typeof createWorkspaceStore>
 }
 
-interface ActiveRequest extends RequestView {
-  resolve: (answer: string) => void
-  reject: (reason: unknown) => void
-  signal?: AbortSignal
-  onAbort?: () => void
-}
+type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
 
-interface Exchange {
-  question: string
-  answer: string
-}
-
-function getQuestion(input: Record<string, unknown>) {
-  const question = input.question
-
-  if (typeof question !== 'string' || question.trim().length === 0) {
-    return 'What should the agent know?'
-  }
-
-  return question.trim()
-}
-
-function getAnswerFromResult(result: string) {
-  try {
-    const parsed: unknown = JSON.parse(result)
-
-    if (typeof parsed === 'object' && parsed && 'answer' in parsed) {
-      return String(parsed.answer)
-    }
-  } catch {
-    return result
-  }
-
-  return result
-}
-
-function App() {
-  const [registrationStatus, setRegistrationStatus] =
-    useState<RegistrationStatus>(() =>
-      document.modelContext ? 'checking' : 'unsupported',
-    )
-  const [registrationError, setRegistrationError] = useState('')
-  const [request, setRequest] = useState<RequestView | null>(null)
-  const [draft, setDraft] = useState('')
-  const [lastExchange, setLastExchange] = useState<Exchange | null>(null)
-  const [testState, setTestState] = useState<'idle' | 'waiting' | 'done'>('idle')
-  const [testMessage, setTestMessage] = useState('')
-  const activeRequest = useRef<ActiveRequest | null>(null)
-  const nextRequestId = useRef(0)
-
-  const clearActiveRequest = useCallback(() => {
-    const active = activeRequest.current
-
-    if (active?.signal && active.onAbort) {
-      active.signal.removeEventListener('abort', active.onAbort)
-    }
-
-    activeRequest.current = null
-    setRequest(null)
-    setDraft('')
-
-    return active
-  }, [])
-
-  const askHuman = useCallback(
-    (question: string, signal?: AbortSignal) =>
-      new Promise<string>((resolve, reject) => {
-        if (activeRequest.current) {
-          reject(new Error('A human response is already pending.'))
-          return
-        }
-
-        if (signal?.aborted) {
-          reject(signal.reason ?? new DOMException('Tool call cancelled.', 'AbortError'))
-          return
-        }
-
-        const id = ++nextRequestId.current
-        const onAbort = () => {
-          if (activeRequest.current?.id !== id) return
-
-          const active = clearActiveRequest()
-          active?.reject(
-            signal?.reason ?? new DOMException('Tool call cancelled.', 'AbortError'),
-          )
-        }
-
-        const active: ActiveRequest = {
-          id,
-          question,
-          resolve,
-          reject,
-          signal,
-          onAbort,
-        }
-
-        activeRequest.current = active
-        signal?.addEventListener('abort', onAbort, { once: true })
-        setRequest({ id, question })
-      }),
-    [clearActiveRequest],
+function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) {
+  const [pending, setPending] = useState<AssistanceRequestView[]>([])
+  const [registration, setRegistration] = useState<RegistrationState>(() =>
+    modelContext ? 'registering' : 'unsupported',
   )
+  const [registrationError, setRegistrationError] = useState('')
+  const points = useStore(workspaceStore, (state) => state.points)
+  const note = useStore(workspaceStore, (state) => state.note)
+  const addPoint = useStore(workspaceStore, (state) => state.addPoint)
+  const clearDraft = useStore(workspaceStore, (state) => state.clearDraft)
+  const setNote = useStore(workspaceStore, (state) => state.setNote)
+  const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
 
-  const submitResponse = useCallback(() => {
-    const answer = draft.trim()
-    if (!answer) return
-
-    const active = clearActiveRequest()
-    active?.resolve(answer)
-  }, [clearActiveRequest, draft])
-
-  const dismissRequest = useCallback(() => {
-    const active = clearActiveRequest()
-    active?.reject(new DOMException('Human dismissed the request.', 'AbortError'))
-  }, [clearActiveRequest])
+  const refresh = useCallback(async () => {
+    setPending(await assistance.listPending())
+  }, [assistance])
 
   useEffect(() => {
-    const modelContext = document.modelContext
-
-    if (!modelContext) return
-
-    const controller = new AbortController()
-    let mounted = true
-
-    const tool: WebMCPTool = {
-      name: TOOL_NAME,
-      title: 'Ask a construction professional',
-      description:
-        'Ask the construction professional viewing this page a question when human judgment is needed. The call remains pending until the person responds.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          question: {
-            type: 'string',
-            description: 'The specific question the construction professional should answer.',
-          },
-        },
-        required: ['question'],
-        additionalProperties: false,
-      },
-      annotations: {
-        readOnlyHint: false,
-        untrustedContentHint: true,
-      },
-      execute: async (input, context) => {
-        const question = getQuestion(input)
-        const answer = await askHuman(question, context?.signal)
-        setLastExchange({ question, answer })
-        return { answer }
-      },
+    let active = true
+    const load = async () => {
+      const requests = await assistance.listPending()
+      if (active) setPending(requests)
     }
+    void load()
+    const unsubscribe = assistance.subscribe(() => void load())
+    return () => {
+      active = false
+      unsubscribe()
+    }
+  }, [assistance])
 
-    modelContext
-      .registerTool(tool, { signal: controller.signal })
-      .then(() => {
-        if (mounted) setRegistrationStatus('ready')
-      })
+  useEffect(() => {
+    if (!modelContext) return
+    const controller = new AbortController()
+    registerAssistanceTools(modelContext, assistance, controller.signal)
+      .then(() => setRegistration('ready'))
       .catch((error: unknown) => {
-        if (!mounted || controller.signal.aborted) return
-
-        setRegistrationStatus('error')
+        if (controller.signal.aborted) return
+        setRegistration('error')
         setRegistrationError(
           error instanceof Error ? error.message : 'Tool registration failed.',
         )
       })
+    return () => controller.abort()
+  }, [assistance, modelContext])
 
-    return () => {
-      mounted = false
-      controller.abort()
-    }
-  }, [askHuman])
+  useEffect(() => () => assistance.close(), [assistance])
 
-  useEffect(
-    () => () => {
-      const active = activeRequest.current
-      activeRequest.current = null
-      active?.reject(new DOMException('Page closed.', 'AbortError'))
-    },
-    [],
-  )
+  const current = pending[0]
+  const targetDocument = current
+    ? demoProject.documents.find(
+        (document) => document.id === current.documentId,
+      ) ?? demoProject.documents[0]
+    : demoProject.documents[0]
+  const targetPageId = current?.recommendedPageIds[0] ?? targetDocument.pages[0].id
+  const targetPage =
+    findPage(targetDocument.id, targetPageId) ?? targetDocument.pages[0]
 
-  const runTestCall = async () => {
-    const modelContext = document.modelContext
-    if (!modelContext) return
+  const placePoint = (event: MouseEvent<HTMLDivElement>) => {
+    if (!current) return
+    const bounds = event.currentTarget.getBoundingClientRect()
+    if (bounds.width === 0 || bounds.height === 0) return
+    const x = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width))
+    const y = Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height))
+    addPoint({
+      pageId: targetPage.id,
+      pageLabel: targetPage.label,
+      pageNumber: targetPage.number,
+      x,
+      y,
+    })
+  }
 
-    setTestState('waiting')
-    setTestMessage('The tool promise is pending.')
-
-    try {
-      const tools = await modelContext.getTools()
-      const tool = tools.find(({ name }) => name === TOOL_NAME)
-
-      if (!tool) throw new Error('The test tool is not registered.')
-
-      const result = await modelContext.executeTool(
-        tool,
-        {
-          question: 'What is one detail on the drawing that the agent should verify?',
-        },
-      )
-
-      setTestState('done')
-      setTestMessage(`Resolved with: ${getAnswerFromResult(result)}`)
-    } catch (error) {
-      setTestState('done')
-      setTestMessage(error instanceof Error ? error.message : 'The test call failed.')
-    }
+  const submitPointSet = async () => {
+    if (!current) return
+    await assistance.answerPointSet({
+      requestId: current.id,
+      points,
+      ...(note.trim() ? { note } : {}),
+    })
+    clearDraft()
+    await refresh()
   }
 
   const statusCopy = {
-    checking: 'Checking browser support',
-    ready: 'Tool registered',
-    unsupported: 'WebMCP is not enabled',
+    ready: 'WebMCP ready',
+    unsupported: 'WebMCP unavailable',
     error: 'Registration failed',
-  }[registrationStatus]
+    registering: 'Registering tools',
+  }[registration]
 
   return (
-    <main className="app-shell">
-      <header className="site-header">
-        <a className="wordmark" href="/" aria-label="Grounded home">
-          <span className="wordmark-mark" aria-hidden="true" />
-          Grounded
-        </a>
-        <span className={`project-status status-${registrationStatus}`}>
-          <span className="status-dot" aria-hidden="true" />
-          {statusCopy}
-        </span>
+    <main className="workspace-shell">
+      <header className="workspace-header">
+        <div>
+          <a className="wordmark" href="/" aria-label="Grounded home">
+            <span className="wordmark-mark" aria-hidden="true" />
+            Grounded
+          </a>
+          <p>{demoProject.title}</p>
+        </div>
+        <div className="session-status">
+          <span className={`status-dot status-${registration}`} aria-hidden="true" />
+          <span>{statusCopy}</span>
+          <code>{sessionId.slice(0, 8)}</code>
+        </div>
       </header>
 
-      <section className="hero" aria-labelledby="hero-title">
-        <p className="eyebrow">WebMCP experiment 001</p>
-        <h1 id="hero-title">Ask a person. Wait for a real answer.</h1>
-        <p className="hero-copy">
-          An agent can call this page's WebMCP tool when it needs human
-          judgment. The tool opens a response box and its promise stays pending
-          until you send an answer.
-        </p>
-      </section>
+      {registration === 'error' && (
+        <p className="error-banner" role="alert">{registrationError}</p>
+      )}
 
-      <section className="tool-panel" aria-labelledby="tool-title">
-        <div className="tool-heading">
-          <p className="section-number">Registered tool</p>
-          <code>{TOOL_NAME}</code>
-        </div>
-        <div className="tool-details">
-          <h2 id="tool-title">Promise handshake</h2>
-          <p>
-            The agent supplies a question. Grounded returns a promise, asks you
-            for an answer, and resolves the call with your exact response.
-          </p>
+      <div className="workspace-grid">
+        <aside className="documents-pane" aria-labelledby="documents-title">
+          <p className="pane-kicker">Demo Project</p>
+          <h2 id="documents-title">Project Documents</h2>
+          <nav aria-label="Project documents">
+            {demoProject.documents.map((document) => (
+              <button
+                className={document.id === targetDocument.id ? 'document active' : 'document'}
+                key={document.id}
+                type="button"
+              >
+                <span>{document.title}</span>
+                <small>{document.description}</small>
+              </button>
+            ))}
+          </nav>
+        </aside>
 
-          {registrationStatus === 'unsupported' && (
-            <p className="browser-note" role="status">
-              Enable <code>chrome://flags/#enable-webmcp-testing</code> in Chrome,
-              then relaunch the browser.
-            </p>
-          )}
-
-          {registrationStatus === 'error' && (
-            <p className="browser-note error-note" role="alert">
-              {registrationError}
-            </p>
-          )}
-
-          <div className="test-row">
-            <button
-              className="primary-button"
-              type="button"
-              onClick={runTestCall}
-              disabled={registrationStatus !== 'ready' || testState === 'waiting'}
-            >
-              {testState === 'waiting' ? 'Waiting for you...' : 'Run test tool'}
-            </button>
-            {testMessage && <p className="test-message">{testMessage}</p>}
+        <section className="document-pane" aria-labelledby="work-area-title">
+          <div className="pane-heading">
+            <div>
+              <p className="pane-kicker">Document work area</p>
+              <h1 id="work-area-title">{targetDocument.title}</h1>
+            </div>
+            <span className="sheet-chip">Sheet {targetPage.label}</span>
           </div>
-        </div>
-      </section>
-
-      {lastExchange && (
-        <section className="last-exchange" aria-labelledby="last-response-title">
-          <p className="section-number">Last response</p>
-          <div>
-            <h2 id="last-response-title">{lastExchange.question}</h2>
-            <blockquote>{lastExchange.answer}</blockquote>
+          <div className="drawing-stage">
+            <div
+              aria-label={`Drawing page ${targetPage.label}`}
+              className={current ? 'drawing-page marking' : 'drawing-page'}
+              onClick={placePoint}
+              role="button"
+              tabIndex={current ? 0 : -1}
+            >
+              <div className="drawing-title-block"><strong>FIRST FLOOR PLAN</strong><span>A1.2</span></div>
+              <div className="room room-one">WC<br /><small>Type C</small></div>
+              <div className="room room-two">UTILITY<br /><small>Type C</small></div>
+              <div className="room room-three">COATS<br /><small>Type C</small></div>
+              {points.map((point, index) => (
+                <span
+                  className="point-mark"
+                  key={`${point.x}-${point.y}-${index}`}
+                  style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }}
+                >
+                  {index + 1}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
-      )}
 
-      <footer>
-        <p>Built for the WebMCP Hackathon.</p>
-      </footer>
-
-      {request && (
-        <div className="dialog-backdrop">
-          <section
-            className="response-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="response-dialog-title"
-            aria-describedby="agent-question"
-          >
-            <p className="dialog-kicker">The agent needs your help</p>
-            <h2 id="response-dialog-title">Answer one question</h2>
-            <p id="agent-question" className="agent-question">
-              {request.question}
-            </p>
-            <form
-              onSubmit={(event) => {
-                event.preventDefault()
-                submitResponse()
-              }}
-            >
-              <label htmlFor="human-response">Your response</label>
-              <textarea
-                id="human-response"
-                autoFocus
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder="Type what the agent should know..."
-                rows={5}
-              />
-              <div className="dialog-actions">
-                <button className="text-button" type="button" onClick={dismissRequest}>
-                  Dismiss
-                </button>
-                <button className="primary-button" type="submit" disabled={!draft.trim()}>
-                  Send to agent
-                </button>
+        <aside className="assistance-pane" aria-labelledby="assistance-title">
+          <p className="pane-kicker">FIFO work rail</p>
+          <h2 id="assistance-title">Current Assistance</h2>
+          {current ? (
+            <div className="request-card">
+              <div className="request-meta"><span>Pending</span><code>{current.id}</code></div>
+              <p className="question">{current.question}</p>
+              <dl>
+                <div><dt>Response</dt><dd>Point Set</dd></div>
+                <div><dt>Page</dt><dd>{targetPage.label}</dd></div>
+              </dl>
+              <div className="point-controls">
+                <div>
+                  <strong>{points.length} {points.length === 1 ? 'point' : 'points'}</strong>
+                  <span>Click the drawing to mark locations.</span>
+                </div>
+                <button disabled={points.length === 0} onClick={undoPoint} type="button">Undo</button>
               </div>
-            </form>
-          </section>
-        </div>
-      )}
+              <label htmlFor="point-set-note">Overall note <span>optional</span></label>
+              <textarea
+                id="point-set-note"
+                onChange={(event) => setNote(event.target.value)}
+                placeholder="Add context for the External Agent"
+                value={note}
+              />
+              <button className="submit-button" onClick={() => void submitPointSet()} type="button">
+                Submit Point Set
+              </button>
+              {pending.length > 1 && <p className="waiting">{pending.length - 1} waiting</p>}
+            </div>
+          ) : (
+            <div className="empty-request">
+              <span aria-hidden="true">✓</span>
+              <p>No pending Assistance Requests</p>
+              <small>An External Agent can queue the next judgment through WebMCP.</small>
+            </div>
+          )}
+        </aside>
+      </div>
     </main>
   )
 }
