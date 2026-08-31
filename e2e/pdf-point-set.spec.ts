@@ -1,5 +1,41 @@
 import { expect, test, type Locator } from '@playwright/test'
 
+test('trackpad gestures stay inside the fixed viewer and browser history', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 900, height: 600 })
+  await page.goto('/')
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await page.evaluate(() => {
+    history.replaceState({ marker: 'previous' }, '', '/viewer-previous')
+    history.pushState({ marker: 'current' }, '', '/viewer-current')
+  })
+
+  const viewer = page.locator('.pdf-page-viewer')
+  const bounds = await viewer.boundingBox()
+  if (!bounds) throw new Error('The PDF viewer has no browser bounds.')
+  await page.mouse.move(
+    bounds.x + bounds.width / 2,
+    bounds.y + bounds.height / 2,
+  )
+  const scrollBefore = await page.evaluate(() => window.scrollY)
+  await page.mouse.wheel(0, 240)
+  await page.waitForTimeout(100)
+  await page.mouse.wheel(240, 0)
+
+  expect(await page.evaluate(() => ({
+    historyMarker: history.state?.marker,
+    rootOverscrollX: getComputedStyle(document.documentElement)
+      .overscrollBehaviorX,
+    scrollY: window.scrollY,
+  }))).toEqual({
+    historyMarker: 'current',
+    rootOverscrollX: 'none',
+    scrollY: scrollBefore,
+  })
+  await expect(viewer).toHaveCSS('overscroll-behavior', 'contain')
+})
+
 test('one zoom-in click scales the actual PDF page to 110%', async ({ page }) => {
   await page.goto('/')
 
@@ -50,6 +86,7 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
     y: initialCanvasBounds.y + initialCanvasBounds.height * 0.35,
   }
   await page.mouse.move(pointer.x, pointer.y)
+  await page.keyboard.down('Control')
   await page.mouse.wheel(0, -420)
   await expect.poll(() => zoomPercentage(page)).toBeGreaterThan(100)
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
@@ -61,6 +98,7 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
     .toBeCloseTo(0.35, 1)
 
   await page.mouse.wheel(0, -10_000)
+  await page.keyboard.up('Control')
   await expect(page.getByText('400%')).toBeVisible()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
   await expect(page.getByRole('button', { name: 'Zoom in' })).toBeDisabled()
@@ -76,12 +114,17 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
   expect(startBounds.y).toBeCloseTo(viewerBounds.y, 0)
 
   await dragRepeatedly(page, viewer, 'toward-end')
-  const endBounds = await canvas.boundingBox()
-  if (!endBounds) throw new Error('The panned PDF canvas has no bounds.')
+  const [endBounds, zoomControlsBounds] = await Promise.all([
+    canvas.boundingBox(),
+    page.getByLabel('Document zoom').boundingBox(),
+  ])
+  if (!endBounds || !zoomControlsBounds) {
+    throw new Error('The panned PDF canvas or zoom controls have no bounds.')
+  }
   expect(endBounds.x + endBounds.width)
-    .toBeCloseTo(viewerBounds.x + viewerBounds.width, 0)
+    .toBeLessThanOrEqual(zoomControlsBounds.x - 8)
   expect(endBounds.y + endBounds.height)
-    .toBeCloseTo(viewerBounds.y + viewerBounds.height, 0)
+    .toBeLessThanOrEqual(zoomControlsBounds.y - 8)
 
   await page.keyboard.press('0')
   await expect(page.getByText('100%')).toBeVisible()

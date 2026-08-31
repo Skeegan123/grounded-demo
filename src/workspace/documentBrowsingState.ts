@@ -6,11 +6,19 @@ import {
 
 export type DocumentFitPreference = 'page' | 'width'
 
+export interface DocumentLocation {
+  documentId: string
+  documentVersionId: string
+  pageId: string
+}
+
+export type DocumentDestination = Omit<DocumentLocation, 'pageId'> & {
+  pageId?: string
+}
+
 export interface DocumentBrowsingState {
   assistanceCollapsed: boolean
-  selectedDocumentId: string
-  selectedDocumentVersionId: string
-  selectedPageId: string
+  selectedLocation: DocumentLocation
   lastPageIdByDocument: Record<string, string>
   fitPreference: DocumentFitPreference
   zoom: number
@@ -27,9 +35,11 @@ export function createDefaultDocumentBrowsingState(): DocumentBrowsingState {
   const page = document.pages[0]!
   return {
     assistanceCollapsed: false,
-    selectedDocumentId: document.id,
-    selectedDocumentVersionId: document.versionId,
-    selectedPageId: page.id,
+    selectedLocation: {
+      documentId: document.id,
+      documentVersionId: document.versionId,
+      pageId: page.id,
+    },
     lastPageIdByDocument: {
       [documentKey(document.id, document.versionId)]: page.id,
     },
@@ -47,13 +57,29 @@ export function loadDocumentBrowsingState(
   if (!stored) return fallback
 
   try {
-    const candidate = JSON.parse(stored) as Partial<DocumentBrowsingState>
-    const selectedDocument =
+    const candidate = JSON.parse(stored) as Partial<DocumentBrowsingState> & {
+      selectedDocumentId?: unknown
+      selectedDocumentVersionId?: unknown
+      selectedPageId?: unknown
+    }
+    const candidateLocation = candidate.selectedLocation ?? (
       typeof candidate.selectedDocumentId === 'string' &&
-      typeof candidate.selectedDocumentVersionId === 'string'
+      typeof candidate.selectedDocumentVersionId === 'string' &&
+      typeof candidate.selectedPageId === 'string'
+        ? {
+            documentId: candidate.selectedDocumentId,
+            documentVersionId: candidate.selectedDocumentVersionId,
+            pageId: candidate.selectedPageId,
+          }
+        : undefined
+    )
+    const selectedDocument =
+      candidateLocation &&
+      typeof candidateLocation.documentId === 'string' &&
+      typeof candidateLocation.documentVersionId === 'string'
         ? findDocument(
-            candidate.selectedDocumentId,
-            candidate.selectedDocumentVersionId,
+            candidateLocation.documentId,
+            candidateLocation.documentVersionId,
           )
         : undefined
     if (!selectedDocument) return fallback
@@ -77,18 +103,20 @@ export function loadDocumentBrowsingState(
       selectedDocument.versionId,
     )
     const selectedPageId = selectedDocument.pages.some(
-      (page) => page.id === candidate.selectedPageId,
+      (page) => page.id === candidateLocation?.pageId,
     )
-      ? candidate.selectedPageId!
+      ? candidateLocation!.pageId
       : lastPageIdByDocument[selectedDocumentKey] ??
         selectedDocument.pages[0]!.id
     lastPageIdByDocument[selectedDocumentKey] = selectedPageId
 
     return {
       assistanceCollapsed: candidate.assistanceCollapsed === true,
-      selectedDocumentId: selectedDocument.id,
-      selectedDocumentVersionId: selectedDocument.versionId,
-      selectedPageId,
+      selectedLocation: {
+        documentId: selectedDocument.id,
+        documentVersionId: selectedDocument.versionId,
+        pageId: selectedPageId,
+      },
       lastPageIdByDocument,
       fitPreference: candidate.fitPreference === 'width' ? 'width' : 'page',
       zoom:

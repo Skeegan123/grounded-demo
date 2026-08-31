@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { useState } from 'react'
 import { expect, test, vi } from 'vitest'
 import { findDocument } from '../demoProject/demoProject'
 import {
@@ -286,7 +287,8 @@ test('placement waits for the matching render and a drag never adds a point', as
   )
   const secondOverlay = await screen.findByLabelText('Drawing page A0.1')
   expect(secondOverlay).not.toHaveAttribute('role', 'button')
-  expect(screen.getByLabelText('Rendered PDF page A0.1')).toHaveProperty('width', 0)
+  expect(screen.getByLabelText('Rendered PDF page A0.1'))
+    .toHaveStyle({ visibility: 'hidden' })
   fireEvent.click(secondOverlay, { clientX: 10, clientY: 10 })
   expect(onPlacePoint).toHaveBeenCalledTimes(1)
 })
@@ -325,6 +327,194 @@ test('a draft marker can be selected and removed without placing a point', async
   fireEvent.click(screen.getByRole('button', { name: 'Remove point 1' }))
   expect(onRemovePoint).toHaveBeenCalledWith(0)
   expect(onPlacePoint).not.toHaveBeenCalled()
+})
+
+test('a submitted marker exposes its fixed number and location to keyboard users', async () => {
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      onPlacePoint={() => {}}
+      page={page}
+      points={[{
+        pointNumber: 4,
+        pageId: page.id,
+        pageLabel: page.label,
+        pageNumber: page.number,
+        x: 0.25,
+        y: 0.75,
+      }]}
+      renderer={{ async renderPage() {}, prefetchPages() {} }}
+      zoom={1}
+    />,
+  )
+
+  const marker = await screen.findByRole('img', {
+    name: 'Submitted point 4 at 25% from left and 75% from top',
+  })
+  marker.focus()
+  expect(marker).toHaveFocus()
+})
+
+test('trackpad scrolling pans without restarting rendering or flashing a cover', async () => {
+  const renderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, width }) => {
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+
+  function Viewer() {
+    const [zoom, setZoom] = useState(2)
+    return (
+      <PdfPageViewer
+        canMark={false}
+        document={document}
+        onPlacePoint={() => {}}
+        onZoomChange={setZoom}
+        page={page}
+        points={[]}
+        renderer={renderer}
+        zoom={zoom}
+      />
+    )
+  }
+
+  render(<Viewer />)
+  const canvas = await screen.findByLabelText('Rendered PDF page A0.0')
+  await waitFor(() => expect(renderer.renderPage).toHaveBeenCalledTimes(1))
+  await waitFor(() => expect(canvas).toHaveStyle({ visibility: 'visible' }))
+  const viewer = canvas.closest('.pdf-page-viewer')!
+  const frame = canvas.closest('.pdf-page-frame')!
+  const initialTransform = frame.getAttribute('style')
+
+  fireEvent.wheel(viewer, {
+    clientX: 100,
+    clientY: 100,
+    deltaX: 30,
+    deltaY: 24,
+  })
+  fireEvent.wheel(viewer, {
+    clientX: 100,
+    clientY: 100,
+    deltaX: 20,
+    deltaY: 16,
+  })
+
+  await waitFor(() => expect(frame.getAttribute('style')).not.toBe(initialTransform))
+  expect(renderer.renderPage).toHaveBeenCalledTimes(1)
+  expect(canvas).toHaveStyle({ visibility: 'visible' })
+  expect(screen.queryByText('Rendering PDF page')).not.toBeInTheDocument()
+})
+
+test('intentional zoom keeps the completed bitmap visible until its replacement is ready', async () => {
+  let renderCount = 0
+  const pendingRenders: Array<{
+    canvas: HTMLCanvasElement
+    height: number
+    resolve: () => void
+    width: number
+  }> = []
+  const renderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, width }) => {
+      renderCount += 1
+      if (renderCount === 1) {
+        canvas.width = width
+        canvas.height = height
+        return Promise.resolve()
+      }
+      return new Promise<void>((resolve) => {
+        pendingRenders.push({ canvas, height, resolve, width })
+      })
+    }),
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const renderViewer = (zoom: number) => (
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      onPlacePoint={() => {}}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={zoom}
+    />
+  )
+
+  const view = render(renderViewer(1))
+  const canvas = await screen.findByLabelText(
+    'Rendered PDF page A0.0',
+  ) as HTMLCanvasElement
+  await waitFor(() => expect(canvas).toHaveStyle({ visibility: 'visible' }))
+
+  view.rerender(renderViewer(1.1))
+  await waitFor(() => expect(renderer.renderPage).toHaveBeenCalledTimes(2))
+  expect(canvas).toHaveStyle({ visibility: 'visible' })
+  expect(screen.queryByText('Rendering PDF page')).not.toBeInTheDocument()
+
+  const replacement = pendingRenders[0]!
+  replacement.canvas.width = replacement.width
+  replacement.canvas.height = replacement.height
+  act(() => replacement.resolve())
+  await waitFor(() => expect(screen.getByLabelText('Rendered PDF page A0.0'))
+    .toBe(replacement.canvas))
+  expect(replacement.canvas).toHaveStyle({ visibility: 'visible' })
+})
+
+test('rapid intentional zoom coalesces obsolete replacement renders', async () => {
+  const renderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, width }) => {
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const renderViewer = (zoom: number) => (
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      onPlacePoint={() => {}}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={zoom}
+    />
+  )
+
+  const view = render(renderViewer(1))
+  await waitFor(() => expect(renderer.renderPage).toHaveBeenCalledTimes(1))
+  view.rerender(renderViewer(1.1))
+  await new Promise((resolve) => setTimeout(resolve, 20))
+  view.rerender(renderViewer(1.2))
+  await new Promise((resolve) => setTimeout(resolve, 20))
+  view.rerender(renderViewer(1.3))
+
+  await waitFor(() => expect(renderer.renderPage).toHaveBeenCalledTimes(2))
+  expect(renderer.renderPage).toHaveBeenLastCalledWith(
+    expect.objectContaining({ width: 795.6 }),
+  )
 })
 
 type RenderPageRequestWithResolve = RenderPageRequest & {
