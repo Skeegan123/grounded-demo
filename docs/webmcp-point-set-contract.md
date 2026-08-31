@@ -63,6 +63,7 @@ Point Set adds this final response:
     },
     "points": [
       {
+        "pointNumber": 1,
         "page": { "id": "sheet-a1.2", "label": "A1.2", "number": 6 },
         "x": 0.5,
         "y": 0.5
@@ -73,6 +74,12 @@ Point Set adds this final response:
   }
 }
 ```
+
+`pointNumber` is a one-based reference across the complete Point Set. Grounded
+assigns contiguous numbers when the Senior Project Manager submits the response,
+then stores and returns those fixed numbers. Responses saved before Point Numbers
+were added derive them from the stored array order. Point Number identifies a
+location. It does not express priority, rank, category, or importance.
 
 `count` is computed from `points`; it is never accepted or stored separately.
 Coordinates are normalized from the top-left of the rendered page and remain in

@@ -45,6 +45,7 @@ export type AssistanceRequestRecord =
   | TextAssistanceRequestRecord
 
 export interface StoredPoint {
+  pointNumber?: number
   pageId: string
   pageLabel: string
   pageNumber: number

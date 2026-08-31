@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { expect, test, vi } from 'vitest'
 import { findDocument } from '../demoProject/demoProject'
 import {
@@ -59,6 +59,50 @@ test('the PDF page and Point Set overlay share fitted post-rotation geometry', a
   })
   fireEvent.click(overlay, { clientX: 316, clientY: 218 })
   expect(onPlacePoint).toHaveBeenCalledWith({ x: 0.5, y: 0.5 })
+})
+
+test('Point Numbers use the complete Point Set order across pages', async () => {
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const firstPage = document.pages.find((page) => page.id === 'sheet-a1.2')!
+  const secondPage = document.pages.find((page) => page.id === 'sheet-a4.3')!
+  const renderer: PdfPageRenderer = {
+    async renderPage() {},
+    prefetchPages() {},
+  }
+
+  render(
+    <PdfPageViewer
+      canMark
+      document={document}
+      onPlacePoint={() => {}}
+      page={secondPage}
+      points={[
+        {
+          pageId: firstPage.id,
+          pageLabel: firstPage.label,
+          pageNumber: firstPage.number,
+          x: 0.5,
+          y: 0.5,
+        },
+        {
+          pageId: secondPage.id,
+          pageLabel: secondPage.label,
+          pageNumber: secondPage.number,
+          x: 0.25,
+          y: 0.75,
+        },
+      ]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+
+  const overlay = await screen.findByLabelText('Drawing page A4.3')
+  expect(within(overlay).getByText('2')).toHaveStyle({ left: '25%', top: '75%' })
+  expect(within(overlay).queryByText('1')).not.toBeInTheDocument()
 })
 
 test('changing pages cancels stale work and caches only the neighboring pages', async () => {

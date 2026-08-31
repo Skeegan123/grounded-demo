@@ -66,6 +66,7 @@ export type AssistanceResult =
             type: 'point_set'
             document: { id: string; versionId: string }
             points: Array<{
+              pointNumber: number
               page: { id: string; label: string; number: number }
               x: number
               y: number
@@ -281,7 +282,10 @@ export function createAssistance(options: AssistanceOptions) {
           type: 'point_set',
           documentId: request.documentId,
           documentVersionId: request.documentVersionId,
-          points: draft.points.map((point) => ({ ...point })),
+          points: draft.points.map((point, index) => ({
+            ...point,
+            pointNumber: index + 1,
+          })),
           ...(note ? { note } : {}),
           submittedAt: options.now().toISOString(),
         })
@@ -386,7 +390,8 @@ export function createAssistance(options: AssistanceOptions) {
       }
     }
 
-    const points = response.points.map((point) => ({
+    const points = response.points.map((point, index) => ({
+      pointNumber: point.pointNumber ?? index + 1,
       page: {
         id: point.pageId,
         label: point.pageLabel,
