@@ -42,6 +42,11 @@ interface AppProps {
 
 type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
 
+interface UndoNotice {
+  pageId: string
+  pageLabel: string
+}
+
 const CONSTRAINED_WORKBENCH_WIDTH = 900
 
 function App({
@@ -65,6 +70,7 @@ function App({
   )
   const [registrationError, setRegistrationError] = useState('')
   const [viewedPointSetId, setViewedPointSetId] = useState('')
+  const [undoNotice, setUndoNotice] = useState<UndoNotice>()
   const [supportingReferenceRequestId, setSupportingReferenceRequestId] =
     useState('')
   const assistancePaneRef = useRef<HTMLElement>(null)
@@ -98,6 +104,7 @@ function App({
   )
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
   const clearDraft = useStore(workspaceStore, (state) => state.clearDraft)
+  const removePoint = useStore(workspaceStore, (state) => state.removePoint)
   const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
   const selectPage = useStore(workspaceStore, (state) => state.selectPage)
   const setAssistanceTab = useStore(
@@ -264,18 +271,19 @@ function App({
     zoomIn,
     zoomOut,
   ])
-  const canMark = Boolean(
-    pointSetCurrent &&
-      selectedDocument.id === pointSetCurrent.documentId &&
-      selectedDocument.versionId === pointSetCurrent.documentVersionId,
-  )
-  const targetNavigationLabel =
-    openedSupportingReference && !canMark ? 'Return to target' : 'Go to target'
   const viewedPointSet = completed.find(
     (result) =>
       result.id === viewedPointSetId &&
       result.professionalResponse.type === 'point_set',
   )
+  const canMark = Boolean(
+    pointSetCurrent &&
+      !viewedPointSet &&
+      selectedDocument.id === pointSetCurrent.documentId &&
+      selectedDocument.versionId === pointSetCurrent.documentVersionId,
+  )
+  const targetNavigationLabel =
+    openedSupportingReference && !canMark ? 'Return to target' : 'Go to target'
   const visiblePoints = canMark
     ? points
     : viewedPointSet?.professionalResponse.type === 'point_set'
@@ -301,8 +309,41 @@ function App({
 
   const goToTarget = () => {
     if (!pointSetCurrent) return
+    setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument(targetDocument.id, targetDocument.versionId, targetPage.id)
+  }
+
+  const undoLatestPoint = () => {
+    const latestPoint = points.at(-1)
+    if (!latestPoint) return
+    undoPoint()
+    if (latestPoint.pageId !== selectedPage.id) {
+      setUndoNotice({
+        pageId: latestPoint.pageId,
+        pageLabel: latestPoint.pageLabel,
+      })
+    } else {
+      setUndoNotice(undefined)
+    }
+  }
+
+  useEffect(() => {
+    if (!undoNotice) return
+    const timeout = window.setTimeout(() => setUndoNotice(undefined), 6_000)
+    return () => window.clearTimeout(timeout)
+  }, [undoNotice])
+
+  const openUndonePointPage = () => {
+    if (!undoNotice || !pointSetCurrent) return
+    setViewedPointSetId('')
+    setSupportingReferenceRequestId('')
+    selectDocument(
+      pointSetCurrent.documentId,
+      pointSetCurrent.documentVersionId,
+      undoNotice.pageId,
+    )
+    setUndoNotice(undefined)
   }
 
   const openSupportingReference = (
@@ -474,7 +515,7 @@ function App({
                   <>
                     <button
                       disabled={points.length === 0}
-                      onClick={undoPoint}
+                      onClick={undoLatestPoint}
                       type="button"
                     >
                       Undo
@@ -531,12 +572,21 @@ function App({
               document={selectedDocument}
               fit={fitPreference}
               onPlacePoint={placePoint}
+              onRemovePoint={canMark ? removePoint : undefined}
               onZoomChange={setZoom}
               page={selectedPage}
               points={visiblePoints}
               renderer={pageRenderer}
               zoom={zoom}
             />
+            {undoNotice && (
+              <div className="undo-notice" role="status">
+                <span>Removed the latest point from page {undoNotice.pageLabel}.</span>
+                <button onClick={openUndonePointPage} type="button">
+                  View page {undoNotice.pageLabel}
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -683,7 +733,7 @@ function App({
                       </div>
                       <button
                         disabled={points.length === 0}
-                        onClick={undoPoint}
+                        onClick={undoLatestPoint}
                         type="button"
                       >
                         Undo

@@ -48,6 +48,7 @@ interface PdfPageViewerProps {
   document: ProjectDocument
   fit?: PageFit
   onPlacePoint: (point: NormalizedPoint) => void
+  onRemovePoint?: (globalIndex: number) => void
   onZoomChange?: (zoom: number) => void
   page: DocumentPage
   points: StoredPoint[]
@@ -55,7 +56,11 @@ interface PdfPageViewerProps {
   zoom: number
 }
 
-type RenderState = 'idle' | 'loading' | 'ready' | 'error'
+interface RenderResult {
+  error: string
+  identity: string
+  status: 'idle' | 'ready' | 'error'
+}
 
 interface ActivePointer extends PageOffset {
   startX: number
@@ -75,6 +80,7 @@ export function PdfPageViewer({
   document,
   fit = 'page',
   onPlacePoint,
+  onRemovePoint,
   onZoomChange,
   page,
   points,
@@ -99,8 +105,15 @@ export function PdfPageViewer({
   })
   const [offset, setOffsetState] = useState<PageOffset>({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
-  const [renderState, setRenderState] = useState<RenderState>('idle')
-  const [renderError, setRenderError] = useState('')
+  const [renderResult, setRenderResult] = useState<RenderResult>({
+    error: '',
+    identity: '',
+    status: 'idle',
+  })
+  const [selectedPoint, setSelectedPoint] = useState<{
+    globalIndex: number
+    renderIdentity: string
+  }>()
 
   const setOffset = (nextOffset: PageOffset) => {
     offsetRef.current = nextOffset
@@ -132,6 +145,7 @@ export function PdfPageViewer({
     [availableSize, fit, page, zoom],
   )
   const pageIdentity = `${document.id}:${document.versionId}:${page.id}`
+  const renderIdentity = `${pageIdentity}:${renderedSize.width}x${renderedSize.height}`
 
   useLayoutEffect(() => {
     if (renderedSize.width <= 0 || renderedSize.height <= 0) return
@@ -180,13 +194,19 @@ export function PdfPageViewer({
     setOffset(nextOffset)
   }, [availableSize, fit, pageIdentity, renderedSize, zoom])
 
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current
+    if (canvas) {
+      canvas.width = 0
+      canvas.height = 0
+    }
+  }, [renderIdentity])
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || renderedSize.width <= 0 || renderedSize.height <= 0) return
 
     const controller = new AbortController()
-    setRenderState('loading')
-    setRenderError('')
     void renderer.renderPage({
       canvas,
       pageNumber: page.number,
@@ -205,27 +225,41 @@ export function PdfPageViewer({
           document.pages[pageIndex + 1]?.number,
         ].filter((pageNumber): pageNumber is number => pageNumber !== undefined),
       })
-      setRenderState('ready')
+      setRenderResult({ error: '', identity: renderIdentity, status: 'ready' })
     }).catch((error: unknown) => {
       if (controller.signal.aborted) return
-      setRenderState('error')
-      setRenderError(
-        error instanceof Error ? error.message : 'The PDF page could not be rendered.',
-      )
+      setRenderResult({
+        error: error instanceof Error
+          ? error.message
+          : 'The PDF page could not be rendered.',
+        identity: renderIdentity,
+        status: 'error',
+      })
     })
 
     return () => controller.abort()
-  }, [document, page.id, page.number, renderedSize, renderer])
+  }, [document, page.id, page.number, renderIdentity, renderedSize, renderer])
+
+  const isCurrentRender =
+    renderResult.status === 'ready' && renderResult.identity === renderIdentity
+  const isPendingRender =
+    renderedSize.width > 0 &&
+    renderedSize.height > 0 &&
+    renderResult.identity !== renderIdentity
+  const selectedPointIndex = selectedPoint?.renderIdentity === renderIdentity
+    ? selectedPoint.globalIndex
+    : undefined
 
   const pagePoints = points
-    .map((point, index) => ({
+    .map((point, globalIndex) => ({
       ...point,
-      pointNumber: point.pointNumber ?? index + 1,
+      globalIndex,
+      pointNumber: point.pointNumber ?? globalIndex + 1,
     }))
     .filter((point) => point.pageId === page.id)
 
   const placeClientPoint = (clientX: number, clientY: number) => {
-    if (!canMark) return
+    if (!canMark || !isCurrentRender) return
     const bounds = frameRef.current?.getBoundingClientRect()
     if (!bounds || bounds.width <= 0 || bounds.height <= 0) return
     if (
@@ -240,7 +274,7 @@ export function PdfPageViewer({
       ignoreNextClickRef.current = false
       return
     }
-    if (!canMark) return
+    if (!canMark || !isCurrentRender) return
     const bounds = event.currentTarget.getBoundingClientRect()
     if (bounds.width <= 0 || bounds.height <= 0) return
     onPlacePoint(normalizeClientPoint({
@@ -267,21 +301,25 @@ export function PdfPageViewer({
   }
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0 || isInteractiveTarget(event.target)) return
+    if (event.button !== 0) return
+    if (!isPointMarker(event.target)) setSelectedPoint(undefined)
+    if (isInteractiveTarget(event.target)) return
     try {
       event.currentTarget.setPointerCapture(event.pointerId)
     } catch {
       // Synthetic pointer events have no active browser pointer to capture.
     }
+    const hadPointers = pointersRef.current.size > 0
     pointersRef.current.set(event.pointerId, {
       x: event.clientX,
       y: event.clientY,
       startX: event.clientX,
       startY: event.clientY,
     })
-    movementRef.current = false
+    if (!hadPointers) movementRef.current = false
     setIsPanning(true)
     if (pointersRef.current.size === 2) {
+      movementRef.current = true
       previousPinchRef.current = pointerGesture(pointersRef.current)
     }
   }
@@ -293,6 +331,7 @@ export function PdfPageViewer({
     const previousPosition = { x: active.x, y: active.y }
     active.x = event.clientX
     active.y = event.clientY
+    const wasMoving = movementRef.current
     if (
       Math.hypot(active.x - active.startX, active.y - active.startY) >=
       PAN_MOVEMENT_THRESHOLD
@@ -301,12 +340,13 @@ export function PdfPageViewer({
     }
 
     if (pointersRef.current.size === 1) {
+      if (!movementRef.current) return
       setOffset(clampPageOffset({
         page: renderedSize,
         viewport: availableSize,
         offset: {
-          x: offsetRef.current.x + active.x - previousPosition.x,
-          y: offsetRef.current.y + active.y - previousPosition.y,
+          x: offsetRef.current.x + active.x - (wasMoving ? previousPosition.x : active.startX),
+          y: offsetRef.current.y + active.y - (wasMoving ? previousPosition.y : active.startY),
         },
       }))
       return
@@ -374,32 +414,76 @@ export function PdfPageViewer({
           <canvas
             aria-label={`Rendered PDF page ${page.label}`}
             ref={canvasRef}
-            style={renderedSize}
+            style={{
+              ...renderedSize,
+              visibility: isCurrentRender ? 'visible' : 'hidden',
+            }}
           />
           <div
             aria-label={`Drawing page ${page.label}`}
-            className={canMark ? 'point-set-overlay marking' : 'point-set-overlay'}
+            className={canMark && isCurrentRender
+              ? 'point-set-overlay marking'
+              : 'point-set-overlay'}
             onClick={placePointFromClick}
-            role={canMark ? 'button' : undefined}
+            role={canMark && isCurrentRender ? 'button' : undefined}
           >
-            {pagePoints.map((point) => (
+            {isCurrentRender && pagePoints.map((point) => (
               <span
-                className="point-mark"
-                key={`${point.x}-${point.y}-${point.pointNumber}`}
+                className={`point-mark${selectedPointIndex === point.globalIndex ? ' selected' : ''}`}
+                key={onRemovePoint
+                  ? `draft-${point.globalIndex}`
+                  : `submitted-${point.pointNumber}`}
                 style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }}
               >
-                {point.pointNumber}
+                {onRemovePoint ? (
+                  <>
+                    <button
+                      aria-label={`Point ${point.pointNumber}`}
+                      className="point-pin"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        setSelectedPoint({
+                          globalIndex: point.globalIndex,
+                          renderIdentity,
+                        })
+                      }}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      type="button"
+                    >
+                      {point.pointNumber}
+                    </button>
+                    <button
+                      aria-label={`Remove point ${point.pointNumber}`}
+                      className="remove-point"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        setSelectedPoint(undefined)
+                        onRemovePoint(point.globalIndex)
+                      }}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      type="button"
+                    >
+                      ×
+                    </button>
+                  </>
+                ) : (
+                  <span aria-label={`Point ${point.pointNumber}`} className="point-pin">
+                    {point.pointNumber}
+                  </span>
+                )}
               </span>
             ))}
           </div>
-          {renderState === 'loading' && (
-            <p className="pdf-render-status" role="status">Rendering PDF page</p>
+          {isPendingRender && (
+            <div className="pdf-render-cover">
+              <p className="pdf-render-status" role="status">Rendering PDF page</p>
+            </div>
           )}
         </div>
       )}
-      {renderState === 'error' && (
+      {renderResult.identity === renderIdentity && renderResult.status === 'error' && (
         <div className="pdf-render-error" role="alert">
-          <p>{renderError}</p>
+          <p>{renderResult.error}</p>
           <a
             href={`${document.file.url}#page=${page.number}`}
             rel="noreferrer"
@@ -435,4 +519,8 @@ function isInteractiveTarget(target: EventTarget) {
   return target instanceof Element && Boolean(
     target.closest('button, a, input, textarea, select, [contenteditable="true"]'),
   )
+}
+
+function isPointMarker(target: EventTarget) {
+  return target instanceof Element && Boolean(target.closest('.point-mark'))
 }

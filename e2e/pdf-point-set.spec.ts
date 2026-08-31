@@ -265,6 +265,116 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
 })
 
+test('clicks place compact pins while drags and marker removal stay safe', async ({
+  page,
+}) => {
+  await installRecordedTools(page)
+  await page.goto('/')
+  await createPointSetRequest(page)
+  await page.getByRole('button', { name: 'Go to target' }).click()
+
+  const overlay = page.getByLabel('Drawing page A1.2')
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const bounds = await overlay.boundingBox()
+  if (!bounds) throw new Error('The target overlay has no browser bounds.')
+
+  const firstPoint = {
+    x: bounds.x + bounds.width * 0.35,
+    y: bounds.y + bounds.height * 0.4,
+  }
+  await overlay.dispatchEvent('pointerdown', {
+    button: 0,
+    clientX: firstPoint.x,
+    clientY: firstPoint.y,
+    pointerId: 81,
+    pointerType: 'touch',
+  })
+  await overlay.dispatchEvent('pointerup', {
+    button: 0,
+    clientX: firstPoint.x,
+    clientY: firstPoint.y,
+    pointerId: 81,
+    pointerType: 'touch',
+  })
+  await expect(page.getByText('1 point')).toBeVisible()
+
+  await page.mouse.move(
+    bounds.x + bounds.width * 0.6,
+    bounds.y + bounds.height * 0.6,
+  )
+  await page.mouse.down()
+  await page.mouse.move(
+    bounds.x + bounds.width * 0.45,
+    bounds.y + bounds.height * 0.45,
+    { steps: 4 },
+  )
+  await page.mouse.up()
+  await expect(page.getByText('1 point')).toBeVisible()
+
+  await page.mouse.click(
+    bounds.x + bounds.width * 0.7,
+    bounds.y + bounds.height * 0.3,
+  )
+  await expect(page.getByText('2 points')).toBeVisible()
+  const firstPin = overlay.getByRole('button', { name: 'Point 1', exact: true })
+  const pinSize = await firstPin.boundingBox()
+  if (!pinSize) throw new Error('The Point Set pin has no browser bounds.')
+  expect(pinSize.width).toBeCloseTo(24, 0)
+  expect(pinSize.height).toBeCloseTo(24, 0)
+  await page.getByRole('button', { name: 'Zoom in' }).click()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const zoomedPinSize = await firstPin.boundingBox()
+  if (!zoomedPinSize) throw new Error('The zoomed Point Set pin has no bounds.')
+  expect(zoomedPinSize.width).toBeCloseTo(pinSize.width, 0)
+  expect(zoomedPinSize.height).toBeCloseTo(pinSize.height, 0)
+  await page.getByRole('button', { name: 'Fit page' }).click()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+
+  await firstPin.hover()
+  const removeFirst = overlay.getByRole('button', { name: 'Remove point 1' })
+  await expect.poll(() => removeFirst.evaluate((element) => getComputedStyle(element).opacity))
+    .toBe('1')
+  await removeFirst.click()
+  await expect(page.getByText('1 point')).toBeVisible()
+  await expect(overlay.getByRole('button', { name: 'Point 2', exact: true }))
+    .toHaveCount(0)
+  const renumberedPin = overlay.getByRole('button', {
+    name: 'Point 1',
+    exact: true,
+  })
+  await expectPointAt(renumberedPin.locator('xpath=..'), { x: 0.7, y: 0.3 })
+
+  await page.setViewportSize({ width: 820, height: 900 })
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await renumberedPin.dispatchEvent('pointerdown', {
+    button: 0,
+    pointerId: 91,
+    pointerType: 'touch',
+  })
+  await renumberedPin.dispatchEvent('click')
+  const touchRemove = overlay.getByRole('button', { name: 'Remove point 1' })
+  await expect.poll(() => touchRemove.evaluate((element) => getComputedStyle(element).opacity))
+    .toBe('1')
+
+  const viewer = page.locator('.pdf-page-viewer')
+  await viewer.dispatchEvent('pointerdown', {
+    button: 0,
+    clientX: 1,
+    clientY: 1,
+    pointerId: 92,
+    pointerType: 'touch',
+  })
+  await viewer.dispatchEvent('pointercancel', {
+    button: 0,
+    clientX: 1,
+    clientY: 1,
+    pointerId: 92,
+    pointerType: 'touch',
+  })
+  await expect.poll(() => touchRemove.evaluate((element) => getComputedStyle(element).opacity))
+    .toBe('0')
+})
+
 test('wide workbenches show Assistance by default and remember manual collapse', async ({
   page,
 }) => {
