@@ -3,6 +3,7 @@ import { demoProject, findDocument } from '../demoProject/demoProject'
 export type DocumentFitPreference = 'page' | 'width'
 
 export interface DocumentBrowsingState {
+  assistanceCollapsed: boolean
   selectedDocumentId: string
   selectedDocumentVersionId: string
   selectedPageId: string
@@ -21,6 +22,7 @@ export function createDefaultDocumentBrowsingState(): DocumentBrowsingState {
   const document = demoProject.documents[0]!
   const page = document.pages[0]!
   return {
+    assistanceCollapsed: false,
     selectedDocumentId: document.id,
     selectedDocumentVersionId: document.versionId,
     selectedPageId: page.id,
@@ -79,6 +81,7 @@ export function loadDocumentBrowsingState(
     lastPageIdByDocument[selectedDocumentKey] = selectedPageId
 
     return {
+      assistanceCollapsed: candidate.assistanceCollapsed === true,
       selectedDocumentId: selectedDocument.id,
       selectedDocumentVersionId: selectedDocument.versionId,
       selectedPageId,

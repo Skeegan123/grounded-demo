@@ -691,3 +691,107 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
   expect(screen.getByText('Revise and resubmit.')).toBeInTheDocument()
   expect(screen.getByText('The page is not legible.')).toBeInTheDocument()
 })
+
+test('Assistance collapse survives reload and View request restores the rail', async () => {
+  const user = userEvent.setup()
+  const storage = window.sessionStorage
+  const databaseName = `grounded-assistance-layout-${crypto.randomUUID()}`
+  const modelContext = createRecordingModelContext()
+  const firstRender = render(
+    createGroundedApp({
+      databaseName,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: storage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  expect(screen.queryByLabelText('Active Assistance Request')).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Collapse Assistance' }))
+  expect(screen.queryByRole('heading', { name: 'Current Assistance' }))
+    .not.toBeInTheDocument()
+  const strip = screen.getByLabelText('Active Assistance Request')
+  expect(within(strip).getByText('Point Set, 0 marked')).toBeInTheDocument()
+
+  firstRender.unmount()
+  render(
+    createGroundedApp({
+      databaseName,
+      modelContext: createRecordingModelContext(),
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: storage,
+      createId: createIds('unused-session', 'unused-request'),
+    }),
+  )
+
+  await screen.findByLabelText('Active Assistance Request')
+  expect(screen.queryByRole('heading', { name: 'Current Assistance' }))
+    .not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'View request' }))
+  expect(await screen.findByRole('heading', { name: 'Current Assistance' }))
+    .toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Collapse Assistance' }))
+  await user.click(screen.getByRole('button', { name: 'Start over' }))
+  expect(await screen.findByRole('heading', { name: 'Current Assistance' }))
+    .toBeInTheDocument()
+  await screen.findByText('No pending Assistance Requests')
+})
+
+test('supporting references preserve the Point Set draft and Return to target resumes placement', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-supporting-reference-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  const targetOverlay = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(targetOverlay, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(targetOverlay, { clientX: 40, clientY: 60 })
+  await screen.findByText('1 point')
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+
+  await user.click(screen.getByRole('button', { name: 'Open page 2' }))
+  expect(screen.getByRole('heading', {
+    name: 'Type C interior door product data and review cover',
+  })).toBeInTheDocument()
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(screen.getByLabelText('Drawing page 2')).not.toHaveAttribute('role', 'button')
+  expect(screen.getByText(requestInput.question)).toBeInTheDocument()
+  expect(screen.getByText('1 point')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Return to target' }))
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  const returnedOverlay = await screen.findByLabelText('Drawing page A1.2')
+  expect(within(returnedOverlay).getByText('1')).toBeInTheDocument()
+  expect(returnedOverlay).toHaveAttribute('role', 'button')
+})

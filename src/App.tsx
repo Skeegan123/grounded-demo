@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react'
 import { useStore } from 'zustand'
 import type {
   AssistanceCompletedResult,
@@ -32,6 +38,8 @@ interface AppProps {
 
 type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
 
+const CONSTRAINED_WORKBENCH_WIDTH = 900
+
 function App({
   assistance,
   documents,
@@ -53,7 +61,18 @@ function App({
   )
   const [registrationError, setRegistrationError] = useState('')
   const [viewedPointSetId, setViewedPointSetId] = useState('')
+  const [supportingReferenceRequestId, setSupportingReferenceRequestId] =
+    useState('')
   const assistancePaneRef = useRef<HTMLElement>(null)
+  const workspaceGridRef = useRef<HTMLDivElement>(null)
+  const isConstrained = useConstrainedContainer(
+    workspaceGridRef,
+    CONSTRAINED_WORKBENCH_WIDTH,
+  )
+  const assistanceCollapsed = useStore(
+    workspaceStore,
+    (state) => state.assistanceCollapsed,
+  )
   const assistanceTab = useStore(workspaceStore, (state) => state.assistanceTab)
   const declineReason = useStore(workspaceStore, (state) => state.declineReason)
   const points = useStore(workspaceStore, (state) => state.points)
@@ -76,6 +95,10 @@ function App({
   const setAssistanceTab = useStore(
     workspaceStore,
     (state) => state.setAssistanceTab,
+  )
+  const setAssistanceCollapsed = useStore(
+    workspaceStore,
+    (state) => state.setAssistanceCollapsed,
   )
   const setDeclineReason = useStore(
     workspaceStore,
@@ -164,6 +187,7 @@ function App({
     pointSetCurrent?.recommendedPageIds
       .map((pageId) => findPage(targetDocument, pageId))
       .find((page) => page !== undefined) ?? targetDocument.pages[0]!
+  const openedSupportingReference = supportingReferenceRequestId === current?.id
   const recommendedPageLabels = pointSetCurrent?.recommendedPageIds
     .map((pageId) => findPage(targetDocument, pageId)?.label)
     .filter((label): label is string => Boolean(label))
@@ -175,10 +199,10 @@ function App({
         reference.documentVersionId,
       )
       if (!document) return undefined
-      const pageLabels = reference.pageIds
-        .map((pageId) => findPage(document, pageId)?.label)
-        .filter((label): label is string => Boolean(label))
-      return { document, pageLabels }
+      const pages = reference.pageIds
+        .map((pageId) => findPage(document, pageId))
+        .filter((page): page is NonNullable<typeof page> => Boolean(page))
+      return { document, pages }
     })
     .filter((reference): reference is NonNullable<typeof reference> =>
       Boolean(reference),
@@ -194,6 +218,8 @@ function App({
       selectedDocument.id === pointSetCurrent.documentId &&
       selectedDocument.versionId === pointSetCurrent.documentVersionId,
   )
+  const targetNavigationLabel =
+    openedSupportingReference && !canMark ? 'Return to target' : 'Go to target'
   const viewedPointSet = completed.find(
     (result) =>
       result.id === viewedPointSetId &&
@@ -219,6 +245,32 @@ function App({
       pageNumber: selectedPage.number,
       x,
       y,
+    })
+  }
+
+  const goToTarget = () => {
+    if (!pointSetCurrent) return
+    setSupportingReferenceRequestId('')
+    selectDocument(targetDocument.id, targetDocument.versionId, targetPage.id)
+  }
+
+  const openSupportingReference = (
+    documentId: string,
+    documentVersionId: string,
+    pageId: string,
+  ) => {
+    setSupportingReferenceRequestId(current?.id ?? '')
+    selectDocument(documentId, documentVersionId, pageId)
+  }
+
+  const openAssistance = () => {
+    setAssistanceTab('current')
+    setAssistanceCollapsed(false)
+    window.requestAnimationFrame(() => {
+      assistancePaneRef.current?.focus()
+      if (isConstrained) {
+        assistancePaneRef.current?.scrollIntoView?.({ block: 'start' })
+      }
     })
   }
 
@@ -339,22 +391,52 @@ function App({
         </p>
       )}
 
-      <div className="workspace-grid">
+      <div
+        className={`workspace-grid${isConstrained ? ' is-constrained' : ''}${assistanceCollapsed ? ' assistance-collapsed' : ''}`}
+        ref={workspaceGridRef}
+      >
         <section className="document-pane" aria-labelledby="work-area-title">
           <WorkbenchNavigation
+            assistanceExpanded={!assistanceCollapsed}
             currentDocument={selectedDocument}
             currentPage={selectedPage}
             documents={demoProject.documents}
-            onOpenAssistance={() => {
-              setAssistanceTab('current')
-              assistancePaneRef.current?.focus()
-            }}
+            onOpenAssistance={openAssistance}
             onSelectDocument={(document) =>
               selectDocument(document.id, document.versionId)
             }
             onSelectPage={(page) => selectPage(page.id)}
             pageItems={selectedDocument.pages.map((page) => ({ page }))}
           />
+          {current && (isConstrained || assistanceCollapsed) && (
+            <div className="request-strip" aria-label="Active Assistance Request">
+              <div className="request-strip-status">
+                <span>Pending</span>
+                <strong>
+                  {current.responseType === 'point_set'
+                    ? `Point Set, ${points.length} marked`
+                    : 'Text response'}
+                </strong>
+              </div>
+              <div className="request-strip-actions">
+                {current.responseType === 'point_set' && (
+                  <>
+                    <button
+                      disabled={points.length === 0}
+                      onClick={undoPoint}
+                      type="button"
+                    >
+                      Undo
+                    </button>
+                    <button onClick={goToTarget} type="button">
+                      {targetNavigationLabel}
+                    </button>
+                  </>
+                )}
+                <button onClick={openAssistance} type="button">View request</button>
+              </div>
+            </div>
+          )}
           <div className="drawing-stage">
             <div className="zoom-controls" aria-label="Document zoom">
               <button onClick={zoomOut} type="button" aria-label="Zoom out">−</button>
@@ -373,14 +455,26 @@ function App({
           </div>
         </section>
 
-        <aside
+        {!assistanceCollapsed && <aside
           className="assistance-pane"
           aria-labelledby="assistance-title"
           ref={assistancePaneRef}
           tabIndex={-1}
         >
-          <p className="pane-kicker">FIFO work rail</p>
-          <h2 id="assistance-title">Current Assistance</h2>
+          <div className="assistance-heading">
+            <div>
+              <p className="pane-kicker">FIFO work rail</p>
+              <h2 id="assistance-title">Current Assistance</h2>
+            </div>
+            <button
+              aria-label="Collapse Assistance"
+              className="collapse-assistance-button"
+              onClick={() => setAssistanceCollapsed(true)}
+              type="button"
+            >
+              Collapse
+            </button>
+          </div>
           <div className="assistance-tabs" role="tablist" aria-label="Assistance Requests">
             {(
               [
@@ -457,12 +551,28 @@ function App({
                           <dt>Supporting documents</dt>
                           <dd>
                             <ul className="supporting-documents">
-                              {supportingDocuments.map(({ document, pageLabels }) => (
+                              {supportingDocuments.map(({ document, pages }) => (
                                 <li key={`${document.id}:${document.versionId}`}>
                                   <span>{document.title}</span>
                                   <small>
-                                    {document.versionId} · Pages {pageLabels.join(', ')}
+                                    {document.versionId} · Pages{' '}
+                                    {pages.map((page) => page.label).join(', ')}
                                   </small>
+                                  <span className="supporting-page-links">
+                                    {pages.map((page) => (
+                                      <button
+                                        key={page.id}
+                                        onClick={() => openSupportingReference(
+                                          document.id,
+                                          document.versionId,
+                                          page.id,
+                                        )}
+                                        type="button"
+                                      >
+                                        Open page {page.label}
+                                      </button>
+                                    ))}
+                                  </span>
                                 </li>
                               ))}
                             </ul>
@@ -496,16 +606,10 @@ function App({
                     </div>
                     <button
                       className="response-page-button"
-                      onClick={() =>
-                        selectDocument(
-                          targetDocument.id,
-                          targetDocument.versionId,
-                          targetPage.id,
-                        )
-                      }
+                      onClick={goToTarget}
                       type="button"
                     >
-                      Go to target
+                      {targetNavigationLabel}
                     </button>
                   </>
                 ) : (
@@ -658,10 +762,30 @@ function App({
               )}
             </div>
           )}
-        </aside>
+        </aside>}
       </div>
     </main>
   )
 }
 
 export default App
+
+function useConstrainedContainer(
+  ref: RefObject<HTMLElement | null>,
+  threshold: number,
+) {
+  const [isConstrained, setIsConstrained] = useState(false)
+
+  useEffect(() => {
+    const container = ref.current
+    if (!container) return
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setIsConstrained(entry.contentRect.width < threshold)
+    })
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [ref, threshold])
+
+  return isConstrained
+}
