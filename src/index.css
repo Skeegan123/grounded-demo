@@ -27,6 +27,7 @@
 
 html {
   background: var(--paper);
+  overscroll-behavior-x: none;
 }
 
 body {

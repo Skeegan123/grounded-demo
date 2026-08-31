@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -6,22 +7,21 @@ import {
   useState,
   type MouseEvent,
   type PointerEvent,
-  type WheelEvent,
 } from 'react'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
 import {
   centerPageOffset,
+  clampDocumentZoom,
   clampPageOffset,
   fitPageInBounds,
-  MAX_DOCUMENT_ZOOM,
-  MIN_DOCUMENT_ZOOM,
   normalizeClientPoint,
   zoomPageAroundPoint,
   type NormalizedPoint,
   type PageFit,
   type PageOffset,
   type PageSize,
+  type PageViewportInsets,
 } from './pageGeometry'
 
 export const PAN_MOVEMENT_THRESHOLD = 6
@@ -53,6 +53,7 @@ interface PdfPageViewerProps {
   page: DocumentPage
   points: StoredPoint[]
   renderer: PdfPageRenderer
+  viewportInsets?: PageViewportInsets
   zoom: number
 }
 
@@ -60,6 +61,12 @@ interface RenderResult {
   error: string
   identity: string
   status: 'idle' | 'ready' | 'error'
+}
+
+interface DisplayedRender {
+  identity: string
+  pageIdentity: string
+  slot: 0 | 1
 }
 
 interface ActivePointer extends PageOffset {
@@ -85,11 +92,13 @@ export function PdfPageViewer({
   page,
   points,
   renderer,
+  viewportInsets = {},
   zoom,
 }: PdfPageViewerProps) {
   const hostRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRefs = useRef<Array<HTMLCanvasElement | null>>([])
+  const displayedRenderRef = useRef<DisplayedRender | undefined>(undefined)
   const pointersRef = useRef(new Map<number, ActivePointer>())
   const previousPinchRef = useRef<
     { center: PageOffset; distance: number } | undefined
@@ -110,10 +119,16 @@ export function PdfPageViewer({
     identity: '',
     status: 'idle',
   })
+  const [displayedRender, setDisplayedRender] = useState<DisplayedRender>()
+  const [pointControlsDismissed, setPointControlsDismissed] = useState(false)
   const [selectedPoint, setSelectedPoint] = useState<{
     globalIndex: number
     renderIdentity: string
   }>()
+  const clampingInsets = useMemo(() => ({
+    bottom: viewportInsets.bottom,
+    right: viewportInsets.right,
+  }), [viewportInsets.bottom, viewportInsets.right])
 
   const setOffset = (nextOffset: PageOffset) => {
     offsetRef.current = nextOffset
@@ -168,6 +183,7 @@ export function PdfPageViewer({
     } else if (previous.zoom !== zoom) {
       nextOffset = zoomPageAroundPoint({
         currentPage: previous.pageSize,
+        insets: clampingInsets,
         nextPage: renderedSize,
         offset: offsetRef.current,
         pointer: pendingZoomAnchorRef.current ?? {
@@ -183,6 +199,7 @@ export function PdfPageViewer({
       nextOffset = centerPageOffset(renderedSize, availableSize)
     } else {
       nextOffset = clampPageOffset({
+        insets: clampingInsets,
         page: renderedSize,
         viewport: availableSize,
         offset: offsetRef.current,
@@ -192,56 +209,78 @@ export function PdfPageViewer({
     pendingZoomAnchorRef.current = undefined
     layoutRef.current = nextLayout
     setOffset(nextOffset)
-  }, [availableSize, fit, pageIdentity, renderedSize, zoom])
-
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current
-    if (canvas) {
-      canvas.width = 0
-      canvas.height = 0
-    }
-  }, [renderIdentity])
+  }, [
+    availableSize,
+    fit,
+    pageIdentity,
+    renderedSize,
+    clampingInsets,
+    zoom,
+  ])
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || renderedSize.width <= 0 || renderedSize.height <= 0) return
+    if (renderedSize.width <= 0 || renderedSize.height <= 0) return
 
     const controller = new AbortController()
-    void renderer.renderPage({
-      canvas,
-      pageNumber: page.number,
-      signal: controller.signal,
-      url: document.file.url,
-      ...renderedSize,
-    }).then(() => {
-      if (controller.signal.aborted) return
-      const pageIndex = document.pages.findIndex(
-        (candidate) => candidate.id === page.id,
-      )
-      renderer.prefetchPages({
+    const displayed = displayedRenderRef.current
+    const slot: 0 | 1 = displayed?.slot === 0 ? 1 : 0
+    const canvas = canvasRefs.current[slot]
+    if (!canvas) return
+    const startRender = () => {
+      void renderer.renderPage({
+        canvas,
+        pageNumber: page.number,
+        signal: controller.signal,
         url: document.file.url,
-        pageNumbers: [
-          document.pages[pageIndex - 1]?.number,
-          document.pages[pageIndex + 1]?.number,
-        ].filter((pageNumber): pageNumber is number => pageNumber !== undefined),
+        ...renderedSize,
+      }).then(() => {
+        if (controller.signal.aborted) return
+        const pageIndex = document.pages.findIndex(
+          (candidate) => candidate.id === page.id,
+        )
+        renderer.prefetchPages({
+          url: document.file.url,
+          pageNumbers: [
+            document.pages[pageIndex - 1]?.number,
+            document.pages[pageIndex + 1]?.number,
+          ].filter((pageNumber): pageNumber is number => pageNumber !== undefined),
+        })
+        const nextDisplayed = { identity: renderIdentity, pageIdentity, slot }
+        displayedRenderRef.current = nextDisplayed
+        setDisplayedRender(nextDisplayed)
+        setRenderResult({ error: '', identity: renderIdentity, status: 'ready' })
+      }).catch((error: unknown) => {
+        if (controller.signal.aborted) return
+        setRenderResult({
+          error: error instanceof Error
+            ? error.message
+            : 'The PDF page could not be rendered.',
+          identity: renderIdentity,
+          status: 'error',
+        })
       })
-      setRenderResult({ error: '', identity: renderIdentity, status: 'ready' })
-    }).catch((error: unknown) => {
-      if (controller.signal.aborted) return
-      setRenderResult({
-        error: error instanceof Error
-          ? error.message
-          : 'The PDF page could not be rendered.',
-        identity: renderIdentity,
-        status: 'error',
-      })
-    })
+    }
+    const delay = displayed?.pageIdentity === pageIdentity ? 60 : 0
+    const timeout = delay > 0 ? window.setTimeout(startRender, delay) : undefined
+    if (timeout === undefined) startRender()
 
-    return () => controller.abort()
-  }, [document, page.id, page.number, renderIdentity, renderedSize, renderer])
+    return () => {
+      if (timeout !== undefined) window.clearTimeout(timeout)
+      controller.abort()
+    }
+  }, [
+    document,
+    page.id,
+    page.number,
+    pageIdentity,
+    renderIdentity,
+    renderedSize,
+    renderer,
+  ])
 
   const isCurrentRender =
-    renderResult.status === 'ready' && renderResult.identity === renderIdentity
+    displayedRender?.identity === renderIdentity
+  const isDisplayedPage = displayedRender?.pageIdentity === pageIdentity
   const isPendingRender =
     renderedSize.width > 0 &&
     renderedSize.height > 0 &&
@@ -284,25 +323,60 @@ export function PdfPageViewer({
     }))
   }
 
-  const updateZoom = (nextZoom: number, anchor?: PageOffset) => {
-    const clampedZoom = clampZoom(nextZoom)
+  const updateZoom = useCallback((nextZoom: number, anchor?: PageOffset) => {
+    const clampedZoom = clampDocumentZoom(nextZoom)
     if (clampedZoom === zoom) return
     pendingZoomAnchorRef.current = anchor
     onZoomChange?.(clampedZoom)
-  }
+  }, [onZoomChange, zoom])
 
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    const bounds = event.currentTarget.getBoundingClientRect()
-    updateZoom(zoom * Math.exp(-event.deltaY * 0.0015), {
-      x: event.clientX - bounds.left,
-      y: event.clientY - bounds.top,
-    })
-  }
+  useEffect(() => {
+    const host = hostRef.current
+    if (!host) return
+    const handleWheel = (event: globalThis.WheelEvent) => {
+      event.preventDefault()
+      if (event.ctrlKey || event.metaKey) {
+        const bounds = host.getBoundingClientRect()
+        updateZoom(zoom * Math.exp(-event.deltaY * 0.0015), {
+          x: event.clientX - bounds.left,
+          y: event.clientY - bounds.top,
+        })
+        return
+      }
+      const scale = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+        ? 16
+        : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+          ? Math.max(availableSize.width, availableSize.height)
+          : 1
+      setOffset(clampPageOffset({
+        insets: clampingInsets,
+        page: renderedSize,
+        viewport: availableSize,
+        offset: {
+          x: offsetRef.current.x - event.deltaX * scale,
+          y: offsetRef.current.y - event.deltaY * scale,
+        },
+      }))
+    }
+    host.addEventListener('wheel', handleWheel, { passive: false })
+    return () => host.removeEventListener('wheel', handleWheel)
+  }, [
+    availableSize,
+    clampingInsets,
+    renderedSize,
+    updateZoom,
+    zoom,
+  ])
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return
-    if (!isPointMarker(event.target)) setSelectedPoint(undefined)
+    if (!isPointMarker(event.target)) {
+      setSelectedPoint(undefined)
+      if (event.pointerType === 'touch') setPointControlsDismissed(true)
+      if (isPointMarker(globalThis.document.activeElement)) {
+        (globalThis.document.activeElement as HTMLElement).blur()
+      }
+    }
     if (isInteractiveTarget(event.target)) return
     try {
       event.currentTarget.setPointerCapture(event.pointerId)
@@ -342,6 +416,7 @@ export function PdfPageViewer({
     if (pointersRef.current.size === 1) {
       if (!movementRef.current) return
       setOffset(clampPageOffset({
+        insets: clampingInsets,
         page: renderedSize,
         viewport: availableSize,
         offset: {
@@ -356,6 +431,7 @@ export function PdfPageViewer({
       const gesture = pointerGesture(pointersRef.current)
       const previousGesture = previousPinchRef.current ?? gesture
       setOffset(clampPageOffset({
+        insets: clampingInsets,
         page: renderedSize,
         viewport: availableSize,
         offset: {
@@ -399,7 +475,6 @@ export function PdfPageViewer({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={(event) => finishPointer(event, true)}
-      onWheel={handleWheel}
       ref={hostRef}
     >
       {renderedSize.width > 0 && renderedSize.height > 0 && (
@@ -411,29 +486,42 @@ export function PdfPageViewer({
             transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
           }}
         >
-          <canvas
-            aria-label={`Rendered PDF page ${page.label}`}
-            ref={canvasRef}
-            style={{
-              ...renderedSize,
-              visibility: isCurrentRender ? 'visible' : 'hidden',
-            }}
-          />
+          {([0, 1] as const).map((slot) => (
+            <canvas
+              aria-label={
+                slot === (displayedRender?.slot ?? 0)
+                  ? `Rendered PDF page ${page.label}`
+                  : undefined
+              }
+              key={slot}
+              ref={(canvas) => { canvasRefs.current[slot] = canvas }}
+              style={{
+                ...renderedSize,
+                visibility:
+                  isDisplayedPage && displayedRender?.slot === slot
+                    ? 'visible'
+                    : 'hidden',
+              }}
+            />
+          ))}
           <div
             aria-label={`Drawing page ${page.label}`}
             className={canMark && isCurrentRender
-              ? 'point-set-overlay marking'
-              : 'point-set-overlay'}
+              ? `point-set-overlay marking${pointControlsDismissed ? ' point-controls-dismissed' : ''}`
+              : `point-set-overlay${pointControlsDismissed ? ' point-controls-dismissed' : ''}`}
             onClick={placePointFromClick}
             role={canMark && isCurrentRender ? 'button' : undefined}
           >
-            {isCurrentRender && pagePoints.map((point) => (
+            {isDisplayedPage && pagePoints.map((point) => (
               <span
                 className={`point-mark${selectedPointIndex === point.globalIndex ? ' selected' : ''}`}
                 key={onRemovePoint
                   ? `draft-${point.globalIndex}`
                   : `submitted-${point.pointNumber}`}
                 style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === 'mouse') setPointControlsDismissed(false)
+                }}
               >
                 {onRemovePoint ? (
                   <>
@@ -442,12 +530,16 @@ export function PdfPageViewer({
                       className="point-pin"
                       onClick={(event) => {
                         event.stopPropagation()
+                        setPointControlsDismissed(false)
                         setSelectedPoint({
                           globalIndex: point.globalIndex,
                           renderIdentity,
                         })
                       }}
-                      onPointerDown={(event) => event.stopPropagation()}
+                      onPointerDown={(event) => {
+                        event.stopPropagation()
+                        setPointControlsDismissed(false)
+                      }}
                       type="button"
                     >
                       {point.pointNumber}
@@ -467,14 +559,19 @@ export function PdfPageViewer({
                     </button>
                   </>
                 ) : (
-                  <span aria-label={`Point ${point.pointNumber}`} className="point-pin">
+                  <span
+                    aria-label={`Submitted point ${point.pointNumber} at ${Math.round(point.x * 100)}% from left and ${Math.round(point.y * 100)}% from top`}
+                    className="point-pin"
+                    role="img"
+                    tabIndex={0}
+                  >
                     {point.pointNumber}
                   </span>
                 )}
               </span>
             ))}
           </div>
-          {isPendingRender && (
+          {isPendingRender && !isDisplayedPage && (
             <div className="pdf-render-cover">
               <p className="pdf-render-status" role="status">Rendering PDF page</p>
             </div>
@@ -497,10 +594,6 @@ export function PdfPageViewer({
   )
 }
 
-function clampZoom(zoom: number) {
-  return Math.min(MAX_DOCUMENT_ZOOM, Math.max(MIN_DOCUMENT_ZOOM, zoom))
-}
-
 function pointerGesture(pointers: Map<number, ActivePointer>) {
   const [first, second] = [...pointers.values()]
   if (!first || !second) {
@@ -521,6 +614,6 @@ function isInteractiveTarget(target: EventTarget) {
   )
 }
 
-function isPointMarker(target: EventTarget) {
+function isPointMarker(target: EventTarget | null) {
   return target instanceof Element && Boolean(target.closest('.point-mark'))
 }

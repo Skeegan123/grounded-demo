@@ -18,10 +18,19 @@ export interface PageOffset {
   y: number
 }
 
+export interface PageViewportInsets {
+  bottom?: number
+  right?: number
+}
+
 export type PageFit = 'page' | 'width'
 
 export const MIN_DOCUMENT_ZOOM = 0.25
 export const MAX_DOCUMENT_ZOOM = 4
+
+export function clampDocumentZoom(zoom: number) {
+  return Math.min(MAX_DOCUMENT_ZOOM, Math.max(MIN_DOCUMENT_ZOOM, zoom))
+}
 
 function clampNormalized(value: number) {
   return Math.min(1, Math.max(0, value))
@@ -61,28 +70,32 @@ export function centerPageOffset(
 }
 
 export function clampPageOffset({
+  insets = {},
   page,
   viewport,
   offset,
 }: {
+  insets?: PageViewportInsets
   page: PageSize
   viewport: PageSize
   offset: PageOffset
 }): PageOffset {
   return {
-    x: clampAxisOffset(page.width, viewport.width, offset.x),
-    y: clampAxisOffset(page.height, viewport.height, offset.y),
+    x: clampAxisOffset(page.width, viewport.width, offset.x, insets.right),
+    y: clampAxisOffset(page.height, viewport.height, offset.y, insets.bottom),
   }
 }
 
 export function zoomPageAroundPoint({
   currentPage,
+  insets,
   nextPage,
   offset,
   pointer,
   viewport,
 }: {
   currentPage: PageSize
+  insets?: PageViewportInsets
   nextPage: PageSize
   offset: PageOffset
   pointer: PageOffset
@@ -97,6 +110,7 @@ export function zoomPageAroundPoint({
     y: (pointer.y - offset.y) / currentPage.height,
   }
   return clampPageOffset({
+    insets,
     page: nextPage,
     viewport,
     offset: {
@@ -129,7 +143,8 @@ function clampAxisOffset(
   pageLength: number,
   viewportLength: number,
   offset: number,
+  endInset = 0,
 ) {
   if (pageLength <= viewportLength) return (viewportLength - pageLength) / 2
-  return Math.min(0, Math.max(viewportLength - pageLength, offset))
+  return Math.min(0, Math.max(viewportLength - endInset - pageLength, offset))
 }

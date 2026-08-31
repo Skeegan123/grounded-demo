@@ -2,6 +2,7 @@ import { createStore } from 'zustand/vanilla'
 import { demoProject } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
 import {
+  clampDocumentZoom,
   MAX_DOCUMENT_ZOOM,
   MIN_DOCUMENT_ZOOM,
 } from '../documents/pageGeometry'
@@ -9,6 +10,7 @@ import {
   createDefaultDocumentBrowsingState,
   documentKey,
   type DocumentBrowsingState,
+  type DocumentDestination,
   type DocumentFitPreference,
 } from './documentBrowsingState'
 
@@ -21,11 +23,7 @@ export interface WorkspaceState extends DocumentBrowsingState {
   addPoint: (point: StoredPoint) => void
   clearDraft: () => void
   removePoint: (index: number) => void
-  selectDocument: (
-    documentId: string,
-    documentVersionId: string,
-    pageId?: string,
-  ) => void
+  selectDocument: (destination: DocumentDestination) => void
   selectPage: (pageId: string) => void
   setAssistanceTab: (tab: 'current' | 'queue' | 'done') => void
   setAssistanceCollapsed: (collapsed: boolean) => void
@@ -56,12 +54,13 @@ export function createWorkspaceStore(
       set((state) => ({
         points: state.points.filter((_, pointIndex) => pointIndex !== index),
       })),
-    selectDocument: (
-      selectedDocumentId,
-      selectedDocumentVersionId,
-      requestedPageId,
-    ) =>
+    selectDocument: (destination) =>
       set((state) => {
+        const {
+          documentId: selectedDocumentId,
+          documentVersionId: selectedDocumentVersionId,
+          pageId: requestedPageId,
+        } = destination
         const document = demoProject.documents.find(
           (candidate) =>
             candidate.id === selectedDocumentId &&
@@ -80,9 +79,11 @@ export function createWorkspaceStore(
             : document.pages[0]!.id
 
         return {
-          selectedDocumentId,
-          selectedDocumentVersionId,
-          selectedPageId,
+          selectedLocation: {
+            documentId: selectedDocumentId,
+            documentVersionId: selectedDocumentVersionId,
+            pageId: selectedPageId,
+          },
           lastPageIdByDocument: {
             ...state.lastPageIdByDocument,
             [key]: selectedPageId,
@@ -93,12 +94,15 @@ export function createWorkspaceStore(
       }),
     selectPage: (selectedPageId) =>
       set((state) => ({
-        selectedPageId,
+        selectedLocation: {
+          ...state.selectedLocation,
+          pageId: selectedPageId,
+        },
         lastPageIdByDocument: {
           ...state.lastPageIdByDocument,
           [documentKey(
-            state.selectedDocumentId,
-            state.selectedDocumentVersionId,
+            state.selectedLocation.documentId,
+            state.selectedLocation.documentVersionId,
           )]: selectedPageId,
         },
         fitPreference: 'page',
@@ -110,9 +114,7 @@ export function createWorkspaceStore(
     setFitPreference: (fitPreference) => set({ fitPreference, zoom: 1 }),
     setNote: (note) => set({ note }),
     setText: (text) => set({ text }),
-    setZoom: (zoom) => set({
-      zoom: Math.min(MAX_DOCUMENT_ZOOM, Math.max(MIN_DOCUMENT_ZOOM, zoom)),
-    }),
+    setZoom: (zoom) => set({ zoom: clampDocumentZoom(zoom) }),
     undoPoint: () =>
       set((state) => ({ points: state.points.slice(0, -1) })),
     zoomIn: () =>

@@ -1,22 +1,29 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type RefObject,
-} from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import type {
   AssistanceCompletedResult,
-  AssistanceRequestView,
   createAssistance,
 } from './assistance/assistance'
-import type { createDocuments } from './documents/documents'
-import { PdfPageViewer, type PdfPageRenderer } from './documents/PdfPageViewer'
-import { WorkbenchNavigation } from './documents/WorkbenchNavigation'
 import {
-  MAX_DOCUMENT_ZOOM,
-  MIN_DOCUMENT_ZOOM,
+  AssistancePanel,
+  AssistanceRequestStrip,
+} from './assistance/AssistancePanel'
+import {
+  asPointSetResult,
+  asPointSetRequest,
+  findPointSetResult,
+  firstMarkedPageId,
+  toStoredPoints,
+} from './assistance/assistancePresentation'
+import { useAssistanceController } from './assistance/useAssistanceController'
+import type { createDocuments } from './documents/documents'
+import {
+  DocumentWorkbench,
+} from './documents/DocumentWorkbench'
+import type { PdfPageRenderer } from './documents/PdfPageViewer'
+import { useDocumentKeyboardShortcuts } from './documents/useDocumentKeyboardShortcuts'
+import { useConstrainedWorkbench } from './documents/useConstrainedWorkbench'
+import {
   type NormalizedPoint,
 } from './documents/pageGeometry'
 import {
@@ -58,13 +65,6 @@ function App({
   sessionId,
   workspaceStore,
 }: AppProps) {
-  const [pending, setPending] = useState<AssistanceRequestView[]>([])
-  const [completed, setCompleted] = useState<AssistanceCompletedResult[]>([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
-  const [responsePending, setResponsePending] = useState(false)
-  const [responseError, setResponseError] = useState('')
-  const [responseMessage, setResponseMessage] = useState('')
   const [registration, setRegistration] = useState<RegistrationState>(() =>
     modelContext ? 'registering' : 'unsupported',
   )
@@ -75,7 +75,7 @@ function App({
     useState('')
   const assistancePaneRef = useRef<HTMLElement>(null)
   const workspaceGridRef = useRef<HTMLDivElement>(null)
-  const isConstrained = useConstrainedContainer(
+  const isConstrained = useConstrainedWorkbench(
     workspaceGridRef,
     CONSTRAINED_WORKBENCH_WIDTH,
   )
@@ -88,22 +88,16 @@ function App({
   const points = useStore(workspaceStore, (state) => state.points)
   const note = useStore(workspaceStore, (state) => state.note)
   const text = useStore(workspaceStore, (state) => state.text)
-  const selectedDocumentId = useStore(
+  const selectedLocation = useStore(
     workspaceStore,
-    (state) => state.selectedDocumentId,
+    (state) => state.selectedLocation,
   )
-  const selectedDocumentVersionId = useStore(
-    workspaceStore,
-    (state) => state.selectedDocumentVersionId,
-  )
-  const selectedPageId = useStore(workspaceStore, (state) => state.selectedPageId)
   const zoom = useStore(workspaceStore, (state) => state.zoom)
   const fitPreference = useStore(
     workspaceStore,
     (state) => state.fitPreference,
   )
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
-  const clearDraft = useStore(workspaceStore, (state) => state.clearDraft)
   const removePoint = useStore(workspaceStore, (state) => state.removePoint)
   const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
   const selectPage = useStore(workspaceStore, (state) => state.selectPage)
@@ -129,50 +123,11 @@ function App({
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
   const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
   const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
-
-  const refresh = useCallback(async () => {
-    const [nextPending, nextCompleted] = await Promise.all([
-      assistance.listPending(),
-      assistance.listCompleted(),
-    ])
-    setPending(nextPending)
-    setCompleted(nextCompleted)
-  }, [assistance])
-
-  useEffect(() => {
-    let active = true
-    let loadRevision = 0
-    const load = async () => {
-      const revision = ++loadRevision
-      try {
-        const [nextPending, nextCompleted] = await Promise.all([
-          assistance.listPending(),
-          assistance.listCompleted(),
-        ])
-        if (active && revision === loadRevision) {
-          setPending(nextPending)
-          setCompleted(nextCompleted)
-          setLoadError('')
-        }
-      } catch (error: unknown) {
-        if (active && revision === loadRevision) {
-          setLoadError(
-            error instanceof Error
-              ? error.message
-              : 'The Demo Session could not be loaded.',
-          )
-        }
-      } finally {
-        if (active && revision === loadRevision) setLoading(false)
-      }
-    }
-    void load()
-    const unsubscribe = assistance.subscribe(() => void load())
-    return () => {
-      active = false
-      unsubscribe()
-    }
-  }, [assistance])
+  useDocumentKeyboardShortcuts(workspaceStore)
+  const assistanceController = useAssistanceController({
+    assistance,
+    workspaceStore,
+  })
 
   useEffect(() => {
     if (!modelContext) return
@@ -192,11 +147,22 @@ function App({
     return () => controller.abort()
   }, [assistance, documents, modelContext])
 
-  useEffect(() => () => assistance.close(), [assistance])
-
   const defaultDocument = demoProject.documents[0]!
-  const current = pending[0]
-  const pointSetCurrent = current?.responseType === 'point_set' ? current : undefined
+  const {
+    clearResponseError,
+    completed,
+    current,
+    declineCurrent,
+    loadError,
+    loading,
+    pending,
+    responseError,
+    responseMessage,
+    responsePending,
+    submitPointSet,
+    submitText,
+  } = assistanceController
+  const pointSetCurrent = asPointSetRequest(current)
   const targetDocument = pointSetCurrent
     ? findDocument(
         pointSetCurrent.documentId,
@@ -228,54 +194,16 @@ function App({
       Boolean(reference),
     )
   const selectedDocument =
-    findDocument(selectedDocumentId, selectedDocumentVersionId) ??
+    findDocument(
+      selectedLocation.documentId,
+      selectedLocation.documentVersionId,
+    ) ??
     defaultDocument
   const selectedPage =
-    selectedDocument.pages.find((page) => page.id === selectedPageId) ??
+    selectedDocument.pages.find((page) => page.id === selectedLocation.pageId) ??
     selectedDocument.pages[0]!
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (isEditableTarget(event.target)) return
-      const selectedPageIndex = selectedDocument.pages.findIndex(
-        (page) => page.id === selectedPage.id,
-      )
-      if (event.key === 'ArrowLeft' && selectedPageIndex > 0) {
-        event.preventDefault()
-        selectPage(selectedDocument.pages[selectedPageIndex - 1]!.id)
-      } else if (
-        event.key === 'ArrowRight' &&
-        selectedPageIndex >= 0 &&
-        selectedPageIndex < selectedDocument.pages.length - 1
-      ) {
-        event.preventDefault()
-        selectPage(selectedDocument.pages[selectedPageIndex + 1]!.id)
-      } else if (event.key === '+' || event.key === '=') {
-        event.preventDefault()
-        zoomIn()
-      } else if (event.key === '-' || event.key === '_') {
-        event.preventDefault()
-        zoomOut()
-      } else if (event.key === '0') {
-        event.preventDefault()
-        setFitPreference(event.shiftKey ? 'width' : 'page')
-      }
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [
-    selectPage,
-    selectedDocument.pages,
-    selectedPage.id,
-    setFitPreference,
-    zoomIn,
-    zoomOut,
-  ])
-  const viewedPointSet = completed.find(
-    (result) =>
-      result.id === viewedPointSetId &&
-      result.professionalResponse.type === 'point_set',
-  )
+  const viewedPointSet = findPointSetResult(completed, viewedPointSetId)
   const canMark = Boolean(
     pointSetCurrent &&
       !viewedPointSet &&
@@ -286,23 +214,14 @@ function App({
     openedSupportingReference && !canMark ? 'Return to target' : 'Go to target'
   const visiblePoints = canMark
     ? points
-    : viewedPointSet?.professionalResponse.type === 'point_set'
-      ? viewedPointSet.professionalResponse.points.map((point) => ({
-          pointNumber: point.pointNumber,
-          pageId: point.page.id,
-          pageLabel: point.page.label,
-          pageNumber: point.page.number,
-          x: point.x,
-          y: point.y,
-        }))
-      : []
+    : toStoredPoints(viewedPointSet)
   const selectedDocumentIsTarget = Boolean(
     pointSetCurrent &&
       selectedDocument.id === pointSetCurrent.documentId &&
       selectedDocument.versionId === pointSetCurrent.documentVersionId,
   )
   const selectedDocumentIsViewedPointSet = Boolean(
-    viewedPointSet?.professionalResponse.type === 'point_set' &&
+    viewedPointSet &&
       selectedDocument.id === viewedPointSet.professionalResponse.document.id &&
       selectedDocument.versionId ===
         viewedPointSet.professionalResponse.document.versionId,
@@ -332,7 +251,11 @@ function App({
     if (!pointSetCurrent) return
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
-    selectDocument(targetDocument.id, targetDocument.versionId, targetPage.id)
+    selectDocument({
+      documentId: targetDocument.id,
+      documentVersionId: targetDocument.versionId,
+      pageId: targetPage.id,
+    })
   }
 
   const undoLatestPoint = () => {
@@ -359,11 +282,11 @@ function App({
     if (!undoNotice || !pointSetCurrent) return
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
-    selectDocument(
-      pointSetCurrent.documentId,
-      pointSetCurrent.documentVersionId,
-      undoNotice.pageId,
-    )
+    selectDocument({
+      documentId: pointSetCurrent.documentId,
+      documentVersionId: pointSetCurrent.documentVersionId,
+      pageId: undoNotice.pageId,
+    })
     setUndoNotice(undefined)
   }
 
@@ -373,7 +296,7 @@ function App({
     pageId: string,
   ) => {
     setSupportingReferenceRequestId(current?.id ?? '')
-    selectDocument(documentId, documentVersionId, pageId)
+    selectDocument({ documentId, documentVersionId, pageId })
   }
 
   const openAssistance = () => {
@@ -387,80 +310,21 @@ function App({
     })
   }
 
-  const submitPointSet = async () => {
-    if (!pointSetCurrent) return
-    await saveProfessionalResponse(async () => {
-      await assistance.submitPointSetResponse({
-        requestId: pointSetCurrent.id,
-        points,
-        ...(note.trim() ? { note } : {}),
-      })
-    })
-  }
-
-  const submitText = async () => {
-    if (current?.responseType !== 'text') return
-    if (!text.trim()) {
-      setResponseError('Enter a text Professional Response before submitting.')
-      setResponseMessage('')
-      return
-    }
-    await saveProfessionalResponse(async () => {
-      await assistance.submitTextResponse({
-        requestId: current.id,
-        text,
-        ...(note.trim() ? { note } : {}),
-      })
-    })
-  }
-
-  const declineCurrent = async () => {
-    if (!current) return
-    await saveProfessionalResponse(async () => {
-      await assistance.decline({
-        requestId: current.id,
-        ...(declineReason.trim() ? { reason: declineReason } : {}),
-      })
-    })
-  }
-
-  const saveProfessionalResponse = async (save: () => Promise<void>) => {
-    if (responsePending) return
-    setResponsePending(true)
-    setResponseError('')
-    setResponseMessage('')
-    try {
-      await save()
-      clearDraft()
-      setResponseMessage(
-        'Professional Response saved. The External Agent can retrieve it now.',
-      )
-      try {
-        await refresh()
-      } catch (error: unknown) {
-        setLoadError(
-          `${error instanceof Error ? error.message : 'The Demo Session could not be refreshed.'} The Professional Response is saved. Reload the page to continue.`,
-        )
-      }
-    } catch (error: unknown) {
-      setResponseError(
-        `${error instanceof Error ? error.message : 'The Professional Response could not be saved.'} Check the response and try again.`,
-      )
-    } finally {
-      setResponsePending(false)
-    }
-  }
-
   const viewPointSet = (result: AssistanceCompletedResult) => {
-    if (result.professionalResponse.type !== 'point_set') return
+    const pointSetResult = asPointSetResult(result)
+    if (!pointSetResult) return
     const document = findDocument(
-      result.professionalResponse.document.id,
-      result.professionalResponse.document.versionId,
+      pointSetResult.professionalResponse.document.id,
+      pointSetResult.professionalResponse.document.versionId,
     )
     if (!document) return
-    const pageId = result.professionalResponse.points[0]?.page.id ?? document.pages[0]!.id
-    setViewedPointSetId(result.id)
-    selectDocument(document.id, document.versionId, pageId)
+    const pageId = firstMarkedPageId(document, pointSetResult)
+    setViewedPointSetId(pointSetResult.id)
+    selectDocument({
+      documentId: document.id,
+      documentVersionId: document.versionId,
+      pageId,
+    })
   }
 
   const statusCopy = {
@@ -508,453 +372,113 @@ function App({
         className={`workspace-grid${isConstrained ? ' is-constrained' : ''}${assistanceCollapsed ? ' assistance-collapsed' : ''}`}
         ref={workspaceGridRef}
       >
-        <section className="document-pane" aria-labelledby="work-area-title">
-          <WorkbenchNavigation
-            assistanceExpanded={!assistanceCollapsed}
-            currentDocument={selectedDocument}
-            currentPage={selectedPage}
-            documents={demoProject.documents}
-            onOpenAssistance={openAssistance}
-            onSelectDocument={(document) =>
-              selectDocument(document.id, document.versionId)
+        <DocumentWorkbench
+          assistanceExpanded={!assistanceCollapsed}
+          canMark={canMark}
+          currentDocument={selectedDocument}
+          currentPage={selectedPage}
+          documents={demoProject.documents}
+          fit={fitPreference}
+          onFitChange={setFitPreference}
+          onOpenAssistance={openAssistance}
+          onPlacePoint={placePoint}
+          onRemovePoint={canMark ? removePoint : undefined}
+          onSelectDocument={(document) => selectDocument({
+            documentId: document.id,
+            documentVersionId: document.versionId,
+          })}
+          onSelectPage={(page) => selectPage(page.id)}
+          onViewUndonePointPage={openUndonePointPage}
+          onZoomChange={setZoom}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          pageItems={selectedDocument.pages.map((page) => {
+            const isRecommended = Boolean(
+              selectedDocumentIsTarget &&
+                pointSetCurrent?.recommendedPageIds.includes(page.id),
+            )
+            const pointCount = pagePointCounts.get(page.id) ?? 0
+            const pointStatus = pointCount > 0
+              ? `${pointCount} ${selectedDocumentIsViewedPointSet ? 'submitted' : 'draft'} ${pointCount === 1 ? 'point' : 'points'}`
+              : ''
+            const statuses = [isRecommended ? 'Recommended' : '', pointStatus]
+              .filter(Boolean)
+
+            return {
+              page,
+              ...(statuses.length > 0
+                ? {
+                    adornment: (
+                      <span className="page-point-set-status">
+                        {isRecommended && (
+                          <span className="recommended-page-badge">Recommended</span>
+                        )}
+                        {pointStatus && <span>{pointStatus}</span>}
+                      </span>
+                    ),
+                    description: statuses.join(', '),
+                  }
+                : {}),
             }
-            onSelectPage={(page) => selectPage(page.id)}
-            pageItems={selectedDocument.pages.map((page) => {
-              const isRecommended = Boolean(
-                selectedDocumentIsTarget &&
-                  pointSetCurrent?.recommendedPageIds.includes(page.id),
-              )
-              const pointCount = pagePointCounts.get(page.id) ?? 0
-              const pointStatus = pointCount > 0
-                ? `${pointCount} ${selectedDocumentIsViewedPointSet ? 'submitted' : 'draft'} ${pointCount === 1 ? 'point' : 'points'}`
-                : ''
-              const statuses = [isRecommended ? 'Recommended' : '', pointStatus]
-                .filter(Boolean)
-
-              return {
-                page,
-                ...(statuses.length > 0
-                  ? {
-                      adornment: (
-                        <span className="page-point-set-status">
-                          {isRecommended && (
-                            <span className="recommended-page-badge">Recommended</span>
-                          )}
-                          {pointStatus && <span>{pointStatus}</span>}
-                        </span>
-                      ),
-                      description: statuses.join(', '),
-                    }
-                  : {}),
-              }
-            })}
-          />
-          {current && (isConstrained || assistanceCollapsed) && (
-            <div className="request-strip" aria-label="Active Assistance Request">
-              <div className="request-strip-status">
-                <span>Pending</span>
-                <strong>
-                  {current.responseType === 'point_set'
-                    ? `Point Set, ${points.length} marked`
-                    : 'Text response'}
-                </strong>
-              </div>
-              <div className="request-strip-actions">
-                {current.responseType === 'point_set' && (
-                  <>
-                    <button
-                      disabled={points.length === 0}
-                      onClick={undoLatestPoint}
-                      type="button"
-                    >
-                      Undo
-                    </button>
-                    <button onClick={goToTarget} type="button">
-                      {targetNavigationLabel}
-                    </button>
-                  </>
-                )}
-                <button onClick={openAssistance} type="button">View request</button>
-              </div>
-            </div>
-          )}
-          <div className="drawing-stage">
-            <div className="zoom-controls" aria-label="Document zoom">
-              <button
-                aria-label="Zoom out"
-                disabled={zoom <= MIN_DOCUMENT_ZOOM}
-                onClick={zoomOut}
-                type="button"
-              >
-                −
-              </button>
-              <span aria-live="polite">{Math.round(zoom * 100)}%</span>
-              <button
-                aria-label="Zoom in"
-                disabled={zoom >= MAX_DOCUMENT_ZOOM}
-                onClick={zoomIn}
-                type="button"
-              >
-                +
-              </button>
-              <button
-                aria-label="Fit page"
-                aria-pressed={fitPreference === 'page'}
-                className="fit-control"
-                onClick={() => setFitPreference('page')}
-                type="button"
-              >
-                Page
-              </button>
-              <button
-                aria-label="Fit width"
-                aria-pressed={fitPreference === 'width'}
-                className="fit-control"
-                onClick={() => setFitPreference('width')}
-                type="button"
-              >
-                Width
-              </button>
-            </div>
-            <PdfPageViewer
-              canMark={canMark}
-              document={selectedDocument}
-              fit={fitPreference}
-              onPlacePoint={placePoint}
-              onRemovePoint={canMark ? removePoint : undefined}
-              onZoomChange={setZoom}
-              page={selectedPage}
-              points={visiblePoints}
-              renderer={pageRenderer}
-              zoom={zoom}
+          })}
+          pageRenderer={pageRenderer}
+          points={visiblePoints}
+          requestStrip={current && (isConstrained || assistanceCollapsed) ? (
+            <AssistanceRequestStrip
+              current={current}
+              onOpenAssistance={openAssistance}
+              onTargetNavigation={goToTarget}
+              onUndoPoint={undoLatestPoint}
+              pointCount={points.length}
+              targetNavigationLabel={targetNavigationLabel}
             />
-            {undoNotice && (
-              <div className="undo-notice" role="status">
-                <span>Removed the latest point from page {undoNotice.pageLabel}.</span>
-                <button onClick={openUndonePointPage} type="button">
-                  View page {undoNotice.pageLabel}
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
+          ) : undefined}
+          undoNotice={undoNotice}
+          zoom={zoom}
+        />
 
-        {!assistanceCollapsed && <aside
-          className="assistance-pane"
-          aria-labelledby="assistance-title"
-          ref={assistancePaneRef}
-          tabIndex={-1}
-        >
-          <div className="assistance-heading">
-            <div>
-              <p className="pane-kicker">FIFO work rail</p>
-              <h2 id="assistance-title">Current Assistance</h2>
-            </div>
-            <button
-              aria-label="Collapse Assistance"
-              className="collapse-assistance-button"
-              onClick={() => setAssistanceCollapsed(true)}
-              type="button"
-            >
-              Collapse
-            </button>
-          </div>
-          <div className="assistance-tabs" role="tablist" aria-label="Assistance Requests">
-            {(
-              [
-                ['current', 'Current', current ? 1 : 0],
-                ['queue', 'Queue', Math.max(0, pending.length - 1)],
-                ['done', 'Done', completed.length],
-              ] as const
-            ).map(([tab, label, count]) => (
-              <button
-                aria-selected={assistanceTab === tab}
-                key={tab}
-                onClick={() => setAssistanceTab(tab)}
-                role="tab"
-                type="button"
-              >
-                {label} <span>{count}</span>
-              </button>
-            ))}
-          </div>
+        {!assistanceCollapsed && (
+          <AssistancePanel
+            assistancePaneRef={assistancePaneRef}
+            assistanceTab={assistanceTab}
+            canMark={canMark}
+            completed={completed}
+            current={current}
+            declineReason={declineReason}
+            loadError={loadError}
+            loading={loading}
+            note={note}
+            onCollapse={() => setAssistanceCollapsed(true)}
+            onDecline={() => void declineCurrent()}
+            onOpenSupportingReference={openSupportingReference}
+            onSelectTab={setAssistanceTab}
+            onSetDeclineReason={setDeclineReason}
+            onSetNote={setNote}
+            onSetText={(value) => {
+              clearResponseError()
+              setText(value)
+            }}
+            onSubmitPointSet={() => void submitPointSet()}
+            onSubmitText={() => void submitText()}
+            onTargetNavigation={goToTarget}
+            onUndoPoint={undoLatestPoint}
+            onViewPointSet={viewPointSet}
+            pending={pending}
+            pointCount={points.length}
+            recommendedPageLabels={recommendedPageLabels ?? ''}
+            responseError={responseError}
+            responseMessage={responseMessage}
+            responsePending={responsePending}
+            supportingDocuments={supportingDocuments}
+            targetDocument={targetDocument}
+            targetNavigationLabel={targetNavigationLabel}
+            targetPage={targetPage}
+            text={text}
+          />
+        )}
 
-          {responseError && (
-            <p className="response-feedback error" role="alert">{responseError}</p>
-          )}
-          {responseMessage && (
-            <p className="response-feedback success" role="status">
-              {responseMessage}
-            </p>
-          )}
-
-          {loading && (
-            <div
-              aria-label="Loading Demo Session"
-              className="empty-request"
-              role="status"
-            >
-              <p>Loading Demo Session</p>
-              <small>Reading this tab's queued and completed work.</small>
-            </div>
-          )}
-          {!loading && loadError && (
-            <div className="rail-error" role="alert">
-              <p>The Demo Session could not be loaded.</p>
-              <small>{loadError}</small>
-            </div>
-          )}
-
-          {!loading && !loadError && assistanceTab === 'current' && (current ? (
-              <div className="request-card">
-                <div className="request-meta">
-                  <span>Pending</span>
-                  <code>{current.id}</code>
-                </div>
-                <p className="question">{current.question}</p>
-                <dl>
-                  <div>
-                    <dt>Response</dt>
-                    <dd>{current.responseType === 'point_set' ? 'Point Set' : 'Text'}</dd>
-                  </div>
-                  {current.responseType === 'point_set' && (
-                    <>
-                      <div>
-                        <dt>Document</dt>
-                        <dd>
-                          {targetDocument.title}
-                          <small>{targetDocument.versionId}</small>
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>Recommended pages</dt>
-                        <dd>{recommendedPageLabels || 'None'}</dd>
-                      </div>
-                      {supportingDocuments && supportingDocuments.length > 0 && (
-                        <div>
-                          <dt>Supporting documents</dt>
-                          <dd>
-                            <ul className="supporting-documents">
-                              {supportingDocuments.map(({ document, pages }) => (
-                                <li key={`${document.id}:${document.versionId}`}>
-                                  <span>{document.title}</span>
-                                  <small>
-                                    {document.versionId} · Pages{' '}
-                                    {pages.map((page) => page.label).join(', ')}
-                                  </small>
-                                  <span className="supporting-page-links">
-                                    {pages.map((page) => (
-                                      <button
-                                        key={page.id}
-                                        onClick={() => openSupportingReference(
-                                          document.id,
-                                          document.versionId,
-                                          page.id,
-                                        )}
-                                        type="button"
-                                      >
-                                        Open page {page.label}
-                                      </button>
-                                    ))}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          </dd>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </dl>
-
-                {current.responseType === 'point_set' ? (
-                  <>
-                    <div className="point-controls">
-                      <div>
-                        <strong>
-                          {points.length} {points.length === 1 ? 'point' : 'points'}
-                        </strong>
-                        <span>
-                          {canMark
-                            ? 'Click the drawing to mark locations.'
-                            : `Open ${targetPage.label} to place points.`}
-                        </span>
-                      </div>
-                      <button
-                        disabled={points.length === 0}
-                        onClick={undoLatestPoint}
-                        type="button"
-                      >
-                        Undo
-                      </button>
-                    </div>
-                    <button
-                      className="response-page-button"
-                      onClick={goToTarget}
-                      type="button"
-                    >
-                      {targetNavigationLabel}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <label htmlFor="text-response">Text response</label>
-                    <textarea
-                      id="text-response"
-                      onChange={(event) => {
-                        setResponseError('')
-                        setText(event.target.value)
-                      }}
-                      placeholder="Enter the Professional Response"
-                      value={text}
-                    />
-                  </>
-                )}
-
-                <label htmlFor="response-note">
-                  Overall note <span>optional</span>
-                </label>
-                <textarea
-                  id="response-note"
-                  onChange={(event) => setNote(event.target.value)}
-                  placeholder="Add context for the External Agent"
-                  value={note}
-                />
-                {current.responseType === 'point_set' ? (
-                  <button
-                    className="submit-button"
-                    disabled={responsePending}
-                    onClick={() => void submitPointSet()}
-                    type="button"
-                  >
-                    Submit Point Set
-                  </button>
-                ) : (
-                  <button
-                    className="submit-button"
-                    disabled={responsePending}
-                    onClick={() => void submitText()}
-                    type="button"
-                  >
-                    Submit Text Response
-                  </button>
-                )}
-
-                <div className="decline-controls">
-                  <label htmlFor="decline-reason">
-                    Decline reason <span>optional</span>
-                  </label>
-                  <textarea
-                    id="decline-reason"
-                    onChange={(event) => setDeclineReason(event.target.value)}
-                    placeholder="Explain why you cannot make this judgment"
-                    value={declineReason}
-                  />
-                  <button
-                    disabled={responsePending}
-                    onClick={() => void declineCurrent()}
-                    type="button"
-                  >
-                    Decline Request
-                  </button>
-                </div>
-
-                {pending.length > 1 && (
-                  <div className="waiting">
-                    <strong>{pending.length - 1} waiting</strong>
-                    <span>Next: {pending[1]!.question}</span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="empty-request">
-                <span aria-hidden="true">✓</span>
-                <p>No pending Assistance Requests</p>
-                <small>An External Agent can queue the next judgment through WebMCP.</small>
-              </div>
-            ))}
-
-          {!loading && !loadError && assistanceTab === 'queue' && (
-            <div className="request-list">
-              {pending.slice(1).length > 0 ? pending.slice(1).map((request, index) => (
-                <article className="history-card" key={request.id}>
-                  <div className="request-meta">
-                    <span>Locked · {index + 2} in line</span>
-                    <code>{request.id}</code>
-                  </div>
-                  <p className="question">{request.question}</p>
-                  <small>
-                    {request.responseType === 'point_set' ? 'Point Set' : 'Text'} response
-                  </small>
-                </article>
-              )) : (
-                <div className="empty-request">
-                  <p>No later requests in Queue</p>
-                  <small>Current must be completed before later work can be answered.</small>
-                </div>
-              )}
-            </div>
-          )}
-
-          {!loading && !loadError && assistanceTab === 'done' && (
-            <div className="request-list">
-              {completed.length > 0 ? completed.map((result) => (
-                <article className="history-card" key={result.id}>
-                  <div className="request-meta">
-                    <span>{result.state === 'answered' ? 'Answered' : 'Declined'}</span>
-                    <code>{result.id}</code>
-                  </div>
-                  <p className="question">{result.question}</p>
-                  {result.professionalResponse.type === 'point_set' && (
-                    <>
-                      <p>{result.professionalResponse.count} {result.professionalResponse.count === 1 ? 'point' : 'points'}</p>
-                      <small>
-                        {result.professionalResponse.document.id} · {result.professionalResponse.document.versionId}
-                      </small>
-                      <button
-                        className="response-page-button"
-                        onClick={() => viewPointSet(result)}
-                        type="button"
-                      >
-                        View Point Set on drawing
-                      </button>
-                      {result.professionalResponse.points.length > 0 && (
-                        <ol className="point-summary">
-                          {result.professionalResponse.points.map((point) => (
-                            <li key={point.pointNumber} value={point.pointNumber}>
-                              {point.page.label} · {Math.round(point.x * 100)}%, {Math.round(point.y * 100)}%
-                            </li>
-                          ))}
-                        </ol>
-                      )}
-                    </>
-                  )}
-                  {result.professionalResponse.type === 'text' && (
-                    <p>{result.professionalResponse.text}</p>
-                  )}
-                  {result.professionalResponse.type === 'declined' && (
-                    <p>{result.professionalResponse.reason ?? 'No reason given.'}</p>
-                  )}
-                  {'note' in result.professionalResponse && result.professionalResponse.note && (
-                    <small>{result.professionalResponse.note}</small>
-                  )}
-                </article>
-              )) : (
-                <div className="empty-request">
-                  <p>No completed Assistance Requests</p>
-                </div>
-              )}
-            </div>
-          )}
-        </aside>}
       </div>
     </main>
-  )
-}
-
-function isEditableTarget(target: EventTarget | null) {
-  return target instanceof HTMLElement && (
-    target.matches('input, textarea, select') || target.isContentEditable
   )
 }
 
@@ -967,23 +491,3 @@ function countPointsByPage(points: Array<{ pageId: string }>) {
 }
 
 export default App
-
-function useConstrainedContainer(
-  ref: RefObject<HTMLElement | null>,
-  threshold: number,
-) {
-  const [isConstrained, setIsConstrained] = useState(false)
-
-  useEffect(() => {
-    const container = ref.current
-    if (!container) return
-
-    const observer = new ResizeObserver(([entry]) => {
-      if (entry) setIsConstrained(entry.contentRect.width < threshold)
-    })
-    observer.observe(container)
-    return () => observer.disconnect()
-  }, [ref, threshold])
-
-  return isConstrained
-}

@@ -441,6 +441,71 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   })
 })
 
+test('reopening a submitted Point Set starts on its earliest marked document page', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-first-marked-page-${crypto.randomUUID()}`,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', {
+    ...requestInput,
+    recommendedPageIds: ['sheet-a4.3'],
+  })
+  await screen.findByText(requestInput.question)
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+
+  const laterPage = await screen.findByLabelText('Drawing page A4.3')
+  Object.defineProperty(laterPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(laterPage, { clientX: 75, clientY: 25 })
+  await screen.findByText('1 point')
+
+  await choosePage(user, /^A1\.2 1st Floor Plan$/)
+  const earlierPage = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(earlierPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(earlierPage, { clientX: 25, clientY: 75 })
+  await screen.findByText('2 points')
+  await user.click(screen.getByRole('button', { name: 'Submit Point Set' }))
+  await screen.findByText('No pending Assistance Requests')
+
+  await user.click(screen.getByRole('tab', { name: 'Done 1' }))
+  await user.click(screen.getByRole('button', { name: 'View Point Set on drawing' }))
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+})
+
 test('reload keeps a pending request but discards its unfinished Point Set draft', async () => {
   const user = userEvent.setup()
   const storage = window.sessionStorage

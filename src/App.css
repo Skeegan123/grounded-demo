@@ -628,6 +628,7 @@ dd {
   min-height: 0;
   overflow: hidden;
   cursor: grab;
+  overscroll-behavior: contain;
   touch-action: none;
   user-select: none;
 }
@@ -647,6 +648,8 @@ dd {
 }
 
 .pdf-page-frame canvas {
+  position: absolute;
+  inset: 0;
   display: block;
 }
 
@@ -773,6 +776,12 @@ button.point-pin {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
+}
+
+.point-set-overlay.point-controls-dismissed .remove-point {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
 }
 
 .undo-notice {
