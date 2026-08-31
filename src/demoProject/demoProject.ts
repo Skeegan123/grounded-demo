@@ -27,6 +27,11 @@ export interface ProjectDocument {
   pages: DocumentPage[]
 }
 
+export interface DocumentVersionReference {
+  id: string
+  versionId: string
+}
+
 function projectDocumentKind(kind: string): ProjectDocument['kind'] {
   if (kind === 'contract_drawings' || kind === 'submittal_product_data') {
     return kind
@@ -57,11 +62,10 @@ export function findDocument(documentId: string, versionId: string) {
 }
 
 export function findPage(
-  documentId: string,
-  documentVersionId: string,
+  document: DocumentVersionReference,
   pageId: string,
 ) {
-  return findDocument(documentId, documentVersionId)?.pages.find(
+  return findDocument(document.id, document.versionId)?.pages.find(
     (page) => page.id === pageId,
   )
 }

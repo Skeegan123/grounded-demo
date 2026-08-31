@@ -21,12 +21,12 @@ test('each tab keeps one isolated Demo Session identity across reloads', () => {
   const secondTab = createStorage()
   const firstTabContext = { name: '' }
   const secondTabContext = { name: '' }
-  const firstIdentity = getOrCreateDemoSessionId(
-    firstTab,
-    () => 'session-1',
-    firstTabContext,
-    () => 'tab-1',
-  )
+  const firstIdentity = getOrCreateDemoSessionId({
+    storage: firstTab,
+    createSessionId: () => 'session-1',
+    tabContext: firstTabContext,
+    createTabId: () => 'tab-1',
+  })
   secondTab.setItem(
     DEMO_SESSION_STORAGE_KEY,
     firstTab.getItem(DEMO_SESSION_STORAGE_KEY)!,
@@ -34,18 +34,18 @@ test('each tab keeps one isolated Demo Session identity across reloads', () => {
 
   expect({
     firstIdentity,
-    afterReload: getOrCreateDemoSessionId(
-      firstTab,
-      () => 'unused',
-      firstTabContext,
-      () => 'unused-tab',
-    ),
-    secondIdentity: getOrCreateDemoSessionId(
-      secondTab,
-      () => 'session-2',
-      secondTabContext,
-      () => 'tab-2',
-    ),
+    afterReload: getOrCreateDemoSessionId({
+      storage: firstTab,
+      createSessionId: () => 'unused',
+      tabContext: firstTabContext,
+      createTabId: () => 'unused-tab',
+    }),
+    secondIdentity: getOrCreateDemoSessionId({
+      storage: secondTab,
+      createSessionId: () => 'session-2',
+      tabContext: secondTabContext,
+      createTabId: () => 'tab-2',
+    }),
     tabNames: [firstTabContext.name, secondTabContext.name],
   }).toEqual({
     firstIdentity: 'session-1',

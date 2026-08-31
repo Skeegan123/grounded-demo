@@ -5,7 +5,11 @@ import type {
   createAssistance,
 } from './assistance/assistance'
 import type { createDocuments } from './documents/documents'
-import { demoProject, findPage } from './demoProject/demoProject'
+import {
+  demoProject,
+  findDocument,
+  findPage,
+} from './demoProject/demoProject'
 import { registerAssistanceTools } from './webmcp/registerAssistanceTools'
 import { registerDocumentTools } from './webmcp/registerDocumentTools'
 import type { ModelContextAdapter } from './webmcp/modelContext'
@@ -86,14 +90,11 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
   const defaultDocument = demoProject.documents[0]!
   const current = pending[0]
   const targetDocument = current
-    ? demoProject.documents.find(
-        (document) => document.id === current.documentId,
-      ) ?? defaultDocument
+    ? findDocument(current.documentId, current.documentVersionId) ?? defaultDocument
     : defaultDocument
   const targetPageId = current?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
   const targetPage =
-    findPage(targetDocument.id, targetDocument.versionId, targetPageId) ??
-    targetDocument.pages[0]!
+    findPage(targetDocument, targetPageId) ?? targetDocument.pages[0]!
   const selectedDocument =
     demoProject.documents.find((document) => document.id === selectedDocumentId) ??
     defaultDocument

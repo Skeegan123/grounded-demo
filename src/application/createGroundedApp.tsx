@@ -18,7 +18,10 @@ export interface GroundedEnvironment {
 export function createGroundedApp(environment: GroundedEnvironment = {}) {
   const createId = environment.createId ?? (() => crypto.randomUUID())
   const storage = environment.sessionStorage ?? window.sessionStorage
-  const sessionId = getOrCreateDemoSessionId(storage, createId)
+  const sessionId = getOrCreateDemoSessionId({
+    storage,
+    createSessionId: createId,
+  })
   const assistance = createAssistance({
     databaseName: environment.databaseName ?? 'grounded',
     sessionId,

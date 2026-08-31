@@ -7,6 +7,13 @@ interface BrowserTabContext {
   name: string
 }
 
+interface DemoSessionIdentityOptions {
+  storage: Storage
+  createSessionId: () => string
+  tabContext?: BrowserTabContext
+  createTabId?: () => string
+}
+
 interface StoredDemoSessionIdentity {
   sessionId: string
   tabId: string
@@ -56,12 +63,12 @@ export class DemoSessionDatabase extends Dexie {
   }
 }
 
-export function getOrCreateDemoSessionId(
-  storage: Storage,
-  createId: () => string,
-  tabContext: BrowserTabContext = window,
-  createTabId: () => string = () => crypto.randomUUID(),
-) {
+export function getOrCreateDemoSessionId({
+  storage,
+  createSessionId,
+  tabContext = window,
+  createTabId = () => crypto.randomUUID(),
+}: DemoSessionIdentityOptions) {
   const existingTabId = tabContext.name.startsWith(DEMO_TAB_NAME_PREFIX)
     ? tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
     : ''
@@ -82,7 +89,7 @@ export function getOrCreateDemoSessionId(
     }
   }
 
-  const sessionId = createId()
+  const sessionId = createSessionId()
   storage.setItem(
     DEMO_SESSION_STORAGE_KEY,
     JSON.stringify({ sessionId, tabId } satisfies StoredDemoSessionIdentity),

@@ -132,8 +132,10 @@ export function createAssistance(options: AssistanceOptions) {
         }
         const hasInvalidPoint = draft.points.some((point) => {
           const page = findPage(
-            request.documentId,
-            request.documentVersionId,
+            {
+              id: request.documentId,
+              versionId: request.documentVersionId,
+            },
             point.pageId,
           )
           return (
