@@ -29,7 +29,6 @@ interface AssistancePanelProps {
   loadError: string
   loading: boolean
   note: string
-  onCollapse: () => void
   onDecline: () => void
   onOpenSupportingReference: (
     documentId: string,
@@ -68,7 +67,6 @@ export function AssistancePanel({
   loadError,
   loading,
   note,
-  onCollapse,
   onDecline,
   onOpenSupportingReference,
   onSelectTab,
@@ -104,14 +102,6 @@ export function AssistancePanel({
           <p className="pane-kicker">FIFO work rail</p>
           <h2 id="assistance-title">Current Assistance</h2>
         </div>
-        <button
-          aria-label="Collapse Assistance"
-          className="collapse-assistance-button"
-          onClick={onCollapse}
-          type="button"
-        >
-          Collapse
-        </button>
       </div>
       <div className="assistance-tabs" role="tablist" aria-label="Assistance Requests">
         {(

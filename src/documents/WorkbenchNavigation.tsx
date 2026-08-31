@@ -5,6 +5,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react'
+import { ChevronLeft, ChevronRight, Ellipsis, Files } from 'lucide-react'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 
 export interface PagePickerItem {
@@ -14,22 +15,18 @@ export interface PagePickerItem {
 }
 
 interface WorkbenchNavigationProps {
-  assistanceExpanded: boolean
   currentDocument: ProjectDocument
   currentPage: DocumentPage
   documents: ProjectDocument[]
-  onOpenAssistance: () => void
   onSelectDocument: (document: ProjectDocument) => void
   onSelectPage: (page: DocumentPage) => void
   pageItems: PagePickerItem[]
 }
 
 export function WorkbenchNavigation({
-  assistanceExpanded,
   currentDocument,
   currentPage,
   documents,
-  onOpenAssistance,
   onSelectDocument,
   onSelectPage,
   pageItems,
@@ -94,13 +91,16 @@ export function WorkbenchNavigation({
     <div className="workbench-navigation">
       <div className="workbench-toolbar" aria-label="Document workbench">
         <button
+          aria-label="Documents"
           aria-expanded={openPanel === 'documents'}
           aria-haspopup="dialog"
+          className="icon-button tooltip-button"
+          data-tooltip="Documents"
           onClick={() => togglePanel('documents')}
           ref={documentsButtonRef}
           type="button"
         >
-          Documents
+          <Files aria-hidden="true" size={18} strokeWidth={1.8} />
         </button>
         <h1 id="work-area-title">{currentDocument.title}</h1>
         <div className="page-navigation" aria-label="Page navigation">
@@ -109,7 +109,8 @@ export function WorkbenchNavigation({
             onClick={() => onSelectPage(pageItems[currentPageIndex - 1]!.page)}
             type="button"
           >
-            Previous
+            <ChevronLeft aria-hidden="true" size={17} strokeWidth={2} />
+            <span>Previous</span>
           </button>
           <button
             aria-label={`Current page: ${currentPage.sheetNumber ?? currentPage.label}, ${currentPage.title}`}
@@ -130,24 +131,21 @@ export function WorkbenchNavigation({
             onClick={() => onSelectPage(pageItems[currentPageIndex + 1]!.page)}
             type="button"
           >
-            Next
+            <span>Next</span>
+            <ChevronRight aria-hidden="true" size={17} strokeWidth={2} />
           </button>
         </div>
         <button
-          aria-expanded={assistanceExpanded}
-          onClick={onOpenAssistance}
-          type="button"
-        >
-          Assistance
-        </button>
-        <button
+          aria-label="More"
           aria-expanded={openPanel === 'more'}
           aria-haspopup="dialog"
+          className="icon-button tooltip-button"
+          data-tooltip="More"
           onClick={() => togglePanel('more')}
           ref={moreButtonRef}
           type="button"
         >
-          More
+          <Ellipsis aria-hidden="true" size={19} strokeWidth={1.8} />
         </button>
       </div>
 

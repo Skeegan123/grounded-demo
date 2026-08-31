@@ -63,10 +63,11 @@
 .session-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 
-.start-over-button {
+.start-over-button,
+.assistance-toggle {
   padding: 8px 10px;
   color: var(--ink);
   background: transparent;
@@ -74,6 +75,16 @@
   border-radius: 3px;
   font-size: 0.76rem;
   font-weight: 700;
+}
+
+.start-over-button {
+  white-space: nowrap;
+}
+
+.assistance-toggle {
+  width: 36px;
+  height: 36px;
+  padding: 0;
 }
 
 .status-dot {
@@ -194,16 +205,6 @@ code {
   gap: 18px;
 }
 
-.collapse-assistance-button {
-  padding: 7px 9px;
-  color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--line-strong);
-  border-radius: 3px;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
 .document-pane {
   position: relative;
   min-height: 0;
@@ -319,6 +320,11 @@ dd {
   font-weight: 700;
 }
 
+.workbench-toolbar > .icon-button {
+  width: 38px;
+  padding: 0;
+}
+
 .workbench-toolbar > button[aria-expanded='true'],
 .page-navigation > button[aria-expanded='true'] {
   background: var(--panel);
@@ -340,6 +346,13 @@ dd {
   display: flex;
   align-items: stretch;
   gap: 4px;
+}
+
+.page-navigation > button:not(.current-page-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
 }
 
 .page-navigation .current-page-button {
@@ -584,15 +597,8 @@ dd {
 }
 
 .zoom-controls .fit-control {
-  width: auto;
-  padding-inline: 9px;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.zoom-controls button[aria-pressed='true'] {
-  background: var(--panel);
-  box-shadow: inset 0 -2px 0 var(--signal-dark);
+  width: 32px;
+  padding: 0;
 }
 
 .zoom-controls span {
@@ -1136,10 +1142,68 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltip-button {
+  position: relative;
+}
+
+.tooltip-button::after {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 20;
+  padding: 5px 7px;
+  color: #f9f6ef;
+  background: var(--ink);
+  border-radius: 3px;
+  content: attr(data-tooltip);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -3px);
+  transition: opacity 120ms ease, transform 120ms ease;
+  white-space: nowrap;
+}
+
+.tooltip-button:hover::after,
+.tooltip-button:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.zoom-controls .tooltip-button::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 3px);
+}
+
+.zoom-controls .tooltip-button:hover::after,
+.zoom-controls .tooltip-button:focus-visible::after {
+  transform: translate(-50%, 0);
+}
+
 @media (max-width: 680px) {
+  .workspace-header {
+    gap: 12px;
+    padding-inline: 14px;
+  }
+
   .workspace-header p,
   .session-status code {
     display: none;
+  }
+
+  .session-actions {
+    gap: 8px;
   }
 
 }
@@ -1162,6 +1226,15 @@ a:focus-visible {
   .page-navigation .current-page-button {
     flex: 1;
     min-width: 110px;
+  }
+
+  .page-navigation > button:not(.current-page-button) {
+    width: 38px;
+    padding-inline: 0;
+  }
+
+  .page-navigation > button:not(.current-page-button) span {
+    display: none;
   }
 
   .pages-popup {

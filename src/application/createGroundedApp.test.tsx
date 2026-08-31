@@ -166,7 +166,7 @@ test('the workbench stops page navigation at boundaries and resets direct naviga
   expectCurrentPage(/A0\.1, Project Information/)
   expect(screen.getByText('100%')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Fit page' }))
-    .toHaveAttribute('aria-pressed', 'true')
+    .not.toHaveAttribute('aria-pressed')
 
   await user.click(screen.getByRole('button', { name: /Current page:/ }))
   const picker = screen.getByRole('dialog', { name: 'Choose a page' })
@@ -202,11 +202,12 @@ test('map controls and keyboard shortcuts change fit, zoom, and pages outside ed
   const fitPage = screen.getByRole('button', { name: 'Fit page' })
   const fitWidth = screen.getByRole('button', { name: 'Fit width' })
 
-  expect(fitPage).toHaveAttribute('aria-pressed', 'true')
+  expect(fitPage).not.toHaveAttribute('aria-pressed')
+  expect(fitWidth).not.toHaveAttribute('aria-pressed')
   fireEvent.keyDown(document, { key: '+', code: 'Equal' })
   expect(screen.getByText('110%')).toBeInTheDocument()
   fireEvent.keyDown(document, { key: '0', shiftKey: true })
-  expect(fitWidth).toHaveAttribute('aria-pressed', 'true')
+  expect(fitWidth).not.toHaveAttribute('aria-pressed')
   expect(screen.getByText('100%')).toBeInTheDocument()
 
   fireEvent.keyDown(document, { key: 'ArrowRight' })
@@ -648,7 +649,7 @@ test('Document Browsing restores each document location and reloads the current 
   expectCurrentPage(/2, Hollow-core flush wood door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Fit width' }))
-    .toHaveAttribute('aria-pressed', 'true')
+    .not.toHaveAttribute('aria-pressed')
 })
 
 test('an Assistance Request leaves Document Browsing in place until Go to target', async () => {
@@ -890,7 +891,7 @@ test('Assistance collapse survives reload and View request restores the rail', a
   await screen.findByText(requestInput.question)
   expect(screen.queryByLabelText('Active Assistance Request')).not.toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Collapse Assistance' }))
+  await user.click(screen.getByRole('button', { name: 'Hide Assistance' }))
   expect(screen.queryByRole('heading', { name: 'Current Assistance' }))
     .not.toBeInTheDocument()
   const strip = screen.getByLabelText('Active Assistance Request')
@@ -914,7 +915,7 @@ test('Assistance collapse survives reload and View request restores the rail', a
   expect(await screen.findByRole('heading', { name: 'Current Assistance' }))
     .toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Collapse Assistance' }))
+  await user.click(screen.getByRole('button', { name: 'Hide Assistance' }))
   await user.click(screen.getByRole('button', { name: 'Start over' }))
   expect(await screen.findByRole('heading', { name: 'Current Assistance' }))
     .toBeInTheDocument()
@@ -967,7 +968,7 @@ test('supporting references preserve the Point Set draft and Return to target re
   expect(screen.getByText(requestInput.question)).toBeInTheDocument()
   expect(screen.getByText('1 point')).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Collapse Assistance' }))
+  await user.click(screen.getByRole('button', { name: 'Hide Assistance' }))
   const strip = screen.getByLabelText('Active Assistance Request')
   expect(within(strip).getByText('Point Set, 1 marked')).toBeInTheDocument()
   await user.click(within(strip).getByRole('button', { name: 'Return to target' }))

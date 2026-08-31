@@ -4,6 +4,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { MoveHorizontal, Scan, ZoomIn, ZoomOut } from 'lucide-react'
 import type { StoredPoint } from '../demoSession/demoSession'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 import {
@@ -20,14 +21,12 @@ import {
 } from './WorkbenchNavigation'
 
 export interface DocumentWorkbenchProps {
-  assistanceExpanded: boolean
   canMark: boolean
   currentDocument: ProjectDocument
   currentPage: DocumentPage
   documents: ProjectDocument[]
   fit: PageFit
   onFitChange: (fit: PageFit) => void
-  onOpenAssistance: () => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
   onSelectDocument: (document: ProjectDocument) => void
@@ -47,14 +46,12 @@ export interface DocumentWorkbenchProps {
 }
 
 export function DocumentWorkbench({
-  assistanceExpanded,
   canMark,
   currentDocument,
   currentPage,
   documents,
   fit,
   onFitChange,
-  onOpenAssistance,
   onPlacePoint,
   onRemovePoint,
   onSelectDocument,
@@ -89,11 +86,9 @@ export function DocumentWorkbench({
   return (
     <section className="document-pane" aria-labelledby="work-area-title">
       <WorkbenchNavigation
-        assistanceExpanded={assistanceExpanded}
         currentDocument={currentDocument}
         currentPage={currentPage}
         documents={documents}
-        onOpenAssistance={onOpenAssistance}
         onSelectDocument={onSelectDocument}
         onSelectPage={onSelectPage}
         pageItems={pageItems}
@@ -107,38 +102,42 @@ export function DocumentWorkbench({
         >
           <button
             aria-label="Zoom out"
+            className="icon-button tooltip-button"
+            data-tooltip="Zoom out"
             disabled={zoom <= MIN_DOCUMENT_ZOOM}
             onClick={onZoomOut}
             type="button"
           >
-            −
+            <ZoomOut aria-hidden="true" size={17} strokeWidth={1.8} />
           </button>
           <span aria-live="polite">{Math.round(zoom * 100)}%</span>
           <button
             aria-label="Zoom in"
+            className="icon-button tooltip-button"
+            data-tooltip="Zoom in"
             disabled={zoom >= MAX_DOCUMENT_ZOOM}
             onClick={onZoomIn}
             type="button"
           >
-            +
+            <ZoomIn aria-hidden="true" size={17} strokeWidth={1.8} />
           </button>
           <button
             aria-label="Fit page"
-            aria-pressed={fit === 'page'}
-            className="fit-control"
+            className="fit-control icon-button tooltip-button"
+            data-tooltip="Fit page"
             onClick={() => onFitChange('page')}
             type="button"
           >
-            Page
+            <Scan aria-hidden="true" size={17} strokeWidth={1.8} />
           </button>
           <button
             aria-label="Fit width"
-            aria-pressed={fit === 'width'}
-            className="fit-control"
+            className="fit-control icon-button tooltip-button"
+            data-tooltip="Fit width"
             onClick={() => onFitChange('width')}
             type="button"
           >
-            Width
+            <MoveHorizontal aria-hidden="true" size={18} strokeWidth={1.8} />
           </button>
         </div>
         <PdfPageViewer

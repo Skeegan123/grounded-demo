@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { PanelRightClose, PanelRightOpen } from 'lucide-react'
 import { useStore } from 'zustand'
 import type {
   AssistanceCompletedResult,
@@ -350,6 +351,23 @@ function App({
             <span>{statusCopy}</span>
             <code>{sessionId.slice(0, 8)}</code>
           </div>
+          <button
+            aria-expanded={!assistanceCollapsed}
+            aria-label={assistanceCollapsed ? 'Show Assistance' : 'Hide Assistance'}
+            className="assistance-toggle icon-button tooltip-button"
+            data-tooltip={assistanceCollapsed ? 'Show Assistance' : 'Hide Assistance'}
+            onClick={() => {
+              if (assistanceCollapsed) openAssistance()
+              else setAssistanceCollapsed(true)
+            }}
+            type="button"
+          >
+            {assistanceCollapsed ? (
+              <PanelRightOpen aria-hidden="true" size={18} strokeWidth={1.8} />
+            ) : (
+              <PanelRightClose aria-hidden="true" size={18} strokeWidth={1.8} />
+            )}
+          </button>
           <button className="start-over-button" onClick={onStartOver} type="button">
             Start over
           </button>
@@ -366,14 +384,12 @@ function App({
         ref={workspaceGridRef}
       >
         <DocumentWorkbench
-          assistanceExpanded={!assistanceCollapsed}
           canMark={canMark}
           currentDocument={selectedDocument}
           currentPage={selectedPage}
           documents={demoProject.documents}
           fit={fitPreference}
           onFitChange={setFitPreference}
-          onOpenAssistance={openAssistance}
           onPlacePoint={placePoint}
           onRemovePoint={canMark ? removePoint : undefined}
           onSelectDocument={(document) => selectDocument({
@@ -441,7 +457,6 @@ function App({
             loadError={loadError}
             loading={loading}
             note={note}
-            onCollapse={() => setAssistanceCollapsed(true)}
             onDecline={() => void declineCurrent()}
             onOpenSupportingReference={openSupportingReference}
             onSelectTab={setAssistanceTab}

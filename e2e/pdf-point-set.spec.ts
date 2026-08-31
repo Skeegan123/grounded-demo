@@ -128,10 +128,10 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
   await page.keyboard.press('0')
   await expect(page.getByText('100%')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Fit page' }))
-    .toHaveAttribute('aria-pressed', 'true')
+    .not.toHaveAttribute('aria-pressed')
   await page.keyboard.press('Shift+0')
   await expect(page.getByRole('button', { name: 'Fit width' }))
-    .toHaveAttribute('aria-pressed', 'true')
+    .not.toHaveAttribute('aria-pressed')
   await expect.poll(async () => (await canvas.boundingBox())?.width ?? 0)
     .toBeCloseTo(viewerBounds.width, 0)
 
@@ -143,7 +143,7 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
   await page.keyboard.press('ArrowRight')
   await expect(page.getByLabel('Rendered PDF page A0.1')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Fit page' }))
-    .toHaveAttribute('aria-pressed', 'true')
+    .not.toHaveAttribute('aria-pressed')
 })
 
 test('two touch pointers pinch around their gesture center', async ({ page }) => {
@@ -428,14 +428,14 @@ test('wide workbenches show Assistance by default and remember manual collapse',
   await expect(page.getByRole('heading', { name: 'Current Assistance' }))
     .toBeVisible()
   await expect(page.getByLabel('Active Assistance Request')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Assistance', exact: true }))
+  await expect(page.getByRole('button', { name: 'Hide Assistance' }))
     .toHaveAttribute('aria-expanded', 'true')
 
-  await page.getByRole('button', { name: 'Collapse Assistance' }).click()
+  await page.getByRole('button', { name: 'Hide Assistance' }).click()
   await expect(page.getByRole('heading', { name: 'Current Assistance' }))
     .toHaveCount(0)
   await expect(page.getByLabel('Active Assistance Request')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Assistance', exact: true }))
+  await expect(page.getByRole('button', { name: 'Show Assistance' }))
     .toHaveAttribute('aria-expanded', 'false')
 
   await page.reload()
