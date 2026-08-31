@@ -36,6 +36,153 @@ function createTestPageRenderer() {
   } satisfies PdfPageRenderer
 }
 
+async function chooseDocument(
+  user: ReturnType<typeof userEvent.setup>,
+  name: string | RegExp,
+) {
+  await user.click(screen.getByRole('button', { name: 'Documents' }))
+  const panel = screen.getByRole('dialog', { name: 'Choose a document' })
+  await user.click(within(panel).getByRole('button', { name }))
+}
+
+async function choosePage(
+  user: ReturnType<typeof userEvent.setup>,
+  name: string | RegExp,
+) {
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  const picker = screen.getByRole('dialog', { name: 'Choose a page' })
+  await user.click(within(picker).getByRole('option', { name }))
+}
+
+function expectCurrentPage(name: string | RegExp) {
+  expect(screen.getByRole('button', { name: /Current page:/ }))
+    .toHaveAccessibleName(name)
+}
+
+test('the workbench opens searchable document and page overlays without changing the canvas layout', async () => {
+  const user = userEvent.setup()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-workbench-navigation-${crypto.randomUUID()}`,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1'),
+    }),
+  )
+
+  await screen.findByText('No pending Assistance Requests')
+  expect(screen.queryByRole('navigation', { name: 'Project documents' }))
+    .not.toBeInTheDocument()
+
+  const documentsButton = screen.getByRole('button', { name: 'Documents' })
+  await user.click(documentsButton)
+  let documentsPanel = screen.getByRole('dialog', { name: 'Choose a document' })
+  const documentSearch = within(documentsPanel).getByRole('searchbox', {
+    name: 'Search documents',
+  })
+  expect(documentSearch).toHaveFocus()
+  await user.type(documentSearch, 'fictional')
+  expect(
+    within(documentsPanel).getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  ).toBeInTheDocument()
+  expect(
+    within(documentsPanel).queryByRole('button', {
+      name: /Virginia Farmhouse drawing set/i,
+    }),
+  ).not.toBeInTheDocument()
+
+  fireEvent.pointerLeave(documentsPanel)
+  expect(screen.getByRole('dialog', { name: 'Choose a document' }))
+    .toBeInTheDocument()
+  await user.click(documentsButton)
+  expect(screen.queryByRole('dialog', { name: 'Choose a document' }))
+    .not.toBeInTheDocument()
+
+  await user.click(documentsButton)
+  await user.keyboard('{Escape}')
+  expect(screen.queryByRole('dialog', { name: 'Choose a document' }))
+    .not.toBeInTheDocument()
+  expect(documentsButton).toHaveFocus()
+
+  await user.click(documentsButton)
+  await user.click(
+    screen.getByRole('heading', { name: 'Virginia Farmhouse drawing set' }),
+  )
+  expect(screen.queryByRole('dialog', { name: 'Choose a document' }))
+    .not.toBeInTheDocument()
+
+  await user.click(documentsButton)
+  documentsPanel = screen.getByRole('dialog', { name: 'Choose a document' })
+  await user.type(
+    within(documentsPanel).getByRole('searchbox', { name: 'Search documents' }),
+    'submittal_product_data',
+  )
+  await user.click(
+    within(documentsPanel).getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  expect(screen.queryByRole('dialog', { name: 'Choose a document' }))
+    .not.toBeInTheDocument()
+  expect(screen.getByRole('heading', {
+    name: 'Type C interior door product data and review cover',
+  })).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  const pagePanel = screen.getByRole('dialog', { name: 'Choose a page' })
+  const pageSearch = within(pagePanel).getByRole('searchbox', {
+    name: 'Search pages',
+  })
+  await user.type(pageSearch, 'Hollow-core')
+  await user.click(
+    within(pagePanel).getByRole('option', {
+      name: /^2 Hollow-core flush wood door product data$/,
+    }),
+  )
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+})
+
+test('the workbench stops page navigation at boundaries and resets direct navigation to Fit page', async () => {
+  const user = userEvent.setup()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-workbench-boundaries-${crypto.randomUUID()}`,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1'),
+    }),
+  )
+
+  await screen.findByText('No pending Assistance Requests')
+  expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled()
+
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  expect(screen.getByText('110%')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Next' }))
+  expectCurrentPage(/A0\.1, Project Information/)
+  expect(screen.getByText('100%')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: /Current page:/ }))
+  const picker = screen.getByRole('dialog', { name: 'Choose a page' })
+  await user.type(
+    within(picker).getByRole('searchbox', { name: 'Search pages' }),
+    'A5.0 Schedules',
+  )
+  await user.click(within(picker).getByRole('option', { name: /^A5\.0 Schedules$/ }))
+  expectCurrentPage(/A5\.0, Schedules/)
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Previous' })).toBeEnabled()
+
+  await user.click(screen.getByRole('button', { name: 'More' }))
+  const more = screen.getByRole('dialog', { name: 'More document actions' })
+  expect(within(more).getByRole('link', { name: 'Open authoritative PDF' }))
+    .toHaveAttribute('href', '/demo-project/virginia-farmhouse-drawing-set.pdf#page=25')
+  expect(within(more).getByText('Keyboard shortcuts')).toBeInTheDocument()
+})
+
 test('an External Agent retrieves stable Point Numbers for a multi-page Point Set after reload', async () => {
   const user = userEvent.setup()
   const storage = window.sessionStorage
@@ -58,7 +205,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
 
   await screen.findByRole('heading', { name: 'Current Assistance' })
   await screen.findByText(requestInput.question)
-  screen.getByRole('heading', { name: 'Project Documents' })
+  screen.getByRole('button', { name: 'Documents' })
   const currentAssistance = screen
     .getByRole('heading', { name: 'Current Assistance' })
     .closest('aside')!
@@ -92,7 +239,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   fireEvent.click(drawingPage, { clientX: 110, clientY: 220 })
   await screen.findByText('1 point')
 
-  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  await choosePage(user, /^A4\.3 Doors & Windows$/)
   const secondDrawingPage = await screen.findByLabelText('Drawing page A4.3')
   Object.defineProperty(secondDrawingPage, 'getBoundingClientRect', {
     configurable: true,
@@ -180,7 +327,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   expect(reloadedOverlay).toContainElement(reloadedMark)
   expect(reloadedMark).toHaveStyle({ left: '50%', top: '50%' })
 
-  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  await choosePage(user, /^A4\.3 Doors & Windows$/)
   const reloadedSecondOverlay = await screen.findByLabelText('Drawing page A4.3')
   const reloadedSecondMark = within(reloadedSecondOverlay).getByText('2')
   expect(reloadedSecondOverlay).toContainElement(reloadedSecondMark)
@@ -263,15 +410,8 @@ test('Start over creates an isolated Demo Session and clears transient workspace
   )
 
   await modelContext.waitForTool('create_assistance_request')
-  await user.click(
-    screen.getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
-    }),
-  )
-  await user.selectOptions(
-    screen.getByLabelText('Document page'),
-    'door-submittal-page-2',
-  )
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
@@ -283,15 +423,10 @@ test('Start over creates an isolated Demo Session and clears transient workspace
   expect(screen.queryByDisplayValue('Discard this draft')).not.toBeInTheDocument()
   expect(screen.getByRole('heading', { name: 'Virginia Farmhouse drawing set' }))
     .toBeInTheDocument()
-  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a0.0')
+  expectCurrentPage(/A0\.0, Cover Page/)
   expect(screen.getByText('100%')).toBeInTheDocument()
-  await user.click(
-    screen.getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
-    }),
-  )
-  expect(screen.getByLabelText('Document page'))
-    .toHaveValue('door-submittal-page-1')
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  expectCurrentPage(/1, Submittal cover/)
   expect(JSON.parse(window.sessionStorage.getItem(DEMO_SESSION_STORAGE_KEY)!))
     .toEqual(expect.objectContaining({ sessionId: 'session-2' }))
   await expect(
@@ -313,28 +448,14 @@ test('Document Browsing restores each document location and reloads the current 
   )
 
   await screen.findByText('No pending Assistance Requests')
-  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
-  await user.click(
-    screen.getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
-    }),
-  )
-  await user.selectOptions(
-    screen.getByLabelText('Document page'),
-    'door-submittal-page-2',
-  )
+  await choosePage(user, /^A4\.3 Doors & Windows$/)
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
 
-  await user.click(
-    screen.getByRole('button', { name: /Virginia Farmhouse drawing set/i }),
-  )
-  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a4.3')
-  await user.click(
-    screen.getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
-    }),
-  )
-  expect(screen.getByLabelText('Document page'))
-    .toHaveValue('door-submittal-page-2')
+  await chooseDocument(user, /Virginia Farmhouse drawing set/i)
+  expectCurrentPage(/A4\.3, Doors & Windows/)
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   expect(screen.getByText('110%')).toBeInTheDocument()
 
@@ -351,8 +472,7 @@ test('Document Browsing restores each document location and reloads the current 
   expect(await screen.findByRole('heading', {
     name: 'Type C interior door product data and review cover',
   })).toBeInTheDocument()
-  expect(screen.getByLabelText('Document page'))
-    .toHaveValue('door-submittal-page-2')
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
 })
 
@@ -370,15 +490,8 @@ test('an Assistance Request leaves Document Browsing in place until Go to target
   )
 
   await modelContext.waitForTool('create_assistance_request')
-  await user.click(
-    screen.getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
-    }),
-  )
-  await user.selectOptions(
-    screen.getByLabelText('Document page'),
-    'door-submittal-page-2',
-  )
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
 
   await modelContext.executeTool('create_assistance_request', requestInput)
@@ -387,15 +500,14 @@ test('an Assistance Request leaves Document Browsing in place until Go to target
   expect(screen.getByRole('heading', {
     name: 'Type C interior door product data and review cover',
   })).toBeInTheDocument()
-  expect(screen.getByLabelText('Document page'))
-    .toHaveValue('door-submittal-page-2')
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: 'Go to target' }))
 
   expect(screen.getByRole('heading', { name: 'Virginia Farmhouse drawing set' }))
     .toBeInTheDocument()
-  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a1.2')
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
   expect(screen.getByText('100%')).toBeInTheDocument()
 })
 
@@ -413,16 +525,16 @@ test('Go to target uses the target document first page without a recommendation'
   )
 
   await modelContext.waitForTool('create_assistance_request')
-  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  await choosePage(user, /^A4\.3 Doors & Windows$/)
   await modelContext.executeTool('create_assistance_request', {
     ...requestInput,
     recommendedPageIds: [],
   })
   await screen.findByText(requestInput.question)
 
-  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a4.3')
+  expectCurrentPage(/A4\.3, Doors & Windows/)
   await user.click(screen.getByRole('button', { name: 'Go to target' }))
-  expect(screen.getByLabelText('Document page')).toHaveValue('sheet-a0.0')
+  expectCurrentPage(/A0\.0, Cover Page/)
 })
 
 test('the workspace distinguishes Demo Session loading from an empty queue and explains unsupported WebMCP', async () => {
@@ -487,12 +599,8 @@ test('External Agent document inspection leaves the visible workspace and unfini
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
-  await user.click(
-    screen.getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
-    }),
-  )
-  await user.selectOptions(screen.getByLabelText('Document page'), 'door-submittal-page-2')
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await user.type(screen.getByLabelText('Overall note optional'), 'Keep this draft')
 
@@ -506,13 +614,13 @@ test('External Agent document inspection leaves the visible workspace and unfini
     document: screen.getByRole('heading', {
       name: 'Type C interior door product data and review cover',
     }),
-    page: screen.getByLabelText('Document page'),
+    page: screen.getByRole('button', { name: /Current page:/ }),
     zoom: screen.getByText('110%'),
     assistance: screen.getByRole('heading', { name: 'Current Assistance' }),
     note: screen.getByLabelText('Overall note optional'),
   }).toEqual({
     document: expect.any(HTMLElement),
-    page: expect.objectContaining({ value: 'door-submittal-page-2' }),
+    page: expect.any(HTMLElement),
     zoom: expect.any(HTMLElement),
     assistance: expect.any(HTMLElement),
     note: expect.objectContaining({ value: 'Keep this draft' }),
@@ -550,7 +658,7 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
   await screen.findByText('2 waiting')
   expect(screen.getByText('Next: State the recommended disposition.')).toBeInTheDocument()
   expect(screen.getByText('A1.2, A4.3')).toBeInTheDocument()
-  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  await choosePage(user, /^A4\.3 Doors & Windows$/)
   expect(await screen.findByLabelText('Drawing page A4.3')).toHaveAttribute('role', 'button')
 
   await user.click(await screen.findByRole('tab', { name: 'Queue 2' }))
