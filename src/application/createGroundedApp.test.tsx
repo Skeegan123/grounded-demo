@@ -159,11 +159,14 @@ test('the workbench stops page navigation at boundaries and resets direct naviga
   expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled()
 
+  await user.click(screen.getByRole('button', { name: 'Fit width' }))
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   expect(screen.getByText('110%')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Next' }))
   expectCurrentPage(/A0\.1, Project Information/)
   expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Fit page' }))
+    .toHaveAttribute('aria-pressed', 'true')
 
   await user.click(screen.getByRole('button', { name: /Current page:/ }))
   const picker = screen.getByRole('dialog', { name: 'Choose a page' })
@@ -181,6 +184,42 @@ test('the workbench stops page navigation at boundaries and resets direct naviga
   expect(within(more).getByRole('link', { name: 'Open authoritative PDF' }))
     .toHaveAttribute('href', '/demo-project/virginia-farmhouse-drawing-set.pdf#page=25')
   expect(within(more).getByText('Keyboard shortcuts')).toBeInTheDocument()
+})
+
+test('map controls and keyboard shortcuts change fit, zoom, and pages outside editable controls', async () => {
+  const user = userEvent.setup()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-map-controls-${crypto.randomUUID()}`,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1'),
+    }),
+  )
+
+  await screen.findByText('No pending Assistance Requests')
+  const zoomOut = screen.getByRole('button', { name: 'Zoom out' })
+  const fitPage = screen.getByRole('button', { name: 'Fit page' })
+  const fitWidth = screen.getByRole('button', { name: 'Fit width' })
+
+  expect(fitPage).toHaveAttribute('aria-pressed', 'true')
+  fireEvent.keyDown(document, { key: '+', code: 'Equal' })
+  expect(screen.getByText('110%')).toBeInTheDocument()
+  fireEvent.keyDown(document, { key: '0', shiftKey: true })
+  expect(fitWidth).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByText('100%')).toBeInTheDocument()
+
+  fireEvent.keyDown(document, { key: 'ArrowRight' })
+  expectCurrentPage(/A0\.1, Project Information/)
+  await user.click(screen.getByRole('button', { name: 'Documents' }))
+  const search = screen.getByRole('searchbox', { name: 'Search documents' })
+  fireEvent.keyDown(search, { key: 'ArrowRight' })
+  expectCurrentPage(/A0\.1, Project Information/)
+
+  await user.keyboard('{Escape}')
+  for (let step = 0; step < 8; step += 1) fireEvent.click(zoomOut)
+  expect(screen.getByText('25%')).toBeInTheDocument()
+  expect(zoomOut).toBeDisabled()
 })
 
 test('an External Agent retrieves stable Point Numbers for a multi-page Point Set after reload', async () => {
@@ -456,6 +495,7 @@ test('Document Browsing restores each document location and reloads the current 
   expectCurrentPage(/A4\.3, Doors & Windows/)
   await chooseDocument(user, /Type C interior door product data and review cover/i)
   expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  await user.click(screen.getByRole('button', { name: 'Fit width' }))
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   expect(screen.getByText('110%')).toBeInTheDocument()
 
@@ -474,6 +514,8 @@ test('Document Browsing restores each document location and reloads the current 
   })).toBeInTheDocument()
   expectCurrentPage(/2, Hollow-core flush wood door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Fit width' }))
+    .toHaveAttribute('aria-pressed', 'true')
 })
 
 test('an Assistance Request leaves Document Browsing in place until Go to target', async () => {

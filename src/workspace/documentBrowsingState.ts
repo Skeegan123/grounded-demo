@@ -1,4 +1,8 @@
 import { demoProject, findDocument } from '../demoProject/demoProject'
+import {
+  MAX_DOCUMENT_ZOOM,
+  MIN_DOCUMENT_ZOOM,
+} from '../documents/pageGeometry'
 
 export type DocumentFitPreference = 'page' | 'width'
 
@@ -87,8 +91,8 @@ export function loadDocumentBrowsingState(
       zoom:
         typeof candidate.zoom === 'number' &&
         Number.isFinite(candidate.zoom) &&
-        candidate.zoom >= 0.5 &&
-        candidate.zoom <= 2
+        candidate.zoom >= MIN_DOCUMENT_ZOOM &&
+        candidate.zoom <= MAX_DOCUMENT_ZOOM
           ? candidate.zoom
           : 1,
     }

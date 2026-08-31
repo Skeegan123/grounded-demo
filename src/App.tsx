@@ -8,7 +8,11 @@ import type {
 import type { createDocuments } from './documents/documents'
 import { PdfPageViewer, type PdfPageRenderer } from './documents/PdfPageViewer'
 import { WorkbenchNavigation } from './documents/WorkbenchNavigation'
-import type { NormalizedPoint } from './documents/pageGeometry'
+import {
+  MAX_DOCUMENT_ZOOM,
+  MIN_DOCUMENT_ZOOM,
+  type NormalizedPoint,
+} from './documents/pageGeometry'
 import {
   demoProject,
   findDocument,
@@ -69,6 +73,10 @@ function App({
   )
   const selectedPageId = useStore(workspaceStore, (state) => state.selectedPageId)
   const zoom = useStore(workspaceStore, (state) => state.zoom)
+  const fitPreference = useStore(
+    workspaceStore,
+    (state) => state.fitPreference,
+  )
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
   const clearDraft = useStore(workspaceStore, (state) => state.clearDraft)
   const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
@@ -83,6 +91,11 @@ function App({
   )
   const setNote = useStore(workspaceStore, (state) => state.setNote)
   const setText = useStore(workspaceStore, (state) => state.setText)
+  const setFitPreference = useStore(
+    workspaceStore,
+    (state) => state.setFitPreference,
+  )
+  const setZoom = useStore(workspaceStore, (state) => state.setZoom)
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
   const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
   const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
@@ -189,6 +202,44 @@ function App({
   const selectedPage =
     selectedDocument.pages.find((page) => page.id === selectedPageId) ??
     selectedDocument.pages[0]!
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) return
+      const selectedPageIndex = selectedDocument.pages.findIndex(
+        (page) => page.id === selectedPage.id,
+      )
+      if (event.key === 'ArrowLeft' && selectedPageIndex > 0) {
+        event.preventDefault()
+        selectPage(selectedDocument.pages[selectedPageIndex - 1]!.id)
+      } else if (
+        event.key === 'ArrowRight' &&
+        selectedPageIndex >= 0 &&
+        selectedPageIndex < selectedDocument.pages.length - 1
+      ) {
+        event.preventDefault()
+        selectPage(selectedDocument.pages[selectedPageIndex + 1]!.id)
+      } else if (event.key === '+' || event.key === '=') {
+        event.preventDefault()
+        zoomIn()
+      } else if (event.key === '-' || event.key === '_') {
+        event.preventDefault()
+        zoomOut()
+      } else if (event.key === '0') {
+        event.preventDefault()
+        setFitPreference(event.shiftKey ? 'width' : 'page')
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [
+    selectPage,
+    selectedDocument.pages,
+    selectedPage.id,
+    setFitPreference,
+    zoomIn,
+    zoomOut,
+  ])
   const canMark = Boolean(
     pointSetCurrent &&
       selectedDocument.id === pointSetCurrent.documentId &&
@@ -357,14 +408,48 @@ function App({
           />
           <div className="drawing-stage">
             <div className="zoom-controls" aria-label="Document zoom">
-              <button onClick={zoomOut} type="button" aria-label="Zoom out">−</button>
-              <span>{Math.round(zoom * 100)}%</span>
-              <button onClick={zoomIn} type="button" aria-label="Zoom in">+</button>
+              <button
+                aria-label="Zoom out"
+                disabled={zoom <= MIN_DOCUMENT_ZOOM}
+                onClick={zoomOut}
+                type="button"
+              >
+                −
+              </button>
+              <span aria-live="polite">{Math.round(zoom * 100)}%</span>
+              <button
+                aria-label="Zoom in"
+                disabled={zoom >= MAX_DOCUMENT_ZOOM}
+                onClick={zoomIn}
+                type="button"
+              >
+                +
+              </button>
+              <button
+                aria-label="Fit page"
+                aria-pressed={fitPreference === 'page'}
+                className="fit-control"
+                onClick={() => setFitPreference('page')}
+                type="button"
+              >
+                Page
+              </button>
+              <button
+                aria-label="Fit width"
+                aria-pressed={fitPreference === 'width'}
+                className="fit-control"
+                onClick={() => setFitPreference('width')}
+                type="button"
+              >
+                Width
+              </button>
             </div>
             <PdfPageViewer
               canMark={canMark}
               document={selectedDocument}
+              fit={fitPreference}
               onPlacePoint={placePoint}
+              onZoomChange={setZoom}
               page={selectedPage}
               points={visiblePoints}
               renderer={pageRenderer}
@@ -661,6 +746,12 @@ function App({
         </aside>
       </div>
     </main>
+  )
+}
+
+function isEditableTarget(target: EventTarget | null) {
+  return target instanceof HTMLElement && (
+    target.matches('input, textarea, select') || target.isContentEditable
   )
 }
 

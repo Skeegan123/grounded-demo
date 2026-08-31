@@ -2,6 +2,10 @@ import { createStore } from 'zustand/vanilla'
 import { demoProject } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
 import {
+  MAX_DOCUMENT_ZOOM,
+  MIN_DOCUMENT_ZOOM,
+} from '../documents/pageGeometry'
+import {
   createDefaultDocumentBrowsingState,
   documentKey,
   type DocumentBrowsingState,
@@ -27,6 +31,7 @@ export interface WorkspaceState extends DocumentBrowsingState {
   setFitPreference: (preference: DocumentFitPreference) => void
   setNote: (note: string) => void
   setText: (text: string) => void
+  setZoom: (zoom: number) => void
   undoPoint: () => void
   zoomIn: () => void
   zoomOut: () => void
@@ -98,11 +103,24 @@ export function createWorkspaceStore(
     setFitPreference: (fitPreference) => set({ fitPreference, zoom: 1 }),
     setNote: (note) => set({ note }),
     setText: (text) => set({ text }),
+    setZoom: (zoom) => set({
+      zoom: Math.min(MAX_DOCUMENT_ZOOM, Math.max(MIN_DOCUMENT_ZOOM, zoom)),
+    }),
     undoPoint: () =>
       set((state) => ({ points: state.points.slice(0, -1) })),
     zoomIn: () =>
-      set((state) => ({ zoom: Math.min(2, Number((state.zoom + 0.1).toFixed(1))) })),
+      set((state) => ({
+        zoom: Math.min(
+          MAX_DOCUMENT_ZOOM,
+          Number((state.zoom + 0.1).toFixed(2)),
+        ),
+      })),
     zoomOut: () =>
-      set((state) => ({ zoom: Math.max(0.5, Number((state.zoom - 0.1).toFixed(1))) })),
+      set((state) => ({
+        zoom: Math.max(
+          MIN_DOCUMENT_ZOOM,
+          Number((state.zoom - 0.1).toFixed(2)),
+        ),
+      })),
   }))
 }
