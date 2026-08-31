@@ -1,6 +1,6 @@
 import { expect, test, type Locator } from '@playwright/test'
 
-test('trackpad gestures stay inside the fixed viewer and browser history', async ({
+test('trackpad scrolling zooms inside the fixed viewer without moving browser history', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 900, height: 600 })
@@ -19,7 +19,8 @@ test('trackpad gestures stay inside the fixed viewer and browser history', async
     bounds.y + bounds.height / 2,
   )
   const scrollBefore = await page.evaluate(() => window.scrollY)
-  await page.mouse.wheel(0, 240)
+  await page.mouse.wheel(0, -240)
+  await expect.poll(() => zoomPercentage(page)).toBeGreaterThan(100)
   await page.waitForTimeout(100)
   await page.mouse.wheel(240, 0)
 
@@ -86,7 +87,6 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
     y: initialCanvasBounds.y + initialCanvasBounds.height * 0.35,
   }
   await page.mouse.move(pointer.x, pointer.y)
-  await page.keyboard.down('Control')
   await page.mouse.wheel(0, -420)
   await expect.poll(() => zoomPercentage(page)).toBeGreaterThan(100)
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
@@ -98,7 +98,6 @@ test('the fixed canvas zooms around the pointer and exposes every edge at 400%',
     .toBeCloseTo(0.35, 1)
 
   await page.mouse.wheel(0, -10_000)
-  await page.keyboard.up('Control')
   await expect(page.getByText('400%')).toBeVisible()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
   await expect(page.getByRole('button', { name: 'Zoom in' })).toBeDisabled()

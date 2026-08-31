@@ -362,7 +362,7 @@ test('a submitted marker exposes its fixed number and location to keyboard users
   expect(marker).toHaveFocus()
 })
 
-test('trackpad scrolling pans without restarting rendering or flashing a cover', async () => {
+test('trackpad scrolling zooms responsively without flashing a cover', async () => {
   const renderer: PdfPageRenderer = {
     renderPage: vi.fn(async ({ canvas, height, width }) => {
       canvas.width = width
@@ -375,6 +375,7 @@ test('trackpad scrolling pans without restarting rendering or flashing a cover',
     'virginia-farmhouse-drawings-v1',
   )!
   const page = document.pages[0]!
+  const zoomChanges: number[] = []
 
   function Viewer() {
     const [zoom, setZoom] = useState(2)
@@ -383,7 +384,10 @@ test('trackpad scrolling pans without restarting rendering or flashing a cover',
         canMark={false}
         document={document}
         onPlacePoint={() => {}}
-        onZoomChange={setZoom}
+        onZoomChange={(nextZoom) => {
+          zoomChanges.push(nextZoom)
+          setZoom(nextZoom)
+        }}
         page={page}
         points={[]}
         renderer={renderer}
@@ -400,19 +404,27 @@ test('trackpad scrolling pans without restarting rendering or flashing a cover',
   const frame = canvas.closest('.pdf-page-frame')!
   const initialTransform = frame.getAttribute('style')
 
-  fireEvent.wheel(viewer, {
-    clientX: 100,
-    clientY: 100,
-    deltaX: 30,
-    deltaY: 24,
-  })
-  fireEvent.wheel(viewer, {
-    clientX: 100,
-    clientY: 100,
-    deltaX: 20,
-    deltaY: 16,
+  act(() => {
+    viewer.dispatchEvent(new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 100,
+      clientY: 100,
+      deltaX: 30,
+      deltaY: -24,
+    }))
+    viewer.dispatchEvent(new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 100,
+      clientY: 100,
+      deltaX: 20,
+      deltaY: -16,
+    }))
   })
 
+  expect(zoomChanges).toHaveLength(2)
+  expect(zoomChanges.at(-1)).toBeCloseTo(2 * Math.exp(40 * 0.002))
   await waitFor(() => expect(frame.getAttribute('style')).not.toBe(initialTransform))
   expect(renderer.renderPage).toHaveBeenCalledTimes(1)
   expect(canvas).toHaveStyle({ visibility: 'visible' })

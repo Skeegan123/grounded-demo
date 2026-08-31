@@ -25,6 +25,7 @@ import {
 } from './pageGeometry'
 
 export const PAN_MOVEMENT_THRESHOLD = 6
+const WHEEL_ZOOM_SENSITIVITY = 0.002
 
 export interface RenderPageRequest extends PageSize {
   canvas: HTMLCanvasElement
@@ -108,6 +109,7 @@ export function PdfPageViewer({
   const pendingZoomAnchorRef = useRef<PageOffset | undefined>(undefined)
   const layoutRef = useRef<LayoutSnapshot | undefined>(undefined)
   const offsetRef = useRef<PageOffset>({ x: 0, y: 0 })
+  const zoomRef = useRef(zoom)
   const [availableSize, setAvailableSize] = useState<PageSize>({
     width: 0,
     height: 0,
@@ -134,6 +136,10 @@ export function PdfPageViewer({
     offsetRef.current = nextOffset
     setOffsetState(nextOffset)
   }
+
+  useLayoutEffect(() => {
+    zoomRef.current = zoom
+  }, [zoom])
 
   useEffect(() => {
     const host = hostRef.current
@@ -325,47 +331,38 @@ export function PdfPageViewer({
 
   const updateZoom = useCallback((nextZoom: number, anchor?: PageOffset) => {
     const clampedZoom = clampDocumentZoom(nextZoom)
-    if (clampedZoom === zoom) return
+    if (!onZoomChange || clampedZoom === zoomRef.current) return
+    zoomRef.current = clampedZoom
     pendingZoomAnchorRef.current = anchor
-    onZoomChange?.(clampedZoom)
-  }, [onZoomChange, zoom])
+    onZoomChange(clampedZoom)
+  }, [onZoomChange])
 
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
     const handleWheel = (event: globalThis.WheelEvent) => {
       event.preventDefault()
-      if (event.ctrlKey || event.metaKey) {
-        const bounds = host.getBoundingClientRect()
-        updateZoom(zoom * Math.exp(-event.deltaY * 0.0015), {
-          x: event.clientX - bounds.left,
-          y: event.clientY - bounds.top,
-        })
-        return
-      }
       const scale = event.deltaMode === WheelEvent.DOM_DELTA_LINE
         ? 16
         : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
           ? Math.max(availableSize.width, availableSize.height)
           : 1
-      setOffset(clampPageOffset({
-        insets: clampingInsets,
-        page: renderedSize,
-        viewport: availableSize,
-        offset: {
-          x: offsetRef.current.x - event.deltaX * scale,
-          y: offsetRef.current.y - event.deltaY * scale,
+      const bounds = host.getBoundingClientRect()
+      updateZoom(
+        zoomRef.current * Math.exp(
+          -event.deltaY * scale * WHEEL_ZOOM_SENSITIVITY,
+        ),
+        {
+          x: event.clientX - bounds.left,
+          y: event.clientY - bounds.top,
         },
-      }))
+      )
     }
     host.addEventListener('wheel', handleWheel, { passive: false })
     return () => host.removeEventListener('wheel', handleWheel)
   }, [
     availableSize,
-    clampingInsets,
-    renderedSize,
     updateZoom,
-    zoom,
   ])
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -440,7 +437,7 @@ export function PdfPageViewer({
         },
       }))
       const hostBounds = event.currentTarget.getBoundingClientRect()
-      updateZoom(zoom * gesture.distance / previousGesture.distance, {
+      updateZoom(zoomRef.current * gesture.distance / previousGesture.distance, {
         x: gesture.center.x - hostBounds.left,
         y: gesture.center.y - hostBounds.top,
       })
