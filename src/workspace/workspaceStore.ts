@@ -1,27 +1,30 @@
 import { createStore } from 'zustand/vanilla'
 import { demoProject } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
+import {
+  createDefaultDocumentBrowsingState,
+  documentKey,
+  type DocumentBrowsingState,
+  type DocumentFitPreference,
+} from './documentBrowsingState'
 
-export interface WorkspaceState {
+export interface WorkspaceState extends DocumentBrowsingState {
   assistanceTab: 'current' | 'queue' | 'done'
   declineReason: string
   points: StoredPoint[]
   note: string
   text: string
-  selectedDocumentId: string
-  selectedDocumentVersionId: string
-  selectedPageId: string
-  zoom: number
   addPoint: (point: StoredPoint) => void
   clearDraft: () => void
   selectDocument: (
     documentId: string,
     documentVersionId: string,
-    pageId: string,
+    pageId?: string,
   ) => void
   selectPage: (pageId: string) => void
   setAssistanceTab: (tab: 'current' | 'queue' | 'done') => void
   setDeclineReason: (reason: string) => void
+  setFitPreference: (preference: DocumentFitPreference) => void
   setNote: (note: string) => void
   setText: (text: string) => void
   undoPoint: () => void
@@ -29,30 +32,70 @@ export interface WorkspaceState {
   zoomOut: () => void
 }
 
-export function createWorkspaceStore() {
-  const initialDocument = demoProject.documents[0]!
-
+export function createWorkspaceStore(
+  initialBrowsingState = createDefaultDocumentBrowsingState(),
+) {
   return createStore<WorkspaceState>((set) => ({
+    ...initialBrowsingState,
     assistanceTab: 'current',
     declineReason: '',
     points: [],
     note: '',
     text: '',
-    selectedDocumentId: initialDocument.id,
-    selectedDocumentVersionId: initialDocument.versionId,
-    selectedPageId: initialDocument.pages[0]!.id,
-    zoom: 1,
     addPoint: (point) =>
       set((state) => ({ points: [...state.points, point] })),
     clearDraft: () => set({ declineReason: '', points: [], note: '', text: '' }),
     selectDocument: (
       selectedDocumentId,
       selectedDocumentVersionId,
-      selectedPageId,
-    ) => set({ selectedDocumentId, selectedDocumentVersionId, selectedPageId }),
-    selectPage: (selectedPageId) => set({ selectedPageId }),
+      requestedPageId,
+    ) =>
+      set((state) => {
+        const document = demoProject.documents.find(
+          (candidate) =>
+            candidate.id === selectedDocumentId &&
+            candidate.versionId === selectedDocumentVersionId,
+        )
+        if (!document) return state
+
+        const key = documentKey(selectedDocumentId, selectedDocumentVersionId)
+        const rememberedPageId = state.lastPageIdByDocument[key]
+        const selectedPageId = document.pages.some(
+          (page) => page.id === requestedPageId,
+        )
+          ? requestedPageId!
+          : document.pages.some((page) => page.id === rememberedPageId)
+            ? rememberedPageId
+            : document.pages[0]!.id
+
+        return {
+          selectedDocumentId,
+          selectedDocumentVersionId,
+          selectedPageId,
+          lastPageIdByDocument: {
+            ...state.lastPageIdByDocument,
+            [key]: selectedPageId,
+          },
+          fitPreference: 'page',
+          zoom: 1,
+        }
+      }),
+    selectPage: (selectedPageId) =>
+      set((state) => ({
+        selectedPageId,
+        lastPageIdByDocument: {
+          ...state.lastPageIdByDocument,
+          [documentKey(
+            state.selectedDocumentId,
+            state.selectedDocumentVersionId,
+          )]: selectedPageId,
+        },
+        fitPreference: 'page',
+        zoom: 1,
+      })),
     setAssistanceTab: (assistanceTab) => set({ assistanceTab }),
     setDeclineReason: (declineReason) => set({ declineReason }),
+    setFitPreference: (fitPreference) => set({ fitPreference, zoom: 1 }),
     setNote: (note) => set({ note }),
     setText: (text) => set({ text }),
     undoPoint: () =>

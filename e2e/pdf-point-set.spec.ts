@@ -55,6 +55,7 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
       recommendedPageIds: ['sheet-a1.2'],
     })
   })
+  await page.getByRole('button', { name: 'Go to target' }).click()
 
   const canvas = page.getByLabel('Rendered PDF page A1.2')
   const overlay = page.getByLabel('Drawing page A1.2')
