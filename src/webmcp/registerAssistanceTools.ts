@@ -3,7 +3,7 @@ import type { createAssistance } from '../assistance/assistance'
 import { defineTool } from './defineTool'
 import type { ModelContextAdapter } from './modelContext'
 
-const PointSetAssistanceRequestInput = Type.Object(
+const CreatePointSetAssistanceRequestInput = Type.Object(
   {
     question: Type.String({ minLength: 1, pattern: '\\S' }),
     responseType: Type.Literal('point_set'),
@@ -14,7 +14,7 @@ const PointSetAssistanceRequestInput = Type.Object(
   { additionalProperties: false },
 )
 
-const TextAssistanceRequestInput = Type.Object(
+const CreateTextAssistanceRequestInput = Type.Object(
   {
     question: Type.String({ minLength: 1, pattern: '\\S' }),
     responseType: Type.Literal('text'),
@@ -23,8 +23,8 @@ const TextAssistanceRequestInput = Type.Object(
 )
 
 const CreateAssistanceRequestInput = Type.Union([
-  PointSetAssistanceRequestInput,
-  TextAssistanceRequestInput,
+  CreatePointSetAssistanceRequestInput,
+  CreateTextAssistanceRequestInput,
 ])
 
 const GetAssistanceRequestInput = Type.Object(

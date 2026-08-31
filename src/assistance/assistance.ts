@@ -6,7 +6,7 @@ import {
   type StoredPoint,
 } from '../demoSession/demoSession'
 
-export interface CreatePointSetRequest {
+export interface CreatePointSetAssistanceRequest {
   question: string
   responseType: 'point_set'
   documentId: string
@@ -14,12 +14,14 @@ export interface CreatePointSetRequest {
   recommendedPageIds: string[]
 }
 
-export interface CreateTextRequest {
+export interface CreateTextAssistanceRequest {
   question: string
   responseType: 'text'
 }
 
-export type CreateAssistanceRequest = CreatePointSetRequest | CreateTextRequest
+export type CreateAssistanceRequest =
+  | CreatePointSetAssistanceRequest
+  | CreateTextAssistanceRequest
 
 export interface PointSetDraft {
   requestId: string
@@ -198,26 +200,31 @@ export function createAssistance(options: AssistanceOptions) {
     )
   }
 
-  async function answerPointSet(draft: PointSetDraft) {
+  async function requireCurrentPendingRequest(requestId: string) {
+    const request = await database.requests.get(requestId)
+    if (!request || request.sessionId !== options.sessionId) {
+      throw new Error('The Assistance Request does not exist.')
+    }
+    if (await database.responses.get(request.id)) {
+      throw new Error('The Professional Response is already final.')
+    }
+
+    const pending = await listPending()
+    if (pending[0]?.id !== request.id) {
+      throw new Error('Assistance Requests must be answered in FIFO order.')
+    }
+    return request
+  }
+
+  async function submitPointSetResponse(draft: PointSetDraft) {
     await database.transaction(
       'rw',
       database.requests,
       database.responses,
       async () => {
-        const request = await database.requests.get(draft.requestId)
-        if (!request || request.sessionId !== options.sessionId) {
-          throw new Error('The Assistance Request does not exist.')
-        }
-        if (await database.responses.get(request.id)) {
-          throw new Error('The Professional Response is already final.')
-        }
+        const request = await requireCurrentPendingRequest(draft.requestId)
         if (request.responseType !== 'point_set') {
           throw new Error('The Professional Response must use the requested response type.')
-        }
-
-        const pending = await listPending()
-        if (pending[0]?.id !== request.id) {
-          throw new Error('Assistance Requests must be answered in FIFO order.')
         }
         const hasInvalidPoint = draft.points.some((point) => {
           const page = findPage(
@@ -258,26 +265,15 @@ export function createAssistance(options: AssistanceOptions) {
     notifyListeners()
   }
 
-  async function answerText(draft: TextDraft) {
+  async function submitTextResponse(draft: TextDraft) {
     await database.transaction(
       'rw',
       database.requests,
       database.responses,
       async () => {
-        const request = await database.requests.get(draft.requestId)
-        if (!request || request.sessionId !== options.sessionId) {
-          throw new Error('The Assistance Request does not exist.')
-        }
-        if (await database.responses.get(request.id)) {
-          throw new Error('The Professional Response is already final.')
-        }
+        const request = await requireCurrentPendingRequest(draft.requestId)
         if (request.responseType !== 'text') {
           throw new Error('The Professional Response must use the requested response type.')
-        }
-
-        const pending = await listPending()
-        if (pending[0]?.id !== request.id) {
-          throw new Error('Assistance Requests must be answered in FIFO order.')
         }
 
         const text = draft.text.trim()
@@ -305,18 +301,7 @@ export function createAssistance(options: AssistanceOptions) {
       database.requests,
       database.responses,
       async () => {
-        const request = await database.requests.get(draft.requestId)
-        if (!request || request.sessionId !== options.sessionId) {
-          throw new Error('The Assistance Request does not exist.')
-        }
-        if (await database.responses.get(request.id)) {
-          throw new Error('The Professional Response is already final.')
-        }
-
-        const pending = await listPending()
-        if (pending[0]?.id !== request.id) {
-          throw new Error('Assistance Requests must be answered in FIFO order.')
-        }
+        const request = await requireCurrentPendingRequest(draft.requestId)
 
         const reason = draft.reason?.trim()
         await database.responses.add({
@@ -406,14 +391,14 @@ export function createAssistance(options: AssistanceOptions) {
   }
 
   return {
-    answerPointSet,
-    answerText,
     close: () => database.close(),
     createRequest,
     decline,
     getResult,
     listCompleted,
     listPending,
+    submitPointSetResponse,
+    submitTextResponse,
     subscribe(listener: () => void) {
       listeners.add(listener)
       return () => listeners.delete(listener)

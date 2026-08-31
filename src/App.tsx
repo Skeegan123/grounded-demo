@@ -131,6 +131,10 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
     pointSetCurrent?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
   const targetPage =
     findPage(targetDocument, targetPageId) ?? targetDocument.pages[0]!
+  const recommendedPageLabels = pointSetCurrent?.recommendedPageIds
+    .map((pageId) => findPage(targetDocument, pageId)?.label)
+    .filter((label): label is string => Boolean(label))
+    .join(', ')
   const selectedDocument =
     findDocument(selectedDocumentId, selectedDocumentVersionId) ??
     defaultDocument
@@ -140,18 +144,28 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
   const canMark = Boolean(
     pointSetCurrent &&
       selectedDocument.id === pointSetCurrent.documentId &&
-      selectedDocument.versionId === pointSetCurrent.documentVersionId &&
-      selectedPage.id === targetPage.id,
+      selectedDocument.versionId === pointSetCurrent.documentVersionId,
   )
+  const pointSetRequestId = pointSetCurrent?.id
+  const pointSetDocumentId = pointSetCurrent?.documentId
+  const pointSetDocumentVersionId = pointSetCurrent?.documentVersionId
 
   useEffect(() => {
-    if (!pointSetCurrent) return
+    if (!pointSetRequestId || !pointSetDocumentId || !pointSetDocumentVersionId) {
+      return
+    }
     selectDocument(
-      pointSetCurrent.documentId,
-      pointSetCurrent.documentVersionId,
+      pointSetDocumentId,
+      pointSetDocumentVersionId,
       targetPage.id,
     )
-  }, [pointSetCurrent, selectDocument, targetPage.id])
+  }, [
+    pointSetRequestId,
+    pointSetDocumentId,
+    pointSetDocumentVersionId,
+    selectDocument,
+    targetPage.id,
+  ])
 
   const placePoint = (event: MouseEvent<HTMLDivElement>) => {
     if (!canMark) return
@@ -170,7 +184,7 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
 
   const submitPointSet = async () => {
     if (!pointSetCurrent) return
-    await assistance.answerPointSet({
+    await assistance.submitPointSetResponse({
       requestId: pointSetCurrent.id,
       points,
       ...(note.trim() ? { note } : {}),
@@ -181,7 +195,7 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
 
   const submitText = async () => {
     if (current?.responseType !== 'text') return
-    await assistance.answerText({
+    await assistance.submitTextResponse({
       requestId: current.id,
       text,
       ...(note.trim() ? { note } : {}),
@@ -367,7 +381,10 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
                           <small>{targetDocument.versionId}</small>
                         </dd>
                       </div>
-                      <div><dt>Page</dt><dd>{targetPage.label}</dd></div>
+                      <div>
+                        <dt>Recommended pages</dt>
+                        <dd>{recommendedPageLabels || 'None'}</dd>
+                      </div>
                     </>
                   )}
                 </dl>

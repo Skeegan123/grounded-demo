@@ -53,7 +53,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
     'get_assistance_request',
     { id: 'request-1' },
   )
-  await assistance.answerPointSet({
+  await assistance.submitPointSetResponse({
     requestId: 'request-1',
     points: [
       {
@@ -198,7 +198,7 @@ test('the create and get tools carry a text request through its final response',
     state: 'pending',
     createdAt: '2030-01-02T03:04:05.000Z',
   })
-  await assistance.answerText({
+  await assistance.submitTextResponse({
     requestId: 'request-1',
     text: 'Revise and resubmit.',
   })

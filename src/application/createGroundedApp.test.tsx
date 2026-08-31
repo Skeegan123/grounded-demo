@@ -223,7 +223,10 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
     }),
   )
   await modelContext.waitForTool('create_assistance_request')
-  await modelContext.executeTool('create_assistance_request', requestInput)
+  await modelContext.executeTool('create_assistance_request', {
+    ...requestInput,
+    recommendedPageIds: ['sheet-a1.2', 'sheet-a4.3'],
+  })
   await modelContext.executeTool('create_assistance_request', {
     question: 'State the recommended disposition.',
     responseType: 'text',
@@ -236,6 +239,9 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
   await screen.findByText(requestInput.question)
   await screen.findByText('2 waiting')
   expect(screen.getByText('Next: State the recommended disposition.')).toBeInTheDocument()
+  expect(screen.getByText('A1.2, A4.3')).toBeInTheDocument()
+  await user.selectOptions(screen.getByLabelText('Document page'), 'sheet-a4.3')
+  expect(await screen.findByLabelText('Drawing page A4.3')).toHaveAttribute('role', 'button')
 
   await user.click(await screen.findByRole('tab', { name: 'Queue 2' }))
   expect(screen.getByText('State the recommended disposition.')).toBeInTheDocument()

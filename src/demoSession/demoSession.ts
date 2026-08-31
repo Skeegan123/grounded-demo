@@ -27,18 +27,20 @@ interface AssistanceRequestRecordBase {
   queuePosition: number
 }
 
-export interface PointSetRequestRecord extends AssistanceRequestRecordBase {
+export interface PointSetAssistanceRequestRecord extends AssistanceRequestRecordBase {
   responseType: 'point_set'
   documentId: string
   documentVersionId: string
   recommendedPageIds: string[]
 }
 
-export interface TextRequestRecord extends AssistanceRequestRecordBase {
+export interface TextAssistanceRequestRecord extends AssistanceRequestRecordBase {
   responseType: 'text'
 }
 
-export type AssistanceRequestRecord = PointSetRequestRecord | TextRequestRecord
+export type AssistanceRequestRecord =
+  | PointSetAssistanceRequestRecord
+  | TextAssistanceRequestRecord
 
 export interface StoredPoint {
   pageId: string

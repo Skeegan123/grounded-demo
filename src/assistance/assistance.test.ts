@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 import {
   createAssistance,
-  type CreatePointSetRequest,
+  type CreatePointSetAssistanceRequest,
 } from './assistance'
 
-const pointSetRequest: CreatePointSetRequest = {
+const pointSetRequest: CreatePointSetAssistanceRequest = {
   question: 'Mark the Type C openings.',
   responseType: 'point_set',
   documentId: 'virginia-farmhouse-drawings',
@@ -58,7 +58,7 @@ test('declining the oldest request is final and advances the FIFO queue', async 
   })
 
   await expect(
-    assistance.answerPointSet({ requestId: 'request-z', points: [] }),
+    assistance.submitPointSetResponse({ requestId: 'request-z', points: [] }),
   ).rejects.toThrow('The Professional Response is already final.')
   assistance.close()
 })
@@ -76,13 +76,13 @@ test('a text request accepts one non-empty final text response', async () => {
   })
 
   await expect(
-    assistance.answerPointSet({ requestId: 'request-1', points: [] }),
+    assistance.submitPointSetResponse({ requestId: 'request-1', points: [] }),
   ).rejects.toThrow('The Professional Response must use the requested response type.')
   await expect(
-    assistance.answerText({ requestId: 'request-1', text: '   ' }),
+    assistance.submitTextResponse({ requestId: 'request-1', text: '   ' }),
   ).rejects.toThrow('A text Professional Response cannot be empty.')
 
-  await assistance.answerText({
+  await assistance.submitTextResponse({
     requestId: 'request-1',
     text: '  Revise and resubmit.  ',
     note: '  The product does not match the schedule.  ',
@@ -101,7 +101,7 @@ test('a text request accepts one non-empty final text response', async () => {
     },
   })
   await expect(
-    assistance.answerText({ requestId: 'request-1', text: 'Approved.' }),
+    assistance.submitTextResponse({ requestId: 'request-1', text: 'Approved.' }),
   ).rejects.toThrow('The Professional Response is already final.')
   assistance.close()
 })
@@ -118,7 +118,7 @@ test('completed history distinguishes an empty Point Set from a decline', async 
     ...pointSetRequest,
     question: 'Mark another set of openings.',
   })
-  await assistance.answerPointSet({
+  await assistance.submitPointSetResponse({
     requestId: 'request-1',
     points: [],
     note: 'No matching openings were found.',
