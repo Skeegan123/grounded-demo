@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import type {
   AssistanceCompletedResult,
@@ -7,6 +7,7 @@ import type {
 } from './assistance/assistance'
 import type { createDocuments } from './documents/documents'
 import { PdfPageViewer, type PdfPageRenderer } from './documents/PdfPageViewer'
+import { WorkbenchNavigation } from './documents/WorkbenchNavigation'
 import type { NormalizedPoint } from './documents/pageGeometry'
 import {
   demoProject,
@@ -52,6 +53,7 @@ function App({
   )
   const [registrationError, setRegistrationError] = useState('')
   const [viewedPointSetId, setViewedPointSetId] = useState('')
+  const assistancePaneRef = useRef<HTMLElement>(null)
   const assistanceTab = useStore(workspaceStore, (state) => state.assistanceTab)
   const declineReason = useStore(workspaceStore, (state) => state.declineReason)
   const points = useStore(workspaceStore, (state) => state.points)
@@ -338,73 +340,27 @@ function App({
       )}
 
       <div className="workspace-grid">
-        <aside className="documents-pane" aria-labelledby="documents-title">
-          <p className="pane-kicker">Demo Project</p>
-          <h2 id="documents-title">Project Documents</h2>
-          <nav aria-label="Project documents">
-            {demoProject.documents.map((document) => (
-              <button
-                className={
-                  document.id === selectedDocument.id &&
-                  document.versionId === selectedDocument.versionId
-                    ? 'document active'
-                    : 'document'
-                }
-                key={`${document.id}:${document.versionId}`}
-                onClick={() =>
-                  selectDocument(
-                    document.id,
-                    document.versionId,
-                  )
-                }
-                type="button"
-              >
-                <span>{document.title}</span>
-                <small>{document.description}</small>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
         <section className="document-pane" aria-labelledby="work-area-title">
-          <div className="pane-heading">
-            <div>
-              <p className="pane-kicker">Document work area</p>
-              <h1 id="work-area-title">{selectedDocument.title}</h1>
-            </div>
-            <span className="sheet-chip">
-              {selectedPage.sheetNumber ? 'Sheet' : 'Page'} {selectedPage.label}
-            </span>
-          </div>
-          <div className="document-toolbar">
-            <label>
-              <span>Document page</span>
-              <select
-                aria-label="Document page"
-                onChange={(event) => selectPage(event.target.value)}
-                value={selectedPage.id}
-              >
-                {selectedDocument.pages.map((page) => (
-                  <option key={page.id} value={page.id}>
-                    {page.label} - {page.title}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <WorkbenchNavigation
+            currentDocument={selectedDocument}
+            currentPage={selectedPage}
+            documents={demoProject.documents}
+            onOpenAssistance={() => {
+              setAssistanceTab('current')
+              assistancePaneRef.current?.focus()
+            }}
+            onSelectDocument={(document) =>
+              selectDocument(document.id, document.versionId)
+            }
+            onSelectPage={(page) => selectPage(page.id)}
+            pageItems={selectedDocument.pages.map((page) => ({ page }))}
+          />
+          <div className="drawing-stage">
             <div className="zoom-controls" aria-label="Document zoom">
               <button onClick={zoomOut} type="button" aria-label="Zoom out">−</button>
               <span>{Math.round(zoom * 100)}%</span>
               <button onClick={zoomIn} type="button" aria-label="Zoom in">+</button>
             </div>
-            <a
-              href={`${selectedDocument.file.url}#page=${selectedPage.number}`}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Open authoritative PDF
-            </a>
-          </div>
-          <div className="drawing-stage">
             <PdfPageViewer
               canMark={canMark}
               document={selectedDocument}
@@ -417,7 +373,12 @@ function App({
           </div>
         </section>
 
-        <aside className="assistance-pane" aria-labelledby="assistance-title">
+        <aside
+          className="assistance-pane"
+          aria-labelledby="assistance-title"
+          ref={assistancePaneRef}
+          tabIndex={-1}
+        >
           <p className="pane-kicker">FIFO work rail</p>
           <h2 id="assistance-title">Current Assistance</h2>
           <div className="assistance-tabs" role="tablist" aria-label="Assistance Requests">
