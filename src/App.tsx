@@ -92,7 +92,8 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
     : defaultDocument
   const targetPageId = current?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
   const targetPage =
-    findPage(targetDocument.id, targetPageId) ?? targetDocument.pages[0]!
+    findPage(targetDocument.id, targetDocument.versionId, targetPageId) ??
+    targetDocument.pages[0]!
   const selectedDocument =
     demoProject.documents.find((document) => document.id === selectedDocumentId) ??
     defaultDocument

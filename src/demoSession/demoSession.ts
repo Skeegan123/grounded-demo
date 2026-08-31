@@ -1,6 +1,16 @@
 import Dexie, { type EntityTable } from 'dexie'
 
 export const DEMO_SESSION_STORAGE_KEY = 'grounded.demo-session-id'
+const DEMO_TAB_NAME_PREFIX = 'grounded:'
+
+interface BrowserTabContext {
+  name: string
+}
+
+interface StoredDemoSessionIdentity {
+  sessionId: string
+  tabId: string
+}
 
 export interface AssistanceRequestRecord {
   id: string
@@ -49,11 +59,33 @@ export class DemoSessionDatabase extends Dexie {
 export function getOrCreateDemoSessionId(
   storage: Storage,
   createId: () => string,
+  tabContext: BrowserTabContext = window,
+  createTabId: () => string = () => crypto.randomUUID(),
 ) {
-  const existing = storage.getItem(DEMO_SESSION_STORAGE_KEY)
-  if (existing) return existing
+  const existingTabId = tabContext.name.startsWith(DEMO_TAB_NAME_PREFIX)
+    ? tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
+    : ''
+  if (!existingTabId) {
+    tabContext.name = `${DEMO_TAB_NAME_PREFIX}${createTabId()}`
+  }
+
+  const tabId = tabContext.name.slice(DEMO_TAB_NAME_PREFIX.length)
+  const stored = storage.getItem(DEMO_SESSION_STORAGE_KEY)
+  if (stored) {
+    try {
+      const existing = JSON.parse(stored) as StoredDemoSessionIdentity
+      if (existing.tabId === tabId && existing.sessionId) {
+        return existing.sessionId
+      }
+    } catch {
+      // Older tracer builds stored the session identity without its tab owner.
+    }
+  }
 
   const sessionId = createId()
-  storage.setItem(DEMO_SESSION_STORAGE_KEY, sessionId)
+  storage.setItem(
+    DEMO_SESSION_STORAGE_KEY,
+    JSON.stringify({ sessionId, tabId } satisfies StoredDemoSessionIdentity),
+  )
   return sessionId
 }

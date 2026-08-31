@@ -56,8 +56,12 @@ export function findDocument(documentId: string, versionId: string) {
   )
 }
 
-export function findPage(documentId: string, pageId: string) {
-  return demoProject.documents
-    .find((document) => document.id === documentId)
-    ?.pages.find((page) => page.id === pageId)
+export function findPage(
+  documentId: string,
+  documentVersionId: string,
+  pageId: string,
+) {
+  return findDocument(documentId, documentVersionId)?.pages.find(
+    (page) => page.id === pageId,
+  )
 }

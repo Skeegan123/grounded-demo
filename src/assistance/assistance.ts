@@ -131,7 +131,11 @@ export function createAssistance(options: AssistanceOptions) {
           throw new Error('Assistance Requests must be answered in FIFO order.')
         }
         const hasInvalidPoint = draft.points.some((point) => {
-          const page = findPage(request.documentId, point.pageId)
+          const page = findPage(
+            request.documentId,
+            request.documentVersionId,
+            point.pageId,
+          )
           return (
             point.x < 0 ||
             point.x > 1 ||

@@ -1,5 +1,8 @@
 import { expect, test } from 'vitest'
-import { getOrCreateDemoSessionId } from './demoSession'
+import {
+  DEMO_SESSION_STORAGE_KEY,
+  getOrCreateDemoSessionId,
+} from './demoSession'
 
 function createStorage(): Storage {
   const values = new Map<string, string>()
@@ -16,15 +19,38 @@ function createStorage(): Storage {
 test('each tab keeps one isolated Demo Session identity across reloads', () => {
   const firstTab = createStorage()
   const secondTab = createStorage()
-  const firstIdentity = getOrCreateDemoSessionId(firstTab, () => 'session-1')
+  const firstTabContext = { name: '' }
+  const secondTabContext = { name: '' }
+  const firstIdentity = getOrCreateDemoSessionId(
+    firstTab,
+    () => 'session-1',
+    firstTabContext,
+    () => 'tab-1',
+  )
+  secondTab.setItem(
+    DEMO_SESSION_STORAGE_KEY,
+    firstTab.getItem(DEMO_SESSION_STORAGE_KEY)!,
+  )
 
   expect({
     firstIdentity,
-    afterReload: getOrCreateDemoSessionId(firstTab, () => 'unused'),
-    secondIdentity: getOrCreateDemoSessionId(secondTab, () => 'session-2'),
+    afterReload: getOrCreateDemoSessionId(
+      firstTab,
+      () => 'unused',
+      firstTabContext,
+      () => 'unused-tab',
+    ),
+    secondIdentity: getOrCreateDemoSessionId(
+      secondTab,
+      () => 'session-2',
+      secondTabContext,
+      () => 'tab-2',
+    ),
+    tabNames: [firstTabContext.name, secondTabContext.name],
   }).toEqual({
     firstIdentity: 'session-1',
     afterReload: 'session-1',
     secondIdentity: 'session-2',
+    tabNames: ['grounded:tab-1', 'grounded:tab-2'],
   })
 })
