@@ -2,6 +2,8 @@ import { createElement } from 'react'
 import { createAssistance } from '../assistance/assistance'
 import { getOrCreateDemoSessionId } from '../demoSession/demoSession'
 import { createDocuments } from '../documents/documents'
+import type { PdfPageRenderer } from '../documents/PdfPageViewer'
+import { createPdfJsPageRenderer } from '../documents/pdfJsPageRenderer'
 import { createBrowserModelContext } from '../webmcp/browserModelContext'
 import type { ModelContextAdapter } from '../webmcp/modelContext'
 import { createWorkspaceStore } from '../workspace/workspaceStore'
@@ -13,6 +15,7 @@ export interface GroundedEnvironment {
   sessionStorage?: Storage
   createId?: () => string
   now?: () => Date
+  pageRenderer?: PdfPageRenderer
 }
 
 export function createGroundedApp(environment: GroundedEnvironment = {}) {
@@ -34,6 +37,7 @@ export function createGroundedApp(environment: GroundedEnvironment = {}) {
     assistance,
     documents,
     modelContext: environment.modelContext ?? createBrowserModelContext(),
+    pageRenderer: environment.pageRenderer ?? createPdfJsPageRenderer(),
     sessionId,
     workspaceStore: createWorkspaceStore(),
   })

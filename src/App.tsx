@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type MouseEvent } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useStore } from 'zustand'
 import type {
   AssistanceCompletedResult,
@@ -6,6 +6,7 @@ import type {
   createAssistance,
 } from './assistance/assistance'
 import type { createDocuments } from './documents/documents'
+import { PdfPageViewer, type PdfPageRenderer } from './documents/PdfPageViewer'
 import {
   demoProject,
   findDocument,
@@ -21,19 +22,28 @@ interface AppProps {
   assistance: ReturnType<typeof createAssistance>
   documents: ReturnType<typeof createDocuments>
   modelContext?: ModelContextAdapter
+  pageRenderer: PdfPageRenderer
   sessionId: string
   workspaceStore: ReturnType<typeof createWorkspaceStore>
 }
 
 type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
 
-function App({ assistance, documents, modelContext, sessionId, workspaceStore }: AppProps) {
+function App({
+  assistance,
+  documents,
+  modelContext,
+  pageRenderer,
+  sessionId,
+  workspaceStore,
+}: AppProps) {
   const [pending, setPending] = useState<AssistanceRequestView[]>([])
   const [completed, setCompleted] = useState<AssistanceCompletedResult[]>([])
   const [registration, setRegistration] = useState<RegistrationState>(() =>
     modelContext ? 'registering' : 'unsupported',
   )
   const [registrationError, setRegistrationError] = useState('')
+  const [viewedPointSetId, setViewedPointSetId] = useState('')
   const assistanceTab = useStore(workspaceStore, (state) => state.assistanceTab)
   const declineReason = useStore(workspaceStore, (state) => state.declineReason)
   const points = useStore(workspaceStore, (state) => state.points)
@@ -146,6 +156,22 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
       selectedDocument.id === pointSetCurrent.documentId &&
       selectedDocument.versionId === pointSetCurrent.documentVersionId,
   )
+  const viewedPointSet = completed.find(
+    (result) =>
+      result.id === viewedPointSetId &&
+      result.professionalResponse.type === 'point_set',
+  )
+  const visiblePoints = canMark
+    ? points
+    : viewedPointSet?.professionalResponse.type === 'point_set'
+      ? viewedPointSet.professionalResponse.points.map((point) => ({
+          pageId: point.page.id,
+          pageLabel: point.page.label,
+          pageNumber: point.page.number,
+          x: point.x,
+          y: point.y,
+        }))
+      : []
   const pointSetRequestId = pointSetCurrent?.id
   const pointSetDocumentId = pointSetCurrent?.documentId
   const pointSetDocumentVersionId = pointSetCurrent?.documentVersionId
@@ -167,12 +193,8 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
     targetPage.id,
   ])
 
-  const placePoint = (event: MouseEvent<HTMLDivElement>) => {
+  const placePoint = ({ x, y }: { x: number; y: number }) => {
     if (!canMark) return
-    const bounds = event.currentTarget.getBoundingClientRect()
-    if (bounds.width === 0 || bounds.height === 0) return
-    const x = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width))
-    const y = Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height))
     addPoint({
       pageId: selectedPage.id,
       pageLabel: selectedPage.label,
@@ -212,6 +234,18 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
     })
     clearDraft()
     await refresh()
+  }
+
+  const viewPointSet = (result: AssistanceCompletedResult) => {
+    if (result.professionalResponse.type !== 'point_set') return
+    const document = findDocument(
+      result.professionalResponse.document.id,
+      result.professionalResponse.document.versionId,
+    )
+    if (!document) return
+    const pageId = result.professionalResponse.points[0]?.page.id ?? document.pages[0]!.id
+    setViewedPointSetId(result.id)
+    selectDocument(document.id, document.versionId, pageId)
   }
 
   const statusCopy = {
@@ -311,29 +345,15 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
             </a>
           </div>
           <div className="drawing-stage">
-            <div
-              aria-label={`Drawing page ${selectedPage.label}`}
-              className={canMark ? 'drawing-page marking' : 'drawing-page'}
-              onClick={placePoint}
-              role={canMark ? 'button' : undefined}
-              style={{ transform: `scale(${zoom})` }}
-              tabIndex={canMark ? 0 : -1}
-            >
-              <div className="page-reference">
-                <span>{selectedPage.sheetNumber ?? `PDF page ${selectedPage.number}`}</span>
-                <strong>{selectedPage.title}</strong>
-                <small>The original PDF remains authoritative.</small>
-              </div>
-              {points.filter((point) => point.pageId === selectedPage.id).map((point, index) => (
-                <span
-                  className="point-mark"
-                  key={`${point.x}-${point.y}-${index}`}
-                  style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }}
-                >
-                  {index + 1}
-                </span>
-              ))}
-            </div>
+            <PdfPageViewer
+              canMark={canMark}
+              document={selectedDocument}
+              onPlacePoint={placePoint}
+              page={selectedPage}
+              points={visiblePoints}
+              renderer={pageRenderer}
+              zoom={zoom}
+            />
           </div>
         </section>
 
@@ -533,6 +553,13 @@ function App({ assistance, documents, modelContext, sessionId, workspaceStore }:
                       <small>
                         {result.professionalResponse.document.id} · {result.professionalResponse.document.versionId}
                       </small>
+                      <button
+                        className="response-page-button"
+                        onClick={() => viewPointSet(result)}
+                        type="button"
+                      >
+                        View Point Set on drawing
+                      </button>
                       {result.professionalResponse.points.length > 0 && (
                         <ol className="point-summary">
                           {result.professionalResponse.points.map((point, index) => (

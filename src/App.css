@@ -266,59 +266,60 @@ dd {
   flex: 1;
   display: grid;
   place-items: center;
-  overflow: hidden;
+  min-height: 420px;
+  overflow: auto;
   padding: 20px;
   background: #c7c6be;
   border: 1px solid #b6b5ae;
 }
 
-.drawing-page {
+.pdf-page-viewer {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.pdf-page-frame {
   position: relative;
-  width: min(100%, 670px);
-  aspect-ratio: 1.42;
-  overflow: hidden;
-  color: #2f4771;
   background-color: #fffef9;
-  background-image:
-    linear-gradient(#8290aa 1px, transparent 1px),
-    linear-gradient(90deg, #8290aa 1px, transparent 1px),
-    linear-gradient(#cbd0d9 1px, transparent 1px),
-    linear-gradient(90deg, #cbd0d9 1px, transparent 1px);
-  background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
   border: 1px solid #aba89f;
   box-shadow: 0 16px 32px rgb(24 32 26 / 22%);
-  transform-origin: center;
 }
 
-.drawing-page.marking {
-  cursor: crosshair;
+.pdf-page-frame canvas {
+  display: block;
 }
 
-.page-reference {
+.point-set-overlay {
   position: absolute;
-  inset: 12%;
-  display: grid;
-  place-content: center;
-  gap: 12px;
-  padding: 24px;
-  background: rgb(255 254 249 / 90%);
-  border: 2px solid currentColor;
-  text-align: center;
+  inset: 0;
+  pointer-events: none;
 }
 
-.page-reference span,
-.page-reference small {
-  font-family: var(--mono);
-  font-size: 0.68rem;
+.point-set-overlay.marking {
+  cursor: crosshair;
+  pointer-events: auto;
 }
 
-.page-reference strong {
+.pdf-render-status,
+.pdf-render-error {
+  padding: 9px 12px;
   color: var(--ink);
-  font-size: 1.3rem;
+  background: rgb(249 246 239 / 94%);
+  border: 1px solid var(--line-strong);
+  font-size: 0.76rem;
 }
 
-.page-reference small {
-  color: var(--muted);
+.pdf-render-status {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+}
+
+.pdf-render-error {
+  max-width: 360px;
+  color: #72230f;
 }
 
 .point-mark {
@@ -630,8 +631,7 @@ button:disabled {
 button:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
-a:focus-visible,
-.drawing-page:focus-visible {
+a:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }

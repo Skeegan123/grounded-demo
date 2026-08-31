@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { createGroundedApp } from './createGroundedApp'
+import type { PdfPageRenderer } from '../documents/PdfPageViewer'
 import { createRecordingModelContext } from '../webmcp/recordingModelContext'
 
 const requestInput = {
@@ -17,15 +18,27 @@ function createIds(...ids: string[]) {
   return () => ids[index++] ?? `unexpected-id-${index}`
 }
 
+function createTestPageRenderer() {
+  return {
+    renderPage: vi.fn(async ({ canvas, height, width }) => {
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  } satisfies PdfPageRenderer
+}
+
 test('an External Agent retrieves a durable Point Set after the Senior Project Manager responds and reloads', async () => {
   const user = userEvent.setup()
   const storage = window.sessionStorage
   const databaseName = `grounded-tracer-${crypto.randomUUID()}`
   const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
   const firstRender = render(
     createGroundedApp({
       databaseName,
       modelContext,
+      pageRenderer,
       sessionStorage: storage,
       createId: createIds('session-1', 'request-1'),
       now: () => new Date('2030-01-02T03:04:05.000Z'),
@@ -40,6 +53,10 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
   screen.getByRole('heading', { name: 'Project Documents' })
 
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
+  expect(screen.getByLabelText('Rendered PDF page A1.2')).toBeInTheDocument()
+  await waitFor(() => expect(pageRenderer.renderPage).toHaveBeenCalledWith(
+    expect.objectContaining({ pageNumber: 6 }),
+  ))
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
     value: () => ({
       bottom: 420,
@@ -65,6 +82,7 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
     createGroundedApp({
       databaseName,
       modelContext: reloadedModelContext,
+      pageRenderer: createTestPageRenderer(),
       sessionStorage: storage,
       createId: createIds('unused-session', 'unused-request'),
       now: () => new Date('2030-01-02T03:05:06.000Z'),
@@ -101,6 +119,13 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
       },
     }),
   )
+
+  await user.click(await screen.findByRole('tab', { name: 'Done 1' }))
+  await user.click(screen.getByRole('button', { name: 'View Point Set on drawing' }))
+  const reloadedOverlay = await screen.findByLabelText('Drawing page A1.2')
+  const reloadedMark = within(reloadedOverlay).getByText('1')
+  expect(reloadedOverlay).toContainElement(reloadedMark)
+  expect(reloadedMark).toHaveStyle({ left: '50%', top: '50%' })
 })
 
 test('reload keeps a pending request but discards its unfinished Point Set draft', async () => {
@@ -112,6 +137,7 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
     createGroundedApp({
       databaseName,
       modelContext,
+      pageRenderer: createTestPageRenderer(),
       sessionStorage: storage,
       createId: createIds('session-1', 'request-1'),
       now: () => new Date('2030-01-02T03:04:05.000Z'),
@@ -145,6 +171,7 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
     createGroundedApp({
       databaseName,
       modelContext: reloadedModelContext,
+      pageRenderer: createTestPageRenderer(),
       sessionStorage: storage,
       createId: createIds('unused-session', 'unused-request'),
       now: () => new Date('2030-01-02T03:05:06.000Z'),
@@ -168,6 +195,7 @@ test('External Agent document inspection leaves the visible workspace and unfini
     createGroundedApp({
       databaseName: `grounded-document-separation-${crypto.randomUUID()}`,
       modelContext,
+      pageRenderer: createTestPageRenderer(),
       sessionStorage: window.sessionStorage,
       createId: createIds('session-1', 'request-1'),
       now: () => new Date('2030-01-02T03:04:05.000Z'),
@@ -217,6 +245,7 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
     createGroundedApp({
       databaseName: `grounded-workspace-queue-${crypto.randomUUID()}`,
       modelContext,
+      pageRenderer: createTestPageRenderer(),
       sessionStorage: window.sessionStorage,
       createId: createIds('session-1', 'request-1', 'request-2', 'request-3'),
       now: () => new Date('2030-01-02T03:04:05.000Z'),

@@ -18,6 +18,11 @@ Committed requests and responses live in IndexedDB through Dexie. The Demo
 Session identity is tab-scoped in session storage. Unfinished marks and notes
 are transient Zustand state and intentionally disappear on reload.
 
+The center pane renders the original PDFs with a custom PDF.js display layer.
+Point Set marks sit in a separate normalized overlay, so they stay aligned when
+the page resizes or zoom changes. Completed Point Sets can be reopened from
+Done after reload.
+
 ## WebMCP tools
 
 The real-client tracer locked the initial Point Set contract documented in
@@ -49,12 +54,14 @@ changes to **WebMCP ready** once both tools register.
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:browser
 pnpm build
 ```
 
 The high-level behavioral test crosses the recording adapter, real application
 composition, fake IndexedDB, and visible UI for create, respond, reload, and
-retrieve.
+retrieve. The Playwright test runs in Chrome against the actual drawing PDF and
+checks PDF.js rendering plus Point Set alignment on Sheet A1.2.
 
 ## Demo Project documents
 
