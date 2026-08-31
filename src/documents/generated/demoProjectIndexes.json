@@ -1,0 +1,4919 @@
+[
+  {
+    "schemaVersion": 1,
+    "documentId": "virginia-farmhouse-drawings",
+    "documentVersionId": "virginia-farmhouse-drawings-v1",
+    "sourceFingerprint": "2049cb0424de69c753e4345c2c87c4632cec75b0dd3ac0c8d1462f735c8a27af",
+    "extractor": {
+      "pipelineVersion": "grounded-demo-index-1",
+      "pdfjsVersion": "6.3.289",
+      "ocrEngine": "tesseract",
+      "ocrEngineVersion": "5.5.3"
+    },
+    "pages": [
+      {
+        "page": {
+          "id": "drawing-page-1",
+          "label": "PDF 1",
+          "title": "Drawing page 1",
+          "number": 1
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 270,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-2",
+          "label": "PDF 2",
+          "title": "Drawing page 2",
+          "number": 2
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 270,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-3",
+          "label": "PDF 3",
+          "title": "Drawing page 3",
+          "number": 3
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 270,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-4",
+          "label": "PDF 4",
+          "title": "Drawing page 4",
+          "number": 4
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-5",
+          "label": "PDF 5",
+          "title": "Drawing page 5",
+          "number": 5
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "sheet-a1.2",
+          "label": "A1.2",
+          "title": "1st Floor Plan",
+          "sheetNumber": "A1.2",
+          "number": 6
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "indexed",
+        "runs": [
+          {
+            "text": "S)",
+            "box": [
+              0.93451,
+              0.03697,
+              0.962745,
+              0.084242
+            ],
+            "source": "ocr",
+            "confidence": 0.5666
+          },
+          {
+            "text": "OPEN-SOURCE",
+            "box": [
+              0.917647,
+              0.093333,
+              0.978431,
+              0.101212
+            ],
+            "source": "ocr",
+            "confidence": 0.9626
+          },
+          {
+            "text": "32'",
+            "box": [
+              0.465882,
+              0.113333,
+              0.475294,
+              0.121818
+            ],
+            "source": "ocr",
+            "confidence": 0.8823
+          },
+          {
+            "text": "BLUEPRINTS",
+            "box": [
+              0.917255,
+              0.106061,
+              0.977647,
+              0.113939
+            ],
+            "source": "ocr",
+            "confidence": 0.9599
+          },
+          {
+            "text": "CAD FILES AVAILABLE:",
+            "box": [
+              0.917647,
+              0.125455,
+              0.977647,
+              0.131515
+            ],
+            "source": "ocr",
+            "confidence": 0.9336
+          },
+          {
+            "text": "12",
+            "box": [
+              0.319216,
+              0.130303,
+              0.326275,
+              0.139394
+            ],
+            "source": "ocr",
+            "confidence": 0.957
+          },
+          {
+            "text": "8\"",
+            "box": [
+              0.467843,
+              0.130303,
+              0.473333,
+              0.139394
+            ],
+            "source": "ocr",
+            "confidence": 0.4827
+          },
+          {
+            "text": "12",
+            "box": [
+              0.613333,
+              0.130303,
+              0.620392,
+              0.139394
+            ],
+            "source": "ocr",
+            "confidence": 0.9565
+          },
+          {
+            "text": "openfarmhouse.com",
+            "box": [
+              0.917255,
+              0.135152,
+              0.977647,
+              0.142424
+            ],
+            "source": "ocr",
+            "confidence": 0.9117
+          },
+          {
+            "text": "6-6\"",
+            "box": [
+              0.275686,
+              0.147273,
+              0.290196,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.3828
+          },
+          {
+            "text": "5-6\"",
+            "box": [
+              0.363922,
+              0.147273,
+              0.378431,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.015
+          },
+          {
+            "text": "31-4\"",
+            "box": [
+              0.42902,
+              0.147273,
+              0.443529,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.6468
+          },
+          {
+            "text": "gig”",
+            "box": [
+              0.472941,
+              0.147273,
+              0.487843,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.5797
+          },
+          {
+            "text": "|",
+            "box": [
+              0.479216,
+              0.13697,
+              0.48,
+              0.149091
+            ],
+            "source": "ocr",
+            "confidence": 0.8326
+          },
+          {
+            "text": "2",
+            "box": [
+              0.512157,
+              0.147273,
+              0.517255,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.7949
+          },
+          {
+            "text": "3\"",
+            "box": [
+              0.54902,
+              0.147273,
+              0.554118,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.5695
+          },
+          {
+            "text": "21-6\"",
+            "box": [
+              0.584706,
+              0.147273,
+              0.599216,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.1519
+          },
+          {
+            "text": "6-6\"",
+            "box": [
+              0.650588,
+              0.147273,
+              0.66549,
+              0.155758
+            ],
+            "source": "ocr",
+            "confidence": 0.1772
+          },
+          {
+            "text": "ORIGINAL DESIGNER",
+            "box": [
+              0.917255,
+              0.152121,
+              0.978824,
+              0.158182
+            ],
+            "source": "ocr",
+            "confidence": 0.9652
+          },
+          {
+            "text": "Jay Osborne",
+            "box": [
+              0.917255,
+              0.161818,
+              0.956863,
+              0.169697
+            ],
+            "source": "ocr",
+            "confidence": 0.9624
+          },
+          {
+            "text": "i",
+            "box": [
+              0.479216,
+              0.169091,
+              0.48,
+              0.172121
+            ],
+            "source": "ocr",
+            "confidence": 0.3776
+          },
+          {
+            "text": "BACK",
+            "box": [
+              0.487843,
+              0.192121,
+              0.50902,
+              0.203636
+            ],
+            "source": "ocr",
+            "confidence": 0.8974
+          },
+          {
+            "text": "UP.",
+            "box": [
+              0.418824,
+              0.210909,
+              0.428627,
+              0.219394
+            ],
+            "source": "ocr",
+            "confidence": 0.8199
+          },
+          {
+            "text": "@rs'",
+            "box": [
+              0.438039,
+              0.217576,
+              0.459216,
+              0.228485
+            ],
+            "source": "ocr",
+            "confidence": 0.039
+          },
+          {
+            "text": "pj]_eo |",
+            "box": [
+              0.53098,
+              0.212727,
+              0.599608,
+              0.229697
+            ],
+            "source": "ocr",
+            "confidence": 0.1876
+          },
+          {
+            "text": "——",
+            "box": [
+              0.613725,
+              0.223636,
+              0.654902,
+              0.224242
+            ],
+            "source": "ocr",
+            "confidence": 0.3269
+          },
+          {
+            "text": "———+t~",
+            "box": [
+              0.66902,
+              0.223636,
+              0.720392,
+              0.227273
+            ],
+            "source": "ocr",
+            "confidence": 0.307
+          },
+          {
+            "text": "rea",
+            "box": [
+              0.483922,
+              0.211515,
+              0.516863,
+              0.240606
+            ],
+            "source": "ocr",
+            "confidence": 0.26
+          },
+          {
+            "text": "DETAI",
+            "box": [
+              0.419608,
+              0.266061,
+              0.441176,
+              0.274545
+            ],
+            "source": "ocr",
+            "confidence": 0.4529
+          },
+          {
+            "text": "PLAN:",
+            "box": [
+              0.44902,
+              0.266061,
+              0.467843,
+              0.274545
+            ],
+            "source": "ocr",
+            "confidence": 0.8153
+          },
+          {
+            "text": "SEE 3/AX.7",
+            "box": [
+              0.419608,
+              0.28,
+              0.458824,
+              0.289091
+            ],
+            "source": "ocr",
+            "confidence": 0.4658
+          },
+          {
+            "text": "UP",
+            "box": [
+              0.476078,
+              0.290303,
+              0.486275,
+              0.3
+            ],
+            "source": "ocr",
+            "confidence": 0.5831
+          },
+          {
+            "text": "wc",
+            "box": [
+              0.54,
+              0.290909,
+              0.556078,
+              0.302424
+            ],
+            "source": "ocr",
+            "confidence": 0.669
+          },
+          {
+            "text": "4'-6\"",
+            "box": [
+              0.630196,
+              0.294545,
+              0.645098,
+              0.30303
+            ],
+            "source": "ocr",
+            "confidence": 0.7234
+          },
+          {
+            "text": "%",
+            "box": [
+              0.141569,
+              0.309697,
+              0.147451,
+              0.315152
+            ],
+            "source": "ocr",
+            "confidence": 0.5943
+          },
+          {
+            "text": "yy",
+            "box": [
+              0.68,
+              0.310303,
+              0.686275,
+              0.316364
+            ],
+            "source": "ocr",
+            "confidence": 0.3059
+          },
+          {
+            "text": "io",
+            "box": [
+              0.141961,
+              0.322424,
+              0.147451,
+              0.327879
+            ],
+            "source": "ocr",
+            "confidence": 0.874
+          },
+          {
+            "text": "t34©",
+            "box": [
+              0.495294,
+              0.307273,
+              0.533333,
+              0.32303
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": ".",
+            "box": [
+              0.658039,
+              0.324242,
+              0.66,
+              0.325455
+            ],
+            "source": "ocr",
+            "confidence": 0.4664
+          },
+          {
+            "text": "_",
+            "box": [
+              0.518824,
+              0.327879,
+              0.534118,
+              0.34
+            ],
+            "source": "ocr",
+            "confidence": 0.6386
+          },
+          {
+            "text": "CHIMNEY DETAIL",
+            "box": [
+              0.14902,
+              0.343636,
+              0.212941,
+              0.352121
+            ],
+            "source": "ocr",
+            "confidence": 0.967
+          },
+          {
+            "text": "=",
+            "box": [
+              0.241176,
+              0.349697,
+              0.252549,
+              0.350303
+            ],
+            "source": "ocr",
+            "confidence": 0.9462
+          },
+          {
+            "text": "LIVING ROOM",
+            "box": [
+              0.293725,
+              0.336364,
+              0.360784,
+              0.347879
+            ],
+            "source": "ocr",
+            "confidence": 0.9654
+          },
+          {
+            "text": "KITCHEN],",
+            "box": [
+              0.614902,
+              0.324242,
+              0.663529,
+              0.356364
+            ],
+            "source": "ocr",
+            "confidence": 0.6292
+          },
+          {
+            "text": "PLAN: SEE 4/A1.7",
+            "box": [
+              0.14902,
+              0.358182,
+              0.212549,
+              0.366667
+            ],
+            "source": "ocr",
+            "confidence": 0.9092
+          },
+          {
+            "text": "4",
+            "box": [
+              0.278824,
+              0.36303,
+              0.28549,
+              0.366667
+            ],
+            "source": "ocr",
+            "confidence": 0.5901
+          },
+          {
+            "text": "+",
+            "box": [
+              0.285882,
+              0.366061,
+              0.289412,
+              0.369091
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "REF",
+            "box": [
+              0.584314,
+              0.362424,
+              0.598824,
+              0.37697
+            ],
+            "source": "ocr",
+            "confidence": 0.9101
+          },
+          {
+            "text": "+—WOODSTOVE",
+            "box": [
+              0.285882,
+              0.378788,
+              0.349804,
+              0.387879
+            ],
+            "source": "ocr",
+            "confidence": 0.5267
+          },
+          {
+            "text": "|_—-RAILING |",
+            "box": [
+              0.464314,
+              0.361818,
+              0.519216,
+              0.383636
+            ],
+            "source": "ocr",
+            "confidence": 0.4692
+          },
+          {
+            "text": "A",
+            "box": [
+              0.282745,
+              0.395758,
+              0.284706,
+              0.39697
+            ],
+            "source": "ocr",
+            "confidence": 0.6443
+          },
+          {
+            "text": "a",
+            "box": [
+              0.656863,
+              0.393333,
+              0.660784,
+              0.39697
+            ],
+            "source": "ocr",
+            "confidence": 0.5175
+          },
+          {
+            "text": "—",
+            "box": [
+              0.661176,
+              0.396364,
+              0.668235,
+              0.399394
+            ],
+            "source": "ocr",
+            "confidence": 0.068
+          },
+          {
+            "text": "—",
+            "box": [
+              0.685882,
+              0.39697,
+              0.7,
+              0.400606
+            ],
+            "source": "ocr",
+            "confidence": 0.5597
+          },
+          {
+            "text": "oo",
+            "box": [
+              0.282745,
+              0.398182,
+              0.288627,
+              0.403636
+            ],
+            "source": "ocr",
+            "confidence": 0.1145
+          },
+          {
+            "text": "UTILITY",
+            "box": [
+              0.53451,
+              0.409091,
+              0.562353,
+              0.417576
+            ],
+            "source": "ocr",
+            "confidence": 0.9672
+          },
+          {
+            "text": "2x12 JOISTS",
+            "box": [
+              0.615294,
+              0.415758,
+              0.660392,
+              0.424242
+            ],
+            "source": "ocr",
+            "confidence": 0.9599
+          },
+          {
+            "text": "5",
+            "box": [
+              0.130588,
+              0.427273,
+              0.132549,
+              0.428485
+            ],
+            "source": "ocr",
+            "confidence": 0.4537
+          },
+          {
+            "text": "om",
+            "box": [
+              0.130588,
+              0.426667,
+              0.147451,
+              0.435152
+            ],
+            "source": "ocr",
+            "confidence": 0.2789
+          },
+          {
+            "text": "tas",
+            "box": [
+              0.252549,
+              0.426667,
+              0.261961,
+              0.432727
+            ],
+            "source": "ocr",
+            "confidence": 0.263
+          },
+          {
+            "text": "2x12 JOISTS",
+            "box": [
+              0.325882,
+              0.419394,
+              0.37098,
+              0.427879
+            ],
+            "source": "ocr",
+            "confidence": 0.9388
+          },
+          {
+            "text": "vt",
+            "box": [
+              0.130588,
+              0.437576,
+              0.147451,
+              0.445455
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "ie",
+            "box": [
+              0.252549,
+              0.433333,
+              0.261961,
+              0.439394
+            ],
+            "source": "ocr",
+            "confidence": 0.3161
+          },
+          {
+            "text": "@ 16\" 0C",
+            "box": [
+              0.331373,
+              0.433333,
+              0.36549,
+              0.444848
+            ],
+            "source": "ocr",
+            "confidence": 0.7815
+          },
+          {
+            "text": "ary",
+            "box": [
+              0.495294,
+              0.412727,
+              0.532941,
+              0.438182
+            ],
+            "source": "ocr",
+            "confidence": 0.4859
+          },
+          {
+            "text": "@ 16\" 0C",
+            "box": [
+              0.620784,
+              0.430303,
+              0.654902,
+              0.441212
+            ],
+            "source": "ocr",
+            "confidence": 0.8771
+          },
+          {
+            "text": "Oo",
+            "box": [
+              0.711373,
+              0.417576,
+              0.796471,
+              0.446667
+            ],
+            "source": "ocr",
+            "confidence": 0.0974
+          },
+          {
+            "text": "|_—V—«—w“\"—C!_—",
+            "box": [
+              0.518824,
+              0.447273,
+              0.567843,
+              0.459394
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "CORNER",
+            "box": [
+              0.615294,
+              0.454545,
+              0.647843,
+              0.46303
+            ],
+            "source": "ocr",
+            "confidence": 0.9638
+          },
+          {
+            "text": "> BRICK TILE HEARTH",
+            "box": [
+              0.281176,
+              0.461818,
+              0.384314,
+              0.482424
+            ],
+            "source": "ocr",
+            "confidence": 0.601
+          },
+          {
+            "text": "UAUNDR)",
+            "box": [
+              0.419608,
+              0.46303,
+              0.450588,
+              0.471515
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "COA’",
+            "box": [
+              0.534118,
+              0.470909,
+              0.550196,
+              0.479394
+            ],
+            "source": "ocr",
+            "confidence": 0.8445
+          },
+          {
+            "text": "CUPBOARD",
+            "box": [
+              0.615294,
+              0.469091,
+              0.658039,
+              0.477576
+            ],
+            "source": "ocr",
+            "confidence": 0.9515
+          },
+          {
+            "text": "eee |",
+            "box": [
+              0.569412,
+              0.480606,
+              0.718431,
+              0.482424
+            ],
+            "source": "ocr",
+            "confidence": 0.2099
+          },
+          {
+            "text": "BRICK A",
+            "box": [
+              0.149412,
+              0.492121,
+              0.203137,
+              0.513333
+            ],
+            "source": "ocr",
+            "confidence": 0.5024
+          },
+          {
+            "text": "J",
+            "box": [
+              0.241176,
+              0.514545,
+              0.252549,
+              0.515152
+            ],
+            "source": "ocr",
+            "confidence": 0.0685
+          },
+          {
+            "text": "a",
+            "box": [
+              0.278824,
+              0.499394,
+              0.289412,
+              0.505455
+            ],
+            "source": "ocr",
+            "confidence": 0.398
+          },
+          {
+            "text": "HARDWOOD FLOOR S",
+            "box": [
+              0.309804,
+              0.48303,
+              0.405098,
+              0.509697
+            ],
+            "source": "ocr",
+            "confidence": 0.8652
+          },
+          {
+            "text": "4+]",
+            "box": [
+              0.495294,
+              0.501212,
+              0.523529,
+              0.515152
+            ],
+            "source": "ocr",
+            "confidence": 0.3556
+          },
+          {
+            "text": "—-— 1",
+            "box": [
+              0.11098,
+              0.526667,
+              0.140784,
+              0.527879
+            ],
+            "source": "ocr",
+            "confidence": 0.4869
+          },
+          {
+            "text": "CHIMNEY",
+            "box": [
+              0.149412,
+              0.517576,
+              0.184314,
+              0.526061
+            ],
+            "source": "ocr",
+            "confidence": 0.9642
+          },
+          {
+            "text": "2",
+            "box": [
+              0.215686,
+              0.518788,
+              0.220784,
+              0.527273
+            ],
+            "source": "ocr",
+            "confidence": 0.8394
+          },
+          {
+            "text": "5g\"",
+            "box": [
+              0.241176,
+              0.518788,
+              0.266275,
+              0.527273
+            ],
+            "source": "ocr",
+            "confidence": 0.1861
+          },
+          {
+            "text": "ava",
+            "box": [
+              0.267451,
+              0.504848,
+              0.308627,
+              0.526667
+            ],
+            "source": "ocr",
+            "confidence": 0.4789
+          },
+          {
+            "text": "DINING",
+            "box": [
+              0.619608,
+              0.512727,
+              0.654118,
+              0.524242
+            ],
+            "source": "ocr",
+            "confidence": 0.9637
+          },
+          {
+            "text": "2",
+            "box": [
+              0.38902,
+              0.530303,
+              0.409412,
+              0.530909
+            ],
+            "source": "ocr",
+            "confidence": 0.776
+          },
+          {
+            "text": "&% 4-—-.",
+            "box": [
+              0.793725,
+              0.521212,
+              0.822745,
+              0.529091
+            ],
+            "source": "ocr",
+            "confidence": 0.4414
+          },
+          {
+            "text": "\\33.0/",
+            "box": [
+              0.061176,
+              0.527879,
+              0.085882,
+              0.546667
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "a",
+            "box": [
+              0.444706,
+              0.543636,
+              0.446667,
+              0.546667
+            ],
+            "source": "ocr",
+            "confidence": 0.1512
+          },
+          {
+            "text": "4-3\"",
+            "box": [
+              0.496471,
+              0.543636,
+              0.516078,
+              0.552121
+            ],
+            "source": "ocr",
+            "confidence": 0.1371
+          },
+          {
+            "text": "oA",
+            "box": [
+              0.539216,
+              0.506667,
+              0.573333,
+              0.552121
+            ],
+            "source": "ocr",
+            "confidence": 0.4339
+          },
+          {
+            "text": "9",
+            "box": [
+              0.632941,
+              0.543636,
+              0.638039,
+              0.552121
+            ],
+            "source": "ocr",
+            "confidence": 0.7076
+          },
+          {
+            "text": "w)",
+            "box": [
+              0.663922,
+              0.547879,
+              0.681176,
+              0.570909
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "a —_",
+            "box": [
+              0.495294,
+              0.584848,
+              0.523922,
+              0.601818
+            ],
+            "source": "ocr",
+            "confidence": 0.2226
+          },
+          {
+            "text": "“woo FLOOR",
+            "box": [
+              0.577255,
+              0.566061,
+              0.660392,
+              0.593333
+            ],
+            "source": "ocr",
+            "confidence": 0.4983
+          },
+          {
+            "text": "4",
+            "box": [
+              0.38902,
+              0.600606,
+              0.409412,
+              0.601212
+            ],
+            "source": "ocr",
+            "confidence": 0.2714
+          },
+          {
+            "text": "—",
+            "box": [
+              0.492157,
+              0.599394,
+              0.501961,
+              0.604242
+            ],
+            "source": "ocr",
+            "confidence": 0.1317
+          },
+          {
+            "text": "nl",
+            "box": [
+              0.567843,
+              0.592727,
+              0.574902,
+              0.607273
+            ],
+            "source": "ocr",
+            "confidence": 0.432
+          },
+          {
+            "text": "|-——-HALF-POST",
+            "box": [
+              0.706275,
+              0.64,
+              0.773725,
+              0.650909
+            ],
+            "source": "ocr",
+            "confidence": 0.2893
+          },
+          {
+            "text": "one",
+            "box": [
+              0.28,
+              0.656364,
+              0.28902,
+              0.659394
+            ],
+            "source": "ocr",
+            "confidence": 0.4835
+          },
+          {
+            "text": "('-6\"\"",
+            "box": [
+              0.363922,
+              0.656364,
+              0.378431,
+              0.664848
+            ],
+            "source": "ocr",
+            "confidence": 0.3545
+          },
+          {
+            "text": "4",
+            "box": [
+              0.497255,
+              0.656364,
+              0.502745,
+              0.664848
+            ],
+            "source": "ocr",
+            "confidence": 0.6597
+          },
+          {
+            "text": "lg",
+            "box": [
+              0.54902,
+              0.656364,
+              0.554118,
+              0.665455
+            ],
+            "source": "ocr",
+            "confidence": 0.4146
+          },
+          {
+            "text": "one",
+            "box": [
+              0.58902,
+              0.656364,
+              0.598039,
+              0.659394
+            ],
+            "source": "ocr",
+            "confidence": 0.5167
+          },
+          {
+            "text": "bI-py",
+            "box": [
+              0.65098,
+              0.656364,
+              0.66549,
+              0.664848
+            ],
+            "source": "ocr",
+            "confidence": 0.3988
+          },
+          {
+            "text": "REVISION",
+            "box": [
+              0.917255,
+              0.671515,
+              0.940784,
+              0.67697
+            ],
+            "source": "ocr",
+            "confidence": 0.9317
+          },
+          {
+            "text": "FRONT PORCH",
+            "box": [
+              0.287451,
+              0.7,
+              0.358824,
+              0.711515
+            ],
+            "source": "ocr",
+            "confidence": 0.8813
+          },
+          {
+            "text": "|",
+            "box": [
+              0.595294,
+              0.706667,
+              0.598431,
+              0.709091
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "LL",
+            "box": [
+              0.603922,
+              0.709091,
+              0.612157,
+              0.710909
+            ],
+            "source": "ocr",
+            "confidence": 0.5287
+          },
+          {
+            "text": "LI",
+            "box": [
+              0.526667,
+              0.710303,
+              0.534902,
+              0.711515
+            ],
+            "source": "ocr",
+            "confidence": 0.2037
+          },
+          {
+            "text": "OOD DE",
+            "box": [
+              0.544706,
+              0.706667,
+              0.573333,
+              0.715152
+            ],
+            "source": "ocr",
+            "confidence": 0.7442
+          },
+          {
+            "text": "(|",
+            "box": [
+              0.595294,
+              0.710909,
+              0.598431,
+              0.715152
+            ],
+            "source": "ocr",
+            "confidence": 0.0824
+          },
+          {
+            "text": "|—— 6X6 POST",
+            "box": [
+              0.704706,
+              0.733333,
+              0.767451,
+              0.750303
+            ],
+            "source": "ocr",
+            "confidence": 0.8333
+          },
+          {
+            "text": "a)",
+            "box": [
+              0.395686,
+              0.759394,
+              0.403529,
+              0.773333
+            ],
+            "source": "ocr",
+            "confidence": 0.4793
+          },
+          {
+            "text": "Q",
+            "box": [
+              0.537647,
+              0.759394,
+              0.54549,
+              0.773333
+            ],
+            "source": "ocr",
+            "confidence": 0.8176
+          },
+          {
+            "text": "La",
+            "box": [
+              0.681176,
+              0.766061,
+              0.687843,
+              0.773333
+            ],
+            "source": "ocr",
+            "confidence": 0.5818
+          },
+          {
+            "text": "in |",
+            "box": [
+              0.470588,
+              0.78303,
+              0.479608,
+              0.792727
+            ],
+            "source": "ocr",
+            "confidence": 0.7456
+          },
+          {
+            "text": "rang",
+            "box": [
+              0.461569,
+              0.793333,
+              0.479608,
+              0.802424
+            ],
+            "source": "ocr",
+            "confidence": 0.3908
+          },
+          {
+            "text": "UP",
+            "box": [
+              0.464314,
+              0.817576,
+              0.474118,
+              0.826061
+            ],
+            "source": "ocr",
+            "confidence": 0.8185
+          },
+          {
+            "text": "DATE",
+            "box": [
+              0.917255,
+              0.831515,
+              0.930196,
+              0.83697
+            ],
+            "source": "ocr",
+            "confidence": 0.9684
+          },
+          {
+            "text": "Lag\"",
+            "box": [
+              0.235686,
+              0.832727,
+              0.253333,
+              0.841212
+            ],
+            "source": "ocr",
+            "confidence": 0.3195
+          },
+          {
+            "text": "9-8\"",
+            "box": [
+              0.321176,
+              0.832727,
+              0.335686,
+              0.841818
+            ],
+            "source": "ocr",
+            "confidence": 0.5041
+          },
+          {
+            "text": "1'-10\"",
+            "box": [
+              0.403922,
+              0.832727,
+              0.421961,
+              0.841212
+            ],
+            "source": "ocr",
+            "confidence": 0.6795
+          },
+          {
+            "text": "6\"",
+            "box": [
+              0.467843,
+              0.832727,
+              0.473333,
+              0.841212
+            ],
+            "source": "ocr",
+            "confidence": 0.6608
+          },
+          {
+            "text": "1'-10\"",
+            "box": [
+              0.518824,
+              0.832727,
+              0.537255,
+              0.841212
+            ],
+            "source": "ocr",
+            "confidence": 0.2429
+          },
+          {
+            "text": "9-8\"",
+            "box": [
+              0.60549,
+              0.832727,
+              0.62,
+              0.841818
+            ],
+            "source": "ocr",
+            "confidence": 0.4091
+          },
+          {
+            "text": "6\"",
+            "box": [
+              0.691765,
+              0.832727,
+              0.705882,
+              0.841212
+            ],
+            "source": "ocr",
+            "confidence": 0.122
+          },
+          {
+            "text": "32'",
+            "box": [
+              0.465882,
+              0.849697,
+              0.475294,
+              0.858788
+            ],
+            "source": "ocr",
+            "confidence": 0.8555
+          },
+          {
+            "text": "10-15-15",
+            "box": [
+              0.917255,
+              0.844242,
+              0.947059,
+              0.853333
+            ],
+            "source": "ocr",
+            "confidence": 0.9559
+          },
+          {
+            "text": "SHEET TITLE",
+            "box": [
+              0.917255,
+              0.875758,
+              0.94902,
+              0.881212
+            ],
+            "source": "ocr",
+            "confidence": 0.9535
+          },
+          {
+            "text": "1ST FLOOR",
+            "box": [
+              0.918431,
+              0.887879,
+              0.960784,
+              0.89697
+            ],
+            "source": "ocr",
+            "confidence": 0.9628
+          },
+          {
+            "text": "PLAN",
+            "box": [
+              0.918431,
+              0.901818,
+              0.938039,
+              0.910303
+            ],
+            "source": "ocr",
+            "confidence": 0.9683
+          },
+          {
+            "text": "‘SHEET NO.",
+            "box": [
+              0.917255,
+              0.926667,
+              0.942745,
+              0.932121
+            ],
+            "source": "ocr",
+            "confidence": 0.8397
+          },
+          {
+            "text": "1ST FLOOR PLAN",
+            "box": [
+              0.065882,
+              0.930909,
+              0.150588,
+              0.94303
+            ],
+            "source": "ocr",
+            "confidence": 0.9637
+          },
+          {
+            "text": "@",
+            "box": [
+              0.043529,
+              0.936364,
+              0.059216,
+              0.961212
+            ],
+            "source": "ocr",
+            "confidence": 0.841
+          },
+          {
+            "text": "SCALE: 1/4\" =1'-0\"",
+            "box": [
+              0.066275,
+              0.954545,
+              0.130588,
+              0.96303
+            ],
+            "source": "ocr",
+            "confidence": 0.9063
+          },
+          {
+            "text": "a",
+            "box": [
+              0.881961,
+              0.920606,
+              0.897255,
+              0.960606
+            ],
+            "source": "ocr",
+            "confidence": 0.2107
+          },
+          {
+            "text": "A1.2",
+            "box": [
+              0.918431,
+              0.944848,
+              0.960392,
+              0.967879
+            ],
+            "source": "ocr",
+            "confidence": 0.6771
+          }
+        ]
+      },
+      {
+        "page": {
+          "id": "drawing-page-7",
+          "label": "PDF 7",
+          "title": "Drawing page 7",
+          "number": 7
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 270,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-8",
+          "label": "PDF 8",
+          "title": "Drawing page 8",
+          "number": 8
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-9",
+          "label": "PDF 9",
+          "title": "Drawing page 9",
+          "number": 9
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-10",
+          "label": "PDF 10",
+          "title": "Drawing page 10",
+          "number": 10
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-11",
+          "label": "PDF 11",
+          "title": "Drawing page 11",
+          "number": 11
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-12",
+          "label": "PDF 12",
+          "title": "Drawing page 12",
+          "number": 12
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-13",
+          "label": "PDF 13",
+          "title": "Drawing page 13",
+          "number": 13
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-14",
+          "label": "PDF 14",
+          "title": "Drawing page 14",
+          "number": 14
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-15",
+          "label": "PDF 15",
+          "title": "Drawing page 15",
+          "number": 15
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-16",
+          "label": "PDF 16",
+          "title": "Drawing page 16",
+          "number": 16
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-17",
+          "label": "PDF 17",
+          "title": "Drawing page 17",
+          "number": 17
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-18",
+          "label": "PDF 18",
+          "title": "Drawing page 18",
+          "number": 18
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-19",
+          "label": "PDF 19",
+          "title": "Drawing page 19",
+          "number": 19
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-20",
+          "label": "PDF 20",
+          "title": "Drawing page 20",
+          "number": 20
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-21",
+          "label": "PDF 21",
+          "title": "Drawing page 21",
+          "number": 21
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-22",
+          "label": "PDF 22",
+          "title": "Drawing page 22",
+          "number": 22
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "drawing-page-23",
+          "label": "PDF 23",
+          "title": "Drawing page 23",
+          "number": 23
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      },
+      {
+        "page": {
+          "id": "sheet-a4.3",
+          "label": "A4.3",
+          "title": "Doors & Windows",
+          "sheetNumber": "A4.3",
+          "number": 24
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "indexed",
+        "runs": [
+          {
+            "text": "FIBER CEMENT",
+            "box": [
+              0.178824,
+              0.041212,
+              0.235294,
+              0.049697
+            ],
+            "source": "ocr",
+            "confidence": 0.9574
+          },
+          {
+            "text": "FIBER CEMENT",
+            "box": [
+              0.399608,
+              0.041212,
+              0.456078,
+              0.049697
+            ],
+            "source": "ocr",
+            "confidence": 0.9512
+          },
+          {
+            "text": "—1—",
+            "box": [
+              0.658824,
+              0.044848,
+              0.688235,
+              0.045455
+            ],
+            "source": "ocr",
+            "confidence": 0.6356
+          },
+          {
+            "text": "—",
+            "box": [
+              0.138824,
+              0.049697,
+              0.147059,
+              0.051515
+            ],
+            "source": "ocr",
+            "confidence": 0.3145
+          },
+          {
+            "text": "F-26",
+            "box": [
+              0.561176,
+              0.047273,
+              0.575686,
+              0.056364
+            ],
+            "source": "ocr",
+            "confidence": 0.9178
+          },
+          {
+            "text": "LAP SIDING",
+            "box": [
+              0.193333,
+              0.055152,
+              0.235294,
+              0.064242
+            ],
+            "source": "ocr",
+            "confidence": 0.9603
+          },
+          {
+            "text": "LAP SIDING",
+            "box": [
+              0.413725,
+              0.055152,
+              0.456078,
+              0.064242
+            ],
+            "source": "ocr",
+            "confidence": 0.9664
+          },
+          {
+            "text": "t—4' CLEAR—4",
+            "box": [
+              0.611765,
+              0.06,
+              0.670196,
+              0.068485
+            ],
+            "source": "ocr",
+            "confidence": 0.4816
+          },
+          {
+            "text": "BRACKET",
+            "box": [
+              0.69098,
+              0.053939,
+              0.726667,
+              0.062424
+            ],
+            "source": "ocr",
+            "confidence": 0.9696
+          },
+          {
+            "text": "INTERIOR",
+            "box": [
+              0.784314,
+              0.06,
+              0.820392,
+              0.069091
+            ],
+            "source": "ocr",
+            "confidence": 0.949
+          },
+          {
+            "text": "| |",
+            "box": [
+              0.604314,
+              0.064848,
+              0.611373,
+              0.081818
+            ],
+            "source": "ocr",
+            "confidence": 0.6528
+          },
+          {
+            "text": "14",
+            "box": [
+              0.670588,
+              0.075758,
+              0.676078,
+              0.076364
+            ],
+            "source": "ocr",
+            "confidence": 0.6663
+          },
+          {
+            "text": "SEE 2/A4.1",
+            "box": [
+              0.688627,
+              0.068485,
+              0.726275,
+              0.07697
+            ],
+            "source": "ocr",
+            "confidence": 0.9286
+          },
+          {
+            "text": "|",
+            "box": [
+              0.126275,
+              0.092727,
+              0.129804,
+              0.094545
+            ],
+            "source": "ocr",
+            "confidence": 0.7402
+          },
+          {
+            "text": "LI",
+            "box": [
+              0.605882,
+              0.092121,
+              0.611373,
+              0.092727
+            ],
+            "source": "ocr",
+            "confidence": 0.4085
+          },
+          {
+            "text": "im",
+            "box": [
+              0.670588,
+              0.092121,
+              0.676078,
+              0.092727
+            ],
+            "source": "ocr",
+            "confidence": 0.4668
+          },
+          {
+            "text": "SURROUND \\y",
+            "box": [
+              0.780392,
+              0.064242,
+              0.887843,
+              0.093333
+            ],
+            "source": "ocr",
+            "confidence": 0.3412
+          },
+          {
+            "text": "S)",
+            "box": [
+              0.93451,
+              0.03697,
+              0.962745,
+              0.084242
+            ],
+            "source": "ocr",
+            "confidence": 0.5666
+          },
+          {
+            "text": "\\«K——— FLASHING",
+            "box": [
+              0.162745,
+              0.084242,
+              0.235294,
+              0.096364
+            ],
+            "source": "ocr",
+            "confidence": 0.4818
+          },
+          {
+            "text": "FLASHING",
+            "box": [
+              0.418431,
+              0.086667,
+              0.456078,
+              0.095152
+            ],
+            "source": "ocr",
+            "confidence": 0.9635
+          },
+          {
+            "text": "OPEN-SOURCE",
+            "box": [
+              0.917647,
+              0.093333,
+              0.978431,
+              0.101212
+            ],
+            "source": "ocr",
+            "confidence": 0.9626
+          },
+          {
+            "text": "BLUEPRINTS",
+            "box": [
+              0.917255,
+              0.106061,
+              0.977647,
+              0.113939
+            ],
+            "source": "ocr",
+            "confidence": 0.9599
+          },
+          {
+            "text": "|",
+            "box": [
+              0.138039,
+              0.108485,
+              0.159216,
+              0.118788
+            ],
+            "source": "ocr",
+            "confidence": 0.455
+          },
+          {
+            "text": "}— EXT SHEATHING",
+            "box": [
+              0.16,
+              0.115758,
+              0.235294,
+              0.124242
+            ],
+            "source": "ocr",
+            "confidence": 0.6449
+          },
+          {
+            "text": "[—— EXT SHEATHING",
+            "box": [
+              0.373333,
+              0.115758,
+              0.455686,
+              0.124242
+            ],
+            "source": "ocr",
+            "confidence": 0.6424
+          },
+          {
+            "text": "i",
+            "box": [
+              0.499608,
+              0.09697,
+              0.508627,
+              0.122424
+            ],
+            "source": "ocr",
+            "confidence": 0.2626
+          },
+          {
+            "text": "LJ",
+            "box": [
+              0.520392,
+              0.123636,
+              0.528627,
+              0.124242
+            ],
+            "source": "ocr",
+            "confidence": 0.7631
+          },
+          {
+            "text": "| SIMULATED",
+            "box": [
+              0.543922,
+              0.109697,
+              0.599216,
+              0.120606
+            ],
+            "source": "ocr",
+            "confidence": 0.6095
+          },
+          {
+            "text": "—4",
+            "box": [
+              0.603529,
+              0.12,
+              0.618431,
+              0.121818
+            ],
+            "source": "ocr",
+            "confidence": 0.162
+          },
+          {
+            "text": "aa",
+            "box": [
+              0.626667,
+              0.118788,
+              0.64,
+              0.119394
+            ],
+            "source": "ocr",
+            "confidence": 0.2706
+          },
+          {
+            "text": "DIVIDED LITES",
+            "box": [
+              0.550588,
+              0.123636,
+              0.604314,
+              0.132727
+            ],
+            "source": "ocr",
+            "confidence": 0.9266
+          },
+          {
+            "text": "| SOLID WD RAIL—|",
+            "box": [
+              0.757647,
+              0.126061,
+              0.842353,
+              0.135758
+            ],
+            "source": "ocr",
+            "confidence": 0.4535
+          },
+          {
+            "text": "17",
+            "box": [
+              0.847059,
+              0.12,
+              0.85098,
+              0.130909
+            ],
+            "source": "ocr",
+            "confidence": 0.614
+          },
+          {
+            "text": "CAD FILES AVAILABLE:",
+            "box": [
+              0.917647,
+              0.125455,
+              0.977647,
+              0.131515
+            ],
+            "source": "ocr",
+            "confidence": 0.926
+          },
+          {
+            "text": "W/ BUILDING WRAP",
+            "box": [
+              0.162745,
+              0.130303,
+              0.235294,
+              0.138788
+            ],
+            "source": "ocr",
+            "confidence": 0.9509
+          },
+          {
+            "text": "W/ BUILDING WRAP",
+            "box": [
+              0.383137,
+              0.130303,
+              0.455686,
+              0.138788
+            ],
+            "source": "ocr",
+            "confidence": 0.9524
+          },
+          {
+            "text": "openfarmhouse.com",
+            "box": [
+              0.917255,
+              0.135152,
+              0.977647,
+              0.142424
+            ],
+            "source": "ocr",
+            "confidence": 0.9124
+          },
+          {
+            "text": "q",
+            "box": [
+              0.747843,
+              0.144242,
+              0.751373,
+              0.155152
+            ],
+            "source": "ocr",
+            "confidence": 0.8682
+          },
+          {
+            "text": "Lp |",
+            "box": [
+              0.84549,
+              0.129091,
+              0.878824,
+              0.161818
+            ],
+            "source": "ocr",
+            "confidence": 0.5485
+          },
+          {
+            "text": "ORIGINAL DESIGNER",
+            "box": [
+              0.917255,
+              0.152121,
+              0.978824,
+              0.158182
+            ],
+            "source": "ocr",
+            "confidence": 0.9677
+          },
+          {
+            "text": "1—— 3/4\" AIR SPACE",
+            "box": [
+              0.158431,
+              0.158788,
+              0.235294,
+              0.175758
+            ],
+            "source": "ocr",
+            "confidence": 0.7563
+          },
+          {
+            "text": "| —— 3/4\" AIR SPACE",
+            "box": [
+              0.371765,
+              0.154545,
+              0.456078,
+              0.175758
+            ],
+            "source": "ocr",
+            "confidence": 0.7132
+          },
+          {
+            "text": "[— INSET PANEL —]",
+            "box": [
+              0.760392,
+              0.149091,
+              0.843922,
+              0.166061
+            ],
+            "source": "ocr",
+            "confidence": 0.5889
+          },
+          {
+            "text": "Jay Osborne",
+            "box": [
+              0.917255,
+              0.161818,
+              0.956863,
+              0.169697
+            ],
+            "source": "ocr",
+            "confidence": 0.9652
+          },
+          {
+            "text": "[Ly 4—- GLAZING—]",
+            "box": [
+              0.499608,
+              0.145455,
+              0.613333,
+              0.177576
+            ],
+            "source": "ocr",
+            "confidence": 0.1011
+          },
+          {
+            "text": "lo}",
+            "box": [
+              0.753333,
+              0.17697,
+              0.756471,
+              0.181818
+            ],
+            "source": "ocr",
+            "confidence": 0.5761
+          },
+          {
+            "text": "[",
+            "box": [
+              0.849804,
+              0.157576,
+              0.860392,
+              0.190303
+            ],
+            "source": "ocr",
+            "confidence": 0.6537
+          },
+          {
+            "text": "Wi",
+            "box": [
+              0.099216,
+              0.17697,
+              0.120784,
+              0.191515
+            ],
+            "source": "ocr",
+            "confidence": 0.6618
+          },
+          {
+            "text": "SURROUND",
+            "box": [
+              0.191765,
+              0.192727,
+              0.235294,
+              0.201212
+            ],
+            "source": "ocr",
+            "confidence": 0.9627
+          },
+          {
+            "text": "ALN",
+            "box": [
+              0.341176,
+              0.167273,
+              0.392549,
+              0.196364
+            ],
+            "source": "ocr",
+            "confidence": 0.4203
+          },
+          {
+            "text": "2",
+            "box": [
+              0.396471,
+              0.192727,
+              0.4,
+              0.201212
+            ],
+            "source": "ocr",
+            "confidence": 0.8979
+          },
+          {
+            "text": "-X6 SURROUND",
+            "box": [
+              0.400392,
+              0.192727,
+              0.456078,
+              0.201212
+            ],
+            "source": "ocr",
+            "confidence": 0.5248
+          },
+          {
+            "text": "EJ",
+            "box": [
+              0.086667,
+              0.190909,
+              0.095686,
+              0.209697
+            ],
+            "source": "ocr",
+            "confidence": 0.1446
+          },
+          {
+            "text": "[|",
+            "box": [
+              0.851373,
+              0.188485,
+              0.878824,
+              0.209697
+            ],
+            "source": "ocr",
+            "confidence": 0.4115
+          },
+          {
+            "text": "d",
+            "box": [
+              0.121176,
+              0.202424,
+              0.123529,
+              0.207879
+            ],
+            "source": "ocr",
+            "confidence": 0.4432
+          },
+          {
+            "text": "Z-FLASHING",
+            "box": [
+              0.190196,
+              0.223636,
+              0.235294,
+              0.232727
+            ],
+            "source": "ocr",
+            "confidence": 0.9089
+          },
+          {
+            "text": "NS",
+            "box": [
+              0.360392,
+              0.195758,
+              0.408627,
+              0.228485
+            ],
+            "source": "ocr",
+            "confidence": 0.053
+          },
+          {
+            "text": "Z-FLASHING",
+            "box": [
+              0.41098,
+              0.223636,
+              0.456078,
+              0.232727
+            ],
+            "source": "ocr",
+            "confidence": 0.9136
+          },
+          {
+            "text": "[] ls l-— PANELLING —-]",
+            "box": [
+              0.498431,
+              0.187879,
+              0.618431,
+              0.230909
+            ],
+            "source": "ocr",
+            "confidence": 0.385
+          },
+          {
+            "text": "it",
+            "box": [
+              0.620392,
+              0.120606,
+              0.655294,
+              0.226667
+            ],
+            "source": "ocr",
+            "confidence": 0.5621
+          },
+          {
+            "text": "OPTIONAL",
+            "box": [
+              0.782353,
+              0.215758,
+              0.820392,
+              0.224242
+            ],
+            "source": "ocr",
+            "confidence": 0.9097
+          },
+          {
+            "text": "i",
+            "box": [
+              0.101176,
+              0.235758,
+              0.114902,
+              0.247273
+            ],
+            "source": "ocr",
+            "confidence": 0.526
+          },
+          {
+            "text": "| —",
+            "box": [
+              0.134902,
+              0.167273,
+              0.188627,
+              0.243636
+            ],
+            "source": "ocr",
+            "confidence": 0.6862
+          },
+          {
+            "text": "24H",
+            "box": [
+              0.498039,
+              0.230303,
+              0.53098,
+              0.24
+            ],
+            "source": "ocr",
+            "confidence": 0.2729
+          },
+          {
+            "text": "2a ot",
+            "box": [
+              0.624706,
+              0.221818,
+              0.658039,
+              0.246667
+            ],
+            "source": "ocr",
+            "confidence": 0.3204
+          },
+          {
+            "text": "LOUVERS",
+            "box": [
+              0.783529,
+              0.229697,
+              0.819216,
+              0.238788
+            ],
+            "source": "ocr",
+            "confidence": 0.9301
+          },
+          {
+            "text": "LJ",
+            "box": [
+              0.851373,
+              0.21697,
+              0.878824,
+              0.238182
+            ],
+            "source": "ocr",
+            "confidence": 0.3136
+          },
+          {
+            "text": "Ley",
+            "box": [
+              0.883922,
+              0.229091,
+              0.9,
+              0.247273
+            ],
+            "source": "ocr",
+            "confidence": 0.2565
+          },
+          {
+            "text": "‘SUBSILL",
+            "box": [
+              0.561961,
+              0.24,
+              0.593333,
+              0.249091
+            ],
+            "source": "ocr",
+            "confidence": 0.6297
+          },
+          {
+            "text": "Tr",
+            "box": [
+              0.757647,
+              0.237576,
+              0.767059,
+              0.247879
+            ],
+            "source": "ocr",
+            "confidence": 0.3521
+          },
+          {
+            "text": "au",
+            "box": [
+              0.836863,
+              0.237576,
+              0.846275,
+              0.247879
+            ],
+            "source": "ocr",
+            "confidence": 0.3881
+          },
+          {
+            "text": "1/2\" POLYISO B/T",
+            "box": [
+              0.172941,
+              0.255152,
+              0.235294,
+              0.263636
+            ],
+            "source": "ocr",
+            "confidence": 0.9246
+          },
+          {
+            "text": "1/2\" POLYISO B/T",
+            "box": [
+              0.393333,
+              0.255152,
+              0.456078,
+              0.263636
+            ],
+            "source": "ocr",
+            "confidence": 0.8903
+          },
+          {
+            "text": "2X WD HEADERS",
+            "box": [
+              0.172157,
+              0.269091,
+              0.235294,
+              0.278182
+            ],
+            "source": "ocr",
+            "confidence": 0.9571
+          },
+          {
+            "text": "2X WD HEADERS",
+            "box": [
+              0.392941,
+              0.269091,
+              0.456078,
+              0.278182
+            ],
+            "source": "ocr",
+            "confidence": 0.9627
+          },
+          {
+            "text": "A) FRONT DOOR",
+            "box": [
+              0.487843,
+              0.269091,
+              0.55098,
+              0.277576
+            ],
+            "source": "ocr",
+            "confidence": 0.8807
+          },
+          {
+            "text": "B) BACK DOOR",
+            "box": [
+              0.613725,
+              0.269091,
+              0.67098,
+              0.277576
+            ],
+            "source": "ocr",
+            "confidence": 0.9339
+          },
+          {
+            "text": "C) 1-PANEL",
+            "box": [
+              0.722745,
+              0.269091,
+              0.765882,
+              0.277576
+            ],
+            "source": "ocr",
+            "confidence": 0.8116
+          },
+          {
+            "text": "D> 5-PANEL",
+            "box": [
+              0.84549,
+              0.269091,
+              0.888627,
+              0.277576
+            ],
+            "source": "ocr",
+            "confidence": 0.8142
+          },
+          {
+            "text": "ee",
+            "box": [
+              0.134118,
+              0.286667,
+              0.172941,
+              0.306061
+            ],
+            "source": "ocr",
+            "confidence": 0.2934
+          },
+          {
+            "text": "INSECT SCREEN",
+            "box": [
+              0.174118,
+              0.301818,
+              0.235294,
+              0.310303
+            ],
+            "source": "ocr",
+            "confidence": 0.9614
+          },
+          {
+            "text": "INSULATED GLAZING W/",
+            "box": [
+              0.365882,
+              0.3,
+              0.455686,
+              0.308485
+            ],
+            "source": "ocr",
+            "confidence": 0.9296
+          },
+          {
+            "text": "DOOR ELEVATION DETAILS",
+            "box": [
+              0.504314,
+              0.294545,
+              0.639608,
+              0.306667
+            ],
+            "source": "ocr",
+            "confidence": 0.9591
+          },
+          {
+            "text": "~————__ SIMULATED DIVIDED LIGHTS",
+            "box": [
+              0.289412,
+              0.30303,
+              0.455686,
+              0.328485
+            ],
+            "source": "ocr",
+            "confidence": 0.7346
+          },
+          {
+            "text": "©",
+            "box": [
+              0.481176,
+              0.3,
+              0.497255,
+              0.324848
+            ],
+            "source": "ocr",
+            "confidence": 0.9281
+          },
+          {
+            "text": "SCALE: 1/4\" =1'-0\"",
+            "box": [
+              0.503922,
+              0.318182,
+              0.568235,
+              0.326667
+            ],
+            "source": "ocr",
+            "confidence": 0.9018
+          },
+          {
+            "text": "L",
+            "box": [
+              0.29098,
+              0.345455,
+              0.294118,
+              0.346667
+            ],
+            "source": "ocr",
+            "confidence": 0.6717
+          },
+          {
+            "text": "RAISED DOOR PANEL",
+            "box": [
+              0.374902,
+              0.345455,
+              0.455294,
+              0.353939
+            ],
+            "source": "ocr",
+            "confidence": 0.9652
+          },
+          {
+            "text": "DOUBLE-HUNG",
+            "box": [
+              0.178824,
+              0.362424,
+              0.234902,
+              0.370909
+            ],
+            "source": "ocr",
+            "confidence": 0.9024
+          },
+          {
+            "text": "WINDOW",
+            "box": [
+              0.201176,
+              0.37697,
+              0.23451,
+              0.385455
+            ],
+            "source": "ocr",
+            "confidence": 0.9648
+          },
+          {
+            "text": "LOUVERED SHUTTER:",
+            "box": [
+              0.705882,
+              0.377576,
+              0.785882,
+              0.386667
+            ],
+            "source": "ocr",
+            "confidence": 0.9118
+          },
+          {
+            "text": "FEQ",
+            "box": [
+              0.803922,
+              0.373333,
+              0.818431,
+              0.382424
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "EQ+",
+            "box": [
+              0.827843,
+              0.373333,
+              0.842745,
+              0.382424
+            ],
+            "source": "ocr",
+            "confidence": 0.4493
+          },
+          {
+            "text": "f",
+            "box": [
+              0.841569,
+              0.37697,
+              0.846275,
+              0.393939
+            ],
+            "source": "ocr",
+            "confidence": 0.1442
+          },
+          {
+            "text": "___2/2 SIMULATED",
+            "box": [
+              0.537255,
+              0.378182,
+              0.604314,
+              0.391515
+            ],
+            "source": "ocr",
+            "confidence": 0.7366
+          },
+          {
+            "text": "DIVIDED LITES",
+            "box": [
+              0.549412,
+              0.392727,
+              0.603137,
+              0.401212
+            ],
+            "source": "ocr",
+            "confidence": 0.883
+          },
+          {
+            "text": "SHIM AS NEEDED",
+            "box": [
+              0.170196,
+              0.407273,
+              0.235294,
+              0.416364
+            ],
+            "source": "ocr",
+            "confidence": 0.9626
+          },
+          {
+            "text": "METAL FLASHING",
+            "box": [
+              0.169412,
+              0.436364,
+              0.234902,
+              0.444848
+            ],
+            "source": "ocr",
+            "confidence": 0.9193
+          },
+          {
+            "text": "OVER 2X SUBSILL",
+            "box": [
+              0.168235,
+              0.450909,
+              0.234902,
+              0.459394
+            ],
+            "source": "ocr",
+            "confidence": 0.9404
+          },
+          {
+            "text": "i",
+            "box": [
+              0.638039,
+              0.425455,
+              0.650196,
+              0.465455
+            ],
+            "source": "ocr",
+            "confidence": 0.5771
+          },
+          {
+            "text": "CENTER RAIL-",
+            "box": [
+              0.70549,
+              0.449697,
+              0.755686,
+              0.458788
+            ],
+            "source": "ocr",
+            "confidence": 0.9123
+          },
+          {
+            "text": "METAL FLASHING",
+            "box": [
+              0.390196,
+              0.475152,
+              0.455294,
+              0.483636
+            ],
+            "source": "ocr",
+            "confidence": 0.9662
+          },
+          {
+            "text": "‘2X6 CASING~ | i",
+            "box": [
+              0.552549,
+              0.425455,
+              0.637255,
+              0.479394
+            ],
+            "source": "ocr",
+            "confidence": 0.6097
+          },
+          {
+            "text": "‘I L",
+            "box": [
+              0.038039,
+              0.498788,
+              0.060392,
+              0.520606
+            ],
+            "source": "ocr",
+            "confidence": 0.5047
+          },
+          {
+            "text": "i",
+            "box": [
+              0.638039,
+              0.470303,
+              0.650196,
+              0.510303
+            ],
+            "source": "ocr",
+            "confidence": 0.4566
+          },
+          {
+            "text": "WINDOW SILL 6",
+            "box": [
+              0.167451,
+              0.490303,
+              0.238431,
+              0.52303
+            ],
+            "source": "ocr",
+            "confidence": 0.8302
+          },
+          {
+            "text": "SUBSILL",
+            "box": [
+              0.560784,
+              0.52,
+              0.591765,
+              0.529091
+            ],
+            "source": "ocr",
+            "confidence": 0.8594
+          },
+          {
+            "text": "FINISH FLOOR >",
+            "box": [
+              0.387059,
+              0.512121,
+              0.458431,
+              0.538788
+            ],
+            "source": "ocr",
+            "confidence": 0.7663
+          },
+          {
+            "text": "IRON SHUTTER DOG",
+            "box": [
+              0.70549,
+              0.532727,
+              0.781569,
+              0.541212
+            ],
+            "source": "ocr",
+            "confidence": 0.9578
+          },
+          {
+            "text": "3/4\" PURLIN",
+            "box": [
+              0.192549,
+              0.541212,
+              0.235294,
+              0.549697
+            ],
+            "source": "ocr",
+            "confidence": 0.9281
+          },
+          {
+            "text": "—j 4",
+            "box": [
+              0.278431,
+              0.513333,
+              0.350196,
+              0.555758
+            ],
+            "source": "ocr",
+            "confidence": 0.2204
+          },
+          {
+            "text": "2X6 APRON",
+            "box": [
+              0.555294,
+              0.538182,
+              0.597647,
+              0.546667
+            ],
+            "source": "ocr",
+            "confidence": 0.9606
+          },
+          {
+            "text": "MOUNTED TO SIDING",
+            "box": [
+              0.70549,
+              0.547273,
+              0.784706,
+              0.555758
+            ],
+            "source": "ocr",
+            "confidence": 0.967
+          },
+          {
+            "text": "1) 30\" X 60\"",
+            "box": [
+              0.509412,
+              0.562424,
+              0.551373,
+              0.573333
+            ],
+            "source": "ocr",
+            "confidence": 0.9108
+          },
+          {
+            "text": "2) 24\" X 48\"",
+            "box": [
+              0.636863,
+              0.562424,
+              0.679608,
+              0.573333
+            ],
+            "source": "ocr",
+            "confidence": 0.915
+          },
+          {
+            "text": "FIBER CEMENT",
+            "box": [
+              0.178824,
+              0.571515,
+              0.235294,
+              0.580606
+            ],
+            "source": "ocr",
+            "confidence": 0.9608
+          },
+          {
+            "text": "2X6 APRON",
+            "box": [
+              0.192941,
+              0.586061,
+              0.235294,
+              0.594545
+            ],
+            "source": "ocr",
+            "confidence": 0.9659
+          },
+          {
+            "text": "FIBER CEMENT",
+            "box": [
+              0.399216,
+              0.58,
+              0.455686,
+              0.588485
+            ],
+            "source": "ocr",
+            "confidence": 0.9624
+          },
+          {
+            "text": "2X SUBSILL",
+            "box": [
+              0.412941,
+              0.593939,
+              0.455686,
+              0.60303
+            ],
+            "source": "ocr",
+            "confidence": 0.9245
+          },
+          {
+            "text": "EXTERIOR DOOR HEAD & SILL",
+            "box": [
+              0.283137,
+              0.615152,
+              0.432941,
+              0.635758
+            ],
+            "source": "ocr",
+            "confidence": 0.9503
+          },
+          {
+            "text": "WINDOW ELEVATION DETAILS",
+            "box": [
+              0.504706,
+              0.612727,
+              0.65451,
+              0.624848
+            ],
+            "source": "ocr",
+            "confidence": 0.9653
+          },
+          {
+            "text": "OPTIONAL WINDOW SHUTTERS",
+            "box": [
+              0.728627,
+              0.612727,
+              0.885098,
+              0.624848
+            ],
+            "source": "ocr",
+            "confidence": 0.962
+          },
+          {
+            "text": "WINDOW DETAIL @ HEAD & SILL",
+            "box": [
+              0.061961,
+              0.598788,
+              0.223137,
+              0.632121
+            ],
+            "source": "ocr",
+            "confidence": 0.9277
+          },
+          {
+            "text": "SCALE: 3\" =1'-0\"",
+            "box": [
+              0.062745,
+              0.641818,
+              0.120392,
+              0.650909
+            ],
+            "source": "ocr",
+            "confidence": 0.9403
+          },
+          {
+            "text": "SCALE: 3\" =1'-0\"",
+            "box": [
+              0.283137,
+              0.641818,
+              0.341176,
+              0.650909
+            ],
+            "source": "ocr",
+            "confidence": 0.8955
+          },
+          {
+            "text": "©",
+            "box": [
+              0.481176,
+              0.618182,
+              0.497255,
+              0.64303
+            ],
+            "source": "ocr",
+            "confidence": 0.9055
+          },
+          {
+            "text": "SCALE: 1/4\" =1'-0\"",
+            "box": [
+              0.503922,
+              0.636364,
+              0.568235,
+              0.644848
+            ],
+            "source": "ocr",
+            "confidence": 0.9121
+          },
+          {
+            "text": "SCALE: 1/4\" =1'-0\"",
+            "box": [
+              0.728235,
+              0.636364,
+              0.792157,
+              0.644848
+            ],
+            "source": "ocr",
+            "confidence": 0.8895
+          },
+          {
+            "text": "REVISION",
+            "box": [
+              0.917255,
+              0.671515,
+              0.940784,
+              0.67697
+            ],
+            "source": "ocr",
+            "confidence": 0.94
+          },
+          {
+            "text": "SPRAY FOAM",
+            "box": [
+              0.18549,
+              0.675152,
+              0.234902,
+              0.684242
+            ],
+            "source": "ocr",
+            "confidence": 0.9633
+          },
+          {
+            "text": "©",
+            "box": [
+              0.361176,
+              0.667879,
+              0.372157,
+              0.689697
+            ],
+            "source": "ocr",
+            "confidence": 0.9312
+          },
+          {
+            "text": "DOOR SCHEDULE",
+            "box": [
+              0.481961,
+              0.674545,
+              0.569804,
+              0.686061
+            ],
+            "source": "ocr",
+            "confidence": 0.9639
+          },
+          {
+            "text": "A",
+            "box": [
+              0.923529,
+              0.687273,
+              0.92549,
+              0.691515
+            ],
+            "source": "ocr",
+            "confidence": 0.2352
+          },
+          {
+            "text": "W/ WD SHIMS",
+            "box": [
+              0.184706,
+              0.689697,
+              0.234902,
+              0.698788
+            ],
+            "source": "ocr",
+            "confidence": 0.9233
+          },
+          {
+            "text": "MARK SIZE",
+            "box": [
+              0.481961,
+              0.695152,
+              0.526667,
+              0.704242
+            ],
+            "source": "ocr",
+            "confidence": 0.6729
+          },
+          {
+            "text": "MATERIAL",
+            "box": [
+              0.548235,
+              0.695758,
+              0.585882,
+              0.704242
+            ],
+            "source": "ocr",
+            "confidence": 0.9666
+          },
+          {
+            "text": "TYPE",
+            "box": [
+              0.614118,
+              0.695758,
+              0.633725,
+              0.704242
+            ],
+            "source": "ocr",
+            "confidence": 0.9551
+          },
+          {
+            "text": "NOTE",
+            "box": [
+              0.702353,
+              0.695152,
+              0.722745,
+              0.704242
+            ],
+            "source": "ocr",
+            "confidence": 0.9642
+          },
+          {
+            "text": "MAKE / MODEL",
+            "box": [
+              0.790588,
+              0.695152,
+              0.84549,
+              0.704242
+            ],
+            "source": "ocr",
+            "confidence": 0.9416
+          },
+          {
+            "text": "—",
+            "box": [
+              0.169412,
+              0.710909,
+              0.194118,
+              0.724242
+            ],
+            "source": "ocr",
+            "confidence": 0.4506
+          },
+          {
+            "text": "A",
+            "box": [
+              0.127451,
+              0.733333,
+              0.129804,
+              0.736364
+            ],
+            "source": "ocr",
+            "confidence": 0.2036
+          },
+          {
+            "text": "A",
+            "box": [
+              0.488235,
+              0.724242,
+              0.493333,
+              0.732727
+            ],
+            "source": "ocr",
+            "confidence": 0.9531
+          },
+          {
+            "text": "6\"x84\"",
+            "box": [
+              0.514902,
+              0.724242,
+              0.536863,
+              0.732727
+            ],
+            "source": "ocr",
+            "confidence": 0.207
+          },
+          {
+            "text": "COMPOSITE",
+            "box": [
+              0.545882,
+              0.724242,
+              0.59098,
+              0.732727
+            ],
+            "source": "ocr",
+            "confidence": 0.964
+          },
+          {
+            "text": "GLAZED, PANELLED",
+            "box": [
+              0.61451,
+              0.724242,
+              0.688627,
+              0.733939
+            ],
+            "source": "ocr",
+            "confidence": 0.9622
+          },
+          {
+            "text": "3/3 LITES",
+            "box": [
+              0.702353,
+              0.724242,
+              0.736078,
+              0.732727
+            ],
+            "source": "ocr",
+            "confidence": 0.9217
+          },
+          {
+            "text": "MARVIN / CLAD ULTIMATE",
+            "box": [
+              0.790588,
+              0.724242,
+              0.886667,
+              0.732727
+            ],
+            "source": "ocr",
+            "confidence": 0.9157
+          },
+          {
+            "text": "DOUBLE-HUNG",
+            "box": [
+              0.178824,
+              0.740606,
+              0.234902,
+              0.749091
+            ],
+            "source": "ocr",
+            "confidence": 0.909
+          },
+          {
+            "text": "SPRAY FOAM",
+            "box": [
+              0.405882,
+              0.740606,
+              0.455686,
+              0.749091
+            ],
+            "source": "ocr",
+            "confidence": 0.9593
+          },
+          {
+            "text": "-",
+            "box": [
+              0.358039,
+              0.756364,
+              0.36,
+              0.757576
+            ],
+            "source": "ocr",
+            "confidence": 0.2409
+          },
+          {
+            "text": "WINDOW",
+            "box": [
+              0.201176,
+              0.755152,
+              0.23451,
+              0.763636
+            ],
+            "source": "ocr",
+            "confidence": 0.9627
+          },
+          {
+            "text": "W/ WD SHIMS",
+            "box": [
+              0.405098,
+              0.754545,
+              0.455686,
+              0.763636
+            ],
+            "source": "ocr",
+            "confidence": 0.9145
+          },
+          {
+            "text": "B",
+            "box": [
+              0.48902,
+              0.752727,
+              0.492941,
+              0.761212
+            ],
+            "source": "ocr",
+            "confidence": 0.9325
+          },
+          {
+            "text": "6\"x84\"",
+            "box": [
+              0.514902,
+              0.752727,
+              0.536863,
+              0.761212
+            ],
+            "source": "ocr",
+            "confidence": 0
+          },
+          {
+            "text": "COMPOSITE",
+            "box": [
+              0.545882,
+              0.752727,
+              0.59098,
+              0.761212
+            ],
+            "source": "ocr",
+            "confidence": 0.9646
+          },
+          {
+            "text": "GLAZED, PANELLED",
+            "box": [
+              0.61451,
+              0.752727,
+              0.688627,
+              0.762424
+            ],
+            "source": "ocr",
+            "confidence": 0.9626
+          },
+          {
+            "text": "2/2 LITES",
+            "box": [
+              0.702353,
+              0.752727,
+              0.736078,
+              0.761212
+            ],
+            "source": "ocr",
+            "confidence": 0.9179
+          },
+          {
+            "text": "MARVIN / CLAD ULTIMATE",
+            "box": [
+              0.790588,
+              0.752727,
+              0.886667,
+              0.761212
+            ],
+            "source": "ocr",
+            "confidence": 0.9159
+          },
+          {
+            "text": "A",
+            "box": [
+              0.276863,
+              0.773939,
+              0.283922,
+              0.78
+            ],
+            "source": "ocr",
+            "confidence": 0.801
+          },
+          {
+            "text": "Cc",
+            "box": [
+              0.488627,
+              0.781212,
+              0.493333,
+              0.789697
+            ],
+            "source": "ocr",
+            "confidence": 0.6552
+          },
+          {
+            "text": "24\"x80\"",
+            "box": [
+              0.510588,
+              0.781212,
+              0.536471,
+              0.789697
+            ],
+            "source": "ocr",
+            "confidence": 0.8332
+          },
+          {
+            "text": "WOOD",
+            "box": [
+              0.54549,
+              0.781212,
+              0.569804,
+              0.789697
+            ],
+            "source": "ocr",
+            "confidence": 0.9409
+          },
+          {
+            "text": "1-PANEL",
+            "box": [
+              0.614118,
+              0.781212,
+              0.645098,
+              0.789697
+            ],
+            "source": "ocr",
+            "confidence": 0.5752
+          },
+          {
+            "text": "SOLID WOOD",
+            "box": [
+              0.702745,
+              0.781212,
+              0.751765,
+              0.789697
+            ],
+            "source": "ocr",
+            "confidence": 0.9649
+          },
+          {
+            "text": "ANTIQUE PREFERRED",
+            "box": [
+              0.790588,
+              0.781212,
+              0.874118,
+              0.790303
+            ],
+            "source": "ocr",
+            "confidence": 0.96
+          },
+          {
+            "text": "SCREEN",
+            "box": [
+              0.204314,
+              0.787879,
+              0.235294,
+              0.79697
+            ],
+            "source": "ocr",
+            "confidence": 0.9641
+          },
+          {
+            "text": "DOOR FRAME",
+            "box": [
+              0.404706,
+              0.787879,
+              0.455686,
+              0.79697
+            ],
+            "source": "ocr",
+            "confidence": 0.9577
+          },
+          {
+            "text": "nn il",
+            "box": [
+              0.156078,
+              0.805455,
+              0.193725,
+              0.806061
+            ],
+            "source": "ocr",
+            "confidence": 0.2125
+          },
+          {
+            "text": "D",
+            "box": [
+              0.48902,
+              0.809697,
+              0.493333,
+              0.818182
+            ],
+            "source": "ocr",
+            "confidence": 0.8136
+          },
+          {
+            "text": "\"x80\"",
+            "box": [
+              0.514902,
+              0.809697,
+              0.536471,
+              0.818182
+            ],
+            "source": "ocr",
+            "confidence": 0.3381
+          },
+          {
+            "text": "WOOD",
+            "box": [
+              0.54549,
+              0.809697,
+              0.569804,
+              0.818182
+            ],
+            "source": "ocr",
+            "confidence": 0.8622
+          },
+          {
+            "text": "5-PANEL",
+            "box": [
+              0.61451,
+              0.809697,
+              0.645882,
+              0.818182
+            ],
+            "source": "ocr",
+            "confidence": 0.9132
+          },
+          {
+            "text": "OPT LOUVERS",
+            "box": [
+              0.702353,
+              0.809697,
+              0.756471,
+              0.818182
+            ],
+            "source": "ocr",
+            "confidence": 0.9268
+          },
+          {
+            "text": "ANTIQUE PREFERRED",
+            "box": [
+              0.79098,
+              0.809697,
+              0.874118,
+              0.818788
+            ],
+            "source": "ocr",
+            "confidence": 0.9631
+          },
+          {
+            "text": "EXT SHEATHING",
+            "box": [
+              0.174118,
+              0.818788,
+              0.234902,
+              0.827273
+            ],
+            "source": "ocr",
+            "confidence": 0.9661
+          },
+          {
+            "text": "EXT SHEATHING",
+            "box": [
+              0.394902,
+              0.818788,
+              0.455686,
+              0.827273
+            ],
+            "source": "ocr",
+            "confidence": 0.9653
+          },
+          {
+            "text": "DATE",
+            "box": [
+              0.917255,
+              0.831515,
+              0.930196,
+              0.83697
+            ],
+            "source": "ocr",
+            "confidence": 0.9684
+          },
+          {
+            "text": "WINDOW SCHEDULE",
+            "box": [
+              0.481961,
+              0.84303,
+              0.585098,
+              0.854545
+            ],
+            "source": "ocr",
+            "confidence": 0.9648
+          },
+          {
+            "text": "10-15-15",
+            "box": [
+              0.917255,
+              0.844242,
+              0.947059,
+              0.853333
+            ],
+            "source": "ocr",
+            "confidence": 0.9559
+          },
+          {
+            "text": "2X6 EXT SURROUND",
+            "box": [
+              0.158824,
+              0.850303,
+              0.235294,
+              0.858788
+            ],
+            "source": "ocr",
+            "confidence": 0.9215
+          },
+          {
+            "text": "2X6 EXT SURROUND",
+            "box": [
+              0.379216,
+              0.850303,
+              0.456078,
+              0.858788
+            ],
+            "source": "ocr",
+            "confidence": 0.959
+          },
+          {
+            "text": "MARK SIZE",
+            "box": [
+              0.481961,
+              0.864848,
+              0.526667,
+              0.873333
+            ],
+            "source": "ocr",
+            "confidence": 0.6897
+          },
+          {
+            "text": "MATERIAL",
+            "box": [
+              0.547843,
+              0.864848,
+              0.58549,
+              0.873333
+            ],
+            "source": "ocr",
+            "confidence": 0.9663
+          },
+          {
+            "text": "TYPE",
+            "box": [
+              0.614118,
+              0.864848,
+              0.633725,
+              0.873333
+            ],
+            "source": "ocr",
+            "confidence": 0.9588
+          },
+          {
+            "text": "NOTE",
+            "box": [
+              0.702353,
+              0.864848,
+              0.722745,
+              0.873333
+            ],
+            "source": "ocr",
+            "confidence": 0.9667
+          },
+          {
+            "text": "MAKE / MODEL",
+            "box": [
+              0.790588,
+              0.864848,
+              0.84549,
+              0.873333
+            ],
+            "source": "ocr",
+            "confidence": 0.9421
+          },
+          {
+            "text": "1X4 WD FURRING STRIP",
+            "box": [
+              0.145882,
+              0.881212,
+              0.235294,
+              0.889697
+            ],
+            "source": "ocr",
+            "confidence": 0.8955
+          },
+          {
+            "text": "1X4 WD FURRING STRIP",
+            "box": [
+              0.366275,
+              0.881212,
+              0.455686,
+              0.889697
+            ],
+            "source": "ocr",
+            "confidence": 0.9202
+          },
+          {
+            "text": "SHEET TITLE",
+            "box": [
+              0.917255,
+              0.875758,
+              0.94902,
+              0.881212
+            ],
+            "source": "ocr",
+            "confidence": 0.9479
+          },
+          {
+            "text": "4",
+            "box": [
+              0.48902,
+              0.893333,
+              0.49098,
+              0.901818
+            ],
+            "source": "ocr",
+            "confidence": 0.837
+          },
+          {
+            "text": "COMPOSITE",
+            "box": [
+              0.547843,
+              0.893333,
+              0.593333,
+              0.901818
+            ],
+            "source": "ocr",
+            "confidence": 0.9634
+          },
+          {
+            "text": "DOUBLE HUNG",
+            "box": [
+              0.614118,
+              0.893333,
+              0.669412,
+              0.901818
+            ],
+            "source": "ocr",
+            "confidence": 0.9552
+          },
+          {
+            "text": "DOORS &",
+            "box": [
+              0.918039,
+              0.888485,
+              0.953333,
+              0.89697
+            ],
+            "source": "ocr",
+            "confidence": 0.9238
+          },
+          {
+            "text": "30\"x60\"",
+            "box": [
+              0.510588,
+              0.893333,
+              0.536471,
+              0.902424
+            ],
+            "source": "ocr",
+            "confidence": 0.9172
+          },
+          {
+            "text": "2/2 LITES",
+            "box": [
+              0.702353,
+              0.893333,
+              0.736078,
+              0.902424
+            ],
+            "source": "ocr",
+            "confidence": 0.9217
+          },
+          {
+            "text": "MARVIN / ULTIMATE DH",
+            "box": [
+              0.790588,
+              0.893333,
+              0.877255,
+              0.902424
+            ],
+            "source": "ocr",
+            "confidence": 0.9436
+          },
+          {
+            "text": "WINDOWS",
+            "box": [
+              0.918039,
+              0.90303,
+              0.956471,
+              0.911515
+            ],
+            "source": "ocr",
+            "confidence": 0.9607
+          },
+          {
+            "text": "FIBER CEMENT SIDING",
+            "box": [
+              0.150588,
+              0.912121,
+              0.235294,
+              0.921212
+            ],
+            "source": "ocr",
+            "confidence": 0.9553
+          },
+          {
+            "text": "FIBER CEMENT SIDING",
+            "box": [
+              0.37098,
+              0.912121,
+              0.455686,
+              0.921212
+            ],
+            "source": "ocr",
+            "confidence": 0.9649
+          },
+          {
+            "text": "2",
+            "box": [
+              0.488235,
+              0.921818,
+              0.492157,
+              0.930303
+            ],
+            "source": "ocr",
+            "confidence": 0.9701
+          },
+          {
+            "text": "24\"x48\"",
+            "box": [
+              0.510588,
+              0.921818,
+              0.536471,
+              0.930909
+            ],
+            "source": "ocr",
+            "confidence": 0.7279
+          },
+          {
+            "text": "COMPOSITE",
+            "box": [
+              0.547843,
+              0.921818,
+              0.593333,
+              0.930909
+            ],
+            "source": "ocr",
+            "confidence": 0.9574
+          },
+          {
+            "text": "DOUBLE HUNG",
+            "box": [
+              0.614118,
+              0.921818,
+              0.669412,
+              0.930909
+            ],
+            "source": "ocr",
+            "confidence": 0.964
+          },
+          {
+            "text": "2/2 LITES",
+            "box": [
+              0.702353,
+              0.921818,
+              0.736078,
+              0.930909
+            ],
+            "source": "ocr",
+            "confidence": 0.8899
+          },
+          {
+            "text": "MARVIN / ULTIMATE DH",
+            "box": [
+              0.790588,
+              0.921818,
+              0.877255,
+              0.930909
+            ],
+            "source": "ocr",
+            "confidence": 0.9458
+          },
+          {
+            "text": "‘SHEET NO.",
+            "box": [
+              0.917255,
+              0.926667,
+              0.942745,
+              0.932121
+            ],
+            "source": "ocr",
+            "confidence": 0.8584
+          },
+          {
+            "text": "WINDOW DETAIL @ JAMB",
+            "box": [
+              0.062353,
+              0.935758,
+              0.18902,
+              0.950303
+            ],
+            "source": "ocr",
+            "confidence": 0.9252
+          },
+          {
+            "text": "EXTERIOR DOOR DETAIL @ JAMB",
+            "box": [
+              0.283137,
+              0.935758,
+              0.449804,
+              0.950303
+            ],
+            "source": "ocr",
+            "confidence": 0.9292
+          },
+          {
+            "text": "@",
+            "box": [
+              0.04,
+              0.941818,
+              0.055686,
+              0.966667
+            ],
+            "source": "ocr",
+            "confidence": 0.7503
+          },
+          {
+            "text": "@",
+            "box": [
+              0.260392,
+              0.941818,
+              0.276078,
+              0.966667
+            ],
+            "source": "ocr",
+            "confidence": 0.736
+          },
+          {
+            "text": "FOR RELATED TRIM AND ACCESSORIES: SEE FINISHES SCHEDULE A5.0",
+            "box": [
+              0.481961,
+              0.950303,
+              0.75098,
+              0.959394
+            ],
+            "source": "ocr",
+            "confidence": 0.938
+          },
+          {
+            "text": "SCALE: 3\" =1'-0\"",
+            "box": [
+              0.062745,
+              0.96,
+              0.120392,
+              0.969091
+            ],
+            "source": "ocr",
+            "confidence": 0.9398
+          },
+          {
+            "text": "SCALE: 3\" =1'-0\"",
+            "box": [
+              0.283137,
+              0.96,
+              0.341176,
+              0.969091
+            ],
+            "source": "ocr",
+            "confidence": 0.8883
+          },
+          {
+            "text": "A4.3",
+            "box": [
+              0.918039,
+              0.945455,
+              0.960392,
+              0.968485
+            ],
+            "source": "ocr",
+            "confidence": 0.674
+          }
+        ]
+      },
+      {
+        "page": {
+          "id": "drawing-page-25",
+          "label": "PDF 25",
+          "title": "Drawing page 25",
+          "number": 25
+        },
+        "width": 1224,
+        "height": 792,
+        "rotation": 0,
+        "status": "no-usable-text",
+        "runs": []
+      }
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "documentId": "type-c-door-submittal",
+    "documentVersionId": "type-c-door-submittal-v1",
+    "sourceFingerprint": "b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658",
+    "extractor": {
+      "pipelineVersion": "grounded-demo-index-1",
+      "pdfjsVersion": "6.3.289",
+      "ocrEngine": "tesseract",
+      "ocrEngineVersion": "5.5.3"
+    },
+    "pages": [
+      {
+        "page": {
+          "id": "door-submittal-page-1",
+          "label": "1",
+          "title": "Submittal cover",
+          "number": 1
+        },
+        "width": 612,
+        "height": 792,
+        "rotation": 0,
+        "status": "indexed",
+        "runs": [
+          {
+            "text": "SUBMITTAL",
+            "box": [
+              0.078431,
+              0.056818,
+              0.172827,
+              0.069444
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Type C interior door",
+            "box": [
+              0.078431,
+              0.078283,
+              0.468832,
+              0.109848
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Product data and review cover",
+            "box": [
+              0.078431,
+              0.126263,
+              0.321186,
+              0.140152
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "FOR REVIEW",
+            "box": [
+              0.098039,
+              0.218434,
+              0.180837,
+              0.228535
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "PROJECT",
+            "box": [
+              0.078431,
+              0.276515,
+              0.132453,
+              0.285354
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Virginia Farmhouse",
+            "box": [
+              0.078431,
+              0.292929,
+              0.23098,
+              0.305556
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "SUBMITTAL ID",
+            "box": [
+              0.522876,
+              0.276515,
+              0.60357,
+              0.285354
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "SUB-08-1416-001",
+            "box": [
+              0.522876,
+              0.292929,
+              0.655458,
+              0.305556
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "SECTION",
+            "box": [
+              0.078431,
+              0.347222,
+              0.129273,
+              0.356061
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "08 14 16 - Flush Wood Doors",
+            "box": [
+              0.078431,
+              0.363636,
+              0.301797,
+              0.376263
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "REVISION",
+            "box": [
+              0.522876,
+              0.347222,
+              0.577538,
+              0.356061
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "0 - Initial review",
+            "box": [
+              0.522876,
+              0.363636,
+              0.644575,
+              0.376263
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "SUBMITTED BY",
+            "box": [
+              0.078431,
+              0.417929,
+              0.164216,
+              0.426768
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Blue Ridge Doorworks",
+            "box": [
+              0.078431,
+              0.434343,
+              0.25366,
+              0.44697
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "ISSUE DATE",
+            "box": [
+              0.522876,
+              0.417929,
+              0.591515,
+              0.426768
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "August 28, 2026",
+            "box": [
+              0.522876,
+              0.434343,
+              0.647288,
+              0.44697
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Submitted product",
+            "box": [
+              0.078431,
+              0.486111,
+              0.252725,
+              0.501263
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Door mark",
+            "box": [
+              0.101307,
+              0.55303,
+              0.16668,
+              0.563131
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Type C",
+            "box": [
+              0.294118,
+              0.551768,
+              0.341515,
+              0.563131
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Nominal size",
+            "box": [
+              0.101307,
+              0.580808,
+              0.181216,
+              0.590909
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "24 in x 80 in",
+            "box": [
+              0.294118,
+              0.579545,
+              0.373412,
+              0.590909
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Construction",
+            "box": [
+              0.101307,
+              0.608586,
+              0.182641,
+              0.618687
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Hollow-core flush wood door",
+            "box": [
+              0.294118,
+              0.607323,
+              0.479632,
+              0.618687
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Face",
+            "box": [
+              0.101307,
+              0.636364,
+              0.131098,
+              0.646465
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Plain sliced birch veneer, clear finish",
+            "box": [
+              0.294118,
+              0.635101,
+              0.531941,
+              0.646465
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Submission description",
+            "box": [
+              0.078431,
+              0.709596,
+              0.300706,
+              0.724747
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Product data for the proposed Type C interior door. This package includes door construction, face veneer, factory finish, and",
+            "box": [
+              0.078431,
+              0.741162,
+              0.886005,
+              0.752525
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "nominal size information.",
+            "box": [
+              0.078431,
+              0.758838,
+              0.241064,
+              0.770202
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Contract reference",
+            "box": [
+              0.078431,
+              0.873737,
+              0.194654,
+              0.883838
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Virginia Farmhouse contract drawing set",
+            "box": [
+              0.251634,
+              0.872475,
+              0.514796,
+              0.883838
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Sample product data | Not for construction",
+            "box": [
+              0.078431,
+              0.960859,
+              0.292469,
+              0.969697
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Page 1 of 2",
+            "box": [
+              0.854575,
+              0.960859,
+              0.91308,
+              0.969697
+            ],
+            "source": "embedded"
+          }
+        ]
+      },
+      {
+        "page": {
+          "id": "door-submittal-page-2",
+          "label": "2",
+          "title": "Hollow-core flush wood door product data",
+          "number": 2
+        },
+        "width": 612,
+        "height": 792,
+        "rotation": 0,
+        "status": "indexed",
+        "runs": [
+          {
+            "text": "TYPE C PRODUCT DATA",
+            "box": [
+              0.078431,
+              0.050505,
+              0.272696,
+              0.063131
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Hollow-core flush wood door",
+            "box": [
+              0.078431,
+              0.07197,
+              0.573755,
+              0.099747
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Model BRD-HC2480-BIR",
+            "box": [
+              0.078431,
+              0.116162,
+              0.260016,
+              0.128788
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Door elevation",
+            "box": [
+              0.078431,
+              0.180556,
+              0.203278,
+              0.194444
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "24 in x 80 in",
+            "box": [
+              0.153595,
+              0.59596,
+              0.224078,
+              0.606061
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "FLUSH FACE",
+            "box": [
+              0.158497,
+              0.412879,
+              0.241281,
+              0.42298
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Product characteristics",
+            "box": [
+              0.436275,
+              0.185606,
+              0.636054,
+              0.199495
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Use",
+            "box": [
+              0.449346,
+              0.228535,
+              0.47332,
+              0.238636
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Interior, non-rated",
+            "box": [
+              0.630719,
+              0.228535,
+              0.734614,
+              0.238636
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Nominal size",
+            "box": [
+              0.449346,
+              0.257576,
+              0.529255,
+              0.267677
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "24 in x 80 in",
+            "box": [
+              0.630719,
+              0.257576,
+              0.701203,
+              0.267677
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Thickness",
+            "box": [
+              0.449346,
+              0.286616,
+              0.513281,
+              0.296717
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "1-3/8 in",
+            "box": [
+              0.630719,
+              0.286616,
+              0.674314,
+              0.296717
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Core",
+            "box": [
+              0.449346,
+              0.315657,
+              0.479124,
+              0.325758
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Hollow honeycomb core",
+            "box": [
+              0.630719,
+              0.315657,
+              0.770196,
+              0.325758
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Stiles and rails",
+            "box": [
+              0.449346,
+              0.344697,
+              0.541621,
+              0.354798
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Composite wood",
+            "box": [
+              0.630719,
+              0.344697,
+              0.728065,
+              0.354798
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Faces",
+            "box": [
+              0.449346,
+              0.373737,
+              0.486405,
+              0.383838
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Birch veneer, flush",
+            "box": [
+              0.630719,
+              0.373737,
+              0.738967,
+              0.383838
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Finish",
+            "box": [
+              0.449346,
+              0.402778,
+              0.487843,
+              0.412879
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Clear factory finish",
+            "box": [
+              0.630719,
+              0.402778,
+              0.738954,
+              0.412879
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Warranty",
+            "box": [
+              0.449346,
+              0.431818,
+              0.506,
+              0.441919
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "One year limited",
+            "box": [
+              0.630719,
+              0.431818,
+              0.725882,
+              0.441919
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "PRODUCT DESCRIPTION",
+            "box": [
+              0.45915,
+              0.516414,
+              0.616745,
+              0.526515
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Factory-assembled flush wood door for non-rated interior openings.",
+            "box": [
+              0.45915,
+              0.539141,
+              0.897239,
+              0.550505
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Supply with clear-finished birch veneer faces.",
+            "box": [
+              0.45915,
+              0.555556,
+              0.754194,
+              0.566919
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Storage and handling",
+            "box": [
+              0.078431,
+              0.645202,
+              0.262196,
+              0.659091
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Store doors flat in a dry, ventilated interior space. Protect finished faces from dirt, moisture, direct sunlight, and construction",
+            "box": [
+              0.078431,
+              0.674242,
+              0.88024,
+              0.685606
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "damage.",
+            "box": [
+              0.078431,
+              0.691919,
+              0.135652,
+              0.703283
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Installation",
+            "box": [
+              0.078431,
+              0.786616,
+              0.173315,
+              0.800505
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Field verify each opening before fabrication. Install plumb and square with uniform clearances. Follow the approved hardware",
+            "box": [
+              0.078431,
+              0.815657,
+              0.892505,
+              0.82702
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "schedule.",
+            "box": [
+              0.078431,
+              0.833333,
+              0.141373,
+              0.844697
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Sample product data | Not for construction",
+            "box": [
+              0.078431,
+              0.960859,
+              0.292469,
+              0.969697
+            ],
+            "source": "embedded"
+          },
+          {
+            "text": "Page 2 of 2",
+            "box": [
+              0.854575,
+              0.960859,
+              0.91308,
+              0.969697
+            ],
+            "source": "embedded"
+          }
+        ]
+      }
+    ]
+  }
+]

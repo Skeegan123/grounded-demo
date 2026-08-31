@@ -53,7 +53,7 @@ Point Set adds this final response:
     },
     "points": [
       {
-        "page": { "id": "sheet-a1.2", "label": "A1.2", "number": 3 },
+        "page": { "id": "sheet-a1.2", "label": "A1.2", "number": 6 },
         "x": 0.5,
         "y": 0.5
       }

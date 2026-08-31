@@ -1,7 +1,7 @@
-import { Type, type Static, type TSchema } from '@sinclair/typebox'
-import { Value } from '@sinclair/typebox/value'
+import { Type } from '@sinclair/typebox'
 import type { createAssistance } from '../assistance/assistance'
-import type { ModelContextAdapter, ModelContextTool } from './modelContext'
+import { defineTool } from './defineTool'
+import type { ModelContextAdapter } from './modelContext'
 
 const CreateAssistanceRequestInput = Type.Object(
   {
@@ -19,40 +19,13 @@ const GetAssistanceRequestInput = Type.Object(
   { additionalProperties: false },
 )
 
-function validatedTool<Schema extends TSchema>(options: {
-  name: string
-  title: string
-  description: string
-  schema: Schema
-  readOnly: boolean
-  execute: (input: Static<Schema>) => Promise<unknown>
-}): ModelContextTool {
-  return {
-    name: options.name,
-    title: options.title,
-    description: options.description,
-    inputSchema: options.schema,
-    annotations: {
-      readOnlyHint: options.readOnly,
-      untrustedContentHint: true,
-    },
-    async execute(input) {
-      if (!Value.Check(options.schema, input)) {
-        const issue = Value.Errors(options.schema, input).First()
-        throw new Error(`Invalid input${issue?.path ? ` at ${issue.path}` : ''}.`)
-      }
-      return options.execute(input as Static<Schema>)
-    },
-  }
-}
-
 export function registerAssistanceTools(
   modelContext: ModelContextAdapter,
   assistance: ReturnType<typeof createAssistance>,
   signal: AbortSignal,
 ) {
   const tools = [
-    validatedTool({
+    defineTool({
       name: 'create_assistance_request',
       title: 'Create a Point Set Assistance Request',
       description:
@@ -61,7 +34,7 @@ export function registerAssistanceTools(
       readOnly: false,
       execute: (input) => assistance.createRequest(input),
     }),
-    validatedTool({
+    defineTool({
       name: 'get_assistance_request',
       title: 'Get an Assistance Request',
       description:

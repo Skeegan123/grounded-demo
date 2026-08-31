@@ -4,14 +4,17 @@ import type {
   AssistanceRequestView,
   createAssistance,
 } from './assistance/assistance'
+import type { createDocuments } from './documents/documents'
 import { demoProject, findPage } from './demoProject/demoProject'
 import { registerAssistanceTools } from './webmcp/registerAssistanceTools'
+import { registerDocumentTools } from './webmcp/registerDocumentTools'
 import type { ModelContextAdapter } from './webmcp/modelContext'
 import type { createWorkspaceStore } from './workspace/workspaceStore'
 import './App.css'
 
 interface AppProps {
   assistance: ReturnType<typeof createAssistance>
+  documents: ReturnType<typeof createDocuments>
   modelContext?: ModelContextAdapter
   sessionId: string
   workspaceStore: ReturnType<typeof createWorkspaceStore>
@@ -19,7 +22,7 @@ interface AppProps {
 
 type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
 
-function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) {
+function App({ assistance, documents, modelContext, sessionId, workspaceStore }: AppProps) {
   const [pending, setPending] = useState<AssistanceRequestView[]>([])
   const [registration, setRegistration] = useState<RegistrationState>(() =>
     modelContext ? 'registering' : 'unsupported',
@@ -27,10 +30,20 @@ function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) 
   const [registrationError, setRegistrationError] = useState('')
   const points = useStore(workspaceStore, (state) => state.points)
   const note = useStore(workspaceStore, (state) => state.note)
+  const selectedDocumentId = useStore(
+    workspaceStore,
+    (state) => state.selectedDocumentId,
+  )
+  const selectedPageId = useStore(workspaceStore, (state) => state.selectedPageId)
+  const zoom = useStore(workspaceStore, (state) => state.zoom)
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
   const clearDraft = useStore(workspaceStore, (state) => state.clearDraft)
+  const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
+  const selectPage = useStore(workspaceStore, (state) => state.selectPage)
   const setNote = useStore(workspaceStore, (state) => state.setNote)
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
+  const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
+  const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
 
   const refresh = useCallback(async () => {
     setPending(await assistance.listPending())
@@ -53,7 +66,10 @@ function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) 
   useEffect(() => {
     if (!modelContext) return
     const controller = new AbortController()
-    registerAssistanceTools(modelContext, assistance, controller.signal)
+    Promise.all([
+      registerAssistanceTools(modelContext, assistance, controller.signal),
+      registerDocumentTools(modelContext, documents, controller.signal),
+    ])
       .then(() => setRegistration('ready'))
       .catch((error: unknown) => {
         if (controller.signal.aborted) return
@@ -63,30 +79,48 @@ function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) 
         )
       })
     return () => controller.abort()
-  }, [assistance, modelContext])
+  }, [assistance, documents, modelContext])
 
   useEffect(() => () => assistance.close(), [assistance])
 
+  const defaultDocument = demoProject.documents[0]!
   const current = pending[0]
   const targetDocument = current
     ? demoProject.documents.find(
         (document) => document.id === current.documentId,
-      ) ?? demoProject.documents[0]
-    : demoProject.documents[0]
-  const targetPageId = current?.recommendedPageIds[0] ?? targetDocument.pages[0].id
+      ) ?? defaultDocument
+    : defaultDocument
+  const targetPageId = current?.recommendedPageIds[0] ?? targetDocument.pages[0]!.id
   const targetPage =
-    findPage(targetDocument.id, targetPageId) ?? targetDocument.pages[0]
+    findPage(targetDocument.id, targetPageId) ?? targetDocument.pages[0]!
+  const selectedDocument =
+    demoProject.documents.find((document) => document.id === selectedDocumentId) ??
+    defaultDocument
+  const selectedPage =
+    selectedDocument.pages.find((page) => page.id === selectedPageId) ??
+    selectedDocument.pages[0]!
+  const canMark = Boolean(
+    current &&
+      selectedDocument.id === current.documentId &&
+      selectedDocument.versionId === current.documentVersionId &&
+      selectedPage.id === targetPage.id,
+  )
+
+  useEffect(() => {
+    if (!current) return
+    selectDocument(current.documentId, targetPage.id)
+  }, [current, selectDocument, targetPage.id])
 
   const placePoint = (event: MouseEvent<HTMLDivElement>) => {
-    if (!current) return
+    if (!canMark) return
     const bounds = event.currentTarget.getBoundingClientRect()
     if (bounds.width === 0 || bounds.height === 0) return
     const x = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width))
     const y = Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height))
     addPoint({
-      pageId: targetPage.id,
-      pageLabel: targetPage.label,
-      pageNumber: targetPage.number,
+      pageId: selectedPage.id,
+      pageLabel: selectedPage.label,
+      pageNumber: selectedPage.number,
       x,
       y,
     })
@@ -138,8 +172,11 @@ function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) 
           <nav aria-label="Project documents">
             {demoProject.documents.map((document) => (
               <button
-                className={document.id === targetDocument.id ? 'document active' : 'document'}
+                className={document.id === selectedDocument.id ? 'document active' : 'document'}
                 key={document.id}
+                onClick={() =>
+                  selectDocument(document.id, document.pages[0]!.id)
+                }
                 type="button"
               >
                 <span>{document.title}</span>
@@ -153,23 +190,55 @@ function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) 
           <div className="pane-heading">
             <div>
               <p className="pane-kicker">Document work area</p>
-              <h1 id="work-area-title">{targetDocument.title}</h1>
+              <h1 id="work-area-title">{selectedDocument.title}</h1>
             </div>
-            <span className="sheet-chip">Sheet {targetPage.label}</span>
+            <span className="sheet-chip">
+              {selectedPage.sheetNumber ? 'Sheet' : 'Page'} {selectedPage.label}
+            </span>
+          </div>
+          <div className="document-toolbar">
+            <label>
+              <span>Document page</span>
+              <select
+                aria-label="Document page"
+                onChange={(event) => selectPage(event.target.value)}
+                value={selectedPage.id}
+              >
+                {selectedDocument.pages.map((page) => (
+                  <option key={page.id} value={page.id}>
+                    {page.label} - {page.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="zoom-controls" aria-label="Document zoom">
+              <button onClick={zoomOut} type="button" aria-label="Zoom out">−</button>
+              <span>{Math.round(zoom * 100)}%</span>
+              <button onClick={zoomIn} type="button" aria-label="Zoom in">+</button>
+            </div>
+            <a
+              href={`${selectedDocument.file.url}#page=${selectedPage.number}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open authoritative PDF
+            </a>
           </div>
           <div className="drawing-stage">
             <div
-              aria-label={`Drawing page ${targetPage.label}`}
-              className={current ? 'drawing-page marking' : 'drawing-page'}
+              aria-label={`Drawing page ${selectedPage.label}`}
+              className={canMark ? 'drawing-page marking' : 'drawing-page'}
               onClick={placePoint}
-              role="button"
-              tabIndex={current ? 0 : -1}
+              role={canMark ? 'button' : undefined}
+              style={{ transform: `scale(${zoom})` }}
+              tabIndex={canMark ? 0 : -1}
             >
-              <div className="drawing-title-block"><strong>FIRST FLOOR PLAN</strong><span>A1.2</span></div>
-              <div className="room room-one">WC<br /><small>Type C</small></div>
-              <div className="room room-two">UTILITY<br /><small>Type C</small></div>
-              <div className="room room-three">COATS<br /><small>Type C</small></div>
-              {points.map((point, index) => (
+              <div className="page-reference">
+                <span>{selectedPage.sheetNumber ?? `PDF page ${selectedPage.number}`}</span>
+                <strong>{selectedPage.title}</strong>
+                <small>The original PDF remains authoritative.</small>
+              </div>
+              {points.filter((point) => point.pageId === selectedPage.id).map((point, index) => (
                 <span
                   className="point-mark"
                   key={`${point.x}-${point.y}-${index}`}
@@ -196,10 +265,23 @@ function App({ assistance, modelContext, sessionId, workspaceStore }: AppProps) 
               <div className="point-controls">
                 <div>
                   <strong>{points.length} {points.length === 1 ? 'point' : 'points'}</strong>
-                  <span>Click the drawing to mark locations.</span>
+                  <span>
+                    {canMark
+                      ? 'Click the drawing to mark locations.'
+                      : `Open ${targetPage.label} to place points.`}
+                  </span>
                 </div>
                 <button disabled={points.length === 0} onClick={undoPoint} type="button">Undo</button>
               </div>
+              {!canMark && (
+                <button
+                  className="response-page-button"
+                  onClick={() => selectDocument(targetDocument.id, targetPage.id)}
+                  type="button"
+                >
+                  Open response page
+                </button>
+              )}
               <label htmlFor="point-set-note">Overall note <span>optional</span></label>
               <textarea
                 id="point-set-note"

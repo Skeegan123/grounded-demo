@@ -55,3 +55,30 @@ pnpm build
 The high-level behavioral test crosses the recording adapter, real application
 composition, fake IndexedDB, and visible UI for create, respond, reload, and
 retrieve.
+
+## Demo Project documents
+
+The replaceable Demo Project manifest lives in
+`src/demoProject/demoProject.ts`. It points to the unchanged 25-page Virginia
+Farmhouse drawing set and the two-page fictional Type C door submittal in
+`public/demo-project/`. Their creator, source, license, retrieval details,
+checksums, byte sizes, and page counts are recorded in
+`public/demo-project/ASSET-NOTICES.md`.
+
+The generated `DocumentIndex` files live under
+`src/documents/generated/`. Regenerate them after replacing either PDF:
+
+```bash
+pnpm prepare:demo-project-index
+```
+
+The generator tries PDF.js embedded-text extraction first. The drawing set uses
+outlined lettering, so it runs build-time Tesseract OCR only on the two sheets
+needed for this Demo Project and records the other drawing pages as having no
+usable prepared text. The application does not run OCR in the browser.
+
+WebMCP adds three read-only document tools:
+
+- `get_project_workspace` introduces the Demo Project.
+- `list_project_documents` returns immutable document versions and page refs.
+- `inspect_document_text` returns prepared positioned text for requested pages.

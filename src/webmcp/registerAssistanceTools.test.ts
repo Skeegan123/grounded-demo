@@ -59,7 +59,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
       {
         pageId: 'sheet-a1.2',
         pageLabel: 'A1.2',
-        pageNumber: 3,
+        pageNumber: 6,
         x: 0.25,
         y: 0.75,
       },
@@ -146,7 +146,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
             },
             points: [
               {
-                page: { id: 'sheet-a1.2', label: 'A1.2', number: 3 },
+                page: { id: 'sheet-a1.2', label: 'A1.2', number: 6 },
                 x: 0.25,
                 y: 0.75,
               },

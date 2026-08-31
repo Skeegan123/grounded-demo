@@ -1,6 +1,7 @@
 import { createElement } from 'react'
 import { createAssistance } from '../assistance/assistance'
 import { getOrCreateDemoSessionId } from '../demoSession/demoSession'
+import { createDocuments } from '../documents/documents'
 import { createBrowserModelContext } from '../webmcp/browserModelContext'
 import type { ModelContextAdapter } from '../webmcp/modelContext'
 import { createWorkspaceStore } from '../workspace/workspaceStore'
@@ -24,9 +25,11 @@ export function createGroundedApp(environment: GroundedEnvironment = {}) {
     createId,
     now: environment.now ?? (() => new Date()),
   })
+  const documents = createDocuments()
 
   return createElement(App, {
     assistance,
+    documents,
     modelContext: environment.modelContext ?? createBrowserModelContext(),
     sessionId,
     workspaceStore: createWorkspaceStore(),

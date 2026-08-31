@@ -208,6 +208,60 @@ dd {
   border: 1px solid var(--line-strong);
 }
 
+.document-toolbar {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.document-toolbar label {
+  flex: 1;
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.document-toolbar select {
+  min-width: 0;
+  padding: 8px 10px;
+  color: var(--ink);
+  background: #f9f6ef;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  font: inherit;
+}
+
+.document-toolbar a {
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.zoom-controls button {
+  width: 32px;
+  height: 32px;
+  color: var(--ink);
+  background: #f9f6ef;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+}
+
+.zoom-controls span {
+  min-width: 42px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
 .drawing-stage {
   flex: 1;
   display: grid;
@@ -233,10 +287,38 @@ dd {
   background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
   border: 1px solid #aba89f;
   box-shadow: 0 16px 32px rgb(24 32 26 / 22%);
+  transform-origin: center;
 }
 
 .drawing-page.marking {
   cursor: crosshair;
+}
+
+.page-reference {
+  position: absolute;
+  inset: 12%;
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: rgb(255 254 249 / 90%);
+  border: 2px solid currentColor;
+  text-align: center;
+}
+
+.page-reference span,
+.page-reference small {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+}
+
+.page-reference strong {
+  color: var(--ink);
+  font-size: 1.3rem;
+}
+
+.page-reference small {
+  color: var(--muted);
 }
 
 .drawing-title-block {
@@ -393,6 +475,17 @@ dd {
   line-height: 1.45;
 }
 
+.response-page-button {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: #f9f6ef;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  font-weight: 700;
+}
+
 .submit-button {
   width: 100%;
   min-height: 44px;
@@ -454,6 +547,7 @@ button:disabled {
 }
 
 button:focus-visible,
+select:focus-visible,
 textarea:focus-visible,
 a:focus-visible,
 .drawing-page:focus-visible {

@@ -91,7 +91,7 @@ test('an External Agent retrieves a durable Point Set after the Senior Project M
         },
         points: [
           {
-            page: { id: 'sheet-a1.2', label: 'A1.2', number: 3 },
+            page: { id: 'sheet-a1.2', label: 'A1.2', number: 6 },
             x: 0.5,
             y: 0.5,
           },
@@ -158,5 +158,54 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
   }).toEqual({
     count: '0 points',
     note: expect.objectContaining({ value: '' }),
+  })
+})
+
+test('External Agent document inspection leaves the visible workspace and unfinished response unchanged', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName: `grounded-document-separation-${crypto.randomUUID()}`,
+      modelContext,
+      sessionStorage: window.sessionStorage,
+      createId: createIds('session-1', 'request-1'),
+      now: () => new Date('2030-01-02T03:04:05.000Z'),
+    }),
+  )
+
+  await modelContext.waitForTool('create_assistance_request')
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+
+  await user.click(
+    screen.getByRole('button', {
+      name: /Type C interior door product data and review cover/i,
+    }),
+  )
+  await user.selectOptions(screen.getByLabelText('Document page'), 'door-submittal-page-2')
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  await user.type(screen.getByLabelText('Overall note optional'), 'Keep this draft')
+
+  await modelContext.executeTool('inspect_document_text', {
+    documentId: 'virginia-farmhouse-drawings',
+    documentVersionId: 'virginia-farmhouse-drawings-v1',
+    pageIds: ['sheet-a4.3'],
+  })
+
+  expect({
+    document: screen.getByRole('heading', {
+      name: 'Type C interior door product data and review cover',
+    }),
+    page: screen.getByLabelText('Document page'),
+    zoom: screen.getByText('110%'),
+    assistance: screen.getByRole('heading', { name: 'Current Assistance' }),
+    note: screen.getByLabelText('Overall note optional'),
+  }).toEqual({
+    document: expect.any(HTMLElement),
+    page: expect.objectContaining({ value: 'door-submittal-page-2' }),
+    zoom: expect.any(HTMLElement),
+    assistance: expect.any(HTMLElement),
+    note: expect.objectContaining({ value: 'Keep this draft' }),
   })
 })
