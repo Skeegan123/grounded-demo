@@ -7,6 +7,7 @@ import type {
 } from './assistance/assistance'
 import type { createDocuments } from './documents/documents'
 import { PdfPageViewer, type PdfPageRenderer } from './documents/PdfPageViewer'
+import type { NormalizedPoint } from './documents/pageGeometry'
 import {
   demoProject,
   findDocument,
@@ -193,7 +194,7 @@ function App({
     targetPage.id,
   ])
 
-  const placePoint = ({ x, y }: { x: number; y: number }) => {
+  const placePoint = ({ x, y }: NormalizedPoint) => {
     if (!canMark) return
     addPoint({
       pageId: selectedPage.id,

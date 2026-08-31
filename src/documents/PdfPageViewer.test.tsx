@@ -1,29 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, test, vi } from 'vitest'
 import { findDocument } from '../demoProject/demoProject'
-import { PdfPageViewer, type PdfPageRenderer } from './PdfPageViewer'
+import {
+  PdfPageViewer,
+  type PdfPageRenderer,
+  type RenderPageRequest,
+} from './PdfPageViewer'
 
 test('the PDF page and Point Set overlay share fitted post-rotation geometry', async () => {
-  vi.stubGlobal('ResizeObserver', class {
-    private callback: ResizeObserverCallback
-
-    constructor(callback: ResizeObserverCallback) {
-      this.callback = callback
-    }
-
-    observe(target: Element) {
-      this.callback([
-        {
-          target,
-          contentRect: { width: 612, height: 500 },
-        } as ResizeObserverEntry,
-      ], this as unknown as ResizeObserver)
-    }
-
-    disconnect() {}
-    unobserve() {}
-  })
-
   const requests: Array<{ pageNumber: number; width: number; height: number }> = []
   const renderer: PdfPageRenderer = {
     async renderPage(request) {
@@ -78,26 +62,6 @@ test('the PDF page and Point Set overlay share fitted post-rotation geometry', a
 })
 
 test('changing pages cancels stale work and caches only the neighboring pages', async () => {
-  vi.stubGlobal('ResizeObserver', class {
-    private callback: ResizeObserverCallback
-
-    constructor(callback: ResizeObserverCallback) {
-      this.callback = callback
-    }
-
-    observe(target: Element) {
-      this.callback([
-        {
-          target,
-          contentRect: { width: 612, height: 500 },
-        } as ResizeObserverEntry,
-      ], this as unknown as ResizeObserver)
-    }
-
-    disconnect() {}
-    unobserve() {}
-  })
-
   const requests: RenderPageRequestWithResolve[] = []
   const prefetched: number[][] = []
   const renderer: PdfPageRenderer = {
@@ -148,12 +112,6 @@ test('changing pages cancels stale work and caches only the neighboring pages', 
   await waitFor(() => expect(prefetched).toEqual([[1, 3]]))
 })
 
-interface RenderPageRequestWithResolve {
-  canvas: HTMLCanvasElement
-  height: number
-  pageNumber: number
+type RenderPageRequestWithResolve = RenderPageRequest & {
   resolve: () => void
-  signal: AbortSignal
-  url: string
-  width: number
 }

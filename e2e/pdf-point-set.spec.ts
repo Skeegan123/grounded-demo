@@ -37,6 +37,7 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   const overlay = page.getByLabel('Drawing page A1.2')
   await expect(canvas).toBeVisible()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await expectSameBounds(canvas, overlay)
   await expect.poll(() => canvas.evaluate((element) => {
     const pdfCanvas = element as HTMLCanvasElement
     const context = pdfCanvas.getContext('2d')!
@@ -68,8 +69,23 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
   const zoomedBounds = await overlay.boundingBox()
   if (!zoomedBounds) throw new Error('The zoomed Point Set overlay has no browser bounds.')
+  await expectSameBounds(canvas, overlay)
   await expectPointAt(mark, { x: 0.5, y: 0.25 })
 })
+
+async function expectSameBounds(canvas: Locator, overlay: Locator) {
+  const [canvasBounds, overlayBounds] = await Promise.all([
+    canvas.boundingBox(),
+    overlay.boundingBox(),
+  ])
+  if (!canvasBounds || !overlayBounds) {
+    throw new Error('The PDF canvas or Point Set overlay has no browser bounds.')
+  }
+  expect(Math.abs(canvasBounds.x - overlayBounds.x)).toBeLessThanOrEqual(1)
+  expect(Math.abs(canvasBounds.y - overlayBounds.y)).toBeLessThanOrEqual(1)
+  expect(Math.abs(canvasBounds.width - overlayBounds.width)).toBeLessThanOrEqual(1)
+  expect(Math.abs(canvasBounds.height - overlayBounds.height)).toBeLessThanOrEqual(1)
+}
 
 async function expectPointAt(
   mark: Locator,

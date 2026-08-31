@@ -18,7 +18,7 @@ function clampNormalized(value: number) {
 }
 
 export function fitPageInBounds(
-  page: PageSize & { rotation: number },
+  page: PageSize,
   bounds: PageSize,
   zoom: number,
 ): PageSize {

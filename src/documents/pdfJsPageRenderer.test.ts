@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest'
 import { createPdfJsPageRenderer } from './pdfJsPageRenderer'
 
-test('the PDF.js renderer scales the canvas and cancels an aborted render task', async () => {
+test('the PDF.js renderer preserves crop and rotation viewport geometry and cancels stale work', async () => {
   let rejectRender: (error: Error) => void = () => {}
   const cancel = vi.fn(() => rejectRender(new Error('Rendering cancelled.')))
   const render = vi.fn(() => ({
@@ -13,6 +13,8 @@ test('the PDF.js renderer scales the canvas and cancels an aborted render task',
   const getViewport = vi.fn(({ scale }: { scale: number }) => ({
     width: 1224 * scale,
     height: 792 * scale,
+    rotation: 270,
+    viewBox: [24, 36, 816, 1260],
   }))
   const getPage = vi.fn(async () => ({ getViewport, render }))
   const renderer = createPdfJsPageRenderer({
@@ -49,7 +51,12 @@ test('the PDF.js renderer scales the canvas and cancels an aborted render task',
       canvas,
       canvasContext: context,
       transform: [2, 0, 0, 2, 0, 0],
-      viewport: { width: 612, height: 396 },
+      viewport: {
+        width: 612,
+        height: 396,
+        rotation: 270,
+        viewBox: [24, 36, 816, 1260],
+      },
     }]],
   })
 

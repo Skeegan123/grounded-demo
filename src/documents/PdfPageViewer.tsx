@@ -7,7 +7,12 @@ import {
 } from 'react'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
-import { fitPageInBounds, normalizeClientPoint, type PageSize } from './pageGeometry'
+import {
+  fitPageInBounds,
+  normalizeClientPoint,
+  type NormalizedPoint,
+  type PageSize,
+} from './pageGeometry'
 
 export interface RenderPageRequest extends PageSize {
   canvas: HTMLCanvasElement
@@ -29,7 +34,7 @@ export interface PdfPageRenderer {
 interface PdfPageViewerProps {
   canMark: boolean
   document: ProjectDocument
-  onPlacePoint: (point: { x: number; y: number }) => void
+  onPlacePoint: (point: NormalizedPoint) => void
   page: DocumentPage
   points: StoredPoint[]
   renderer: PdfPageRenderer
@@ -135,7 +140,6 @@ export function PdfPageViewer({
       {renderedSize.width > 0 && renderedSize.height > 0 && (
         <div
           className="pdf-page-frame"
-          data-page-rotation={page.rotation}
           style={renderedSize}
         >
           <canvas
