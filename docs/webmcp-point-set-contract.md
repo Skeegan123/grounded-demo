@@ -1,7 +1,8 @@
 # Assistance WebMCP contract
 
 The durable Point Set tracer settled the initial contract. The queue extension
-adds text requests and declined responses without changing the two tool names.
+adds Assistance Requests with a text response type and declined Professional
+Responses without changing the two tool names.
 The schemas, annotations, and result shapes are locked by
 `src/webmcp/registerAssistanceTools.test.ts`; the full application path is
 locked independently by `src/application/createGroundedApp.test.tsx`.
@@ -20,8 +21,8 @@ Input fields:
 | `documentVersionId` | non-empty string, required for Point Set |
 | `recommendedPageIds` | array of non-empty page identity strings, required for Point Set |
 
-Text requests contain only `question` and `responseType`. Both discriminated
-shapes reject additional fields. The tool is annotated with
+An Assistance Request with a text response type contains only `question` and
+`responseType`. Both discriminated shapes reject additional fields. The tool is annotated with
 `readOnlyHint: false` and `untrustedContentHint: true`.
 
 Successful creation returns after the request is committed, without waiting for
@@ -70,8 +71,8 @@ Point Set adds this final response:
 Coordinates are normalized from the top-left of the rendered page and remain in
 the inclusive range from zero to one.
 
-An answered text request returns one non-empty plain-text value and may include
-an overall note:
+An answered Assistance Request with a text response type returns one non-empty
+plain-text value and may include an overall note:
 
 ```json
 {
@@ -83,8 +84,8 @@ an overall note:
 }
 ```
 
-A declined request uses the `declined` lifecycle state. Its final Professional
-Response may include a reason:
+A declined Assistance Request uses the `declined` lifecycle state. Its final
+Professional Response may include a reason:
 
 ```json
 {

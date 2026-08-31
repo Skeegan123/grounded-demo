@@ -42,7 +42,7 @@ export function registerAssistanceTools(
       name: 'create_assistance_request',
       title: 'Create an Assistance Request',
       description:
-        'Queue one Point Set or text request for a Senior Project Manager. Returns immediately with the durable request identity.',
+        'Queue one Assistance Request requiring a Point Set or text response from a Senior Project Manager. Returns immediately with the durable request identity.',
       schema: CreateAssistanceRequestInput,
       readOnly: false,
       execute: (input) => assistance.createRequest(input),
