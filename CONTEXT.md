@@ -28,6 +28,10 @@ _Avoid_: User account, Project Workspace
 A construction workflow that evaluates submitted product information against the project's requirements and records findings that affect acceptance or follow-up.
 _Avoid_: Document review, PDF review
 
+**Document Browsing**:
+Exploring construction documents in a Project Workspace independently of any active Assistance Request or Submittal Review.
+_Avoid_: Document review, PDF review
+
 **Assistance Request**:
 A request from an External Agent for one judgment from a Senior Project Manager, with one required response type.
 _Avoid_: Human request, question
@@ -39,3 +43,7 @@ _Avoid_: Human response, answer
 **Point Set**:
 A Professional Response that marks zero or more locations in one document version. Its count is the number of marked locations.
 _Avoid_: Point Selection, point count
+
+**Point Number**:
+A one-based reference unique across every page of one Point Set. Draft numbers remain contiguous as points are edited and become fixed when the Professional Response is submitted; a Point Number does not express priority.
+_Avoid_: Marker number, page-local number, point priority
