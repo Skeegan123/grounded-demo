@@ -27,13 +27,14 @@ sequence:
 
 1. `get_project_workspace`
 2. `list_project_documents`
-3. `inspect_document_evidence` for both submittal pages
-4. `inspect_document_evidence` for A4.3, Doors & Windows
-5. `inspect_document_evidence` for A1.2, 1st Floor Plan
-6. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
+3. `search_project_documents` for the submitted product and contract requirement
+4. `inspect_document_evidence` for the matched submittal blocks
+5. `inspect_document_evidence` for the matched A4.3 door-schedule table
+6. `inspect_document_evidence` for the matched A1.2 floor-plan Search Hint
+7. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
    two submittal pages as supporting references, and A1.2 as the recommended
    page
-7. `get_assistance_request` after the Professional Response
+8. `get_assistance_request` after the Professional Response
 
 This is a tested path through general document and Assistance Request tools,
 not a required workflow. An External Agent may inspect other relevant pages or
@@ -47,6 +48,11 @@ The successful client run discovered these descriptions:
   inspecting its immutable documents."
 - `list_project_documents`: "List immutable document versions and stable page
   or sheet references without changing the visible workspace."
+- `search_project_documents`: "Locate concise prepared-content matches across
+  immutable Project Workspace documents. Search locates evidence and does not
+  answer the question; follow a match with inspect_document_evidence for full
+  context. Search Hints cannot support a claim, and visual interpretation,
+  selection, measurement, or counting requires the Senior Project Manager."
 - `inspect_document_evidence`: "Inspect complete pages or selected blocks from
   one immutable document version without changing the visible workspace.
   Results distinguish source-derived Document Evidence from generated Search
@@ -60,8 +66,9 @@ The successful client run discovered these descriptions:
 
 ## Observed result
 
-The Document Evidence exposed a 24 by 80 inch hollow-core flush submitted door
-and a 24 by 80 inch solid-wood, one-panel Type C contract requirement. The request
+Search located a 24 by 80 inch hollow-core flush submitted door and a 24 by 80
+inch solid-wood, one-panel Type C contract requirement. Inspection returned the
+complete Document Evidence for both matches. The request
 asked the Senior Project Manager to mark every affected Type C opening on A1.2.
 The Senior Project Manager marked WC, Utility, and Coats and submitted one
 final three-point Professional Response.

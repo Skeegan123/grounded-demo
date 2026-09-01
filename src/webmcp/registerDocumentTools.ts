@@ -5,6 +5,21 @@ import type { ModelContextAdapter } from './modelContext'
 
 const EmptyInput = Type.Object({}, { additionalProperties: false })
 
+const SearchProjectDocumentsInput = Type.Object(
+  {
+    query: Type.String({ minLength: 1, maxLength: 300 }),
+    scope: Type.Optional(Type.Object(
+      {
+        documentId: Type.String({ minLength: 1 }),
+        documentVersionId: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false },
+    )),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 20 })),
+  },
+  { additionalProperties: false },
+)
+
 const InspectDocumentEvidenceInput = Type.Union(
   [
     Type.Object(
@@ -57,6 +72,15 @@ export function registerDocumentTools(
       execute: () => ({
         documents: documents.list(),
       }),
+    }),
+    defineTool({
+      name: 'search_project_documents',
+      title: 'Search Project Workspace documents',
+      description:
+        'Locate concise prepared-content matches across immutable Project Workspace documents. Search locates evidence and does not answer the question; follow a match with inspect_document_evidence for full context. Search Hints cannot support a claim, and visual interpretation, selection, measurement, or counting requires the Senior Project Manager.',
+      schema: SearchProjectDocumentsInput,
+      readOnly: true,
+      execute: (input) => documents.search(input),
     }),
     defineTool({
       name: 'inspect_document_evidence',

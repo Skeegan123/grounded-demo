@@ -117,10 +117,12 @@ one local Reducto Parse export at a time. Its required Studio settings,
 validation rules, and command are in
 [`docs/document-evidence-import.md`](docs/document-evidence-import.md).
 
-WebMCP adds three read-only document tools:
+WebMCP adds four read-only document tools:
 
 - `get_project_workspace` introduces the Demo Project.
 - `list_project_documents` returns immutable document versions and page refs.
+- `search_project_documents` returns concise ranked matches across the current
+  prepared artifacts without answering the question.
 - `inspect_document_evidence` returns ordered Document Evidence and labeled
   Search Hints for requested pages or blocks.
 

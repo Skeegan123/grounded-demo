@@ -233,6 +233,165 @@ test('inspection rejects foreign document, page, and block identities plus empty
   })).toThrow('Requested page identities must be unique.')
 })
 
+test('project search finds the Type C contract row with concise linked evidence', () => {
+  const documents = createDocuments()
+  const input = { query: 'Type C 24 x 80 solid wood', limit: 3 }
+  const first = documents.search(input)
+  const repeated = documents.search(input)
+  const match = first.matches[0]!
+
+  expect(repeated).toEqual(first)
+  expect(first.query).toBe('type c 24x80 solid wood')
+  expect(first.matches).toHaveLength(3)
+  expect(first.matches.map((candidate) => candidate.rank)).toEqual([1, 2, 3])
+  expect({
+    rank: match.rank,
+    matchedTerms: match.matchedTerms,
+    document: match.document,
+    page: match.page,
+    block: match.block,
+    matchType: match.matchType,
+    snippet: match.snippet,
+    region: match.region,
+    classification: match.classification,
+    tableRow: match.tableRow,
+  }).toEqual({
+    rank: 1,
+    matchedTerms: ['type', 'c', '24x80', 'solid', 'wood'],
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+      kind: 'contract_drawings',
+      title: 'Virginia Farmhouse drawing set',
+    },
+    page: {
+      id: 'sheet-a4.3',
+      label: 'A4.3',
+      number: 24,
+      title: 'Doors & Windows',
+      sheetNumber: 'A4.3',
+    },
+    block: {
+      id: match.tableRow?.parentBlockId,
+      type: 'Table',
+    },
+    matchType: 'table_row',
+    snippet: 'C | 24"x80" | WOOD | 1-PANEL | SOLID WOOD | ANTIQUE PREFERRED',
+    region: {
+      left: expect.any(Number),
+      top: expect.any(Number),
+      width: expect.any(Number),
+      height: expect.any(Number),
+    },
+    classification: 'document_evidence',
+    tableRow: {
+      id: expect.any(String),
+      parentBlockId: match.block.id,
+      rowIndex: 3,
+      cells: [
+        { text: 'C', header: false, rowSpan: 1, columnSpan: 1 },
+        { text: '24"x80"', header: false, rowSpan: 1, columnSpan: 1 },
+        { text: 'WOOD', header: false, rowSpan: 1, columnSpan: 1 },
+        { text: '1-PANEL', header: false, rowSpan: 1, columnSpan: 1 },
+        { text: 'SOLID WOOD', header: false, rowSpan: 1, columnSpan: 1 },
+        { text: 'ANTIQUE PREFERRED', header: false, rowSpan: 1, columnSpan: 1 },
+      ],
+    },
+  })
+  expect(match.snippet.length).toBeLessThanOrEqual(240)
+})
+
+test('project search finds submitted construction and keeps plan descriptions labeled as Search Hints', () => {
+  const documents = createDocuments()
+  const model = documents.search({ query: 'BRD-HC2480-BIR' })
+  const construction = documents.search({ query: 'hollow honeycomb core' })
+  const fuzzyConstruction = documents.search({ query: 'hollw honeycomb core' })
+  const floorPlan = documents.search({
+    query: 'first floor plan room layout utility coats WC',
+  })
+
+  expect(model.matches[0]).toMatchObject({
+    rank: 1,
+    matchedTerms: ['brd-hc2480-bir'],
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    snippet: 'Model BRD-HC2480-BIR',
+    classification: 'document_evidence',
+  })
+  expect(construction.matches[0]).toMatchObject({
+    rank: 1,
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    matchedTerms: ['hollow', 'honeycomb', 'core'],
+    classification: 'document_evidence',
+  })
+  expect(fuzzyConstruction.matches[0]).toMatchObject({
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    matchedTerms: ['hollw', 'honeycomb', 'core'],
+  })
+  expect(floorPlan.matches[0]).toMatchObject({
+    rank: 1,
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a1.2', sheetNumber: 'A1.2' },
+    block: { type: 'Figure' },
+    matchType: 'block',
+    classification: 'search_hint',
+  })
+  expect(floorPlan.matches[0]!.snippet.length).toBeLessThanOrEqual(240)
+})
+
+test('project search canonicalizes identifiers and dimensions, supports scope, and returns honest empty results', () => {
+  const documents = createDocuments()
+  const sheet = documents.search({ query: 'A4.3' })
+  const mark = documents.search({ query: 'mark C' })
+  const compactDimension = documents.search({ query: '24 x 80' })
+  const writtenDimension = documents.search({ query: '24 in x 80 in' })
+  const scoped = documents.search({
+    query: '24 x 80',
+    scope: {
+      documentId: 'type-c-door-submittal',
+      documentVersionId: 'type-c-door-submittal-v1',
+    },
+  })
+
+  expect(sheet.matches[0]).toMatchObject({
+    page: { id: 'sheet-a4.3' },
+    matchedTerms: ['a4.3'],
+  })
+  expect(mark.matches[0]).toMatchObject({
+    page: { id: 'sheet-a4.3' },
+    matchType: 'table_row',
+    matchedTerms: ['mark', 'c'],
+  })
+  expect(writtenDimension).toEqual(compactDimension)
+  expect(compactDimension.matches.some(
+    (match) => match.document.id === 'virginia-farmhouse-drawings',
+  )).toBe(true)
+  expect(compactDimension.matches.some(
+    (match) => match.document.id === 'type-c-door-submittal',
+  )).toBe(true)
+  expect(scoped.matches.length).toBeGreaterThan(0)
+  expect(scoped.matches.every(
+    (match) => match.document.id === 'type-c-door-submittal',
+  )).toBe(true)
+  expect(documents.search({ query: 'the and of' })).toEqual({
+    query: 'the and of',
+    matches: [],
+  })
+  expect(documents.search({ query: 'xylophone plutonium' })).toEqual({
+    query: 'xylophone plutonium',
+    matches: [],
+  })
+  expect(() => documents.search({
+    query: 'door',
+    scope: {
+      documentId: 'missing-document',
+      documentVersionId: 'missing-version',
+    },
+  })).toThrow('The search scope does not exist in this Project Workspace.')
+})
+
 test('startup rejects missing, duplicate, obsolete, stale, and mismatched artifacts', () => {
   expectInvalidArtifacts(
     (artifacts) => artifacts.shift(),

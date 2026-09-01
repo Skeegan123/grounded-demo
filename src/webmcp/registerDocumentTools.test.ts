@@ -73,6 +73,7 @@ test('an External Agent discovers documents and inspects page or block evidence'
     annotations: [
       modelContext.getTool('get_project_workspace')?.annotations,
       modelContext.getTool('list_project_documents')?.annotations,
+      modelContext.getTool('search_project_documents')?.annotations,
       modelContext.getTool('inspect_document_evidence')?.annotations,
     ],
     obsoleteTool: modelContext.getTool('inspect_document_text'),
@@ -106,7 +107,7 @@ test('an External Agent discovers documents and inspects page or block evidence'
       blocks: [table.id],
       rowParents: [table.id],
     },
-    annotations: Array(3).fill({
+    annotations: Array(4).fill({
       readOnlyHint: true,
       untrustedContentHint: true,
     }),
@@ -146,6 +147,138 @@ test('inspection input requires one exclusive non-empty unique selector', async 
     ...identity,
     pageIds: ['sheet-a4.3'],
     extra: true,
+  })).rejects.toThrow('Invalid input')
+
+  controller.abort()
+})
+
+test('an External Agent searches concise cross-document evidence before inspection', async () => {
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(
+    modelContext,
+    createDocuments(),
+    controller.signal,
+  )
+
+  const contract = await modelContext.executeTool('search_project_documents', {
+    query: 'Type C 24 x 80 solid wood',
+    limit: 2,
+  }) as {
+    query: string
+    matches: Array<{
+      rank: number
+      matchedTerms: string[]
+      document: { id: string; versionId: string }
+      page: { id: string; sheetNumber?: string }
+      block: { id: string; type: string }
+      matchType: string
+      snippet: string
+      region: unknown
+      classification: string
+      tableRow?: {
+        parentBlockId: string
+        cells: Array<{ text: string }>
+      }
+    }>
+  }
+  const product = await modelContext.executeTool('search_project_documents', {
+    query: 'BRD-HC2480-BIR',
+  }) as typeof contract
+  const searchTool = modelContext.getTool('search_project_documents')
+
+  const contractMatch = contract.matches[0]!
+  expect({
+    query: contract.query,
+    rank: contractMatch.rank,
+    matchedTerms: contractMatch.matchedTerms,
+    document: {
+      id: contractMatch.document.id,
+      versionId: contractMatch.document.versionId,
+    },
+    page: {
+      id: contractMatch.page.id,
+      sheetNumber: contractMatch.page.sheetNumber,
+    },
+    block: contractMatch.block,
+    matchType: contractMatch.matchType,
+    snippet: contractMatch.snippet,
+    region: contractMatch.region,
+    classification: contractMatch.classification,
+    parentBlockId: contractMatch.tableRow?.parentBlockId,
+    cells: contractMatch.tableRow?.cells.map((cell) => cell.text),
+  }).toEqual({
+    query: 'type c 24x80 solid wood',
+    rank: 1,
+    matchedTerms: ['type', 'c', '24x80', 'solid', 'wood'],
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: 'sheet-a4.3', sheetNumber: 'A4.3' },
+    block: { id: expect.any(String), type: 'Table' },
+    matchType: 'table_row',
+    snippet: 'C | 24"x80" | WOOD | 1-PANEL | SOLID WOOD | ANTIQUE PREFERRED',
+    region: {
+      left: expect.any(Number),
+      top: expect.any(Number),
+      width: expect.any(Number),
+      height: expect.any(Number),
+    },
+    classification: 'document_evidence',
+    parentBlockId: contractMatch.block.id,
+    cells: ['C', '24"x80"', 'WOOD', '1-PANEL', 'SOLID WOOD', 'ANTIQUE PREFERRED'],
+  })
+  expect(contract.matches).toHaveLength(2)
+  expect(product.matches[0]).toMatchObject({
+    rank: 1,
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    snippet: 'Model BRD-HC2480-BIR',
+    classification: 'document_evidence',
+  })
+  expect(searchTool?.annotations).toEqual({
+    readOnlyHint: true,
+    untrustedContentHint: true,
+  })
+  expect(searchTool?.description).toContain('does not answer the question')
+  expect(searchTool?.description).toContain('inspect_document_evidence')
+  expect(searchTool?.description).toContain('Search Hints cannot support a claim')
+  expect(searchTool?.description).toContain('requires the Senior Project Manager')
+
+  controller.abort()
+})
+
+test('search input is bounded and requires a complete immutable scope', async () => {
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(
+    modelContext,
+    createDocuments(),
+    controller.signal,
+  )
+
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: '',
+  })).rejects.toThrow('Invalid input')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: '   ',
+  })).rejects.toThrow('A non-empty search query is required.')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: 'door',
+    limit: 0,
+  })).rejects.toThrow('Invalid input')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: 'door',
+    limit: 21,
+  })).rejects.toThrow('Invalid input')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: 'door',
+    extra: true,
+  })).rejects.toThrow('Invalid input')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: 'door',
+    scope: { documentId: 'virginia-farmhouse-drawings' },
   })).rejects.toThrow('Invalid input')
 
   controller.abort()

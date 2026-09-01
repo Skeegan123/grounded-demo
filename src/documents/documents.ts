@@ -6,6 +6,10 @@ import {
 import typeCSubmittalEvidence from './generated/type-c-door-submittal-v1.json'
 import virginiaFarmhouseEvidence from './generated/virginia-farmhouse-drawings-v1.json'
 import {
+  createDocumentSearch,
+  type SearchProjectDocumentsInput,
+} from './documentSearch'
+import {
   validatePreparedEvidenceArtifacts,
   type PreparedEvidenceArtifact,
   type PreparedEvidencePage,
@@ -86,6 +90,7 @@ export function createDocuments({
     artifactSource,
     project.documents,
   )
+  const searchDocuments = createDocumentSearch(artifacts)
 
   return {
     describeProject: () => ({
@@ -102,6 +107,9 @@ export function createDocuments({
       pageCount: document.pages.length,
       pages: document.pages.map(catalogPageReference),
     })),
+    search(input: SearchProjectDocumentsInput) {
+      return searchDocuments(input)
+    },
     inspectEvidence(input: InspectDocumentEvidenceInput) {
       const artifact = artifacts.find(
         (candidate) =>

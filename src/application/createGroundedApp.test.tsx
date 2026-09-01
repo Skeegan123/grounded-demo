@@ -755,7 +755,7 @@ test('a validation failure explains how to submit the requested Professional Res
   )
 })
 
-test('External Agent document inspection leaves the visible workspace and unfinished Point Set draft unchanged', async () => {
+test('External Agent document search and inspection leave the visible workspace and unfinished Point Set draft unchanged', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
   render(
@@ -796,6 +796,22 @@ test('External Agent document inspection leaves the visible workspace and unfini
   await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await user.type(screen.getByLabelText('Overall note optional'), 'Keep this draft')
+
+  const visibleState = () => ({
+    document: screen.getByRole('heading', {
+      name: 'Type C interior door product data and review cover',
+    }).textContent,
+    page: screen.getByRole('button', { name: /Current page:/ }).textContent,
+    zoom: screen.getByText('110%').textContent,
+    assistance: screen.getByRole('heading', { name: 'Current Assistance' }).textContent,
+    pointCount: screen.getByText('1 point').textContent,
+    note: (screen.getByLabelText('Overall note optional') as HTMLTextAreaElement).value,
+  })
+  const beforeSearch = visibleState()
+  await modelContext.executeTool('search_project_documents', {
+    query: 'Type C 24 x 80 solid wood',
+  })
+  expect(visibleState()).toEqual(beforeSearch)
 
   await modelContext.executeTool('inspect_document_evidence', {
     documentId: 'virginia-farmhouse-drawings',
