@@ -773,12 +773,31 @@ test('External Agent document inspection leaves the visible workspace and unfini
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  const targetPage = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(targetPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(targetPage, { clientX: 40, clientY: 60 })
+  await screen.findByText('1 point')
+
   await chooseDocument(user, /Type C interior door product data and review cover/i)
   await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await user.type(screen.getByLabelText('Overall note optional'), 'Keep this draft')
 
-  await modelContext.executeTool('inspect_document_text', {
+  await modelContext.executeTool('inspect_document_evidence', {
     documentId: 'virginia-farmhouse-drawings',
     documentVersionId: 'virginia-farmhouse-drawings-v1',
     pageIds: ['sheet-a4.3'],
@@ -791,12 +810,14 @@ test('External Agent document inspection leaves the visible workspace and unfini
     page: screen.getByRole('button', { name: /Current page:/ }),
     zoom: screen.getByText('110%'),
     assistance: screen.getByRole('heading', { name: 'Current Assistance' }),
+    pointCount: screen.getByText('1 point'),
     note: screen.getByLabelText('Overall note optional'),
   }).toEqual({
     document: expect.any(HTMLElement),
     page: expect.any(HTMLElement),
     zoom: expect.any(HTMLElement),
     assistance: expect.any(HTMLElement),
+    pointCount: expect.any(HTMLElement),
     note: expect.objectContaining({ value: 'Keep this draft' }),
   })
 })

@@ -5,16 +5,31 @@ import type { ModelContextAdapter } from './modelContext'
 
 const EmptyInput = Type.Object({}, { additionalProperties: false })
 
-const InspectDocumentTextInput = Type.Object(
-  {
-    documentId: Type.String({ minLength: 1 }),
-    documentVersionId: Type.String({ minLength: 1 }),
-    pageIds: Type.Array(Type.String({ minLength: 1 }), {
-      minItems: 1,
-      uniqueItems: true,
-    }),
-  },
-  { additionalProperties: false },
+const InspectDocumentEvidenceInput = Type.Union(
+  [
+    Type.Object(
+      {
+        documentId: Type.String({ minLength: 1 }),
+        documentVersionId: Type.String({ minLength: 1 }),
+        pageIds: Type.Array(Type.String({ minLength: 1 }), {
+          minItems: 1,
+          uniqueItems: true,
+        }),
+      },
+      { additionalProperties: false },
+    ),
+    Type.Object(
+      {
+        documentId: Type.String({ minLength: 1 }),
+        documentVersionId: Type.String({ minLength: 1 }),
+        blockIds: Type.Array(Type.String({ minLength: 1 }), {
+          minItems: 1,
+          uniqueItems: true,
+        }),
+      },
+      { additionalProperties: false },
+    ),
+  ],
 )
 
 export function registerDocumentTools(
@@ -44,13 +59,13 @@ export function registerDocumentTools(
       }),
     }),
     defineTool({
-      name: 'inspect_document_text',
-      title: 'Inspect prepared document text',
+      name: 'inspect_document_evidence',
+      title: 'Inspect prepared Document Evidence',
       description:
-        'Return prepared positioned text for specified stable page identities in one immutable document version.',
-      schema: InspectDocumentTextInput,
+        'Inspect complete pages or selected blocks from one immutable document version without changing the visible workspace. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
+      schema: InspectDocumentEvidenceInput,
       readOnly: true,
-      execute: (input) => documents.inspectText(input),
+      execute: (input) => documents.inspectEvidence(input),
     }),
   ]
 

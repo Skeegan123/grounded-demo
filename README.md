@@ -111,27 +111,18 @@ in `public/demo-project/`. Their creator, source, license, retrieval details,
 checksums, byte sizes, and page counts are recorded in
 `public/demo-project/ASSET-NOTICES.md`.
 
-The generated `DocumentIndex` files live under
-`src/documents/generated/`. Regenerate them after replacing either PDF:
-
-```bash
-pnpm prepare:demo-project-index
-```
-
-The generator tries PDF.js embedded-text extraction first. The drawing set uses
-outlined lettering, so each drawing page falls back to build-time Tesseract OCR.
-The submittal retains its embedded text. The application does not run OCR in the
-browser.
-
-The version 2 Document Evidence importer converts one local Reducto Parse export
-at a time. Its required Studio settings, validation rules, and command are in
+One schema version 2 Document Evidence artifact is committed for each immutable
+document version under `src/documents/generated/`. The offline importer converts
+one local Reducto Parse export at a time. Its required Studio settings,
+validation rules, and command are in
 [`docs/document-evidence-import.md`](docs/document-evidence-import.md).
 
 WebMCP adds three read-only document tools:
 
 - `get_project_workspace` introduces the Demo Project.
 - `list_project_documents` returns immutable document versions and page refs.
-- `inspect_document_text` returns prepared positioned text for requested pages.
+- `inspect_document_evidence` returns ordered Document Evidence and labeled
+  Search Hints for requested pages or blocks.
 
 ## License
 

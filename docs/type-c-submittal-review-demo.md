@@ -27,9 +27,9 @@ sequence:
 
 1. `get_project_workspace`
 2. `list_project_documents`
-3. `inspect_document_text` for both submittal pages
-4. `inspect_document_text` for A4.3, Doors & Windows
-5. `inspect_document_text` for A1.2, 1st Floor Plan
+3. `inspect_document_evidence` for both submittal pages
+4. `inspect_document_evidence` for A4.3, Doors & Windows
+5. `inspect_document_evidence` for A1.2, 1st Floor Plan
 6. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
    two submittal pages as supporting references, and A1.2 as the recommended
    page
@@ -47,8 +47,10 @@ The successful client run discovered these descriptions:
   inspecting its immutable documents."
 - `list_project_documents`: "List immutable document versions and stable page
   or sheet references without changing the visible workspace."
-- `inspect_document_text`: "Return prepared positioned text for specified
-  stable page identities in one immutable document version."
+- `inspect_document_evidence`: "Inspect complete pages or selected blocks from
+  one immutable document version without changing the visible workspace.
+  Results distinguish source-derived Document Evidence from generated Search
+  Hints, which can locate content but cannot support a claim by themselves."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
   Set or text response from a Senior Project Manager. For a Point Set, include
   references to other immutable documents that support the requested judgment.
@@ -58,8 +60,8 @@ The successful client run discovered these descriptions:
 
 ## Observed result
 
-The document text exposed a 24 by 80 inch hollow-core flush submitted door and
-a 24 by 80 inch solid-wood, one-panel Type C contract requirement. The request
+The Document Evidence exposed a 24 by 80 inch hollow-core flush submitted door
+and a 24 by 80 inch solid-wood, one-panel Type C contract requirement. The request
 asked the Senior Project Manager to mark every affected Type C opening on A1.2.
 The Senior Project Manager marked WC, Utility, and Coats and submitted one
 final three-point Professional Response.

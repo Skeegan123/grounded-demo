@@ -1,17 +1,30 @@
-import { demoProject } from '../demoProject/demoProject'
-import preparedDocumentIndexes from './generated/demoProjectIndexes.json'
+import { demoProject, type DocumentPage } from '../demoProject/demoProject'
+import typeCSubmittalEvidence from './generated/type-c-door-submittal-v1.json'
+import virginiaFarmhouseEvidence from './generated/virginia-farmhouse-drawings-v1.json'
 import {
-  validateDocumentIndexes,
-  type DocumentIndex,
-} from './documentIndex'
+  validatePreparedEvidenceArtifacts,
+  type PreparedEvidenceArtifact,
+  type PreparedEvidencePage,
+} from './preparedEvidence'
 
-export interface InspectDocumentTextInput {
-  documentId: string
-  documentVersionId: string
-  pageIds: string[]
-}
+export type InspectDocumentEvidenceInput =
+  | {
+      documentId: string
+      documentVersionId: string
+      pageIds: string[]
+    }
+  | {
+      documentId: string
+      documentVersionId: string
+      blockIds: string[]
+    }
 
-function pageReference(page: DocumentIndex['pages'][number]['page']) {
+const preparedEvidenceArtifacts: unknown = [
+  virginiaFarmhouseEvidence,
+  typeCSubmittalEvidence,
+]
+
+function catalogPageReference(page: DocumentPage) {
   return {
     id: page.id,
     label: page.label,
@@ -21,8 +34,46 @@ function pageReference(page: DocumentIndex['pages'][number]['page']) {
   }
 }
 
-export function createDocuments(indexSource: unknown = preparedDocumentIndexes) {
-  const indexes = validateDocumentIndexes(indexSource, demoProject.documents)
+function inspectPage(
+  page: PreparedEvidencePage,
+  selectedBlockIds?: Set<string>,
+) {
+  const blocks = selectedBlockIds
+    ? page.blocks.filter((block) => selectedBlockIds.has(block.id))
+    : page.blocks
+  const parentIds = new Set(blocks.map((block) => block.id))
+  return {
+    page: page.page,
+    blocks,
+    tableRows: page.tableRows.filter((row) => parentIds.has(row.parentBlockId)),
+    ...(page.lowLevelOcr ? { lowLevelOcr: page.lowLevelOcr } : {}),
+  }
+}
+
+function inspectionResult(
+  artifact: PreparedEvidenceArtifact,
+  pages: ReturnType<typeof inspectPage>[],
+) {
+  return {
+    document: artifact.document,
+    source: artifact.source,
+    provenance: artifact.provenance,
+    pages,
+  }
+}
+
+function requireUniqueSelection(ids: string[], kind: 'page' | 'block') {
+  if (ids.length === 0) throw new Error(`At least one ${kind} identity is required.`)
+  if (new Set(ids).size !== ids.length) {
+    throw new Error(`Requested ${kind} identities must be unique.`)
+  }
+}
+
+export function createDocuments(artifactSource: unknown = preparedEvidenceArtifacts) {
+  const artifacts = validatePreparedEvidenceArtifacts(
+    artifactSource,
+    demoProject.documents,
+  )
 
   return {
     describeProject: () => ({
@@ -37,44 +88,52 @@ export function createDocuments(indexSource: unknown = preparedDocumentIndexes) 
       title: document.title,
       description: document.description,
       pageCount: document.pages.length,
-      pages: document.pages.map(pageReference),
+      pages: document.pages.map(catalogPageReference),
     })),
-    inspectText(input: InspectDocumentTextInput) {
-      const index = indexes.find(
+    inspectEvidence(input: InspectDocumentEvidenceInput) {
+      const artifact = artifacts.find(
         (candidate) =>
-          candidate.documentId === input.documentId &&
-          candidate.documentVersionId === input.documentVersionId,
+          candidate.document.id === input.documentId &&
+          candidate.document.versionId === input.documentVersionId,
       )
-      if (!index) {
+      if (!artifact) {
         throw new Error('The document version does not exist in this Project Workspace.')
       }
-      if (input.pageIds.length === 0) {
-        throw new Error('At least one page identity is required.')
+
+      if ('pageIds' in input) {
+        requireUniqueSelection(input.pageIds, 'page')
+        const selectedPageIds = new Set(input.pageIds)
+        for (const pageId of selectedPageIds) {
+          if (!artifact.pages.some((page) => page.page.id === pageId)) {
+            throw new Error('A requested page does not belong to the document version.')
+          }
+        }
+        return inspectionResult(
+          artifact,
+          artifact.pages
+            .filter((page) => selectedPageIds.has(page.page.id))
+            .map((page) => inspectPage(page)),
+        )
       }
 
-      const pages = input.pageIds.map((pageId) => {
-        const page = index.pages.find((candidate) => candidate.page.id === pageId)
-        if (!page) {
-          throw new Error('A requested page does not belong to the document version.')
+      requireUniqueSelection(input.blockIds, 'block')
+      const selectedBlockIds = new Set(input.blockIds)
+      const availableBlockIds = new Set(
+        artifact.pages.flatMap((page) => page.blocks.map((block) => block.id)),
+      )
+      for (const blockId of selectedBlockIds) {
+        if (!availableBlockIds.has(blockId)) {
+          throw new Error('A requested block does not belong to the document version.')
         }
-
-        return {
-          page: pageReference(page.page),
-          width: page.width,
-          height: page.height,
-          rotation: page.rotation,
-          status: page.status,
-          ...(page.failure ? { failure: page.failure } : {}),
-          text: page.runs.map((run) => run.text).join('\n'),
-          runs: page.runs,
-        }
-      })
-
-      return {
-        document: { id: index.documentId, versionId: index.documentVersionId },
-        extractor: index.extractor,
-        pages,
       }
+      return inspectionResult(
+        artifact,
+        artifact.pages
+          .filter((page) =>
+            page.blocks.some((block) => selectedBlockIds.has(block.id)),
+          )
+          .map((page) => inspectPage(page, selectedBlockIds)),
+      )
     },
   }
 }
