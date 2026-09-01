@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "projectWorkspace": {
+    "id": "importer-fixture",
+    "title": "Importer fixture",
+    "description": "Compact importer coverage"
+  },
+  "documents": [
+    {
+      "id": "fixture-drawings",
+      "versionId": "fixture-drawings-v1",
+      "kind": "contract_drawings",
+      "title": "Fixture drawings",
+      "description": "Two representative drawing pages",
+      "file": {
+        "name": "drawing.pdf",
+        "url": "/fixtures/drawing.pdf",
+        "byteSize": 20,
+        "sha256": "ea0739d6335054df5f3dad59e326efc5963b93377648a39c3973bf0f0d986231",
+        "pageCount": 2
+      },
+      "pages": [
+        {
+          "id": "fixture-sheet-a1.0",
+          "label": "A1.0",
+          "number": 1,
+          "title": "Floor plan",
+          "sheetNumber": "A1.0",
+          "width": 1224,
+          "height": 792,
+          "rotation": 0
+        },
+        {
+          "id": "fixture-sheet-a5.0",
+          "label": "A5.0",
+          "number": 2,
+          "title": "Schedules",
+          "sheetNumber": "A5.0",
+          "width": 1224,
+          "height": 792,
+          "rotation": 0
+        }
+      ]
+    },
+    {
+      "id": "fixture-submittal",
+      "versionId": "fixture-submittal-v3",
+      "kind": "submittal_product_data",
+      "title": "Fixture product data",
+      "description": "One representative supporting-document page",
+      "file": {
+        "name": "supporting.pdf",
+        "url": "/fixtures/supporting.pdf",
+        "byteSize": 23,
+        "sha256": "1f664c5a22a3148063e7c51457ccc79a8a923638333e360c9cb4966efcca9dcb",
+        "pageCount": 1
+      },
+      "pages": [
+        {
+          "id": "fixture-submittal-page-1",
+          "label": "1",
+          "number": 1,
+          "title": "Door product data",
+          "width": 612,
+          "height": 792,
+          "rotation": 0
+        }
+      ]
+    }
+  ]
+}

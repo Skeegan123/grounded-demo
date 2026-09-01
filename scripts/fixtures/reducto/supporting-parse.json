@@ -1,0 +1,66 @@
+{
+  "job_id": "transient-supporting-job",
+  "duration": 2.1,
+  "usage": {
+    "num_pages": 1,
+    "credits": 2
+  },
+  "result": {
+    "type": "full",
+    "chunks": [
+      {
+        "content": "# Interior Door\n\nModel: HC-2480\n\nHollow honeycomb core",
+        "blocks": [
+          {
+            "type": "Title",
+            "content": "Interior Door Product Data",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.05,
+              "width": 0.55,
+              "height": 0.05,
+              "page": 1,
+              "original_page": 1
+            },
+            "confidence": "high"
+          },
+          {
+            "type": "Key Value",
+            "content": "Model: HC-2480",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.16,
+              "width": 0.35,
+              "height": 0.04,
+              "page": 1,
+              "original_page": 1
+            },
+            "confidence": "high"
+          },
+          {
+            "type": "Text",
+            "content": "Door construction: Hollow honeycomb core",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.23,
+              "width": 0.65,
+              "height": 0.05,
+              "page": 1,
+              "original_page": 1
+            },
+            "granular_confidence": {
+              "parse_confidence": 0.88,
+              "extract_confidence": null
+            }
+          }
+        ]
+      }
+    ],
+    "ocr": {
+      "lines": [],
+      "words": []
+    }
+  },
+  "response_type": "parse",
+  "studio_link": "https://studio.reducto.invalid/job/transient-supporting-job"
+}

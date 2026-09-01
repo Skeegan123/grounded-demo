@@ -123,6 +123,10 @@ outlined lettering, so each drawing page falls back to build-time Tesseract OCR.
 The submittal retains its embedded text. The application does not run OCR in the
 browser.
 
+The version 2 Document Evidence importer converts one local Reducto Parse export
+at a time. Its required Studio settings, validation rules, and command are in
+[`docs/document-evidence-import.md`](docs/document-evidence-import.md).
+
 WebMCP adds three read-only document tools:
 
 - `get_project_workspace` introduces the Demo Project.
