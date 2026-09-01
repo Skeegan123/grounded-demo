@@ -334,5 +334,6 @@ function searchablePageText(page: DocumentPage) {
 }
 
 function formatDocumentKind(kind: ProjectDocument['kind']) {
-  return kind === 'contract_drawings' ? 'Contract drawings' : 'Submittal product data'
+  const label = kind.trim().split(/[_\s-]+/).join(' ').toLowerCase()
+  return `${label.charAt(0).toUpperCase()}${label.slice(1)}`
 }

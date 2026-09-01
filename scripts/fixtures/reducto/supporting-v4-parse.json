@@ -1,0 +1,97 @@
+{
+  "job_id": "transient-supporting-v4-job",
+  "duration": 3.2,
+  "usage": {
+    "num_pages": 2,
+    "credits": 4
+  },
+  "result": {
+    "type": "full",
+    "chunks": [
+      {
+        "content": "# Replacement review cover\n\nRevision: 4",
+        "blocks": [
+          {
+            "type": "Title",
+            "content": "Replacement Door Submittal",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.05,
+              "width": 0.55,
+              "height": 0.05,
+              "page": 1,
+              "original_page": 1
+            },
+            "confidence": "high"
+          },
+          {
+            "type": "Key Value",
+            "content": "Revision: 4",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.16,
+              "width": 0.25,
+              "height": 0.04,
+              "page": 1,
+              "original_page": 1
+            },
+            "confidence": "high"
+          }
+        ]
+      },
+      {
+        "content": "# Revised Door Product Data\n\nModel: SW-2480\n\nSolid wood core",
+        "blocks": [
+          {
+            "type": "Title",
+            "content": "Revised Door Product Data",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.05,
+              "width": 0.55,
+              "height": 0.05,
+              "page": 2,
+              "original_page": 2
+            },
+            "confidence": "high"
+          },
+          {
+            "type": "Key Value",
+            "content": "Model: SW-2480",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.16,
+              "width": 0.35,
+              "height": 0.04,
+              "page": 2,
+              "original_page": 2
+            },
+            "confidence": "high"
+          },
+          {
+            "type": "Text",
+            "content": "Door construction: Solid wood core",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.23,
+              "width": 0.65,
+              "height": 0.05,
+              "page": 2,
+              "original_page": 2
+            },
+            "granular_confidence": {
+              "parse_confidence": 0.93,
+              "extract_confidence": null
+            }
+          }
+        ]
+      }
+    ],
+    "ocr": {
+      "lines": [],
+      "words": []
+    }
+  },
+  "response_type": "parse",
+  "studio_link": "https://studio.reducto.invalid/job/transient-supporting-v4-job"
+}

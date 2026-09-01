@@ -1,4 +1,8 @@
-import { demoProject, type DocumentPage } from '../demoProject/demoProject'
+import {
+  demoProject,
+  type DocumentPage,
+  type ProjectWorkspace,
+} from '../demoProject/demoProject'
 import typeCSubmittalEvidence from './generated/type-c-door-submittal-v1.json'
 import virginiaFarmhouseEvidence from './generated/virginia-farmhouse-drawings-v1.json'
 import {
@@ -23,6 +27,11 @@ const preparedEvidenceArtifacts: unknown = [
   virginiaFarmhouseEvidence,
   typeCSubmittalEvidence,
 ]
+
+interface CreateDocumentsOptions {
+  project?: ProjectWorkspace
+  artifacts?: unknown
+}
 
 function catalogPageReference(page: DocumentPage) {
   return {
@@ -69,19 +78,22 @@ function requireUniqueSelection(ids: string[], kind: 'page' | 'block') {
   }
 }
 
-export function createDocuments(artifactSource: unknown = preparedEvidenceArtifacts) {
+export function createDocuments({
+  project = demoProject,
+  artifacts: artifactSource = preparedEvidenceArtifacts,
+}: CreateDocumentsOptions = {}) {
   const artifacts = validatePreparedEvidenceArtifacts(
     artifactSource,
-    demoProject.documents,
+    project.documents,
   )
 
   return {
     describeProject: () => ({
-      id: demoProject.id,
-      title: demoProject.title,
-      description: demoProject.description,
+      id: project.id,
+      title: project.title,
+      description: project.description,
     }),
-    list: () => demoProject.documents.map((document) => ({
+    list: () => project.documents.map((document) => ({
       id: document.id,
       versionId: document.versionId,
       kind: document.kind,

@@ -14,7 +14,7 @@ export interface DocumentPage {
 export interface ProjectDocument {
   id: string
   versionId: string
-  kind: 'contract_drawings' | 'submittal_product_data'
+  kind: string
   title: string
   description: string
   file: {
@@ -38,27 +38,41 @@ export interface SupportingDocumentReference {
   pageIds: string[]
 }
 
-function projectDocumentKind(kind: string): ProjectDocument['kind'] {
-  if (kind === 'contract_drawings' || kind === 'submittal_product_data') {
-    return kind
-  }
-
-  throw new Error(`Unsupported Demo Project document kind: ${kind}`)
-}
-
-export const demoProject: {
+export interface ProjectWorkspace {
   id: string
   title: string
   description: string
   documents: ProjectDocument[]
-} = {
-  ...demoProjectManifest.projectWorkspace,
-  documents: demoProjectManifest.documents.map((document) => ({
-    ...document,
-    kind: projectDocumentKind(document.kind),
-    pages: document.pages.map((page) => ({ ...page })),
-  })),
 }
+
+interface ProjectWorkspaceManifest {
+  projectWorkspace: Omit<ProjectWorkspace, 'documents'>
+  documents: ProjectDocument[]
+}
+
+function projectDocumentKind(kind: string) {
+  if (kind.trim()) {
+    return kind
+  }
+
+  throw new Error('Demo Project document kind must be a non-empty string.')
+}
+
+export function createProjectWorkspace(
+  manifest: ProjectWorkspaceManifest,
+): ProjectWorkspace {
+  return {
+    ...manifest.projectWorkspace,
+    documents: manifest.documents.map((document) => ({
+      ...document,
+      kind: projectDocumentKind(document.kind),
+      file: { ...document.file },
+      pages: document.pages.map((page) => ({ ...page })),
+    })),
+  }
+}
+
+export const demoProject = createProjectWorkspace(demoProjectManifest)
 
 export function findDocument(documentId: string, versionId: string) {
   return demoProject.documents.find(

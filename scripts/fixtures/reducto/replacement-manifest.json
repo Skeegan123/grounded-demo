@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "projectWorkspace": {
+    "id": "replacement-importer-fixture",
+    "title": "Replacement importer fixture",
+    "description": "Controlled one-document replacement coverage"
+  },
+  "documents": [
+    {
+      "id": "fixture-drawings",
+      "versionId": "fixture-drawings-v1",
+      "kind": "contract_drawings",
+      "title": "Fixture drawings",
+      "description": "Two representative drawing pages",
+      "file": {
+        "name": "drawing.pdf",
+        "url": "/fixtures/drawing.pdf",
+        "byteSize": 20,
+        "sha256": "ea0739d6335054df5f3dad59e326efc5963b93377648a39c3973bf0f0d986231",
+        "pageCount": 2
+      },
+      "pages": [
+        {
+          "id": "fixture-sheet-a1.0",
+          "label": "A1.0",
+          "number": 1,
+          "title": "Floor plan",
+          "sheetNumber": "A1.0",
+          "width": 1224,
+          "height": 792,
+          "rotation": 0
+        },
+        {
+          "id": "fixture-sheet-a5.0",
+          "label": "A5.0",
+          "number": 2,
+          "title": "Schedules",
+          "sheetNumber": "A5.0",
+          "width": 1224,
+          "height": 792,
+          "rotation": 0
+        }
+      ]
+    },
+    {
+      "id": "fixture-submittal",
+      "versionId": "fixture-submittal-v4",
+      "kind": "submittal_product_data",
+      "title": "Replacement fixture product data",
+      "description": "Two-page replacement supporting document",
+      "file": {
+        "name": "supporting-v4.pdf",
+        "url": "/fixtures/supporting-v4.pdf",
+        "byteSize": 41,
+        "sha256": "8881b15d0a31d09b7e90e69c85d01f1b024b4b7d89eb0b81062be59622cabe0b",
+        "pageCount": 2
+      },
+      "pages": [
+        {
+          "id": "fixture-submittal-v4-cover",
+          "label": "1",
+          "number": 1,
+          "title": "Replacement review cover",
+          "width": 612,
+          "height": 792,
+          "rotation": 0
+        },
+        {
+          "id": "fixture-submittal-v4-product-data",
+          "label": "2",
+          "number": 2,
+          "title": "Revised door product data",
+          "width": 612,
+          "height": 792,
+          "rotation": 0
+        }
+      ]
+    },
+    {
+      "id": "fixture-estimate",
+      "versionId": "fixture-estimate-v1",
+      "kind": "estimate",
+      "title": "Fixture estimate",
+      "description": "Independent estimating workflow document",
+      "file": {
+        "name": "estimate.pdf",
+        "url": "/fixtures/estimate.pdf",
+        "byteSize": 35,
+        "sha256": "9cbdaf7af491c087cc5a53908017230e66e30c2a17c4052e16151dd2f707f427",
+        "pageCount": 1
+      },
+      "pages": [
+        {
+          "id": "fixture-estimate-page-1",
+          "label": "1",
+          "number": 1,
+          "title": "Door allowance estimate",
+          "width": 612,
+          "height": 792,
+          "rotation": 0
+        }
+      ]
+    }
+  ]
+}

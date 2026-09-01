@@ -18,8 +18,8 @@ function expectInvalidArtifacts(
 ) {
   const artifacts = clonedArtifacts()
   mutate(artifacts)
-  expect(() => createDocuments(artifacts)).toThrow(expectedMessage)
-  expect(() => createDocuments(artifacts)).toThrow(
+  expect(() => createDocuments({ artifacts })).toThrow(expectedMessage)
+  expect(() => createDocuments({ artifacts })).toThrow(
     `pnpm import:document-evidence --document ${expectedDocumentId} --export <parse-export.json>`,
   )
 }
