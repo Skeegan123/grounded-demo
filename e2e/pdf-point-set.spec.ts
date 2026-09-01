@@ -307,6 +307,81 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
 })
 
+test('point controls stay centered, stable, and attached to their point', async ({
+  page,
+}) => {
+  await installRecordedTools(page)
+  await page.goto('/')
+  await createPointSetRequest(page)
+  await page.getByRole('button', { name: 'Go to target' }).click()
+
+  const overlay = page.getByLabel('Drawing page A1.2')
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const bounds = await overlay.boundingBox()
+  if (!bounds) throw new Error('The target overlay has no browser bounds.')
+
+  await page.mouse.click(
+    bounds.x + bounds.width * 0.35,
+    bounds.y + bounds.height * 0.4,
+  )
+  await page.mouse.click(
+    bounds.x + bounds.width * 0.7,
+    bounds.y + bounds.height * 0.3,
+  )
+
+  const firstPin = overlay.getByRole('button', { name: 'Point 1', exact: true })
+  const pinBounds = await firstPin.boundingBox()
+  const labelBounds = await firstPin.locator('.point-pin-label').boundingBox()
+  if (!pinBounds || !labelBounds) {
+    throw new Error('The Point Set pin or label has no browser bounds.')
+  }
+  expect.soft(pinBounds.width).toBeCloseTo(34, 0)
+  expect.soft(pinBounds.height).toBeCloseTo(34, 0)
+  expect.soft(labelBounds.x + labelBounds.width / 2)
+    .toBeCloseTo(pinBounds.x + pinBounds.width / 2, 0)
+  expect.soft(labelBounds.y + labelBounds.height / 2)
+    .toBeCloseTo(pinBounds.y + pinBounds.height * (10 / 24), 0)
+
+  await firstPin.hover()
+  const removeFirst = overlay.getByRole('button', { name: 'Remove point 1' })
+  const removeStart = await removeFirst.boundingBox()
+  await expect.poll(() => removeFirst.evaluate(
+    (element) => getComputedStyle(element).opacity,
+  )).toBe('1')
+  const removeEnd = await removeFirst.boundingBox()
+  if (!removeStart || !removeEnd) {
+    throw new Error('The Point Set remove control has no browser bounds.')
+  }
+  expect.soft(removeEnd.x).toBeCloseTo(removeStart.x, 1)
+  expect.soft(removeEnd.y).toBeCloseTo(removeStart.y, 1)
+  expect.soft(removeEnd.x + removeEnd.width / 2)
+    .toBeCloseTo(pinBounds.x + pinBounds.width + 4, 0)
+  expect.soft(removeEnd.y + removeEnd.height / 2)
+    .toBeCloseTo(pinBounds.y + 4, 0)
+  expect.soft(await removeFirst.evaluate(
+    (element) => getComputedStyle(element).transitionProperty,
+  )).toBe('opacity')
+
+  await page.mouse.move(
+    removeEnd.x + removeEnd.width / 2,
+    removeEnd.y + removeEnd.height / 2,
+    { steps: 5 },
+  )
+  await expect.poll(() => removeFirst.evaluate(
+    (element) => getComputedStyle(element).opacity,
+  )).toBe('1')
+  await removeFirst.click()
+  await expect(page.getByText('1 point')).toBeVisible()
+
+  const remainingRemove = overlay.getByRole('button', { name: 'Remove point 1' })
+  expect.soft(await remainingRemove.evaluate(
+    (element) => element === document.activeElement,
+  )).toBe(false)
+  await expect.poll(() => remainingRemove.evaluate(
+    (element) => getComputedStyle(element).opacity,
+  )).toBe('0')
+})
+
 test('clicks place compact pins while drags and marker removal stay safe', async ({
   page,
 }) => {
@@ -361,8 +436,8 @@ test('clicks place compact pins while drags and marker removal stay safe', async
   const firstPin = overlay.getByRole('button', { name: 'Point 1', exact: true })
   const pinSize = await firstPin.boundingBox()
   if (!pinSize) throw new Error('The Point Set pin has no browser bounds.')
-  expect(pinSize.width).toBeCloseTo(24, 0)
-  expect(pinSize.height).toBeCloseTo(24, 0)
+  expect(pinSize.width).toBeCloseTo(34, 0)
+  expect(pinSize.height).toBeCloseTo(34, 0)
   await page.getByRole('button', { name: 'Zoom in' }).click()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
   const zoomedPinSize = await firstPin.boundingBox()

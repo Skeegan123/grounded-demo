@@ -714,34 +714,40 @@ dd {
   position: absolute;
   left: 0;
   top: 0;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
+  width: 34px;
+  height: 34px;
+  display: block;
   padding: 0;
-  color: var(--ink);
-  background: var(--signal);
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  box-shadow: 1px 1px 0 var(--ink);
+  color: var(--signal);
+  background: transparent;
+  border: 0;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   font-weight: 800;
   line-height: 1;
-  transform: translate(-50%, calc(-100% - 5px));
+  transform: translate(-50%, calc(-100% + 3px));
 }
 
-.point-pin::after {
+.point-pin-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--ink);
+  fill: var(--signal);
+  filter: drop-shadow(1px 1px 0 rgb(24 31 27 / 24%));
+}
+
+.point-pin-icon circle {
+  display: none;
+}
+
+.point-pin-label {
   position: absolute;
-  left: 50%;
-  bottom: -6px;
-  width: 7px;
-  height: 7px;
-  content: '';
-  background: var(--signal);
-  border-right: 2px solid var(--ink);
-  border-bottom: 2px solid var(--ink);
-  transform: translateX(-50%) rotate(45deg);
+  inset: 0 0 auto;
+  height: 83.3333%;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
 }
 
 button.point-pin {
@@ -751,22 +757,25 @@ button.point-pin {
 .remove-point {
   position: absolute;
   z-index: 2;
-  left: 9px;
-  top: -38px;
-  width: 22px;
-  height: 22px;
+  left: 8px;
+  top: -40px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   color: #fff;
   background: var(--ink);
   border: 2px solid #fffef9;
   border-radius: 50%;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1;
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.8);
-  transition: opacity 100ms ease, transform 100ms ease;
+  transition: opacity 100ms ease;
+}
+
+.remove-point svg {
+  display: block;
+  width: 13px;
+  height: 13px;
+  margin: auto;
 }
 
 .point-mark:hover .remove-point,
@@ -774,13 +783,11 @@ button.point-pin {
 .point-mark.selected .remove-point {
   opacity: 1;
   pointer-events: auto;
-  transform: scale(1);
 }
 
 .point-set-overlay.point-controls-dismissed .remove-point {
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.8);
 }
 
 .undo-notice {

@@ -8,6 +8,7 @@ import {
   type MouseEvent,
   type PointerEvent,
 } from 'react'
+import { MapPin, X } from 'lucide-react'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 import type { StoredPoint } from '../demoSession/demoSession'
 import {
@@ -539,20 +540,27 @@ export function PdfPageViewer({
                       }}
                       type="button"
                     >
-                      {point.pointNumber}
+                      <MapPin
+                        aria-hidden="true"
+                        className="point-pin-icon"
+                        fill="currentColor"
+                        strokeWidth={1.75}
+                      />
+                      <span className="point-pin-label">{point.pointNumber}</span>
                     </button>
                     <button
                       aria-label={`Remove point ${point.pointNumber}`}
                       className="remove-point"
                       onClick={(event) => {
                         event.stopPropagation()
+                        event.currentTarget.blur()
                         setSelectedPoint(undefined)
                         onRemovePoint(point.globalIndex)
                       }}
                       onPointerDown={(event) => event.stopPropagation()}
                       type="button"
                     >
-                      ×
+                      <X aria-hidden="true" strokeWidth={3} />
                     </button>
                   </>
                 ) : (
@@ -562,7 +570,13 @@ export function PdfPageViewer({
                     role="img"
                     tabIndex={0}
                   >
-                    {point.pointNumber}
+                    <MapPin
+                      aria-hidden="true"
+                      className="point-pin-icon"
+                      fill="currentColor"
+                      strokeWidth={1.75}
+                    />
+                    <span className="point-pin-label">{point.pointNumber}</span>
                   </span>
                 )}
               </span>
