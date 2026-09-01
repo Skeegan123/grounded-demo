@@ -1,0 +1,4008 @@
+{
+  "schemaVersion": 2,
+  "document": {
+    "id": "type-c-door-submittal",
+    "versionId": "type-c-door-submittal-v1",
+    "kind": "submittal_product_data",
+    "title": "Type C interior door product data and review cover"
+  },
+  "source": {
+    "fingerprint": "b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658",
+    "byteSize": 4557,
+    "pageCount": 2
+  },
+  "provenance": {
+    "provider": "reducto",
+    "model": "r-1",
+    "importerVersion": "grounded-reducto-importer-1",
+    "sourceFingerprint": "b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658",
+    "parseSettings": {
+      "chunking": "disabled",
+      "embeddingOptimization": false,
+      "returnedImages": false,
+      "tableOutputFormat": "html",
+      "agenticPass": false,
+      "returnedOcrData": true
+    }
+  },
+  "pages": [
+    {
+      "page": {
+        "id": "door-submittal-page-1",
+        "label": "1",
+        "number": 1,
+        "title": "Submittal cover",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-cba3c1675e1f4dbe110c5b8c",
+          "order": 0,
+          "sourceType": "Header",
+          "content": "<b>SUBMITTAL</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.06,
+            "width": 0.095,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-3579b4908f731cba7074ffe3",
+          "order": 1,
+          "sourceType": "Title",
+          "content": "<b>Type C interior door</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.079,
+            "top": 0.084,
+            "width": 0.39,
+            "height": 0.03
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-d4309e59283623183ec1d558",
+          "order": 2,
+          "sourceType": "Text",
+          "content": "Product data and review cover",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.13,
+            "width": 0.244,
+            "height": 0.011
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-1bd0a879f4f25f4f5ed3c97a",
+          "order": 3,
+          "sourceType": "Section Header",
+          "content": "<b>FOR REVIEW</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.098,
+            "top": 0.221,
+            "width": 0.082,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-798f5f3f2b605a4549e0be5d",
+          "order": 4,
+          "sourceType": "Key Value",
+          "content": "PROJECT: Virginia Farmhouse\nSUBMITTAL ID: SUB-08-1416-001\nSECTION: 08 14 16 - Flush Wood Doors\nREVISION: 0 - Initial review\nSUBMITTED BY: Blue Ridge Doorworks\nISSUE DATE: August 28, 2026",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.075,
+            "top": 0.275,
+            "width": 0.815,
+            "height": 0.183
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-077461cf103fc06e954529dc",
+          "order": 5,
+          "sourceType": "Section Header",
+          "content": "<b>Submitted product</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.489,
+            "width": 0.176,
+            "height": 0.015
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-747d55fe7ecf3191b5d89c1b",
+          "order": 6,
+          "sourceType": "Key Value",
+          "content": "<b>Door mark</b>: Type C\n<b>Nominal size</b>: 24 in x 80 in\n<b>Construction</b>: Hollow-core flush wood door\n<b>Face</b>: Plain sliced birch veneer, clear finish",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.531,
+            "width": 0.842,
+            "height": 0.136
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-a86b1f3c6ea2a667efbc456d",
+          "order": 7,
+          "sourceType": "Section Header",
+          "content": "<b>Submission description</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.712,
+            "width": 0.222,
+            "height": 0.015
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-82b03713b0da22a4f931c651",
+          "order": 8,
+          "sourceType": "Text",
+          "content": "Product data for the proposed Type C interior door. This package includes door construction, face veneer, factory finish, and nominal size information.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.744,
+            "width": 0.808,
+            "height": 0.026
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-a0461ea849696f7b53ad5b06",
+          "order": 9,
+          "sourceType": "Key Value",
+          "content": "Contract reference Virginia Farmhouse contract drawing set",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.076,
+            "top": 0.871,
+            "width": 0.44,
+            "height": 0.017
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-92a18e3822e1b1a6c8275a69",
+          "order": 10,
+          "sourceType": "Footer",
+          "content": "Sample product data | Not for construction",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.962,
+            "width": 0.213,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-b664fa274d245f450a5b5213",
+          "order": 11,
+          "sourceType": "Footer",
+          "content": "Page 1 of 2",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.854,
+            "top": 0.962,
+            "width": 0.058,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [],
+      "lowLevelOcr": {
+        "lines": [
+          {
+            "text": "SUBMITTAL",
+            "region": {
+              "left": 0.07828,
+              "top": 0.060153,
+              "width": 0.093763,
+              "height": 0.008973
+            },
+            "confidence": 0.992467,
+            "rotation": 0
+          },
+          {
+            "text": "Type C interior door",
+            "region": {
+              "left": 0.07828,
+              "top": 0.085078,
+              "width": 0.390968,
+              "height": 0.028249
+            },
+            "confidence": 0.988638,
+            "rotation": 1
+          },
+          {
+            "text": "Product data and review cover",
+            "region": {
+              "left": 0.07914,
+              "top": 0.129944,
+              "width": 0.243871,
+              "height": 0.011299
+            },
+            "confidence": 0.990528,
+            "rotation": 0
+          },
+          {
+            "text": "FOR REVIEW",
+            "region": {
+              "left": 0.098495,
+              "top": 0.221336,
+              "width": 0.08172,
+              "height": 0.007311
+            },
+            "confidence": 0.990867,
+            "rotation": 0
+          },
+          {
+            "text": "PROJECT",
+            "region": {
+              "left": 0.07871,
+              "top": 0.279163,
+              "width": 0.052903,
+              "height": 0.005982
+            },
+            "confidence": 0.989981,
+            "rotation": 0
+          },
+          {
+            "text": "Virginia Farmhouse",
+            "region": {
+              "left": 0.077419,
+              "top": 0.295115,
+              "width": 0.151828,
+              "height": 0.012296
+            },
+            "confidence": 0.992393,
+            "rotation": 0
+          },
+          {
+            "text": "SUBMITTAL ID",
+            "region": {
+              "left": 0.523011,
+              "top": 0.27883,
+              "width": 0.07957,
+              "height": 0.006314
+            },
+            "confidence": 0.986252,
+            "rotation": 0
+          },
+          {
+            "text": "SUB-08-1416-001",
+            "region": {
+              "left": 0.523011,
+              "top": 0.296444,
+              "width": 0.130323,
+              "height": 0.008973
+            },
+            "confidence": 0.989855,
+            "rotation": 0
+          },
+          {
+            "text": "SECTION",
+            "region": {
+              "left": 0.07871,
+              "top": 0.34995,
+              "width": 0.049462,
+              "height": 0.005982
+            },
+            "confidence": 0.989728,
+            "rotation": 0
+          },
+          {
+            "text": "08 14 16 Flush Wood Doors",
+            "region": {
+              "left": 0.07828,
+              "top": 0.367232,
+              "width": 0.222796,
+              "height": 0.009305
+            },
+            "confidence": 0.972124,
+            "rotation": 0
+          },
+          {
+            "text": "-",
+            "region": {
+              "left": 0.147097,
+              "top": 0.372549,
+              "width": 0.004301,
+              "height": 0.001662
+            },
+            "confidence": 0.94353,
+            "rotation": 0
+          },
+          {
+            "text": "REVISION",
+            "region": {
+              "left": 0.523011,
+              "top": 0.34995,
+              "width": 0.053333,
+              "height": 0.005982
+            },
+            "confidence": 0.989611,
+            "rotation": 0
+          },
+          {
+            "text": "0 Initial review",
+            "region": {
+              "left": 0.522581,
+              "top": 0.367564,
+              "width": 0.12086,
+              "height": 0.009305
+            },
+            "confidence": 0.912598,
+            "rotation": 0
+          },
+          {
+            "text": "-",
+            "region": {
+              "left": 0.536774,
+              "top": 0.372217,
+              "width": 0.003871,
+              "height": 0.001662
+            },
+            "confidence": 0.96616,
+            "rotation": 0
+          },
+          {
+            "text": "SUBMITTED BY",
+            "region": {
+              "left": 0.07828,
+              "top": 0.420738,
+              "width": 0.085591,
+              "height": 0.005982
+            },
+            "confidence": 0.990674,
+            "rotation": 0
+          },
+          {
+            "text": "Blue Ridge Doorworks",
+            "region": {
+              "left": 0.07914,
+              "top": 0.437355,
+              "width": 0.173333,
+              "height": 0.011299
+            },
+            "confidence": 0.991224,
+            "rotation": 0
+          },
+          {
+            "text": "Submitted product",
+            "region": {
+              "left": 0.07828,
+              "top": 0.490196,
+              "width": 0.175484,
+              "height": 0.013293
+            },
+            "confidence": 0.99147,
+            "rotation": 0
+          },
+          {
+            "text": "Door mark",
+            "region": {
+              "left": 0.101505,
+              "top": 0.556331,
+              "width": 0.064946,
+              "height": 0.006647
+            },
+            "confidence": 0.950501,
+            "rotation": 0
+          },
+          {
+            "text": "Nominal size",
+            "region": {
+              "left": 0.101075,
+              "top": 0.583915,
+              "width": 0.08,
+              "height": 0.007311
+            },
+            "confidence": 0.980973,
+            "rotation": 0
+          },
+          {
+            "text": "Construction",
+            "region": {
+              "left": 0.101075,
+              "top": 0.611499,
+              "width": 0.08086,
+              "height": 0.006979
+            },
+            "confidence": 0.96938,
+            "rotation": 0
+          },
+          {
+            "text": "Face",
+            "region": {
+              "left": 0.101505,
+              "top": 0.639415,
+              "width": 0.029247,
+              "height": 0.006979
+            },
+            "confidence": 0.974627,
+            "rotation": 0
+          },
+          {
+            "text": "Type C",
+            "region": {
+              "left": 0.293763,
+              "top": 0.554669,
+              "width": 0.046882,
+              "height": 0.010302
+            },
+            "confidence": 0.972305,
+            "rotation": 0
+          },
+          {
+            "text": "24 in x 80 in",
+            "region": {
+              "left": 0.293763,
+              "top": 0.582918,
+              "width": 0.07828,
+              "height": 0.008308
+            },
+            "confidence": 0.953815,
+            "rotation": 0
+          },
+          {
+            "text": "Hollow-core flush wood door",
+            "region": {
+              "left": 0.294624,
+              "top": 0.610502,
+              "width": 0.185806,
+              "height": 0.008308
+            },
+            "confidence": 0.98298,
+            "rotation": 0
+          },
+          {
+            "text": "ISSUE DATE",
+            "region": {
+              "left": 0.522581,
+              "top": 0.420738,
+              "width": 0.068817,
+              "height": 0.005982
+            },
+            "confidence": 0.991699,
+            "rotation": 0
+          },
+          {
+            "text": "August 28, 2026",
+            "region": {
+              "left": 0.52172,
+              "top": 0.43669,
+              "width": 0.125161,
+              "height": 0.012629
+            },
+            "confidence": 0.98915,
+            "rotation": 0
+          },
+          {
+            "text": "Plain sliced birch veneer, clear finish",
+            "region": {
+              "left": 0.294624,
+              "top": 0.638086,
+              "width": 0.236559,
+              "height": 0.009305
+            },
+            "confidence": 0.98994,
+            "rotation": 0
+          },
+          {
+            "text": "Submission description",
+            "region": {
+              "left": 0.077849,
+              "top": 0.711864,
+              "width": 0.222366,
+              "height": 0.01562
+            },
+            "confidence": 0.993439,
+            "rotation": 0
+          },
+          {
+            "text": "Product data for the proposed Type C interior door. This package includes door construction, face veneer, factory finish, and",
+            "region": {
+              "left": 0.07871,
+              "top": 0.744101,
+              "width": 0.806882,
+              "height": 0.010967
+            },
+            "confidence": 0.987562,
+            "rotation": 0
+          },
+          {
+            "text": "nominal size information.",
+            "region": {
+              "left": 0.07871,
+              "top": 0.762047,
+              "width": 0.16172,
+              "height": 0.007976
+            },
+            "confidence": 0.988676,
+            "rotation": 0
+          },
+          {
+            "text": "Contract reference",
+            "region": {
+              "left": 0.07871,
+              "top": 0.876371,
+              "width": 0.115269,
+              "height": 0.007644
+            },
+            "confidence": 0.974315,
+            "rotation": 0
+          },
+          {
+            "text": "Virginia Farmhouse contract drawing set",
+            "region": {
+              "left": 0.250753,
+              "top": 0.875374,
+              "width": 0.263656,
+              "height": 0.010302
+            },
+            "confidence": 0.990759,
+            "rotation": 0
+          },
+          {
+            "text": "Sample product data | Not for construction",
+            "region": {
+              "left": 0.077849,
+              "top": 0.962114,
+              "width": 0.214194,
+              "height": 0.009638
+            },
+            "confidence": 0.924991,
+            "rotation": 0
+          },
+          {
+            "text": "Page 1 of 2",
+            "region": {
+              "left": 0.854194,
+              "top": 0.962446,
+              "width": 0.058065,
+              "height": 0.008641
+            },
+            "confidence": 0.929066,
+            "rotation": 0
+          }
+        ],
+        "words": [
+          {
+            "text": "SUBMITTAL",
+            "region": {
+              "left": 0.07828,
+              "top": 0.060153,
+              "width": 0.093763,
+              "height": 0.008973
+            },
+            "confidence": 0.992467,
+            "rotation": 0
+          },
+          {
+            "text": "Type",
+            "region": {
+              "left": 0.07828,
+              "top": 0.087404,
+              "width": 0.094624,
+              "height": 0.025922
+            },
+            "confidence": 0.989455,
+            "rotation": 1
+          },
+          {
+            "text": "C",
+            "region": {
+              "left": 0.184946,
+              "top": 0.087072,
+              "width": 0.026237,
+              "height": 0.025258
+            },
+            "confidence": 0.983753,
+            "rotation": 1
+          },
+          {
+            "text": "interior",
+            "region": {
+              "left": 0.225376,
+              "top": 0.085743,
+              "width": 0.142796,
+              "height": 0.026255
+            },
+            "confidence": 0.989191,
+            "rotation": 0
+          },
+          {
+            "text": "door",
+            "region": {
+              "left": 0.376774,
+              "top": 0.085078,
+              "width": 0.092473,
+              "height": 0.02559
+            },
+            "confidence": 0.992153,
+            "rotation": 1
+          },
+          {
+            "text": "Product",
+            "region": {
+              "left": 0.07914,
+              "top": 0.129944,
+              "width": 0.061505,
+              "height": 0.010302
+            },
+            "confidence": 0.992535,
+            "rotation": 0
+          },
+          {
+            "text": "data",
+            "region": {
+              "left": 0.145376,
+              "top": 0.129944,
+              "width": 0.034409,
+              "height": 0.010635
+            },
+            "confidence": 0.991549,
+            "rotation": 0
+          },
+          {
+            "text": "and",
+            "region": {
+              "left": 0.185806,
+              "top": 0.130276,
+              "width": 0.027957,
+              "height": 0.010302
+            },
+            "confidence": 0.987693,
+            "rotation": 0
+          },
+          {
+            "text": "review",
+            "region": {
+              "left": 0.221075,
+              "top": 0.130276,
+              "width": 0.050753,
+              "height": 0.010635
+            },
+            "confidence": 0.993431,
+            "rotation": 0
+          },
+          {
+            "text": "cover",
+            "region": {
+              "left": 0.276989,
+              "top": 0.130608,
+              "width": 0.046022,
+              "height": 0.010635
+            },
+            "confidence": 0.98743,
+            "rotation": 0
+          },
+          {
+            "text": "FOR",
+            "region": {
+              "left": 0.098495,
+              "top": 0.221336,
+              "width": 0.026667,
+              "height": 0.007311
+            },
+            "confidence": 0.990534,
+            "rotation": 0
+          },
+          {
+            "text": "REVIEW",
+            "region": {
+              "left": 0.129462,
+              "top": 0.221336,
+              "width": 0.050753,
+              "height": 0.007311
+            },
+            "confidence": 0.9912,
+            "rotation": 0
+          },
+          {
+            "text": "PROJECT",
+            "region": {
+              "left": 0.07871,
+              "top": 0.279163,
+              "width": 0.052903,
+              "height": 0.005982
+            },
+            "confidence": 0.989981,
+            "rotation": 0
+          },
+          {
+            "text": "Virginia",
+            "region": {
+              "left": 0.077419,
+              "top": 0.296112,
+              "width": 0.059785,
+              "height": 0.011299
+            },
+            "confidence": 0.991961,
+            "rotation": 0
+          },
+          {
+            "text": "Farmhouse",
+            "region": {
+              "left": 0.142796,
+              "top": 0.295115,
+              "width": 0.086452,
+              "height": 0.011632
+            },
+            "confidence": 0.992825,
+            "rotation": 0
+          },
+          {
+            "text": "SUBMITTAL",
+            "region": {
+              "left": 0.523011,
+              "top": 0.27883,
+              "width": 0.064946,
+              "height": 0.006314
+            },
+            "confidence": 0.990952,
+            "rotation": 0
+          },
+          {
+            "text": "ID",
+            "region": {
+              "left": 0.592258,
+              "top": 0.27883,
+              "width": 0.010323,
+              "height": 0.006314
+            },
+            "confidence": 0.981553,
+            "rotation": 0
+          },
+          {
+            "text": "SUB-08-1416-001",
+            "region": {
+              "left": 0.523011,
+              "top": 0.296444,
+              "width": 0.130323,
+              "height": 0.008973
+            },
+            "confidence": 0.989855,
+            "rotation": 0
+          },
+          {
+            "text": "SECTION",
+            "region": {
+              "left": 0.07871,
+              "top": 0.34995,
+              "width": 0.049462,
+              "height": 0.005982
+            },
+            "confidence": 0.989728,
+            "rotation": 0
+          },
+          {
+            "text": "08",
+            "region": {
+              "left": 0.07828,
+              "top": 0.367232,
+              "width": 0.017634,
+              "height": 0.009305
+            },
+            "confidence": 0.969465,
+            "rotation": 0
+          },
+          {
+            "text": "14",
+            "region": {
+              "left": 0.101505,
+              "top": 0.367232,
+              "width": 0.017204,
+              "height": 0.009305
+            },
+            "confidence": 0.97702,
+            "rotation": 0
+          },
+          {
+            "text": "16",
+            "region": {
+              "left": 0.124301,
+              "top": 0.367232,
+              "width": 0.017204,
+              "height": 0.009305
+            },
+            "confidence": 0.970201,
+            "rotation": 0
+          },
+          {
+            "text": "Flush",
+            "region": {
+              "left": 0.157419,
+              "top": 0.367232,
+              "width": 0.04172,
+              "height": 0.009305
+            },
+            "confidence": 0.967135,
+            "rotation": 0
+          },
+          {
+            "text": "Wood",
+            "region": {
+              "left": 0.203871,
+              "top": 0.367232,
+              "width": 0.045161,
+              "height": 0.009305
+            },
+            "confidence": 0.974961,
+            "rotation": 0
+          },
+          {
+            "text": "Doors",
+            "region": {
+              "left": 0.255054,
+              "top": 0.367232,
+              "width": 0.046022,
+              "height": 0.009305
+            },
+            "confidence": 0.973962,
+            "rotation": 0
+          },
+          {
+            "text": "-",
+            "region": {
+              "left": 0.147097,
+              "top": 0.372549,
+              "width": 0.004301,
+              "height": 0.001662
+            },
+            "confidence": 0.94353,
+            "rotation": 0
+          },
+          {
+            "text": "REVISION",
+            "region": {
+              "left": 0.523011,
+              "top": 0.34995,
+              "width": 0.053333,
+              "height": 0.005982
+            },
+            "confidence": 0.989611,
+            "rotation": 0
+          },
+          {
+            "text": "0",
+            "region": {
+              "left": 0.522581,
+              "top": 0.367564,
+              "width": 0.009462,
+              "height": 0.008973
+            },
+            "confidence": 0.768964,
+            "rotation": 0
+          },
+          {
+            "text": "Initial",
+            "region": {
+              "left": 0.546237,
+              "top": 0.367564,
+              "width": 0.043011,
+              "height": 0.008973
+            },
+            "confidence": 0.974399,
+            "rotation": 0
+          },
+          {
+            "text": "review",
+            "region": {
+              "left": 0.594409,
+              "top": 0.367564,
+              "width": 0.049032,
+              "height": 0.009305
+            },
+            "confidence": 0.994432,
+            "rotation": 0
+          },
+          {
+            "text": "-",
+            "region": {
+              "left": 0.536774,
+              "top": 0.372217,
+              "width": 0.003871,
+              "height": 0.001662
+            },
+            "confidence": 0.96616,
+            "rotation": 0
+          },
+          {
+            "text": "SUBMITTED",
+            "region": {
+              "left": 0.07828,
+              "top": 0.420738,
+              "width": 0.066237,
+              "height": 0.005982
+            },
+            "confidence": 0.990368,
+            "rotation": 0
+          },
+          {
+            "text": "BY",
+            "region": {
+              "left": 0.148817,
+              "top": 0.420738,
+              "width": 0.015054,
+              "height": 0.005982
+            },
+            "confidence": 0.99098,
+            "rotation": 0
+          },
+          {
+            "text": "Blue",
+            "region": {
+              "left": 0.07914,
+              "top": 0.438019,
+              "width": 0.033548,
+              "height": 0.010635
+            },
+            "confidence": 0.990406,
+            "rotation": 0
+          },
+          {
+            "text": "Ridge",
+            "region": {
+              "left": 0.11871,
+              "top": 0.437687,
+              "width": 0.043441,
+              "height": 0.010635
+            },
+            "confidence": 0.991753,
+            "rotation": 0
+          },
+          {
+            "text": "Doorworks",
+            "region": {
+              "left": 0.167742,
+              "top": 0.437355,
+              "width": 0.084731,
+              "height": 0.010635
+            },
+            "confidence": 0.991513,
+            "rotation": 0
+          },
+          {
+            "text": "Submitted",
+            "region": {
+              "left": 0.07828,
+              "top": 0.490196,
+              "width": 0.094194,
+              "height": 0.012629
+            },
+            "confidence": 0.989975,
+            "rotation": 0
+          },
+          {
+            "text": "product",
+            "region": {
+              "left": 0.180215,
+              "top": 0.490861,
+              "width": 0.073548,
+              "height": 0.012629
+            },
+            "confidence": 0.992966,
+            "rotation": 0
+          },
+          {
+            "text": "Door",
+            "region": {
+              "left": 0.101505,
+              "top": 0.556331,
+              "width": 0.030538,
+              "height": 0.006647
+            },
+            "confidence": 0.941305,
+            "rotation": 0
+          },
+          {
+            "text": "mark",
+            "region": {
+              "left": 0.135484,
+              "top": 0.556331,
+              "width": 0.030968,
+              "height": 0.006647
+            },
+            "confidence": 0.959697,
+            "rotation": 0
+          },
+          {
+            "text": "Nominal",
+            "region": {
+              "left": 0.101075,
+              "top": 0.583915,
+              "width": 0.052043,
+              "height": 0.007311
+            },
+            "confidence": 0.975142,
+            "rotation": 0
+          },
+          {
+            "text": "size",
+            "region": {
+              "left": 0.156559,
+              "top": 0.583915,
+              "width": 0.024516,
+              "height": 0.007311
+            },
+            "confidence": 0.986803,
+            "rotation": 0
+          },
+          {
+            "text": "Construction",
+            "region": {
+              "left": 0.101075,
+              "top": 0.611499,
+              "width": 0.08086,
+              "height": 0.006979
+            },
+            "confidence": 0.96938,
+            "rotation": 0
+          },
+          {
+            "text": "Face",
+            "region": {
+              "left": 0.101505,
+              "top": 0.639415,
+              "width": 0.029247,
+              "height": 0.006979
+            },
+            "confidence": 0.974627,
+            "rotation": 0
+          },
+          {
+            "text": "Type",
+            "region": {
+              "left": 0.293763,
+              "top": 0.555002,
+              "width": 0.032258,
+              "height": 0.00997
+            },
+            "confidence": 0.977916,
+            "rotation": 0
+          },
+          {
+            "text": "C",
+            "region": {
+              "left": 0.330753,
+              "top": 0.554669,
+              "width": 0.009892,
+              "height": 0.009638
+            },
+            "confidence": 0.966694,
+            "rotation": 0
+          },
+          {
+            "text": "24",
+            "region": {
+              "left": 0.293763,
+              "top": 0.582918,
+              "width": 0.015484,
+              "height": 0.008308
+            },
+            "confidence": 0.96986,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.313978,
+              "top": 0.582918,
+              "width": 0.010753,
+              "height": 0.007976
+            },
+            "confidence": 0.971891,
+            "rotation": 0
+          },
+          {
+            "text": "x",
+            "region": {
+              "left": 0.329032,
+              "top": 0.582918,
+              "width": 0.007742,
+              "height": 0.007976
+            },
+            "confidence": 0.885159,
+            "rotation": 0
+          },
+          {
+            "text": "80",
+            "region": {
+              "left": 0.341075,
+              "top": 0.582918,
+              "width": 0.015914,
+              "height": 0.007976
+            },
+            "confidence": 0.953024,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.36172,
+              "top": 0.582918,
+              "width": 0.010323,
+              "height": 0.007976
+            },
+            "confidence": 0.98914,
+            "rotation": 0
+          },
+          {
+            "text": "Hollow-core",
+            "region": {
+              "left": 0.294624,
+              "top": 0.610502,
+              "width": 0.076129,
+              "height": 0.008308
+            },
+            "confidence": 0.980207,
+            "rotation": 0
+          },
+          {
+            "text": "flush",
+            "region": {
+              "left": 0.375484,
+              "top": 0.610502,
+              "width": 0.030538,
+              "height": 0.008308
+            },
+            "confidence": 0.980791,
+            "rotation": 0
+          },
+          {
+            "text": "wood",
+            "region": {
+              "left": 0.410323,
+              "top": 0.610502,
+              "width": 0.033979,
+              "height": 0.008308
+            },
+            "confidence": 0.986682,
+            "rotation": 0
+          },
+          {
+            "text": "door",
+            "region": {
+              "left": 0.450323,
+              "top": 0.610502,
+              "width": 0.030108,
+              "height": 0.008308
+            },
+            "confidence": 0.984239,
+            "rotation": 0
+          },
+          {
+            "text": "ISSUE",
+            "region": {
+              "left": 0.522581,
+              "top": 0.420738,
+              "width": 0.033548,
+              "height": 0.005982
+            },
+            "confidence": 0.992038,
+            "rotation": 0
+          },
+          {
+            "text": "DATE",
+            "region": {
+              "left": 0.56043,
+              "top": 0.420738,
+              "width": 0.030968,
+              "height": 0.005982
+            },
+            "confidence": 0.991359,
+            "rotation": 0
+          },
+          {
+            "text": "August",
+            "region": {
+              "left": 0.52172,
+              "top": 0.437687,
+              "width": 0.057204,
+              "height": 0.011632
+            },
+            "confidence": 0.990442,
+            "rotation": 0
+          },
+          {
+            "text": "28,",
+            "region": {
+              "left": 0.582796,
+              "top": 0.437022,
+              "width": 0.022366,
+              "height": 0.011299
+            },
+            "confidence": 0.98582,
+            "rotation": 0
+          },
+          {
+            "text": "2026",
+            "region": {
+              "left": 0.609892,
+              "top": 0.43669,
+              "width": 0.036989,
+              "height": 0.011299
+            },
+            "confidence": 0.991189,
+            "rotation": 0
+          },
+          {
+            "text": "Plain",
+            "region": {
+              "left": 0.294624,
+              "top": 0.638086,
+              "width": 0.030968,
+              "height": 0.009305
+            },
+            "confidence": 0.991081,
+            "rotation": 0
+          },
+          {
+            "text": "sliced",
+            "region": {
+              "left": 0.331183,
+              "top": 0.638086,
+              "width": 0.036129,
+              "height": 0.009305
+            },
+            "confidence": 0.994627,
+            "rotation": 0
+          },
+          {
+            "text": "birch",
+            "region": {
+              "left": 0.373333,
+              "top": 0.638086,
+              "width": 0.030108,
+              "height": 0.009305
+            },
+            "confidence": 0.992099,
+            "rotation": 0
+          },
+          {
+            "text": "veneer,",
+            "region": {
+              "left": 0.408172,
+              "top": 0.638086,
+              "width": 0.048602,
+              "height": 0.009305
+            },
+            "confidence": 0.988807,
+            "rotation": 0
+          },
+          {
+            "text": "clear",
+            "region": {
+              "left": 0.461935,
+              "top": 0.638086,
+              "width": 0.031828,
+              "height": 0.009305
+            },
+            "confidence": 0.992818,
+            "rotation": 0
+          },
+          {
+            "text": "finish",
+            "region": {
+              "left": 0.497204,
+              "top": 0.638086,
+              "width": 0.033978,
+              "height": 0.009305
+            },
+            "confidence": 0.98021,
+            "rotation": 0
+          },
+          {
+            "text": "Submission",
+            "region": {
+              "left": 0.077849,
+              "top": 0.711864,
+              "width": 0.109677,
+              "height": 0.01429
+            },
+            "confidence": 0.992045,
+            "rotation": 0
+          },
+          {
+            "text": "description",
+            "region": {
+              "left": 0.194409,
+              "top": 0.713194,
+              "width": 0.105806,
+              "height": 0.01429
+            },
+            "confidence": 0.994833,
+            "rotation": 0
+          },
+          {
+            "text": "Product",
+            "region": {
+              "left": 0.07871,
+              "top": 0.744101,
+              "width": 0.050323,
+              "height": 0.010967
+            },
+            "confidence": 0.991485,
+            "rotation": 0
+          },
+          {
+            "text": "data",
+            "region": {
+              "left": 0.132903,
+              "top": 0.744101,
+              "width": 0.028387,
+              "height": 0.010967
+            },
+            "confidence": 0.99343,
+            "rotation": 0
+          },
+          {
+            "text": "for",
+            "region": {
+              "left": 0.165161,
+              "top": 0.744101,
+              "width": 0.018495,
+              "height": 0.010967
+            },
+            "confidence": 0.988649,
+            "rotation": 0
+          },
+          {
+            "text": "the",
+            "region": {
+              "left": 0.186667,
+              "top": 0.744101,
+              "width": 0.020215,
+              "height": 0.010967
+            },
+            "confidence": 0.992516,
+            "rotation": 0
+          },
+          {
+            "text": "proposed",
+            "region": {
+              "left": 0.212043,
+              "top": 0.744101,
+              "width": 0.058925,
+              "height": 0.010967
+            },
+            "confidence": 0.985031,
+            "rotation": 0
+          },
+          {
+            "text": "Type",
+            "region": {
+              "left": 0.277419,
+              "top": 0.744101,
+              "width": 0.031828,
+              "height": 0.010967
+            },
+            "confidence": 0.982725,
+            "rotation": 0
+          },
+          {
+            "text": "C",
+            "region": {
+              "left": 0.313978,
+              "top": 0.744101,
+              "width": 0.009462,
+              "height": 0.010967
+            },
+            "confidence": 0.990239,
+            "rotation": 0
+          },
+          {
+            "text": "interior",
+            "region": {
+              "left": 0.329032,
+              "top": 0.744101,
+              "width": 0.044731,
+              "height": 0.010967
+            },
+            "confidence": 0.97971,
+            "rotation": 0
+          },
+          {
+            "text": "door.",
+            "region": {
+              "left": 0.377634,
+              "top": 0.744101,
+              "width": 0.032258,
+              "height": 0.010967
+            },
+            "confidence": 0.98517,
+            "rotation": 0
+          },
+          {
+            "text": "This",
+            "region": {
+              "left": 0.415484,
+              "top": 0.744101,
+              "width": 0.026237,
+              "height": 0.010967
+            },
+            "confidence": 0.984904,
+            "rotation": 0
+          },
+          {
+            "text": "package",
+            "region": {
+              "left": 0.447312,
+              "top": 0.744101,
+              "width": 0.054624,
+              "height": 0.010967
+            },
+            "confidence": 0.994141,
+            "rotation": 0
+          },
+          {
+            "text": "includes",
+            "region": {
+              "left": 0.507527,
+              "top": 0.744101,
+              "width": 0.052473,
+              "height": 0.010967
+            },
+            "confidence": 0.992328,
+            "rotation": 0
+          },
+          {
+            "text": "door",
+            "region": {
+              "left": 0.564731,
+              "top": 0.744101,
+              "width": 0.029677,
+              "height": 0.010967
+            },
+            "confidence": 0.993186,
+            "rotation": 0
+          },
+          {
+            "text": "construction,",
+            "region": {
+              "left": 0.59828,
+              "top": 0.744101,
+              "width": 0.082581,
+              "height": 0.010967
+            },
+            "confidence": 0.964221,
+            "rotation": 0
+          },
+          {
+            "text": "face",
+            "region": {
+              "left": 0.685591,
+              "top": 0.744101,
+              "width": 0.027527,
+              "height": 0.010967
+            },
+            "confidence": 0.991429,
+            "rotation": 0
+          },
+          {
+            "text": "veneer,",
+            "region": {
+              "left": 0.717419,
+              "top": 0.744101,
+              "width": 0.048172,
+              "height": 0.010967
+            },
+            "confidence": 0.991002,
+            "rotation": 0
+          },
+          {
+            "text": "factory",
+            "region": {
+              "left": 0.770323,
+              "top": 0.744101,
+              "width": 0.045591,
+              "height": 0.010967
+            },
+            "confidence": 0.993437,
+            "rotation": 0
+          },
+          {
+            "text": "finish,",
+            "region": {
+              "left": 0.818065,
+              "top": 0.744101,
+              "width": 0.03957,
+              "height": 0.010967
+            },
+            "confidence": 0.978206,
+            "rotation": 0
+          },
+          {
+            "text": "and",
+            "region": {
+              "left": 0.861075,
+              "top": 0.744101,
+              "width": 0.024516,
+              "height": 0.010967
+            },
+            "confidence": 0.991865,
+            "rotation": 0
+          },
+          {
+            "text": "nominal",
+            "region": {
+              "left": 0.07871,
+              "top": 0.762047,
+              "width": 0.050753,
+              "height": 0.007976
+            },
+            "confidence": 0.988823,
+            "rotation": 0
+          },
+          {
+            "text": "size",
+            "region": {
+              "left": 0.133763,
+              "top": 0.762047,
+              "width": 0.025806,
+              "height": 0.007976
+            },
+            "confidence": 0.99217,
+            "rotation": 0
+          },
+          {
+            "text": "information.",
+            "region": {
+              "left": 0.164731,
+              "top": 0.762047,
+              "width": 0.075699,
+              "height": 0.007976
+            },
+            "confidence": 0.985033,
+            "rotation": 0
+          },
+          {
+            "text": "Contract",
+            "region": {
+              "left": 0.07871,
+              "top": 0.876371,
+              "width": 0.053333,
+              "height": 0.007644
+            },
+            "confidence": 0.958025,
+            "rotation": 0
+          },
+          {
+            "text": "reference",
+            "region": {
+              "left": 0.135914,
+              "top": 0.876371,
+              "width": 0.058065,
+              "height": 0.007644
+            },
+            "confidence": 0.990605,
+            "rotation": 0
+          },
+          {
+            "text": "Virginia",
+            "region": {
+              "left": 0.250753,
+              "top": 0.875374,
+              "width": 0.049462,
+              "height": 0.010302
+            },
+            "confidence": 0.992249,
+            "rotation": 0
+          },
+          {
+            "text": "Farmhouse",
+            "region": {
+              "left": 0.305376,
+              "top": 0.875374,
+              "width": 0.072688,
+              "height": 0.010302
+            },
+            "confidence": 0.992951,
+            "rotation": 0
+          },
+          {
+            "text": "contract",
+            "region": {
+              "left": 0.383656,
+              "top": 0.875374,
+              "width": 0.051183,
+              "height": 0.010302
+            },
+            "confidence": 0.985152,
+            "rotation": 0
+          },
+          {
+            "text": "drawing",
+            "region": {
+              "left": 0.43957,
+              "top": 0.875374,
+              "width": 0.050323,
+              "height": 0.010302
+            },
+            "confidence": 0.993421,
+            "rotation": 0
+          },
+          {
+            "text": "set",
+            "region": {
+              "left": 0.495054,
+              "top": 0.875374,
+              "width": 0.019355,
+              "height": 0.010302
+            },
+            "confidence": 0.990024,
+            "rotation": 0
+          },
+          {
+            "text": "Sample",
+            "region": {
+              "left": 0.077849,
+              "top": 0.962778,
+              "width": 0.03871,
+              "height": 0.008973
+            },
+            "confidence": 0.9906,
+            "rotation": 0
+          },
+          {
+            "text": "product",
+            "region": {
+              "left": 0.12,
+              "top": 0.962446,
+              "width": 0.037849,
+              "height": 0.008973
+            },
+            "confidence": 0.990197,
+            "rotation": 0
+          },
+          {
+            "text": "data",
+            "region": {
+              "left": 0.16129,
+              "top": 0.962446,
+              "width": 0.021505,
+              "height": 0.008641
+            },
+            "confidence": 0.98422,
+            "rotation": 0
+          },
+          {
+            "text": "|",
+            "region": {
+              "left": 0.187097,
+              "top": 0.962446,
+              "width": 0.002581,
+              "height": 0.008641
+            },
+            "confidence": 0.660323,
+            "rotation": 0
+          },
+          {
+            "text": "Not",
+            "region": {
+              "left": 0.193118,
+              "top": 0.962446,
+              "width": 0.017204,
+              "height": 0.008641
+            },
+            "confidence": 0.881174,
+            "rotation": 0
+          },
+          {
+            "text": "for",
+            "region": {
+              "left": 0.213333,
+              "top": 0.962446,
+              "width": 0.013763,
+              "height": 0.008641
+            },
+            "confidence": 0.989754,
+            "rotation": 0
+          },
+          {
+            "text": "construction",
+            "region": {
+              "left": 0.230108,
+              "top": 0.962114,
+              "width": 0.061935,
+              "height": 0.008641
+            },
+            "confidence": 0.978669,
+            "rotation": 0
+          },
+          {
+            "text": "Page",
+            "region": {
+              "left": 0.854194,
+              "top": 0.963111,
+              "width": 0.026237,
+              "height": 0.007976
+            },
+            "confidence": 0.853539,
+            "rotation": 0
+          },
+          {
+            "text": "1",
+            "region": {
+              "left": 0.883871,
+              "top": 0.963111,
+              "width": 0.005161,
+              "height": 0.007311
+            },
+            "confidence": 0.953256,
+            "rotation": 0
+          },
+          {
+            "text": "of",
+            "region": {
+              "left": 0.892903,
+              "top": 0.962778,
+              "width": 0.011613,
+              "height": 0.007311
+            },
+            "confidence": 0.928358,
+            "rotation": 0
+          },
+          {
+            "text": "2",
+            "region": {
+              "left": 0.905376,
+              "top": 0.962446,
+              "width": 0.006882,
+              "height": 0.007311
+            },
+            "confidence": 0.981112,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "page": {
+        "id": "door-submittal-page-2",
+        "label": "2",
+        "number": 2,
+        "title": "Hollow-core flush wood door product data",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-e4ed852df876b327742c75f1",
+          "order": 0,
+          "sourceType": "Header",
+          "content": "<b>TYPE C PRODUCT DATA</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.054,
+            "width": 0.194,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-b6fe5d71591ef27dc383f866",
+          "order": 1,
+          "sourceType": "Title",
+          "content": "<b>Hollow-core flush wood door</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.08,
+            "top": 0.08,
+            "width": 0.495,
+            "height": 0.02
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-4e7ce97426b1d0c446a650c5",
+          "order": 2,
+          "sourceType": "Text",
+          "content": "Model BRD-HC2480-BIR",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.12,
+            "width": 0.182,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-11f510d9126d57ad199b1688",
+          "order": 3,
+          "sourceType": "Section Header",
+          "content": "<b>Door elevation</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.079,
+            "top": 0.184,
+            "width": 0.124,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-bb10277a6e6ae009fd59af13",
+          "order": 4,
+          "sourceType": "Figure",
+          "content": "Door elevation diagram of a hollow-core flush wood door, showing a single rectangular face labeled “FLUSH FACE” and a small circular marker on the right.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.133,
+            "top": 0.257,
+            "width": 0.209,
+            "height": 0.321
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-809f7c3ebcc029f5ad993ba7",
+          "order": 5,
+          "sourceType": "Text",
+          "content": "24 in x 80 in",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.153,
+            "top": 0.599,
+            "width": 0.07,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-493e29658ca9b18535542757",
+          "order": 6,
+          "sourceType": "Section Header",
+          "content": "<b>Product characteristics</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.436,
+            "top": 0.189,
+            "width": 0.199,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-17ec32719fcaa39547d33003",
+          "order": 7,
+          "sourceType": "Key Value",
+          "content": "<b>Use</b>: Interior, non-rated\n<b>Nominal size</b>: 24 in x 80 in\n<b>Thickness</b>: 1-3/8 in\n<b>Core</b>: Hollow honeycomb core\n<b>Stiles and rails</b>: Composite wood\n<b>Faces</b>: Birch veneer, flush\n<b>Finish</b>: Clear factory finish\n<b>Warranty</b>: One year limited",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.435,
+            "top": 0.217,
+            "width": 0.486,
+            "height": 0.231
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-204f02297d9ea73f668a73e7",
+          "order": 8,
+          "sourceType": "Section Header",
+          "content": "<b>PRODUCT DESCRIPTION</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.459,
+            "top": 0.519,
+            "width": 0.156,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-d7d77af0daaa614c364cf8ff",
+          "order": 9,
+          "sourceType": "Text",
+          "content": "Factory-assembled flush wood door for non-rated interior openings. Supply with clear-finished birch veneer faces.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.458,
+            "top": 0.542,
+            "width": 0.438,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-93a95cec7e139bd35bb0f617",
+          "order": 10,
+          "sourceType": "Section Header",
+          "content": "<b>Storage and handling</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.649,
+            "width": 0.184,
+            "height": 0.012
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-35d41adc40813e629bf88b96",
+          "order": 11,
+          "sourceType": "Text",
+          "content": "Store doors flat in a dry, ventilated interior space. Protect finished faces from dirt, moisture, direct sunlight, and construction damage.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.677,
+            "width": 0.802,
+            "height": 0.028
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-50e5a6b68149df8b55ee0732",
+          "order": 12,
+          "sourceType": "Section Header",
+          "content": "<b>Installation</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.79,
+            "width": 0.094,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-666acb6a0b9bcfafc755584c",
+          "order": 13,
+          "sourceType": "Text",
+          "content": "Field verify each opening before fabrication. Install plumb and square with uniform clearances. Follow the approved hardware schedule.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.818,
+            "width": 0.815,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-6173f87416c2dd60fcb939ee",
+          "order": 14,
+          "sourceType": "Footer",
+          "content": "Sample product data | Not for construction",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.962,
+            "width": 0.213,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-3f275d398216547a2281b30b",
+          "order": 15,
+          "sourceType": "Footer",
+          "content": "Page 2 of 2",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.854,
+            "top": 0.962,
+            "width": 0.058,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [],
+      "lowLevelOcr": {
+        "lines": [
+          {
+            "text": "TYPE C PRODUCT DATA",
+            "region": {
+              "left": 0.07828,
+              "top": 0.053838,
+              "width": 0.194409,
+              "height": 0.009305
+            },
+            "confidence": 0.984786,
+            "rotation": 0
+          },
+          {
+            "text": "Hollow-core flush wood door",
+            "region": {
+              "left": 0.07957,
+              "top": 0.079761,
+              "width": 0.495054,
+              "height": 0.020273
+            },
+            "confidence": 0.983881,
+            "rotation": 0
+          },
+          {
+            "text": "Model BRD-HC2480-BIR",
+            "region": {
+              "left": 0.07871,
+              "top": 0.119973,
+              "width": 0.180645,
+              "height": 0.008973
+            },
+            "confidence": 0.987333,
+            "rotation": 0
+          },
+          {
+            "text": "Door elevation",
+            "region": {
+              "left": 0.07871,
+              "top": 0.184779,
+              "width": 0.123441,
+              "height": 0.009638
+            },
+            "confidence": 0.986384,
+            "rotation": 0
+          },
+          {
+            "text": "FLUSH FACE",
+            "region": {
+              "left": 0.15871,
+              "top": 0.415753,
+              "width": 0.08172,
+              "height": 0.006979
+            },
+            "confidence": 0.988794,
+            "rotation": 0
+          },
+          {
+            "text": "24 in x 80 in",
+            "region": {
+              "left": 0.153118,
+              "top": 0.598538,
+              "width": 0.070108,
+              "height": 0.007311
+            },
+            "confidence": 0.96687,
+            "rotation": 0
+          },
+          {
+            "text": "O",
+            "region": {
+              "left": 0.313118,
+              "top": 0.412762,
+              "width": 0.010753,
+              "height": 0.010635
+            },
+            "confidence": 0.639707,
+            "rotation": 88
+          },
+          {
+            "text": "Product characteristics",
+            "region": {
+              "left": 0.436559,
+              "top": 0.189099,
+              "width": 0.197849,
+              "height": 0.010967
+            },
+            "confidence": 0.991561,
+            "rotation": 0
+          },
+          {
+            "text": "Use",
+            "region": {
+              "left": 0.449462,
+              "top": 0.231638,
+              "width": 0.024086,
+              "height": 0.006979
+            },
+            "confidence": 0.932952,
+            "rotation": 0
+          },
+          {
+            "text": "Interior, non-rated",
+            "region": {
+              "left": 0.630968,
+              "top": 0.230309,
+              "width": 0.102796,
+              "height": 0.009305
+            },
+            "confidence": 0.981975,
+            "rotation": 0
+          },
+          {
+            "text": "Nominal size",
+            "region": {
+              "left": 0.449462,
+              "top": 0.260552,
+              "width": 0.07957,
+              "height": 0.007311
+            },
+            "confidence": 0.985491,
+            "rotation": 0
+          },
+          {
+            "text": "24 in x 80 in",
+            "region": {
+              "left": 0.630108,
+              "top": 0.260884,
+              "width": 0.070538,
+              "height": 0.006979
+            },
+            "confidence": 0.96972,
+            "rotation": 0
+          },
+          {
+            "text": "Thickness",
+            "region": {
+              "left": 0.449462,
+              "top": 0.289465,
+              "width": 0.063656,
+              "height": 0.007311
+            },
+            "confidence": 0.989989,
+            "rotation": 0
+          },
+          {
+            "text": "1-3/8 in",
+            "region": {
+              "left": 0.631398,
+              "top": 0.289465,
+              "width": 0.04129,
+              "height": 0.006979
+            },
+            "confidence": 0.978949,
+            "rotation": 0
+          },
+          {
+            "text": "Core",
+            "region": {
+              "left": 0.449032,
+              "top": 0.318711,
+              "width": 0.029677,
+              "height": 0.006979
+            },
+            "confidence": 0.830464,
+            "rotation": 0
+          },
+          {
+            "text": "Stiles and rails",
+            "region": {
+              "left": 0.449032,
+              "top": 0.347624,
+              "width": 0.092473,
+              "height": 0.007311
+            },
+            "confidence": 0.985194,
+            "rotation": 0
+          },
+          {
+            "text": "Faces",
+            "region": {
+              "left": 0.449032,
+              "top": 0.376537,
+              "width": 0.036559,
+              "height": 0.007644
+            },
+            "confidence": 0.864654,
+            "rotation": 0
+          },
+          {
+            "text": "Hollow honeycomb core",
+            "region": {
+              "left": 0.630968,
+              "top": 0.318378,
+              "width": 0.139355,
+              "height": 0.008973
+            },
+            "confidence": 0.988528,
+            "rotation": 0
+          },
+          {
+            "text": "Composite wood",
+            "region": {
+              "left": 0.630108,
+              "top": 0.346294,
+              "width": 0.097634,
+              "height": 0.010635
+            },
+            "confidence": 0.976115,
+            "rotation": 0
+          },
+          {
+            "text": "Birch veneer, flush",
+            "region": {
+              "left": 0.630968,
+              "top": 0.376537,
+              "width": 0.107527,
+              "height": 0.007644
+            },
+            "confidence": 0.989712,
+            "rotation": 0
+          },
+          {
+            "text": "Finish",
+            "region": {
+              "left": 0.449462,
+              "top": 0.406115,
+              "width": 0.037849,
+              "height": 0.007311
+            },
+            "confidence": 0.983391,
+            "rotation": 0
+          },
+          {
+            "text": "Clear factory finish",
+            "region": {
+              "left": 0.630538,
+              "top": 0.40545,
+              "width": 0.108387,
+              "height": 0.009305
+            },
+            "confidence": 0.987252,
+            "rotation": 0
+          },
+          {
+            "text": "Warranty",
+            "region": {
+              "left": 0.448602,
+              "top": 0.434364,
+              "width": 0.056774,
+              "height": 0.008973
+            },
+            "confidence": 0.974182,
+            "rotation": 0
+          },
+          {
+            "text": "One year limited",
+            "region": {
+              "left": 0.630538,
+              "top": 0.434031,
+              "width": 0.094624,
+              "height": 0.009638
+            },
+            "confidence": 0.98589,
+            "rotation": 0
+          },
+          {
+            "text": "PRODUCT DESCRIPTION",
+            "region": {
+              "left": 0.458925,
+              "top": 0.519109,
+              "width": 0.156989,
+              "height": 0.007976
+            },
+            "confidence": 0.984802,
+            "rotation": 0
+          },
+          {
+            "text": "Factory-assembled flush wood door for non-rated interior openings.",
+            "region": {
+              "left": 0.459785,
+              "top": 0.542041,
+              "width": 0.436989,
+              "height": 0.010635
+            },
+            "confidence": 0.985792,
+            "rotation": 0
+          },
+          {
+            "text": "Supply with clear-finished birch veneer faces.",
+            "region": {
+              "left": 0.458495,
+              "top": 0.556996,
+              "width": 0.295054,
+              "height": 0.011632
+            },
+            "confidence": 0.988483,
+            "rotation": 0
+          },
+          {
+            "text": "Storage and handling",
+            "region": {
+              "left": 0.07871,
+              "top": 0.649053,
+              "width": 0.182366,
+              "height": 0.012629
+            },
+            "confidence": 0.98767,
+            "rotation": 0
+          },
+          {
+            "text": "Store doors flat in a dry, ventilated interior space. Protect finished faces from dirt, moisture, direct sunlight, and construction",
+            "region": {
+              "left": 0.077849,
+              "top": 0.677301,
+              "width": 0.80172,
+              "height": 0.010635
+            },
+            "confidence": 0.984206,
+            "rotation": 0
+          },
+          {
+            "text": "damage.",
+            "region": {
+              "left": 0.07828,
+              "top": 0.695248,
+              "width": 0.056344,
+              "height": 0.00997
+            },
+            "confidence": 0.985038,
+            "rotation": 0
+          },
+          {
+            "text": "Installation",
+            "region": {
+              "left": 0.07871,
+              "top": 0.790628,
+              "width": 0.092903,
+              "height": 0.009638
+            },
+            "confidence": 0.984393,
+            "rotation": 0
+          },
+          {
+            "text": "Field verify each opening before fabrication. Install plumb and square with uniform clearances. Follow the approved hardware",
+            "region": {
+              "left": 0.07914,
+              "top": 0.818544,
+              "width": 0.813763,
+              "height": 0.010967
+            },
+            "confidence": 0.98817,
+            "rotation": 0
+          },
+          {
+            "text": "schedule.",
+            "region": {
+              "left": 0.077849,
+              "top": 0.836823,
+              "width": 0.062366,
+              "height": 0.007976
+            },
+            "confidence": 0.982107,
+            "rotation": 0
+          },
+          {
+            "text": "Sample product data | Not for construction",
+            "region": {
+              "left": 0.077849,
+              "top": 0.962114,
+              "width": 0.214194,
+              "height": 0.009638
+            },
+            "confidence": 0.924991,
+            "rotation": 0
+          },
+          {
+            "text": "Page 2 of 2",
+            "region": {
+              "left": 0.854194,
+              "top": 0.962114,
+              "width": 0.058495,
+              "height": 0.008973
+            },
+            "confidence": 0.968291,
+            "rotation": 0
+          }
+        ],
+        "words": [
+          {
+            "text": "TYPE",
+            "region": {
+              "left": 0.07828,
+              "top": 0.053838,
+              "width": 0.04172,
+              "height": 0.009305
+            },
+            "confidence": 0.987776,
+            "rotation": 0
+          },
+          {
+            "text": "C",
+            "region": {
+              "left": 0.125161,
+              "top": 0.053838,
+              "width": 0.010753,
+              "height": 0.009305
+            },
+            "confidence": 0.980825,
+            "rotation": 0
+          },
+          {
+            "text": "PRODUCT",
+            "region": {
+              "left": 0.142366,
+              "top": 0.053838,
+              "width": 0.07914,
+              "height": 0.009305
+            },
+            "confidence": 0.992493,
+            "rotation": 0
+          },
+          {
+            "text": "DATA",
+            "region": {
+              "left": 0.227527,
+              "top": 0.053838,
+              "width": 0.045161,
+              "height": 0.009305
+            },
+            "confidence": 0.97805,
+            "rotation": 0
+          },
+          {
+            "text": "Hollow-core",
+            "region": {
+              "left": 0.07957,
+              "top": 0.079761,
+              "width": 0.203441,
+              "height": 0.020273
+            },
+            "confidence": 0.988463,
+            "rotation": 0
+          },
+          {
+            "text": "flush",
+            "region": {
+              "left": 0.293333,
+              "top": 0.079761,
+              "width": 0.084301,
+              "height": 0.020273
+            },
+            "confidence": 0.974686,
+            "rotation": 0
+          },
+          {
+            "text": "wood",
+            "region": {
+              "left": 0.388817,
+              "top": 0.079761,
+              "width": 0.092473,
+              "height": 0.020273
+            },
+            "confidence": 0.983583,
+            "rotation": 0
+          },
+          {
+            "text": "door",
+            "region": {
+              "left": 0.493763,
+              "top": 0.079761,
+              "width": 0.08086,
+              "height": 0.020273
+            },
+            "confidence": 0.98879,
+            "rotation": 0
+          },
+          {
+            "text": "Model",
+            "region": {
+              "left": 0.07871,
+              "top": 0.119973,
+              "width": 0.043441,
+              "height": 0.008973
+            },
+            "confidence": 0.991104,
+            "rotation": 0
+          },
+          {
+            "text": "BRD-HC2480-BIR",
+            "region": {
+              "left": 0.128172,
+              "top": 0.119973,
+              "width": 0.131183,
+              "height": 0.008973
+            },
+            "confidence": 0.983562,
+            "rotation": 0
+          },
+          {
+            "text": "Door",
+            "region": {
+              "left": 0.07871,
+              "top": 0.184779,
+              "width": 0.04172,
+              "height": 0.009638
+            },
+            "confidence": 0.979198,
+            "rotation": 0
+          },
+          {
+            "text": "elevation",
+            "region": {
+              "left": 0.125161,
+              "top": 0.184779,
+              "width": 0.076989,
+              "height": 0.009638
+            },
+            "confidence": 0.99357,
+            "rotation": 0
+          },
+          {
+            "text": "FLUSH",
+            "region": {
+              "left": 0.15871,
+              "top": 0.415753,
+              "width": 0.042151,
+              "height": 0.006979
+            },
+            "confidence": 0.986131,
+            "rotation": 0
+          },
+          {
+            "text": "FACE",
+            "region": {
+              "left": 0.205591,
+              "top": 0.415753,
+              "width": 0.034839,
+              "height": 0.006979
+            },
+            "confidence": 0.991457,
+            "rotation": 0
+          },
+          {
+            "text": "24",
+            "region": {
+              "left": 0.153118,
+              "top": 0.598538,
+              "width": 0.013763,
+              "height": 0.007311
+            },
+            "confidence": 0.979403,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.171183,
+              "top": 0.598538,
+              "width": 0.009892,
+              "height": 0.006979
+            },
+            "confidence": 0.973502,
+            "rotation": 0
+          },
+          {
+            "text": "x",
+            "region": {
+              "left": 0.184516,
+              "top": 0.598538,
+              "width": 0.006882,
+              "height": 0.006979
+            },
+            "confidence": 0.913418,
+            "rotation": 0
+          },
+          {
+            "text": "80",
+            "region": {
+              "left": 0.195269,
+              "top": 0.598538,
+              "width": 0.014194,
+              "height": 0.006979
+            },
+            "confidence": 0.977743,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.213333,
+              "top": 0.598538,
+              "width": 0.009892,
+              "height": 0.006979
+            },
+            "confidence": 0.990287,
+            "rotation": 0
+          },
+          {
+            "text": "O",
+            "region": {
+              "left": 0.313118,
+              "top": 0.412762,
+              "width": 0.010753,
+              "height": 0.010635
+            },
+            "confidence": 0.639707,
+            "rotation": 88
+          },
+          {
+            "text": "Product",
+            "region": {
+              "left": 0.436559,
+              "top": 0.189432,
+              "width": 0.067097,
+              "height": 0.010635
+            },
+            "confidence": 0.992661,
+            "rotation": 0
+          },
+          {
+            "text": "characteristics",
+            "region": {
+              "left": 0.509247,
+              "top": 0.189099,
+              "width": 0.125161,
+              "height": 0.010635
+            },
+            "confidence": 0.99046,
+            "rotation": 0
+          },
+          {
+            "text": "Use",
+            "region": {
+              "left": 0.449462,
+              "top": 0.231638,
+              "width": 0.024086,
+              "height": 0.006979
+            },
+            "confidence": 0.932952,
+            "rotation": 0
+          },
+          {
+            "text": "Interior,",
+            "region": {
+              "left": 0.630968,
+              "top": 0.230641,
+              "width": 0.043011,
+              "height": 0.008973
+            },
+            "confidence": 0.977963,
+            "rotation": 0
+          },
+          {
+            "text": "non-rated",
+            "region": {
+              "left": 0.67828,
+              "top": 0.230309,
+              "width": 0.055484,
+              "height": 0.008641
+            },
+            "confidence": 0.985988,
+            "rotation": 0
+          },
+          {
+            "text": "Nominal",
+            "region": {
+              "left": 0.449462,
+              "top": 0.260552,
+              "width": 0.051613,
+              "height": 0.007311
+            },
+            "confidence": 0.982062,
+            "rotation": 0
+          },
+          {
+            "text": "size",
+            "region": {
+              "left": 0.504086,
+              "top": 0.260552,
+              "width": 0.024946,
+              "height": 0.007311
+            },
+            "confidence": 0.988919,
+            "rotation": 0
+          },
+          {
+            "text": "24",
+            "region": {
+              "left": 0.630108,
+              "top": 0.260884,
+              "width": 0.014624,
+              "height": 0.006979
+            },
+            "confidence": 0.986293,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.648602,
+              "top": 0.260884,
+              "width": 0.009462,
+              "height": 0.006979
+            },
+            "confidence": 0.976493,
+            "rotation": 0
+          },
+          {
+            "text": "x",
+            "region": {
+              "left": 0.662366,
+              "top": 0.260884,
+              "width": 0.006882,
+              "height": 0.006979
+            },
+            "confidence": 0.928807,
+            "rotation": 0
+          },
+          {
+            "text": "80",
+            "region": {
+              "left": 0.672688,
+              "top": 0.260884,
+              "width": 0.013763,
+              "height": 0.006979
+            },
+            "confidence": 0.978771,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.691183,
+              "top": 0.260884,
+              "width": 0.009462,
+              "height": 0.006979
+            },
+            "confidence": 0.978239,
+            "rotation": 0
+          },
+          {
+            "text": "Thickness",
+            "region": {
+              "left": 0.449462,
+              "top": 0.289465,
+              "width": 0.063656,
+              "height": 0.007311
+            },
+            "confidence": 0.989989,
+            "rotation": 0
+          },
+          {
+            "text": "1-3/8",
+            "region": {
+              "left": 0.631398,
+              "top": 0.289465,
+              "width": 0.027957,
+              "height": 0.006979
+            },
+            "confidence": 0.973543,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.664086,
+              "top": 0.289465,
+              "width": 0.008602,
+              "height": 0.006647
+            },
+            "confidence": 0.984355,
+            "rotation": 0
+          },
+          {
+            "text": "Core",
+            "region": {
+              "left": 0.449032,
+              "top": 0.318711,
+              "width": 0.029677,
+              "height": 0.006979
+            },
+            "confidence": 0.830464,
+            "rotation": 0
+          },
+          {
+            "text": "Stiles",
+            "region": {
+              "left": 0.449032,
+              "top": 0.347624,
+              "width": 0.034839,
+              "height": 0.007311
+            },
+            "confidence": 0.971612,
+            "rotation": 0
+          },
+          {
+            "text": "and",
+            "region": {
+              "left": 0.487312,
+              "top": 0.347624,
+              "width": 0.023226,
+              "height": 0.007311
+            },
+            "confidence": 0.991035,
+            "rotation": 0
+          },
+          {
+            "text": "rails",
+            "region": {
+              "left": 0.514839,
+              "top": 0.347624,
+              "width": 0.026667,
+              "height": 0.007311
+            },
+            "confidence": 0.992937,
+            "rotation": 0
+          },
+          {
+            "text": "Faces",
+            "region": {
+              "left": 0.449032,
+              "top": 0.376537,
+              "width": 0.036559,
+              "height": 0.007644
+            },
+            "confidence": 0.864654,
+            "rotation": 0
+          },
+          {
+            "text": "Hollow",
+            "region": {
+              "left": 0.630968,
+              "top": 0.318378,
+              "width": 0.03871,
+              "height": 0.008641
+            },
+            "confidence": 0.989847,
+            "rotation": 0
+          },
+          {
+            "text": "honeycomb",
+            "region": {
+              "left": 0.673978,
+              "top": 0.318378,
+              "width": 0.067957,
+              "height": 0.008973
+            },
+            "confidence": 0.99213,
+            "rotation": 0
+          },
+          {
+            "text": "core",
+            "region": {
+              "left": 0.744516,
+              "top": 0.318711,
+              "width": 0.025806,
+              "height": 0.008641
+            },
+            "confidence": 0.983607,
+            "rotation": 0
+          },
+          {
+            "text": "Composite",
+            "region": {
+              "left": 0.630108,
+              "top": 0.346627,
+              "width": 0.062796,
+              "height": 0.010302
+            },
+            "confidence": 0.983417,
+            "rotation": 0
+          },
+          {
+            "text": "wood",
+            "region": {
+              "left": 0.695914,
+              "top": 0.346294,
+              "width": 0.031828,
+              "height": 0.009638
+            },
+            "confidence": 0.968814,
+            "rotation": 0
+          },
+          {
+            "text": "Birch",
+            "region": {
+              "left": 0.630968,
+              "top": 0.376537,
+              "width": 0.028387,
+              "height": 0.007644
+            },
+            "confidence": 0.990031,
+            "rotation": 0
+          },
+          {
+            "text": "veneer,",
+            "region": {
+              "left": 0.663656,
+              "top": 0.376537,
+              "width": 0.043441,
+              "height": 0.007644
+            },
+            "confidence": 0.988104,
+            "rotation": 0
+          },
+          {
+            "text": "flush",
+            "region": {
+              "left": 0.710968,
+              "top": 0.376537,
+              "width": 0.027527,
+              "height": 0.007644
+            },
+            "confidence": 0.991002,
+            "rotation": 0
+          },
+          {
+            "text": "Finish",
+            "region": {
+              "left": 0.449462,
+              "top": 0.406115,
+              "width": 0.037849,
+              "height": 0.007311
+            },
+            "confidence": 0.983391,
+            "rotation": 0
+          },
+          {
+            "text": "Clear",
+            "region": {
+              "left": 0.630538,
+              "top": 0.40545,
+              "width": 0.031828,
+              "height": 0.009305
+            },
+            "confidence": 0.988539,
+            "rotation": 0
+          },
+          {
+            "text": "factory",
+            "region": {
+              "left": 0.664946,
+              "top": 0.40545,
+              "width": 0.04043,
+              "height": 0.009305
+            },
+            "confidence": 0.990872,
+            "rotation": 0
+          },
+          {
+            "text": "finish",
+            "region": {
+              "left": 0.707527,
+              "top": 0.40545,
+              "width": 0.031398,
+              "height": 0.009305
+            },
+            "confidence": 0.982345,
+            "rotation": 0
+          },
+          {
+            "text": "Warranty",
+            "region": {
+              "left": 0.448602,
+              "top": 0.434364,
+              "width": 0.056774,
+              "height": 0.008973
+            },
+            "confidence": 0.974182,
+            "rotation": 0
+          },
+          {
+            "text": "One",
+            "region": {
+              "left": 0.630538,
+              "top": 0.434364,
+              "width": 0.024086,
+              "height": 0.009305
+            },
+            "confidence": 0.970132,
+            "rotation": 0
+          },
+          {
+            "text": "year",
+            "region": {
+              "left": 0.658065,
+              "top": 0.434364,
+              "width": 0.026237,
+              "height": 0.008973
+            },
+            "confidence": 0.99275,
+            "rotation": 0
+          },
+          {
+            "text": "limited",
+            "region": {
+              "left": 0.688172,
+              "top": 0.434031,
+              "width": 0.036989,
+              "height": 0.009305
+            },
+            "confidence": 0.994787,
+            "rotation": 0
+          },
+          {
+            "text": "PRODUCT",
+            "region": {
+              "left": 0.458925,
+              "top": 0.519109,
+              "width": 0.064086,
+              "height": 0.007976
+            },
+            "confidence": 0.989196,
+            "rotation": 0
+          },
+          {
+            "text": "DESCRIPTION",
+            "region": {
+              "left": 0.528172,
+              "top": 0.519109,
+              "width": 0.087742,
+              "height": 0.007976
+            },
+            "confidence": 0.980409,
+            "rotation": 0
+          },
+          {
+            "text": "Factory-assembled",
+            "region": {
+              "left": 0.459785,
+              "top": 0.542041,
+              "width": 0.123441,
+              "height": 0.010635
+            },
+            "confidence": 0.991519,
+            "rotation": 0
+          },
+          {
+            "text": "flush",
+            "region": {
+              "left": 0.588387,
+              "top": 0.542041,
+              "width": 0.029677,
+              "height": 0.010635
+            },
+            "confidence": 0.984023,
+            "rotation": 0
+          },
+          {
+            "text": "wood",
+            "region": {
+              "left": 0.623226,
+              "top": 0.542041,
+              "width": 0.033548,
+              "height": 0.010635
+            },
+            "confidence": 0.98224,
+            "rotation": 0
+          },
+          {
+            "text": "door",
+            "region": {
+              "left": 0.662366,
+              "top": 0.542041,
+              "width": 0.029677,
+              "height": 0.010635
+            },
+            "confidence": 0.982405,
+            "rotation": 0
+          },
+          {
+            "text": "for",
+            "region": {
+              "left": 0.695484,
+              "top": 0.542041,
+              "width": 0.018495,
+              "height": 0.010635
+            },
+            "confidence": 0.987589,
+            "rotation": 0
+          },
+          {
+            "text": "non-rated",
+            "region": {
+              "left": 0.717849,
+              "top": 0.542041,
+              "width": 0.061505,
+              "height": 0.010635
+            },
+            "confidence": 0.990729,
+            "rotation": 0
+          },
+          {
+            "text": "interior",
+            "region": {
+              "left": 0.784946,
+              "top": 0.542041,
+              "width": 0.044731,
+              "height": 0.010635
+            },
+            "confidence": 0.985388,
+            "rotation": 0
+          },
+          {
+            "text": "openings.",
+            "region": {
+              "left": 0.833118,
+              "top": 0.542041,
+              "width": 0.063656,
+              "height": 0.010635
+            },
+            "confidence": 0.98244,
+            "rotation": 0
+          },
+          {
+            "text": "Supply",
+            "region": {
+              "left": 0.458495,
+              "top": 0.557993,
+              "width": 0.045591,
+              "height": 0.010635
+            },
+            "confidence": 0.988051,
+            "rotation": 0
+          },
+          {
+            "text": "with",
+            "region": {
+              "left": 0.506667,
+              "top": 0.557993,
+              "width": 0.026237,
+              "height": 0.010302
+            },
+            "confidence": 0.993181,
+            "rotation": 0
+          },
+          {
+            "text": "clear-finished",
+            "region": {
+              "left": 0.537634,
+              "top": 0.55766,
+              "width": 0.086452,
+              "height": 0.010635
+            },
+            "confidence": 0.990878,
+            "rotation": 0
+          },
+          {
+            "text": "birch",
+            "region": {
+              "left": 0.630108,
+              "top": 0.557328,
+              "width": 0.030107,
+              "height": 0.010635
+            },
+            "confidence": 0.991971,
+            "rotation": 0
+          },
+          {
+            "text": "veneer",
+            "region": {
+              "left": 0.664946,
+              "top": 0.557328,
+              "width": 0.046022,
+              "height": 0.010302
+            },
+            "confidence": 0.993075,
+            "rotation": 0
+          },
+          {
+            "text": "faces.",
+            "region": {
+              "left": 0.713978,
+              "top": 0.556996,
+              "width": 0.03957,
+              "height": 0.010635
+            },
+            "confidence": 0.973742,
+            "rotation": 0
+          },
+          {
+            "text": "Storage",
+            "region": {
+              "left": 0.07871,
+              "top": 0.649053,
+              "width": 0.065806,
+              "height": 0.012629
+            },
+            "confidence": 0.981128,
+            "rotation": 0
+          },
+          {
+            "text": "and",
+            "region": {
+              "left": 0.150538,
+              "top": 0.649053,
+              "width": 0.030538,
+              "height": 0.012629
+            },
+            "confidence": 0.989416,
+            "rotation": 0
+          },
+          {
+            "text": "handling",
+            "region": {
+              "left": 0.187527,
+              "top": 0.649053,
+              "width": 0.073548,
+              "height": 0.012629
+            },
+            "confidence": 0.992465,
+            "rotation": 0
+          },
+          {
+            "text": "Store",
+            "region": {
+              "left": 0.077849,
+              "top": 0.677301,
+              "width": 0.034839,
+              "height": 0.010635
+            },
+            "confidence": 0.984818,
+            "rotation": 0
+          },
+          {
+            "text": "doors",
+            "region": {
+              "left": 0.117419,
+              "top": 0.677301,
+              "width": 0.036559,
+              "height": 0.010635
+            },
+            "confidence": 0.986376,
+            "rotation": 0
+          },
+          {
+            "text": "flat",
+            "region": {
+              "left": 0.157849,
+              "top": 0.677301,
+              "width": 0.020215,
+              "height": 0.010635
+            },
+            "confidence": 0.990907,
+            "rotation": 0
+          },
+          {
+            "text": "in",
+            "region": {
+              "left": 0.182796,
+              "top": 0.677301,
+              "width": 0.009892,
+              "height": 0.010635
+            },
+            "confidence": 0.987073,
+            "rotation": 0
+          },
+          {
+            "text": "a",
+            "region": {
+              "left": 0.197849,
+              "top": 0.677301,
+              "width": 0.006882,
+              "height": 0.010635
+            },
+            "confidence": 0.992094,
+            "rotation": 0
+          },
+          {
+            "text": "dry,",
+            "region": {
+              "left": 0.209892,
+              "top": 0.677301,
+              "width": 0.024086,
+              "height": 0.010635
+            },
+            "confidence": 0.975582,
+            "rotation": 0
+          },
+          {
+            "text": "ventilated",
+            "region": {
+              "left": 0.23871,
+              "top": 0.677301,
+              "width": 0.061505,
+              "height": 0.010635
+            },
+            "confidence": 0.992674,
+            "rotation": 0
+          },
+          {
+            "text": "interior",
+            "region": {
+              "left": 0.306237,
+              "top": 0.677301,
+              "width": 0.044731,
+              "height": 0.010635
+            },
+            "confidence": 0.971947,
+            "rotation": 0
+          },
+          {
+            "text": "space.",
+            "region": {
+              "left": 0.354839,
+              "top": 0.677301,
+              "width": 0.042581,
+              "height": 0.010635
+            },
+            "confidence": 0.989545,
+            "rotation": 0
+          },
+          {
+            "text": "Protect",
+            "region": {
+              "left": 0.402581,
+              "top": 0.677301,
+              "width": 0.045591,
+              "height": 0.010635
+            },
+            "confidence": 0.969922,
+            "rotation": 0
+          },
+          {
+            "text": "finished",
+            "region": {
+              "left": 0.452473,
+              "top": 0.677301,
+              "width": 0.049892,
+              "height": 0.010635
+            },
+            "confidence": 0.978654,
+            "rotation": 0
+          },
+          {
+            "text": "faces",
+            "region": {
+              "left": 0.507527,
+              "top": 0.677301,
+              "width": 0.034409,
+              "height": 0.010635
+            },
+            "confidence": 0.993339,
+            "rotation": 0
+          },
+          {
+            "text": "from",
+            "region": {
+              "left": 0.546667,
+              "top": 0.677301,
+              "width": 0.028387,
+              "height": 0.010635
+            },
+            "confidence": 0.99034,
+            "rotation": 0
+          },
+          {
+            "text": "dirt,",
+            "region": {
+              "left": 0.580645,
+              "top": 0.677301,
+              "width": 0.023226,
+              "height": 0.010635
+            },
+            "confidence": 0.977504,
+            "rotation": 0
+          },
+          {
+            "text": "moisture,",
+            "region": {
+              "left": 0.609462,
+              "top": 0.677301,
+              "width": 0.059355,
+              "height": 0.010635
+            },
+            "confidence": 0.987951,
+            "rotation": 0
+          },
+          {
+            "text": "direct",
+            "region": {
+              "left": 0.673978,
+              "top": 0.677301,
+              "width": 0.035269,
+              "height": 0.010635
+            },
+            "confidence": 0.992241,
+            "rotation": 0
+          },
+          {
+            "text": "sunlight,",
+            "region": {
+              "left": 0.713978,
+              "top": 0.677301,
+              "width": 0.053333,
+              "height": 0.010635
+            },
+            "confidence": 0.978275,
+            "rotation": 0
+          },
+          {
+            "text": "and",
+            "region": {
+              "left": 0.772903,
+              "top": 0.677301,
+              "width": 0.022366,
+              "height": 0.010635
+            },
+            "confidence": 0.980289,
+            "rotation": 0
+          },
+          {
+            "text": "construction",
+            "region": {
+              "left": 0.80129,
+              "top": 0.677301,
+              "width": 0.07828,
+              "height": 0.010635
+            },
+            "confidence": 0.980389,
+            "rotation": 0
+          },
+          {
+            "text": "damage.",
+            "region": {
+              "left": 0.07828,
+              "top": 0.695248,
+              "width": 0.056344,
+              "height": 0.00997
+            },
+            "confidence": 0.985038,
+            "rotation": 0
+          },
+          {
+            "text": "Installation",
+            "region": {
+              "left": 0.07871,
+              "top": 0.790628,
+              "width": 0.092903,
+              "height": 0.009638
+            },
+            "confidence": 0.984393,
+            "rotation": 0
+          },
+          {
+            "text": "Field",
+            "region": {
+              "left": 0.07914,
+              "top": 0.818544,
+              "width": 0.030108,
+              "height": 0.010967
+            },
+            "confidence": 0.987818,
+            "rotation": 0
+          },
+          {
+            "text": "verify",
+            "region": {
+              "left": 0.113978,
+              "top": 0.818544,
+              "width": 0.036559,
+              "height": 0.010967
+            },
+            "confidence": 0.988329,
+            "rotation": 0
+          },
+          {
+            "text": "each",
+            "region": {
+              "left": 0.153548,
+              "top": 0.818544,
+              "width": 0.031398,
+              "height": 0.010967
+            },
+            "confidence": 0.987458,
+            "rotation": 0
+          },
+          {
+            "text": "opening",
+            "region": {
+              "left": 0.189677,
+              "top": 0.818544,
+              "width": 0.051613,
+              "height": 0.010967
+            },
+            "confidence": 0.989496,
+            "rotation": 0
+          },
+          {
+            "text": "before",
+            "region": {
+              "left": 0.246452,
+              "top": 0.818544,
+              "width": 0.04043,
+              "height": 0.010967
+            },
+            "confidence": 0.99354,
+            "rotation": 0
+          },
+          {
+            "text": "fabrication.",
+            "region": {
+              "left": 0.291613,
+              "top": 0.818544,
+              "width": 0.071398,
+              "height": 0.010967
+            },
+            "confidence": 0.989068,
+            "rotation": 0
+          },
+          {
+            "text": "Install",
+            "region": {
+              "left": 0.368602,
+              "top": 0.818544,
+              "width": 0.036559,
+              "height": 0.010967
+            },
+            "confidence": 0.983962,
+            "rotation": 0
+          },
+          {
+            "text": "plumb",
+            "region": {
+              "left": 0.410753,
+              "top": 0.818544,
+              "width": 0.03957,
+              "height": 0.010967
+            },
+            "confidence": 0.990071,
+            "rotation": 0
+          },
+          {
+            "text": "and",
+            "region": {
+              "left": 0.454194,
+              "top": 0.818544,
+              "width": 0.023226,
+              "height": 0.010967
+            },
+            "confidence": 0.989573,
+            "rotation": 0
+          },
+          {
+            "text": "square",
+            "region": {
+              "left": 0.483011,
+              "top": 0.818544,
+              "width": 0.044731,
+              "height": 0.010967
+            },
+            "confidence": 0.989187,
+            "rotation": 0
+          },
+          {
+            "text": "with",
+            "region": {
+              "left": 0.531613,
+              "top": 0.818544,
+              "width": 0.025806,
+              "height": 0.010967
+            },
+            "confidence": 0.98637,
+            "rotation": 0
+          },
+          {
+            "text": "uniform",
+            "region": {
+              "left": 0.563011,
+              "top": 0.818544,
+              "width": 0.047312,
+              "height": 0.010967
+            },
+            "confidence": 0.989623,
+            "rotation": 0
+          },
+          {
+            "text": "clearances.",
+            "region": {
+              "left": 0.615054,
+              "top": 0.818544,
+              "width": 0.074839,
+              "height": 0.010967
+            },
+            "confidence": 0.981155,
+            "rotation": 0
+          },
+          {
+            "text": "Follow",
+            "region": {
+              "left": 0.695484,
+              "top": 0.818544,
+              "width": 0.04129,
+              "height": 0.010967
+            },
+            "confidence": 0.981764,
+            "rotation": 0
+          },
+          {
+            "text": "the",
+            "region": {
+              "left": 0.741075,
+              "top": 0.818544,
+              "width": 0.019355,
+              "height": 0.010967
+            },
+            "confidence": 0.992074,
+            "rotation": 0
+          },
+          {
+            "text": "approved",
+            "region": {
+              "left": 0.766021,
+              "top": 0.818544,
+              "width": 0.059785,
+              "height": 0.010967
+            },
+            "confidence": 0.991997,
+            "rotation": 0
+          },
+          {
+            "text": "hardware",
+            "region": {
+              "left": 0.831828,
+              "top": 0.818544,
+              "width": 0.061075,
+              "height": 0.010967
+            },
+            "confidence": 0.987404,
+            "rotation": 0
+          },
+          {
+            "text": "schedule.",
+            "region": {
+              "left": 0.077849,
+              "top": 0.836823,
+              "width": 0.062366,
+              "height": 0.007976
+            },
+            "confidence": 0.982107,
+            "rotation": 0
+          },
+          {
+            "text": "Sample",
+            "region": {
+              "left": 0.077849,
+              "top": 0.962778,
+              "width": 0.03871,
+              "height": 0.008973
+            },
+            "confidence": 0.9906,
+            "rotation": 0
+          },
+          {
+            "text": "product",
+            "region": {
+              "left": 0.12,
+              "top": 0.962446,
+              "width": 0.037849,
+              "height": 0.008973
+            },
+            "confidence": 0.990197,
+            "rotation": 0
+          },
+          {
+            "text": "data",
+            "region": {
+              "left": 0.16129,
+              "top": 0.962446,
+              "width": 0.021505,
+              "height": 0.008641
+            },
+            "confidence": 0.98422,
+            "rotation": 0
+          },
+          {
+            "text": "|",
+            "region": {
+              "left": 0.187097,
+              "top": 0.962446,
+              "width": 0.002581,
+              "height": 0.008641
+            },
+            "confidence": 0.660323,
+            "rotation": 0
+          },
+          {
+            "text": "Not",
+            "region": {
+              "left": 0.193118,
+              "top": 0.962446,
+              "width": 0.017204,
+              "height": 0.008641
+            },
+            "confidence": 0.881174,
+            "rotation": 0
+          },
+          {
+            "text": "for",
+            "region": {
+              "left": 0.213333,
+              "top": 0.962446,
+              "width": 0.013763,
+              "height": 0.008641
+            },
+            "confidence": 0.989754,
+            "rotation": 0
+          },
+          {
+            "text": "construction",
+            "region": {
+              "left": 0.230108,
+              "top": 0.962114,
+              "width": 0.061935,
+              "height": 0.008973
+            },
+            "confidence": 0.978669,
+            "rotation": 0
+          },
+          {
+            "text": "Page",
+            "region": {
+              "left": 0.854194,
+              "top": 0.962778,
+              "width": 0.026667,
+              "height": 0.008308
+            },
+            "confidence": 0.955085,
+            "rotation": 0
+          },
+          {
+            "text": "2",
+            "region": {
+              "left": 0.883441,
+              "top": 0.962778,
+              "width": 0.006882,
+              "height": 0.007644
+            },
+            "confidence": 0.97503,
+            "rotation": 0
+          },
+          {
+            "text": "of",
+            "region": {
+              "left": 0.892903,
+              "top": 0.962446,
+              "width": 0.011613,
+              "height": 0.007644
+            },
+            "confidence": 0.95684,
+            "rotation": 0
+          },
+          {
+            "text": "2",
+            "region": {
+              "left": 0.905806,
+              "top": 0.962114,
+              "width": 0.006882,
+              "height": 0.007644
+            },
+            "confidence": 0.986209,
+            "rotation": 0
+          }
+        ]
+      }
+    }
+  ]
+}
