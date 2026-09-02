@@ -79,8 +79,9 @@ pnpm build
 pnpm preview
 ```
 
-Deploy that build to the configured Cloudflare Pages project with `pnpm
-deploy`. Wrangler reads `wrangler.jsonc` and uploads only `dist/`.
+Deploy that build to the configured Cloudflare Worker with static assets using
+`pnpm deploy`. Wrangler reads `wrangler.jsonc` and uploads `dist/` for the
+Worker to serve with SPA fallback.
 
 ## Verify
 
