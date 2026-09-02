@@ -32,6 +32,14 @@ _Avoid_: Document review, PDF review
 Exploring construction documents in a Project Workspace independently of any active Assistance Request or Submittal Review.
 _Avoid_: Document review, PDF review
 
+**Document Evidence**:
+Content from one immutable document version that may support a claim and can be traced to a page and, when available, a region.
+_Avoid_: Search result, search hint
+
+**Search Hint**:
+Derived text that helps an External Agent locate Document Evidence but cannot support a claim by itself.
+_Avoid_: Evidence, citation
+
 **Assistance Request**:
 A request from an External Agent for one judgment from a Senior Project Manager, with one required response type.
 _Avoid_: Human request, question
