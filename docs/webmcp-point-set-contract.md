@@ -31,7 +31,7 @@ The Assistance schemas, annotations, limits, and result shapes are locked by
 application path is locked independently by
 `src/application/createGroundedApp.test.tsx`.
 
-## Navigate a Project Document or page
+## Navigate a Project Document, page, or Document Region
 
 Tool: `navigate_document`
 
@@ -42,8 +42,8 @@ document's current immutable `versionId`; callers cannot provide or select a
 `documentVersionId`, and additional root properties are rejected.
 
 Omitting `target` opens the Project Document at its most recently visited page
-in the current Demo Session, falling back to its first page. The only explicit
-target currently accepted is this strict page shape:
+in the current Demo Session, falling back to its first page. An explicit target
+is either a strict page shape:
 
 ```json
 {
@@ -55,11 +55,33 @@ target currently accepted is this strict page shape:
 }
 ```
 
-`pageId` is a non-empty stable identity of at most 200 characters. The target
-rejects additional properties, including display labels, page numbers, titles,
-and indexes. Both document-only and page navigation use ordinary full-page fit
-at 100 percent. A successful call returns only after that page and fit are
-visibly rendered:
+or a strict raw Document Region shape:
+
+```json
+{
+  "documentId": "virginia-farmhouse-drawings",
+  "target": {
+    "type": "region",
+    "pageId": "sheet-a1.2",
+    "region": {
+      "left": 0.4,
+      "top": 0.35,
+      "width": 0.2,
+      "height": 0.2
+    }
+  }
+}
+```
+
+`pageId` is a non-empty stable identity of at most 200 characters. Every target
+and nested region rejects additional properties, including display labels, page
+numbers, titles, and indexes. Region values use the top-left normalized
+coordinate convention: `left` and `top` are finite values from zero through one;
+`width` and `height` are finite and positive; and the complete rectangle must
+remain inside the page.
+
+Document-only and page navigation use ordinary full-page fit at 100 percent. A
+successful call returns only after that page and fit are visibly rendered:
 
 ```json
 {
@@ -80,8 +102,43 @@ Document Evidence, Search Hints, OCR, highlights, or Assistance content.
 Unknown document and foreign page identities fail before changing the visible
 workspace.
 
+A region target creates transient Document Focus. Grounded fits the complete
+region into the unobscured viewer, centers it when page-edge clamping permits,
+reserves 10 percent of the usable viewport on every edge, excludes right and
+bottom control overlays, and clamps the computed scale to the existing 25–400
+percent range. The existing zoom percentage shows the actual scale and the
+applied result reports it with the exact normalized region:
+
+```json
+{
+  "status": "applied",
+  "document": {
+    "id": "virginia-farmhouse-drawings",
+    "versionId": "virginia-farmhouse-drawings-v1"
+  },
+  "page": { "id": "sheet-a1.2" },
+  "type": "region",
+  "fit": "region",
+  "region": {
+    "left": 0.4,
+    "top": 0.35,
+    "width": 0.2,
+    "height": 0.2
+  },
+  "zoom": 3.84
+}
+```
+
+Document Focus adds no button, highlight, selection, annotation, focus outline,
+badge, or other visible decoration. It recalculates from the normalized region
+when the viewport resizes. Human pan, zoom, fit, page, or document actions clear
+it and remain authoritative. The selected document and page are persisted, but
+the focus scale and offset are not: reload restores that page with ordinary
+full-page fit at 100 percent. Ordinary human browsing preferences continue to
+persist normally.
+
 Visible completion is failure-safe and human-controlled. One navigation call
-owns the viewer only until its requested page and full-page fit are visibly
+owns the viewer only until its requested page and requested fit are visibly
 applied, a newer agent call arrives, or the Senior Project Manager pans, zooms,
 uses an existing fit action, selects a page, or selects a document. A newer
 agent or human action supersedes the pending call immediately. The superseded
@@ -100,7 +157,7 @@ Late rendering from a superseded call cannot complete that call, reclaim the
 view, or roll back the newer destination. Repeating an exact destination while
 its page and fit are still visibly applied returns the existing applied result
 without rendering again. If the human has moved the view, the same input
-reapplies full-page fit before returning `applied`.
+reapplies its page or region fit before returning `applied`.
 
 Each call has a 15-second internal visible-render deadline. A PDF render failure
 or deadline expiry restores the last successfully displayed document and page

@@ -600,6 +600,91 @@ test('visible navigation acknowledgement is keyed to the current viewer request'
   )
 })
 
+test('Document Focus recomputes its effective zoom and remains acknowledged after resize', async () => {
+  const originalResizeObserver = globalThis.ResizeObserver
+  let resize: ((width: number, height: number) => void) | undefined
+  class ControlledResizeObserver implements ResizeObserver {
+    private readonly callback: ResizeObserverCallback
+    constructor(callback: ResizeObserverCallback) {
+      this.callback = callback
+    }
+    disconnect() {}
+    observe(target: Element) {
+      resize = (width, height) => this.callback([{
+        target,
+        contentRect: { width, height },
+      } as ResizeObserverEntry], this)
+      resize(600, 500)
+    }
+    unobserve() {}
+  }
+  globalThis.ResizeObserver = ControlledResizeObserver
+
+  try {
+    const renderer: PdfPageRenderer = {
+      renderPage: vi.fn(async () => {}),
+      prefetchPages() {},
+    }
+    const document = findDocument(
+      'virginia-farmhouse-drawings',
+      'virginia-farmhouse-drawings-v1',
+    )!
+    const page = document.pages.find((candidate) => candidate.id === 'sheet-a1.2')!
+    const region = { left: 0.55, top: 0.2, width: 0.3, height: 0.25 }
+    const onEffectiveZoomChange = vi.fn()
+    const onVisibleViewChange = vi.fn()
+    render(
+      <PdfPageViewer
+        canMark={false}
+        document={document}
+        navigationRequest={{
+          id: 47,
+          documentId: document.id,
+          documentVersionId: document.versionId,
+          pageId: page.id,
+          fit: 'region',
+          region,
+        }}
+        onEffectiveZoomChange={onEffectiveZoomChange}
+        onPlacePoint={() => {}}
+        onVisibleViewChange={onVisibleViewChange}
+        page={page}
+        points={[]}
+        renderer={renderer}
+        viewportInsets={{ right: 100, bottom: 80 }}
+        zoom={1}
+      />,
+    )
+
+    await waitFor(() => expect(onVisibleViewChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fit: 'region',
+        region,
+        requestId: 47,
+      }),
+    ))
+    const initialZoom = onEffectiveZoomChange.mock.calls.at(-1)?.[0] as number
+    const initialTransform = globalThis.document.querySelector('.pdf-page-frame')
+      ?.getAttribute('style')
+
+    act(() => resize?.(900, 400))
+    await waitFor(() => expect(onEffectiveZoomChange.mock.calls.at(-1)?.[0])
+      .not.toBe(initialZoom))
+    await waitFor(() => expect(globalThis.document.querySelector('.pdf-page-frame')
+      ?.getAttribute('style')).not.toBe(initialTransform))
+    await waitFor(() => expect(onVisibleViewChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        fit: 'region',
+        region,
+        requestId: 47,
+        zoom: onEffectiveZoomChange.mock.calls.at(-1)?.[0],
+      }),
+    ))
+  } finally {
+    globalThis.ResizeObserver = originalResizeObserver
+  }
+})
+
 test('reports render failure only for the matching viewer request', async () => {
   const renderer: PdfPageRenderer = {
     async renderPage() {

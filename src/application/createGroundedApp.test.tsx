@@ -348,6 +348,177 @@ test('invalid navigate_document identities do not change the visible workbench',
   expect(screen.getByText('110%')).toBeInTheDocument()
 })
 
+test('navigate_document visibly fits a raw Document Region and preserves unfinished Assistance work', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-region-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1', 'request-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
+  const drawingPage = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(drawingPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(drawingPage, { clientX: 40, clientY: 60 })
+  await user.type(
+    screen.getByLabelText('Overall note optional'),
+    'Keep this region review draft.',
+  )
+  const region = { left: 0.4, top: 0.35, width: 0.2, height: 0.2 }
+
+  const result = await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'region', pageId: 'sheet-a1.2', region },
+  })
+
+  expect(result).toEqual({
+    status: 'applied',
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: 'sheet-a1.2' },
+    type: 'region',
+    fit: 'region',
+    region,
+    zoom: expect.closeTo(3.8431372549, 8),
+  })
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(screen.getByText('384%')).toBeInTheDocument()
+  expect(screen.getByText(requestInput.question)).toBeInTheDocument()
+  expect(screen.getByLabelText('Overall note optional')).toHaveValue(
+    'Keep this region review draft.',
+  )
+  expect(within(screen.getByLabelText('Drawing page A1.2')).getByText('1'))
+    .toBeInTheDocument()
+  expect(document.querySelector('.document-focus, .navigation-focus'))
+    .not.toBeInTheDocument()
+})
+
+test('invalid Document Regions fail atomically at the public boundary', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-invalid-region-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const renderCount = pageRenderer.renderPage.mock.calls.length
+  const base = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region',
+      pageId: 'sheet-a1.2',
+      region: { left: 0.8, top: 0.2, width: 0.3, height: 0.2 },
+    },
+  }
+
+  await expect(modelContext.executeTool('navigate_document', base))
+    .rejects.toThrow('contained within the page')
+  await expect(modelContext.executeTool('navigate_document', {
+    ...base,
+    target: {
+      ...base.target,
+      pageId: 'missing-page',
+      region: { left: 0.2, top: 0.2, width: 0.3, height: 0.2 },
+    },
+  })).rejects.toThrow('The page does not belong to the Project Document.')
+  await expect(modelContext.executeTool('navigate_document', {
+    ...base,
+    target: {
+      type: 'page',
+      pageId: 'sheet-a1.2',
+      region: base.target.region,
+    },
+  })).rejects.toThrow('Invalid input')
+  await expect(modelContext.executeTool('navigate_document', {
+    ...base,
+    target: {
+      ...base.target,
+      region: { ...base.target.region, width: Number.NaN },
+    },
+  })).rejects.toThrow('Invalid input')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(renderCount)
+})
+
+test('Document Focus survives idempotence, yields cleanly to humans, and is not restored after reload', async () => {
+  const storage = window.sessionStorage
+  const pageRenderer = createTestPageRenderer()
+  const firstModelContext = createRecordingModelContext()
+  const databaseName = `grounded-transient-region-${crypto.randomUUID()}`
+  const firstRender = render(createGroundedApp({
+    databaseName,
+    modelContext: firstModelContext,
+    pageRenderer,
+    sessionStorage: storage,
+    createId: createIds('session-1'),
+  }))
+  const input = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region' as const,
+      pageId: 'sheet-a1.2',
+      region: { left: 0.4, top: 0.35, width: 0.2, height: 0.2 },
+    },
+  }
+
+  await waitForWebMcpReady()
+  await firstModelContext.executeTool('navigate_document', input)
+  expect(screen.getByText('384%')).toBeInTheDocument()
+  const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
+  await firstModelContext.executeTool('navigate_document', input)
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
+
+  firstRender.unmount()
+
+  const secondModelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName,
+    modelContext: secondModelContext,
+    pageRenderer,
+    sessionStorage: storage,
+    createId: createIds('unexpected-session'),
+  }))
+  await waitForWebMcpReady()
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(screen.getByText('100%')).toBeInTheDocument()
+
+  await secondModelContext.executeTool('navigate_document', input)
+  expect(screen.getByText('384%')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }))
+  expect(screen.getByText('394%')).toBeInTheDocument()
+})
+
 test('navigate_document restores the last visible page after a render failure', async () => {
   const pageRenderer: PdfPageRenderer = {
     renderPage: vi.fn(async ({ canvas, height, pageNumber, width }) => {

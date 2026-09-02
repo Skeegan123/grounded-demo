@@ -1,36 +1,44 @@
 import type { ProjectDocument } from '../demoProject/demoProject'
 import { documentKey } from '../workspace/documentBrowsingState'
 import type { createWorkspaceStore } from '../workspace/workspaceStore'
+import type { DocumentRegion } from './pageGeometry'
 
 const NAVIGATION_TIMEOUT_MS = 15_000
 
 export type DocumentNavigationTarget =
   | { type: 'document' }
   | { type: 'page'; pageId: string }
+  | { type: 'region'; pageId: string; region: DocumentRegion }
 
 export interface NavigateDocumentInput {
   documentId: string
-  target?: { type: 'page'; pageId: string }
+  target?:
+    | { type: 'page'; pageId: string }
+    | { type: 'region'; pageId: string; region: DocumentRegion }
 }
 
 export interface DocumentNavigationExecutionContext {
   signal?: AbortSignal
 }
 
-export interface ViewerNavigationRequest {
+interface ViewerNavigationRequestBase {
   id: number
   documentId: string
   documentVersionId: string
   pageId: string
-  fit: 'page'
-  zoom: 1
 }
+
+export type ViewerNavigationRequest = ViewerNavigationRequestBase & (
+  | { fit: 'page'; zoom: 1 }
+  | { fit: 'region'; region: DocumentRegion }
+)
 
 export interface VisibleDocumentView {
   documentId: string
   documentVersionId: string
   pageId: string
-  fit: 'page' | 'width'
+  fit: 'page' | 'width' | 'region'
+  region?: DocumentRegion
   zoom: number
   requestId?: number
 }
@@ -40,7 +48,8 @@ export interface AppliedDocumentNavigation {
   document: { id: string; versionId: string }
   page: { id: string }
   type: DocumentNavigationTarget['type']
-  fit: 'page'
+  fit: 'page' | 'region'
+  region?: DocumentRegion
   zoom: number
 }
 
@@ -74,6 +83,7 @@ interface CreateDocumentNavigatorOptions {
 interface ResolvedNavigation {
   document: ProjectDocument
   pageId: string
+  region?: DocumentRegion
   type: DocumentNavigationTarget['type']
 }
 
@@ -85,6 +95,7 @@ interface PendingNavigation extends ResolvedNavigation {
   reject: (error: Error) => void
   resolve: (result: DocumentNavigationResult) => void
   timeout?: ReturnType<typeof setTimeout>
+  viewerRequest?: ViewerNavigationRequest
   viewerRequestId: number
 }
 
@@ -94,6 +105,7 @@ export function createDocumentNavigator({
   workspaceStore,
 }: CreateDocumentNavigatorOptions): DocumentNavigator {
   let nextRequestId = 0
+  let activeFocusRequest: ViewerNavigationRequest | undefined
   let pending: PendingNavigation | undefined
   let visibleView: VisibleDocumentView | undefined
 
@@ -108,8 +120,9 @@ export function createDocumentNavigator({
     },
     page: { id: navigation.pageId },
     type: navigation.type,
-    fit: 'page',
+    fit: navigation.region ? 'region' : 'page',
     zoom: view.zoom,
+    ...(navigation.region ? { region: navigation.region } : {}),
   })
 
   const supersededResult = (
@@ -128,8 +141,10 @@ export function createDocumentNavigator({
     view.documentId === navigation.document.id &&
     view.documentVersionId === navigation.document.versionId &&
     view.pageId === navigation.pageId &&
-    view.fit === 'page' &&
-    view.zoom === 1
+    view.fit === (navigation.region ? 'region' : 'page') &&
+    (navigation.region
+      ? regionsEqual(view.region, navigation.region)
+      : view.zoom === 1)
   )
 
   const stateMatches = (navigation: ResolvedNavigation) => {
@@ -157,7 +172,7 @@ export function createDocumentNavigator({
     if (pending !== navigation) return
     pending = undefined
     clearResources(navigation)
-    requestViewerNavigation(undefined)
+    requestViewerNavigation(activeFocusRequest)
     navigation.reject(error)
   }
 
@@ -165,6 +180,7 @@ export function createDocumentNavigator({
     if (pending !== navigation) return
     pending = undefined
     clearResources(navigation)
+    activeFocusRequest = undefined
     requestViewerNavigation(undefined)
     if (navigation.phase === 'rollback') {
       navigation.reject(navigation.error!)
@@ -177,15 +193,18 @@ export function createDocumentNavigator({
     navigation: PendingNavigation,
     view: VisibleDocumentView,
   ) => {
-    const request: ViewerNavigationRequest = {
+    const requestBase: ViewerNavigationRequestBase = {
       id: ++nextRequestId,
       documentId: view.documentId,
       documentVersionId: view.documentVersionId,
       pageId: view.pageId,
-      fit: 'page',
-      zoom: 1,
     }
+    const request: ViewerNavigationRequest =
+      view.fit === 'region' && view.region
+        ? { ...requestBase, fit: 'region', region: view.region }
+        : { ...requestBase, fit: 'page', zoom: 1 }
     navigation.viewerRequestId = request.id
+    navigation.viewerRequest = request
     requestViewerNavigation(request)
   }
 
@@ -238,18 +257,24 @@ export function createDocumentNavigator({
     const rememberedPageId = workspaceStore.getState().lastPageIdByDocument[
       documentKey(document.id, document.versionId)
     ]
-    const pageId = target.type === 'page'
+    if (target.type === 'region') validateRegion(target.region)
+    const pageId = target.type === 'page' || target.type === 'region'
       ? target.pageId
       : document.pages.some((page) => page.id === rememberedPageId)
         ? rememberedPageId!
         : document.pages[0]!.id
     if (
-      target.type === 'page' &&
+      (target.type === 'page' || target.type === 'region') &&
       !document.pages.some((page) => page.id === pageId)
     ) {
       throw new Error('The page does not belong to the Project Document.')
     }
-    return { document, pageId, type: target.type }
+    return {
+      document,
+      pageId,
+      type: target.type,
+      ...(target.type === 'region' ? { region: target.region } : {}),
+    }
   }
 
   return {
@@ -259,6 +284,7 @@ export function createDocumentNavigator({
         new Error('Document navigation was cancelled.'),
       )
       visibleView = undefined
+      activeFocusRequest = undefined
       requestViewerNavigation(undefined)
     },
 
@@ -275,6 +301,7 @@ export function createDocumentNavigator({
 
       const previousView = visibleView
       visibleView = undefined
+      activeFocusRequest = undefined
       return new Promise<DocumentNavigationResult>((resolve, reject) => {
         const next: PendingNavigation = {
           ...navigation,
@@ -310,7 +337,8 @@ export function createDocumentNavigator({
           documentId: navigation.document.id,
           documentVersionId: navigation.document.versionId,
           pageId: navigation.pageId,
-          fit: 'page',
+          fit: navigation.region ? 'region' : 'page',
+          ...(navigation.region ? { region: navigation.region } : {}),
           zoom: 1,
         })
       })
@@ -333,6 +361,9 @@ export function createDocumentNavigator({
       const navigation = pending
       if (!navigation || view.requestId !== navigation.viewerRequestId) return
       if (navigation.phase === 'rollback') {
+        activeFocusRequest = view.fit === 'region'
+          ? navigation.viewerRequest
+          : undefined
         finishWithError(navigation, navigation.error!)
         return
       }
@@ -340,14 +371,56 @@ export function createDocumentNavigator({
 
       pending = undefined
       clearResources(navigation)
-      requestViewerNavigation(undefined)
+      activeFocusRequest = navigation.region
+        ? navigation.viewerRequest
+        : undefined
+      requestViewerNavigation(activeFocusRequest)
       navigation.resolve(appliedResult(navigation, view))
     },
 
     takeHumanControl() {
+      const focusedView = visibleView?.fit === 'region' ? visibleView : undefined
       if (pending) finishSuperseded(pending)
+      if (focusedView) {
+        workspaceStore.getState().setFitPreference('page')
+        workspaceStore.getState().setZoom(focusedView.zoom)
+      }
       visibleView = undefined
+      activeFocusRequest = undefined
       requestViewerNavigation(undefined)
     },
+  }
+}
+
+function regionsEqual(
+  left: DocumentRegion | undefined,
+  right: DocumentRegion | undefined,
+) {
+  return Boolean(
+    left &&
+    right &&
+    left.left === right.left &&
+    left.top === right.top &&
+    left.width === right.width &&
+    left.height === right.height,
+  )
+}
+
+function validateRegion(region: DocumentRegion) {
+  const values = [region.left, region.top, region.width, region.height]
+  if (
+    values.some((value) => !Number.isFinite(value)) ||
+    region.left < 0 ||
+    region.left > 1 ||
+    region.top < 0 ||
+    region.top > 1 ||
+    region.width <= 0 ||
+    region.height <= 0 ||
+    region.left + region.width > 1 ||
+    region.top + region.height > 1
+  ) {
+    throw new Error(
+      'The Document Region must be a finite, positive normalized rectangle contained within the page.',
+    )
   }
 }

@@ -81,6 +81,10 @@ export function DocumentWorkbench({
 }: DocumentWorkbenchProps) {
   const zoomControlsRef = useRef<HTMLDivElement>(null)
   const [viewerInsets, setViewerInsets] = useState<PageViewportInsets>({})
+  const [focusedZoom, setFocusedZoom] = useState(zoom)
+  const effectiveZoom = navigationRequest?.fit === 'region'
+    ? focusedZoom
+    : zoom
 
   useLayoutEffect(() => {
     const controls = zoomControlsRef.current
@@ -116,18 +120,18 @@ export function DocumentWorkbench({
             aria-label="Zoom out"
             className="icon-button tooltip-button"
             data-tooltip="Zoom out"
-            disabled={zoom <= MIN_DOCUMENT_ZOOM}
+            disabled={effectiveZoom <= MIN_DOCUMENT_ZOOM}
             onClick={onZoomOut}
             type="button"
           >
             <ZoomOut aria-hidden="true" size={17} strokeWidth={1.8} />
           </button>
-          <span aria-live="polite">{Math.round(zoom * 100)}%</span>
+          <span aria-live="polite">{Math.round(effectiveZoom * 100)}%</span>
           <button
             aria-label="Zoom in"
             className="icon-button tooltip-button"
             data-tooltip="Zoom in"
-            disabled={zoom >= MAX_DOCUMENT_ZOOM}
+            disabled={effectiveZoom >= MAX_DOCUMENT_ZOOM}
             onClick={onZoomIn}
             type="button"
           >
@@ -157,6 +161,7 @@ export function DocumentWorkbench({
           document={currentDocument}
           fit={fit}
           navigationRequest={navigationRequest}
+          onEffectiveZoomChange={setFocusedZoom}
           onHumanTakeover={onHumanTakeover}
           onPlacePoint={onPlacePoint}
           onRemovePoint={onRemovePoint}

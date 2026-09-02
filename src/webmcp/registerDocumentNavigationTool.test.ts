@@ -18,7 +18,8 @@ function createNavigator(): DocumentNavigator {
     },
     page: { id: input.target?.pageId ?? 'first-page' },
     type: input.target?.type ?? 'document',
-    fit: 'page',
+    fit: input.target?.type === 'region' ? 'region' : 'page',
+    ...(input.target?.type === 'region' ? { region: input.target.region } : {}),
     zoom: 1,
   }))
   return {
@@ -47,12 +48,11 @@ test('registers a strict non-read-only document and page navigation contract', a
     properties: {
       documentId: { minLength: number; maxLength: number }
       target: {
-        additionalProperties: boolean
-        properties: {
-          type: { const: string }
-          pageId: { minLength: number; maxLength: number }
-        }
-        required: string[]
+        anyOf: Array<{
+          additionalProperties: boolean
+          properties: Record<string, Record<string, unknown>>
+          required: string[]
+        }>
       }
     }
     required: string[]
@@ -63,10 +63,13 @@ test('registers a strict non-read-only document and page navigation contract', a
     rootAdditionalProperties: schema.additionalProperties,
     required: schema.required,
     documentId: schema.properties.documentId,
-    targetAdditionalProperties: schema.properties.target.additionalProperties,
-    targetRequired: schema.properties.target.required,
-    targetType: schema.properties.target.properties.type.const,
-    pageId: schema.properties.target.properties.pageId,
+    targetVariants: schema.properties.target.anyOf.map((variant) => ({
+      additionalProperties: variant.additionalProperties,
+      required: variant.required,
+      type: variant.properties.type?.const,
+      pageId: variant.properties.pageId,
+      region: variant.properties.region,
+    })),
   }).toEqual({
     annotations: {
       readOnlyHint: false,
@@ -75,10 +78,25 @@ test('registers a strict non-read-only document and page navigation contract', a
     rootAdditionalProperties: false,
     required: ['documentId'],
     documentId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
-    targetAdditionalProperties: false,
-    targetRequired: ['type', 'pageId'],
-    targetType: 'page',
-    pageId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
+    targetVariants: [
+      {
+        additionalProperties: false,
+        required: ['type', 'pageId'],
+        type: 'page',
+        pageId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
+        region: undefined,
+      },
+      {
+        additionalProperties: false,
+        required: ['type', 'pageId', 'region'],
+        type: 'region',
+        pageId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
+        region: expect.objectContaining({
+          additionalProperties: false,
+          required: ['left', 'top', 'width', 'height'],
+        }),
+      },
+    ],
   })
 
   await expect(modelContext.executeTool('navigate_document', {
@@ -98,6 +116,27 @@ test('registers a strict non-read-only document and page navigation contract', a
   }, undefined)
 
   controller.abort()
+})
+
+test('delegates an exact normalized Document Region and returns its applied focus', async () => {
+  const modelContext = createRecordingModelContext()
+  const navigator = createNavigator()
+  const controller = new AbortController()
+  await registerDocumentNavigationTool(modelContext, navigator, controller.signal)
+  const region = { left: 0.2, top: 0.3, width: 0.25, height: 0.15 }
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'document-1',
+    target: { type: 'region', pageId: 'page-2', region },
+  })).resolves.toEqual({
+    status: 'applied',
+    document: { id: 'document-1', versionId: 'document-1-v1' },
+    page: { id: 'page-2' },
+    type: 'region',
+    fit: 'region',
+    region,
+    zoom: 1,
+  })
 })
 
 test.each([
@@ -126,6 +165,38 @@ test.each([
     target: { type: 'page', pageId: 'page-2', index: 1 },
   },
   { documentId: 'document-1', target: { type: 'block', pageId: 'page-2' } },
+  {
+    documentId: 'document-1',
+    target: {
+      type: 'region',
+      pageId: 'page-2',
+      region: { left: 0, top: 0, width: 0.2, height: 0.2 },
+      extra: true,
+    },
+  },
+  {
+    documentId: 'document-1',
+    target: {
+      type: 'region',
+      pageId: 'page-2',
+      region: { left: 0, top: 0, width: 0.2, height: 0.2, extra: true },
+    },
+  },
+  ...[
+    { left: -0.1, top: 0, width: 0.2, height: 0.2 },
+    { left: 0, top: -0.1, width: 0.2, height: 0.2 },
+    { left: 1.1, top: 0, width: 0.2, height: 0.2 },
+    { left: 0, top: 1.1, width: 0.2, height: 0.2 },
+    { left: 0, top: 0, width: 0, height: 0.2 },
+    { left: 0, top: 0, width: -0.1, height: 0.2 },
+    { left: 0, top: 0, width: 0.2, height: 0 },
+    { left: 0, top: 0, width: 0.2, height: -0.1 },
+    { left: Number.NaN, top: 0, width: 0.2, height: 0.2 },
+    { left: 0, top: Number.POSITIVE_INFINITY, width: 0.2, height: 0.2 },
+  ].map((region) => ({
+    documentId: 'document-1',
+    target: { type: 'region', pageId: 'page-2', region },
+  })),
 ])('rejects invalid navigation input without delegating: %j', async (input) => {
   const modelContext = createRecordingModelContext()
   const navigator = createNavigator()

@@ -20,9 +20,11 @@ import {
   clampDocumentZoom,
   clampPageOffset,
   fitPageInBounds,
+  fitRegionInBounds,
   normalizeClientPoint,
   zoomPageAroundPoint,
   type NormalizedPoint,
+  type DocumentRegion,
   type PageFit,
   type PageOffset,
   type PageSize,
@@ -55,6 +57,7 @@ interface PdfPageViewerProps {
   fit?: PageFit
   navigationRequest?: ViewerNavigationRequest
   onHumanTakeover?: () => void
+  onEffectiveZoomChange?: (zoom: number) => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
   onRenderError?: (requestId: number) => void
@@ -85,7 +88,7 @@ interface ActivePointer extends PageOffset {
 }
 
 interface LayoutSnapshot {
-  fit: PageFit
+  fit: PageFit | 'region'
   pageIdentity: string
   pageSize: PageSize
   viewport: PageSize
@@ -97,6 +100,7 @@ export function PdfPageViewer({
   document,
   fit = 'page',
   navigationRequest,
+  onEffectiveZoomChange,
   onHumanTakeover,
   onPlacePoint,
   onRemovePoint,
@@ -151,10 +155,6 @@ export function PdfPageViewer({
     setOffsetState(nextOffset)
   }
 
-  useLayoutEffect(() => {
-    zoomRef.current = zoom
-  }, [zoom])
-
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
@@ -175,35 +175,66 @@ export function PdfPageViewer({
     return () => observer.disconnect()
   }, [])
 
-  const renderedSize = useMemo(
-    () => fitPageInBounds(page, availableSize, zoom, fit),
-    [availableSize, fit, page, zoom],
-  )
   const pageIdentity = `${document.id}:${document.versionId}:${page.id}`
-  const renderIdentity = `${pageIdentity}:${renderedSize.width}x${renderedSize.height}`
   const matchingNavigationRequest =
     navigationRequest?.documentId === document.id &&
     navigationRequest.documentVersionId === document.versionId &&
     navigationRequest.pageId === page.id &&
-    navigationRequest.fit === fit &&
-    navigationRequest.zoom === zoom
+    (
+      navigationRequest.fit === 'region'
+        ? fit === 'page' && zoom === 1 && navigationRequest.region
+        : navigationRequest.fit === fit && navigationRequest.zoom === zoom
+    )
       ? navigationRequest
       : undefined
+  const focusedRegion: DocumentRegion | undefined =
+    matchingNavigationRequest?.fit === 'region'
+      ? matchingNavigationRequest.region
+      : undefined
+  const focusGeometry = useMemo(
+    () => focusedRegion
+      ? fitRegionInBounds({
+          insets: clampingInsets,
+          page,
+          region: focusedRegion,
+          viewport: availableSize,
+        })
+      : undefined,
+    [availableSize, clampingInsets, focusedRegion, page],
+  )
+  const effectiveFit: PageFit | 'region' = focusGeometry ? 'region' : fit
+  const effectiveZoom = focusGeometry?.zoom ?? zoom
+  const renderedSize = useMemo(
+    () => focusGeometry?.page ?? fitPageInBounds(page, availableSize, zoom, fit),
+    [availableSize, fit, focusGeometry, page, zoom],
+  )
+  const renderIdentity = `${pageIdentity}:${renderedSize.width}x${renderedSize.height}`
   const navigationRequestId = matchingNavigationRequest?.id
+
+  useLayoutEffect(() => {
+    zoomRef.current = effectiveZoom
+  }, [effectiveZoom])
+
+  useEffect(() => {
+    onEffectiveZoomChange?.(effectiveZoom)
+  }, [effectiveZoom, onEffectiveZoomChange])
 
   useLayoutEffect(() => {
     if (renderedSize.width <= 0 || renderedSize.height <= 0) return
 
     const previous = layoutRef.current
     const nextLayout = {
-      fit,
+      fit: effectiveFit,
       pageIdentity,
       pageSize: renderedSize,
       viewport: availableSize,
-      zoom,
+      zoom: effectiveZoom,
     }
     let nextOffset: PageOffset
-    if (
+    if (focusGeometry) {
+      nextOffset = focusGeometry.offset
+      layoutNavigationRequestRef.current = navigationRequestId
+    } else if (
       navigationRequestId !== undefined &&
       layoutNavigationRequestRef.current !== navigationRequestId
     ) {
@@ -212,10 +243,10 @@ export function PdfPageViewer({
     } else if (
       !previous ||
       previous.pageIdentity !== pageIdentity ||
-      previous.fit !== fit
+      (previous.fit !== fit && previous.fit !== 'region')
     ) {
       nextOffset = centerPageOffset(renderedSize, availableSize)
-    } else if (previous.zoom !== zoom) {
+    } else if (previous.zoom !== effectiveZoom) {
       nextOffset = zoomPageAroundPoint({
         currentPage: previous.pageSize,
         insets: clampingInsets,
@@ -246,12 +277,14 @@ export function PdfPageViewer({
     setOffset(nextOffset)
   }, [
     availableSize,
+    effectiveFit,
+    effectiveZoom,
     fit,
+    focusGeometry,
     pageIdentity,
     navigationRequestId,
     renderedSize,
     clampingInsets,
-    zoom,
   ])
 
   useEffect(() => {
@@ -330,23 +363,31 @@ export function PdfPageViewer({
 
   useEffect(() => {
     if (!isCurrentRender) return
+    if (
+      navigationRequestId !== undefined &&
+      layoutNavigationRequestRef.current !== navigationRequestId
+    ) return
     onVisibleViewChange?.({
       documentId: document.id,
       documentVersionId: document.versionId,
       pageId: page.id,
-      fit,
+      fit: effectiveFit,
+      ...(focusedRegion ? { region: focusedRegion } : {}),
       requestId: navigationRequestId,
-      zoom,
+      zoom: effectiveZoom,
     })
   }, [
     document.id,
     document.versionId,
-    fit,
+    effectiveFit,
+    effectiveZoom,
+    focusedRegion,
     isCurrentRender,
     navigationRequestId,
     onVisibleViewChange,
     page.id,
-    zoom,
+    offset.x,
+    offset.y,
   ])
   useEffect(() => {
     if (
