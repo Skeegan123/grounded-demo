@@ -7,8 +7,8 @@ document interpretation.
 The current demo proves one complete Type C door Submittal Review in a
 browser-local Demo Project:
 
-1. An External Agent inspects the drawing set and fictional submittal through
-   WebMCP and finds the hollow-core versus solid-wood mismatch.
+1. An External Agent discovers the Project Workspace, searches both document
+   versions, and inspects the matched evidence through WebMCP.
 2. The agent creates a queued Point Set Assistance Request with immutable
    target and supporting document references.
 3. The Senior Project Manager marks the WC, Utility, and Coats openings on
@@ -56,7 +56,7 @@ pnpm dev
 ```
 
 Open the URL printed by Vite in a WebMCP-capable client. The workspace status
-changes to **WebMCP ready** once all five tools register. A normal browser can
+changes to **WebMCP ready** once all six tools register. A normal browser can
 still open the Project Workspace, but it cannot expose the tools to an External
 Agent.
 
@@ -129,6 +129,11 @@ WebMCP adds four read-only document tools:
 The deterministic normalization, fuzzy tolerance, Search Hint policy, and
 minimum relevance gate are documented in
 [`docs/document-search.md`](docs/document-search.md).
+
+The complete public path is discovery, catalog listing, cross-document search,
+evidence inspection, Assistance Request creation, and Professional Response
+retrieval. Normal runtime reads the committed artifacts. It does not need a
+Reducto account, API key, Parse job, result URL, or network request.
 
 ## License
 

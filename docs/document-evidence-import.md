@@ -33,6 +33,10 @@ Run the importer with the stable document identity from
 pnpm import:document-evidence \
   --document virginia-farmhouse-drawings \
   --export .reducto/virginia-farmhouse-drawings.json
+
+pnpm import:document-evidence \
+  --document type-c-door-submittal \
+  --export .reducto/type-c-door-submittal.json
 ```
 
 The command resolves the current immutable document version from the manifest.
@@ -40,6 +44,10 @@ It verifies the local PDF checksum and byte size, the Parse response type, the
 page count, every numbered page reference, required block content, and normalized
 regions before it writes anything. The output is
 `src/documents/generated/<document-version-id>.json`.
+
+Each command regenerates only the selected document version's artifact. At
+application startup, Grounded validates the complete manifest and artifact set
+before it registers any document tool.
 
 Each artifact contains only one document version. It keeps ordered blocks,
 manifest page identities, table HTML and derived row records, optional low-level

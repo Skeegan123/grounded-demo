@@ -1,5 +1,11 @@
 # Browser-first PDF document ingestion
 
+> **Superseded implementation research.** Grounded now uses committed schema
+> version 2 prepared Document Evidence, not the `DocumentIndex` or Tesseract
+> proposal below. Follow [`docs/document-evidence-import.md`](../document-evidence-import.md)
+> for the active Reducto Studio export and offline import path. This note remains
+> as research history.
+
 ## Question
 
 How far can Grounded get with browser-side PDF processing, when does it need OCR, and can the Demo Project use a prepared index without creating a dead end for later user-supplied documents?

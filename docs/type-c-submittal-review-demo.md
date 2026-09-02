@@ -36,6 +36,12 @@ sequence:
    page
 8. `get_assistance_request` after the Professional Response
 
+The repeatable searches are:
+
+- `hollow honeycomb core` for the submitted construction;
+- `Type C 24 x 80 solid wood` for the A4.3 schedule requirement;
+- `first floor plan room layout utility coats WC` for the A1.2 Search Hint.
+
 This is a tested path through general document and Assistance Request tools,
 not a required workflow. An External Agent may inspect other relevant pages or
 change the order.
@@ -109,3 +115,7 @@ and page identities, and Current Assistance displays them for the Senior
 Project Manager.
 
 No Demo Project-specific skill or hidden workflow was needed.
+
+Normal runtime reads the two committed prepared artifacts offline. Reducto is
+used only for the one-time Studio exports and local import. The demo needs no
+Reducto account, API key, Parse job, result URL, or network request at runtime.

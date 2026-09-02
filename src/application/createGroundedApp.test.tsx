@@ -442,6 +442,309 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   })
 })
 
+test('the public Type C journey reaches a revise-and-resubmit disposition', async () => {
+  const user = userEvent.setup()
+  const storage = window.sessionStorage
+  const databaseName = `grounded-type-c-journey-${crypto.randomUUID()}`
+  const modelContext = createRecordingModelContext()
+  const firstRender = render(
+    createGroundedApp({
+      databaseName,
+      modelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: storage,
+      createId: createIds('session-1', 'request-1'),
+      now: () => new Date('2030-01-02T03:04:05.000Z'),
+    }),
+  )
+
+  type CatalogDocument = {
+    id: string
+    versionId: string
+    pages: Array<{ id: string; label: string; number: number }>
+  }
+  type SearchMatch = {
+    rank: number
+    document: { id: string; versionId: string }
+    page: { id: string; sheetNumber?: string }
+    block: { id: string; type: string }
+    classification: 'document_evidence' | 'search_hint'
+    tableRow?: {
+      parentBlockId: string
+      cells: Array<{ text: string }>
+    }
+  }
+  type Inspection = {
+    pages: Array<{
+      blocks: Array<{
+        id: string
+        sourceType: string
+        content: string
+        classification: 'document_evidence' | 'search_hint'
+      }>
+      tableRows: Array<{
+        parentBlockId: string
+        cells: Array<{ text: string }>
+      }>
+    }>
+  }
+
+  await modelContext.waitForTool('get_project_workspace')
+  const project = await modelContext.executeTool('get_project_workspace', {})
+  const catalog = await modelContext.executeTool(
+    'list_project_documents',
+    {},
+  ) as { documents: CatalogDocument[] }
+  expect(project).toMatchObject({
+    id: 'demo-virginia-farmhouse',
+    title: 'Virginia Farmhouse Demo Project',
+  })
+  expect(catalog.documents).toHaveLength(2)
+
+  const search = async (query: string) => modelContext.executeTool(
+    'search_project_documents',
+    { query },
+  ) as Promise<{ matches: SearchMatch[] }>
+  const productMatch = (await search('hollow honeycomb core')).matches[0]!
+  const contractMatch = (await search('Type C 24 x 80 solid wood')).matches[0]!
+  const planMatch = (
+    await search('first floor plan room layout utility coats WC')
+  ).matches[0]!
+
+  expect(productMatch).toMatchObject({
+    rank: 1,
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    classification: 'document_evidence',
+  })
+  expect(contractMatch).toMatchObject({
+    rank: 1,
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a4.3', sheetNumber: 'A4.3' },
+    block: { type: 'Table' },
+    classification: 'document_evidence',
+    tableRow: {
+      cells: [
+        { text: 'C' },
+        { text: '24"x80"' },
+        { text: 'WOOD' },
+        { text: '1-PANEL' },
+        { text: 'SOLID WOOD' },
+        { text: 'ANTIQUE PREFERRED' },
+      ],
+    },
+  })
+  expect(planMatch).toMatchObject({
+    rank: 1,
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a1.2', sheetNumber: 'A1.2' },
+    block: { type: 'Figure' },
+    classification: 'search_hint',
+  })
+
+  const productInspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: productMatch.document.id,
+      documentVersionId: productMatch.document.versionId,
+      pageIds: [productMatch.page.id],
+    },
+  ) as Inspection
+  const contractInspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: contractMatch.document.id,
+      documentVersionId: contractMatch.document.versionId,
+      blockIds: [contractMatch.tableRow!.parentBlockId],
+    },
+  ) as Inspection
+  const planInspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: planMatch.document.id,
+      documentVersionId: planMatch.document.versionId,
+      blockIds: [planMatch.block.id],
+    },
+  ) as Inspection
+  const productContent = productInspection.pages
+    .flatMap((page) => page.blocks.map((block) => block.content))
+    .join(' ')
+  const typeCRow = contractInspection.pages
+    .flatMap((page) => page.tableRows)
+    .find((row) => row.cells[0]?.text === 'C')!
+  const inspectedPlanHint = planInspection.pages
+    .flatMap((page) => page.blocks)
+    .find((block) => block.id === planMatch.block.id)!
+
+  expect(productContent).toContain('Model BRD-HC2480-BIR')
+  expect(productContent).toContain('24 in x 80 in')
+  expect(productContent).toContain('Hollow honeycomb core')
+  expect(typeCRow.cells.map((cell) => cell.text)).toEqual([
+    'C',
+    '24"x80"',
+    'WOOD',
+    '1-PANEL',
+    'SOLID WOOD',
+    'ANTIQUE PREFERRED',
+  ])
+  expect(inspectedPlanHint).toMatchObject({
+    sourceType: 'Figure',
+    classification: 'search_hint',
+    content: expect.stringContaining('utility, coats, and WC'),
+  })
+
+  const submittalDocument = catalog.documents.find(
+    (document) =>
+      document.id === productMatch.document.id &&
+      document.versionId === productMatch.document.versionId,
+  )!
+  const request = await modelContext.executeTool('create_assistance_request', {
+    question: 'Mark every affected Type C opening on the first-floor plan.',
+    responseType: 'point_set',
+    documentId: planMatch.document.id,
+    documentVersionId: planMatch.document.versionId,
+    recommendedPageIds: [planMatch.page.id],
+    supportingDocumentReferences: [
+      {
+        documentId: contractMatch.document.id,
+        documentVersionId: contractMatch.document.versionId,
+        pageIds: [contractMatch.page.id],
+      },
+      {
+        documentId: submittalDocument.id,
+        documentVersionId: submittalDocument.versionId,
+        pageIds: submittalDocument.pages.map((page) => page.id),
+      },
+    ],
+  }) as { id: string; state: string; createdAt: string }
+  expect(request).toEqual({
+    id: 'request-1',
+    state: 'pending',
+    createdAt: '2030-01-02T03:04:05.000Z',
+  })
+
+  await screen.findByText('Mark every affected Type C opening on the first-floor plan.')
+  const currentAssistance = screen
+    .getByRole('heading', { name: 'Current Assistance' })
+    .closest('aside')!
+  expect(within(currentAssistance).getByText('A1.2')).toBeInTheDocument()
+  expect(within(currentAssistance).getAllByText('Virginia Farmhouse drawing set'))
+    .toHaveLength(2)
+  expect(within(currentAssistance).getByText(
+    'Type C interior door product data and review cover',
+  )).toBeInTheDocument()
+  expect(within(currentAssistance).getByText(/Pages A4\.3/)).toBeInTheDocument()
+  expect(within(currentAssistance).getByText(/Pages 1, 2/)).toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  const drawingPage = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(drawingPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(drawingPage, { clientX: 20, clientY: 30 })
+  fireEvent.click(drawingPage, { clientX: 50, clientY: 60 })
+  fireEvent.click(drawingPage, { clientX: 80, clientY: 40 })
+  await screen.findByText('3 points')
+  await user.type(
+    screen.getByLabelText('Overall note optional'),
+    'WC, Utility, and Coats each have one affected Type C opening.',
+  )
+  await user.click(screen.getByRole('button', { name: 'Submit Point Set' }))
+  await screen.findByText('No pending Assistance Requests')
+
+  firstRender.unmount()
+  const reloadedModelContext = createRecordingModelContext()
+  render(
+    createGroundedApp({
+      databaseName,
+      modelContext: reloadedModelContext,
+      pageRenderer: createTestPageRenderer(),
+      sessionStorage: storage,
+      createId: createIds('unused-session', 'unused-request'),
+      now: () => new Date('2030-01-02T03:05:06.000Z'),
+    }),
+  )
+  await reloadedModelContext.waitForTool('get_assistance_request')
+  const retrieved = await reloadedModelContext.executeTool(
+    'get_assistance_request',
+    { id: request.id },
+  ) as {
+    id: string
+    state: string
+    question: string
+    createdAt: string
+    professionalResponse: {
+      type: string
+      document: { id: string; versionId: string }
+      points: Array<{
+        pointNumber: number
+        page: { id: string; label: string; number: number }
+        x: number
+        y: number
+      }>
+      count: number
+      note: string
+      submittedAt: string
+    }
+  }
+  expect(retrieved).toEqual({
+    id: request.id,
+    state: 'answered',
+    question: 'Mark every affected Type C opening on the first-floor plan.',
+    createdAt: '2030-01-02T03:04:05.000Z',
+    professionalResponse: {
+      type: 'point_set',
+      document: {
+        id: planMatch.document.id,
+        versionId: planMatch.document.versionId,
+      },
+      points: [
+        {
+          pointNumber: 1,
+          page: { id: planMatch.page.id, label: 'A1.2', number: 6 },
+          x: 0.2,
+          y: 0.3,
+        },
+        {
+          pointNumber: 2,
+          page: { id: planMatch.page.id, label: 'A1.2', number: 6 },
+          x: 0.5,
+          y: 0.6,
+        },
+        {
+          pointNumber: 3,
+          page: { id: planMatch.page.id, label: 'A1.2', number: 6 },
+          x: 0.8,
+          y: 0.4,
+        },
+      ],
+      count: 3,
+      note: 'WC, Utility, and Coats each have one affected Type C opening.',
+      submittedAt: '2030-01-02T03:04:05.000Z',
+    },
+  })
+
+  const requiredConstruction = typeCRow.cells.map((cell) => cell.text)
+  const disposition =
+    productContent.includes('Hollow honeycomb core') &&
+    requiredConstruction.includes('SOLID WOOD') &&
+    retrieved.professionalResponse.count > 0
+      ? 'revise and resubmit'
+      : 'no demonstrated mismatch'
+  expect(disposition).toBe('revise and resubmit')
+})
+
 test('reopening a submitted Point Set starts on its earliest marked document page', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
@@ -791,6 +1094,14 @@ test('External Agent document search and inspection leave the visible workspace 
   })
   fireEvent.click(targetPage, { clientX: 40, clientY: 60 })
   await screen.findByText('1 point')
+  const draftMarker = within(targetPage)
+    .getByRole('button', { name: 'Point 1' })
+    .closest('.point-mark') as HTMLElement
+  const markerPosition = {
+    left: draftMarker.style.left,
+    top: draftMarker.style.top,
+  }
+  expect(markerPosition).toEqual({ left: '40%', top: '60%' })
 
   await chooseDocument(user, /Type C interior door product data and review cover/i)
   await choosePage(user, /^2 Hollow-core flush wood door product data$/)
@@ -801,40 +1112,53 @@ test('External Agent document search and inspection leave the visible workspace 
     document: screen.getByRole('heading', {
       name: 'Type C interior door product data and review cover',
     }).textContent,
-    page: screen.getByRole('button', { name: /Current page:/ }).textContent,
+    page: screen.getByRole('button', { name: /Current page:/ })
+      .getAttribute('aria-label'),
     zoom: screen.getByText('110%').textContent,
-    assistance: screen.getByRole('heading', { name: 'Current Assistance' }).textContent,
+    assistanceTab: {
+      name: screen.getByRole('tab', { name: 'Current 1' }).textContent,
+      selected: screen.getByRole('tab', { name: 'Current 1' })
+        .getAttribute('aria-selected'),
+    },
     pointCount: screen.getByText('1 point').textContent,
     note: (screen.getByLabelText('Overall note optional') as HTMLTextAreaElement).value,
   })
   const beforeSearch = visibleState()
-  await modelContext.executeTool('search_project_documents', {
+  expect(beforeSearch).toEqual({
+    document: 'Type C interior door product data and review cover',
+    page: 'Current page: 2, Hollow-core flush wood door product data',
+    zoom: '110%',
+    assistanceTab: { name: 'Current 1', selected: 'true' },
+    pointCount: '1 point',
+    note: 'Keep this draft',
+  })
+  const searchResult = await modelContext.executeTool('search_project_documents', {
     query: 'Type C 24 x 80 solid wood',
+  }) as {
+    matches: Array<{
+      document: { id: string; versionId: string }
+      block: { id: string }
+    }>
+  }
+  expect(visibleState()).toEqual(beforeSearch)
+
+  const contractMatch = searchResult.matches[0]!
+  await modelContext.executeTool('inspect_document_evidence', {
+    documentId: contractMatch.document.id,
+    documentVersionId: contractMatch.document.versionId,
+    blockIds: [contractMatch.block.id],
   })
   expect(visibleState()).toEqual(beforeSearch)
 
-  await modelContext.executeTool('inspect_document_evidence', {
-    documentId: 'virginia-farmhouse-drawings',
-    documentVersionId: 'virginia-farmhouse-drawings-v1',
-    pageIds: ['sheet-a4.3'],
-  })
-
-  expect({
-    document: screen.getByRole('heading', {
-      name: 'Type C interior door product data and review cover',
-    }),
-    page: screen.getByRole('button', { name: /Current page:/ }),
-    zoom: screen.getByText('110%'),
-    assistance: screen.getByRole('heading', { name: 'Current Assistance' }),
-    pointCount: screen.getByText('1 point'),
-    note: screen.getByLabelText('Overall note optional'),
-  }).toEqual({
-    document: expect.any(HTMLElement),
-    page: expect.any(HTMLElement),
-    zoom: expect.any(HTMLElement),
-    assistance: expect.any(HTMLElement),
-    pointCount: expect.any(HTMLElement),
-    note: expect.objectContaining({ value: 'Keep this draft' }),
+  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  const restoredTargetPage = await screen.findByLabelText('Drawing page A1.2')
+  expect(
+    within(restoredTargetPage)
+      .getByRole('button', { name: 'Point 1' })
+      .closest('.point-mark'),
+  ).toHaveStyle({
+    left: markerPosition.left,
+    top: markerPosition.top,
   })
 })
 
