@@ -23,8 +23,9 @@ their own:
 ## Current automated tool sequence
 
 The application-level document-to-Assistance tracer in
-`src/application/createGroundedApp.test.tsx` exercises this current six-tool
-sequence through the recording Model Context adapter:
+`src/application/createGroundedApp.test.tsx` exercises this six-tool review
+sequence within the current seven-tool surface through the recording Model
+Context adapter:
 
 1. `get_project_workspace`
 2. `list_project_documents`
@@ -43,9 +44,10 @@ The repeatable searches are:
 - `Type C 24 x 80 solid wood` for the A4.3 schedule requirement;
 - `first floor plan room layout utility coats WC` for the A1.2 Search Hint.
 
-This is a tested path through all six current public tools, not a required
-workflow and not a claim about a third-party client. An External Agent may
-inspect other relevant pages or change the order.
+This is a tested path through the six non-navigation tools. Separate
+application tests exercise `navigate_document` through the same public adapter.
+Neither path is a required workflow or a claim about a third-party client. An
+External Agent may inspect other relevant pages or change the order.
 
 ## Historical supported-client sequence
 
@@ -62,7 +64,7 @@ That client discovered and exercised the then-current five-tool surface:
 `search_project_documents` was added later. The historical run therefore does
 not establish client execution of those two current contracts. On September 2,
 2026, no supported third-party WebMCP client was available in the implementation
-environment, so the current six-tool judge flow was not manually rehearsed or
+environment, so the current seven-tool surface was not manually rehearsed or
 claimed there.
 
 ## Current public tool descriptions
@@ -84,6 +86,10 @@ The current application registers these descriptions:
   normalized regions; browser artifacts do not ship word-level OCR. Results
   distinguish source-derived Document Evidence from generated Search Hints,
   which can locate content but cannot support a claim by themselves."
+- `navigate_document`: "Navigate the visible Document Browsing workbench to the
+  current Project Document and, optionally, one stable page. The command returns
+  only after the requested page is visibly rendered with ordinary full-page fit
+  and does not change Assistance state or add highlighting."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
   Set or text response from a Senior Project Manager. For a Point Set, include
   references to other immutable documents that support the requested judgment.

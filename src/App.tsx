@@ -22,6 +22,7 @@ import {
   DocumentWorkbench,
 } from './documents/DocumentWorkbench'
 import type { PdfPageRenderer } from './documents/PdfPageViewer'
+import { createDocumentNavigator } from './documents/DocumentNavigator'
 import { useDocumentKeyboardShortcuts } from './documents/useDocumentKeyboardShortcuts'
 import { useConstrainedWorkbench } from './documents/useConstrainedWorkbench'
 import {
@@ -72,8 +73,15 @@ function App({
   workspaceStore,
 }: AppProps) {
   const registrationAttempt = useMemo(
-    () => ({ assistance, documents, modelContext }),
-    [assistance, documents, modelContext],
+    () => ({ assistance, documents, modelContext, workspaceStore }),
+    [assistance, documents, modelContext, workspaceStore],
+  )
+  const documentNavigator = useMemo(
+    () => createDocumentNavigator({
+      documents: demoProject.documents,
+      workspaceStore,
+    }),
+    [workspaceStore],
   )
   const [registrationSnapshot, setRegistrationSnapshot] =
     useState<RegistrationSnapshot>(() => ({
@@ -160,6 +168,7 @@ function App({
       controller,
       documents,
       modelContext,
+      navigator: documentNavigator,
     })
       .then(() => {
         if (active) {
@@ -185,7 +194,13 @@ function App({
       active = false
       controller.abort()
     }
-  }, [assistance, documents, modelContext, registrationAttempt])
+  }, [
+    assistance,
+    documentNavigator,
+    documents,
+    modelContext,
+    registrationAttempt,
+  ])
 
   const defaultDocument = demoProject.documents[0]!
   const {
@@ -444,6 +459,7 @@ function App({
           onFitChange={setFitPreference}
           onPlacePoint={placePoint}
           onRemovePoint={canMark ? removePoint : undefined}
+          onVisibleViewChange={documentNavigator.reportVisibleView}
           onSelectDocument={(document) => selectDocument({
             documentId: document.id,
             documentVersionId: document.versionId,

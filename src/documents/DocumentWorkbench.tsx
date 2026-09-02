@@ -29,6 +29,13 @@ export interface DocumentWorkbenchProps {
   onFitChange: (fit: PageFit) => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
+  onVisibleViewChange?: (view: {
+    documentId: string
+    documentVersionId: string
+    pageId: string
+    fit: PageFit
+    zoom: number
+  }) => void
   onSelectDocument: (document: ProjectDocument) => void
   onSelectPage: (page: DocumentPage) => void
   onViewUndonePointPage: () => void
@@ -54,6 +61,7 @@ export function DocumentWorkbench({
   onFitChange,
   onPlacePoint,
   onRemovePoint,
+  onVisibleViewChange,
   onSelectDocument,
   onSelectPage,
   onViewUndonePointPage,
@@ -146,6 +154,7 @@ export function DocumentWorkbench({
           fit={fit}
           onPlacePoint={onPlacePoint}
           onRemovePoint={onRemovePoint}
+          onVisibleViewChange={onVisibleViewChange}
           onZoomChange={onZoomChange}
           page={currentPage}
           points={points}
