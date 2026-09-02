@@ -392,39 +392,6 @@ function importedBlocks(document, chunks) {
   return blocksByPage
 }
 
-function importedOcrRecords(result, document) {
-  if (result.ocr === undefined || result.ocr === null) return undefined
-  const ocr = requireRecord(result.ocr, 'Reducto export.result.ocr')
-  const resultByPage = document.pages.map(() => ({ lines: [], words: [] }))
-
-  for (const kind of ['lines', 'words']) {
-    const records = requireArray(ocr[kind], `Reducto export.result.ocr.${kind}`)
-    for (const [index, value] of records.entries()) {
-      const name = `Reducto export.result.ocr.${kind}[${index}]`
-      const record = requireRecord(value, name)
-      const pageNumber = pageNumberFromBoundingBox(
-        record.bbox,
-        `${name}.bbox`,
-        document.pages.length,
-      )
-      const confidence = confidenceFrom(record.confidence, `${name}.confidence`)
-      if (
-        record.rotation !== undefined &&
-        (typeof record.rotation !== 'number' || !Number.isFinite(record.rotation))
-      ) {
-        fail(`${name}.rotation must be a number when present.`)
-      }
-      resultByPage[pageNumber - 1][kind].push({
-        text: requireString(record.text, `${name}.text`).trim(),
-        region: regionFromBoundingBox(record.bbox, `${name}.bbox`),
-        ...(confidence === undefined ? {} : { confidence }),
-        ...(record.rotation === undefined ? {} : { rotation: record.rotation }),
-      })
-    }
-  }
-  return resultByPage
-}
-
 export function createPreparedEvidenceArtifact({
   documentId,
   exportBytes,
@@ -449,13 +416,12 @@ export function createPreparedEvidenceArtifact({
     fail(`Reducto export could not be read as JSON: ${reason}`)
   }
   const { fingerprint, byteSize } = sourceFingerprintFor(document, sourceDirectory)
-  const { result, chunks, model } = validatedParseResult(
+  const { chunks, model } = validatedParseResult(
     exportValue,
     document.pages.length,
     document.preparedEvidence.requiredModel,
   )
   const blocksByPage = importedBlocks(document, chunks)
-  const ocrByPage = importedOcrRecords(result, document)
 
   return {
     schemaVersion: 2,
@@ -486,15 +452,10 @@ export function createPreparedEvidenceArtifact({
       const tableRows = blocks.flatMap((block) =>
         block.contentFormat === 'html' ? tableRowsFor(block, block.id) : [],
       )
-      const lowLevelOcr = ocrByPage?.[page.number - 1]
       return {
         page: manifestPageReference(page),
         blocks,
         tableRows,
-        ...(lowLevelOcr &&
-        (lowLevelOcr.lines.length > 0 || lowLevelOcr.words.length > 0)
-          ? { lowLevelOcr }
-          : {}),
       }
     }),
   }

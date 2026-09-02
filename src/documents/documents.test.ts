@@ -113,7 +113,7 @@ test('page inspection exposes ordered contract and product evidence with provena
       region: typeCRow.region,
     },
     figureClassification: figure.classification,
-    hasLowLevelOcr: Boolean(schedulePage.lowLevelOcr?.words.length),
+    hasLowLevelOcr: Object.hasOwn(schedulePage, 'lowLevelOcr'),
     productText,
   }).toMatchObject({
     document: {
@@ -171,7 +171,7 @@ test('page inspection exposes ordered contract and product evidence with provena
       classification: 'document_evidence',
     },
     figureClassification: 'search_hint',
-    hasLowLevelOcr: true,
+    hasLowLevelOcr: false,
     productText: expect.stringMatching(
       /Hollow-core flush wood door[\s\S]*24 in x 80 in[\s\S]*Hollow honeycomb core/i,
     ),
@@ -466,6 +466,13 @@ test('startup rejects missing, duplicate, obsolete, stale, and mismatched artifa
       page.tableRows[0]!.parentBlockId = 'missing-table-block'
     },
     'has an invalid table row',
+  )
+  expectInvalidArtifacts(
+    (artifacts) => {
+      const page = artifacts[0]!.pages[0] as unknown as Record<string, unknown>
+      page.lowLevelOcr = { lines: [], words: [] }
+    },
+    'must not contain low-level OCR data',
   )
 })
 

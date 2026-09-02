@@ -66,9 +66,6 @@ function inspectPage(
     page: page.page,
     blocks,
     tableRows: page.tableRows.filter((row) => parentIds.has(row.parentBlockId)),
-    ...(!selectedBlockIds && page.lowLevelOcr
-      ? { lowLevelOcr: page.lowLevelOcr }
-      : {}),
   }
 }
 

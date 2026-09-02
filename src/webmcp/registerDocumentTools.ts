@@ -130,7 +130,7 @@ export function registerDocumentTools(
       name: 'inspect_document_evidence',
       title: 'Inspect prepared Document Evidence',
       description:
-        'Inspect prepared page evidence or selected blocks from one immutable document version without changing the visible workspace. Page results include semantic blocks and table rows while omitting the stored low-level word and line OCR. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
+        'Inspect prepared page evidence or selected blocks from one immutable document version without changing the visible workspace. Page results include semantic blocks, table rows, and their normalized regions; browser artifacts do not ship word-level OCR. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
       schema: InspectDocumentEvidenceInput,
       readOnly: true,
       includeValidationIssueMessage: true,

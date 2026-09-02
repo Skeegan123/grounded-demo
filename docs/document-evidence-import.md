@@ -67,9 +67,10 @@ the manifest versions. Adding or replacing a version does not require an import
 statement in application code.
 
 Each artifact contains only one document version. It keeps ordered blocks,
-manifest page identities, table HTML and derived row records, optional low-level
-OCR positions, and Reducto provenance. It drops job IDs, usage and billing data,
-Studio links, result URLs, PDF URLs, and image URLs.
+manifest page identities, table HTML and derived row records, normalized
+semantic regions, and Reducto provenance. Word-level OCR is not shipped in the
+browser artifact; job IDs, usage and billing data, Studio links, result URLs,
+PDF URLs, and image URLs are also dropped.
 
 The artifact records the bound export fingerprint and reported model under
 `provenance.verified`. Reducto's current Studio exports leave

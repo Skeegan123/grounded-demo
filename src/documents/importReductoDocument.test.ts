@@ -53,7 +53,6 @@ interface ImportedArtifact {
       [key: string]: unknown
     }>
     tableRows: Array<Record<string, unknown>>
-    lowLevelOcr?: Record<string, unknown>
   }>
   [key: string]: unknown
 }
@@ -208,10 +207,7 @@ test('the public import command converts a drawing Parse export into one determi
       text: 'C | 24 in x 80 in | Solid wood',
     }),
   ])
-  expect(artifact.pages[1].lowLevelOcr).toMatchObject({
-    lines: [expect.objectContaining({ text: 'DOOR SCHEDULE', confidence: 0.94 })],
-    words: [expect.objectContaining({ text: 'SCHEDULE', confidence: 0.96 })],
-  })
+  expect(artifact.pages[1]).not.toHaveProperty('lowLevelOcr')
   expect(JSON.stringify(artifact)).not.toMatch(/job_id|studio_link|pdf_url|image_url|credits/)
 })
 

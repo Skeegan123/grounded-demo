@@ -46,21 +46,10 @@ export interface PreparedEvidenceTableRow {
   classification: 'document_evidence'
 }
 
-export interface PreparedEvidenceOcrRecord {
-  text: string
-  region: NormalizedRegion
-  confidence?: number
-  rotation?: number
-}
-
 export interface PreparedEvidencePage {
   page: DocumentPage
   blocks: PreparedEvidenceBlock[]
   tableRows: PreparedEvidenceTableRow[]
-  lowLevelOcr?: {
-    lines: PreparedEvidenceOcrRecord[]
-    words: PreparedEvidenceOcrRecord[]
-  }
 }
 
 export interface PreparedEvidenceArtifact {
@@ -168,19 +157,6 @@ function validConfidence(value: unknown) {
   )
 }
 
-function validOcrRecord(value: unknown) {
-  if (!isRecord(value) || !nonEmptyString(value.text) || !normalizedRegion(value.region)) {
-    return false
-  }
-  if (
-    value.confidence !== undefined &&
-    (!finiteNumber(value.confidence) || value.confidence < 0 || value.confidence > 1)
-  ) {
-    return false
-  }
-  return value.rotation === undefined || finiteNumber(value.rotation)
-}
-
 function validateArtifactPages(
   candidate: Record<string, unknown>,
   document: ProjectDocument,
@@ -286,16 +262,7 @@ function validateArtifactPages(
     })
 
     if (pageValue.lowLevelOcr !== undefined) {
-      const ocr = pageValue.lowLevelOcr
-      if (
-        !isRecord(ocr) ||
-        !Array.isArray(ocr.lines) ||
-        !Array.isArray(ocr.words) ||
-        !ocr.lines.every(validOcrRecord) ||
-        !ocr.words.every(validOcrRecord)
-      ) {
-        invalid(document, `page ${expectedPage.id} has invalid low-level OCR data.`)
-      }
+      invalid(document, `page ${expectedPage.id} must not contain low-level OCR data.`)
     }
   })
 }

@@ -80,10 +80,10 @@ The current application registers these descriptions:
   selection, measurement, or counting requires the Senior Project Manager."
 - `inspect_document_evidence`: "Inspect prepared page evidence or selected
   blocks from one immutable document version without changing the visible
-  workspace. Page results include semantic blocks and table rows while omitting
-  the stored low-level word and line OCR. Results distinguish source-derived
-  Document Evidence from generated Search Hints, which can locate content but
-  cannot support a claim by themselves."
+  workspace. Page results include semantic blocks, table rows, and their
+  normalized regions; browser artifacts do not ship word-level OCR. Results
+  distinguish source-derived Document Evidence from generated Search Hints,
+  which can locate content but cannot support a claim by themselves."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
   Set or text response from a Senior Project Manager. For a Point Set, include
   references to other immutable documents that support the requested judgment.
