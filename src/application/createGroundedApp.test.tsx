@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { createGroundedApp } from './createGroundedApp'
@@ -346,6 +346,284 @@ test('invalid navigate_document identities do not change the visible workbench',
 
   expectCurrentPage(/A0\.0, Cover Page/)
   expect(screen.getByText('110%')).toBeInTheDocument()
+})
+
+test('navigate_document restores the last visible page after a render failure', async () => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, pageNumber, width }) => {
+      if (pageNumber === 6) throw new Error('Sensitive renderer details.')
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-render-failure-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })).rejects.toThrow('The Project Document page could not be rendered.')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByLabelText('Rendered PDF page A0.0')).toBeVisible()
+  expect(screen.queryByText('Sensitive renderer details.')).not.toBeInTheDocument()
+})
+
+test('navigate_document times out after 15 seconds and restores the last visible page', async () => {
+  const pending: Array<{ resolve: () => void; signal: AbortSignal }> = []
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => pending.push({ resolve, signal }))
+      }
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-timeout-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  vi.useFakeTimers()
+  try {
+    const navigation = modelContext.executeTool('navigate_document', {
+      documentId: 'virginia-farmhouse-drawings',
+      target: { type: 'page', pageId: 'sheet-a1.2' },
+    }).then(
+      () => undefined,
+      (error: unknown) => error,
+    )
+    await act(async () => {})
+    expectCurrentPage(/A1\.2, 1st Floor Plan/)
+    expect(pending).toHaveLength(1)
+
+    await act(async () => {
+      vi.advanceTimersByTime(15_000)
+    })
+    await expect(navigation).resolves.toEqual(expect.objectContaining({
+      message: 'Document navigation timed out before the destination became visible.',
+    }))
+    expectCurrentPage(/A0\.0, Cover Page/)
+    expect(pending[0]!.signal.aborted).toBe(true)
+
+    act(() => pending[0]!.resolve())
+    expectCurrentPage(/A0\.0, Cover Page/)
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
+test('caller cancellation restores the visible page and cannot apply late', async () => {
+  let targetRender: { resolve: () => void; signal: AbortSignal } | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => {
+          targetRender = { resolve, signal }
+        })
+      }
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-cancel-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const controller = new AbortController()
+  const navigation = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  }, { signal: controller.signal })
+  await waitFor(() => expect(targetRender).toBeDefined())
+
+  controller.abort()
+  await expect(navigation).rejects.toThrow('Document navigation was cancelled.')
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(targetRender!.signal.aborted).toBe(true)
+  act(() => targetRender!.resolve())
+  expectCurrentPage(/A0\.0, Cover Page/)
+})
+
+test('newer agent navigation supersedes an older call and owns visible completion', async () => {
+  let oldRender: { resolve: () => void; signal: AbortSignal } | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => {
+          oldRender = { resolve, signal }
+        })
+      }
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-supersession-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const older = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })
+  await waitFor(() => expect(oldRender).toBeDefined())
+  const newer = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.3' },
+  })
+
+  await expect(older).resolves.toEqual({
+    status: 'superseded',
+    requestedDocument: { id: 'virginia-farmhouse-drawings' },
+    targetType: 'page',
+  })
+  await expect(newer).resolves.toMatchObject({
+    status: 'applied',
+    page: { id: 'sheet-a1.3' },
+  })
+  expectCurrentPage(/A1\.3, 2nd Floor Plan/)
+  expect(oldRender!.signal.aborted).toBe(true)
+  act(() => oldRender!.resolve())
+  expectCurrentPage(/A1\.3, 2nd Floor Plan/)
+})
+
+test.each([
+  ['pan', async () => {
+    const viewer = document.querySelector('.pdf-page-viewer')!
+    fireEvent.pointerDown(viewer, {
+      button: 0,
+      clientX: 20,
+      clientY: 20,
+      pointerId: 1,
+      pointerType: 'mouse',
+    })
+    fireEvent.pointerMove(viewer, {
+      clientX: 30,
+      clientY: 20,
+      pointerId: 1,
+      pointerType: 'mouse',
+    })
+  }],
+  ['zoom', async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  }],
+  ['fit', async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Fit page' }))
+  }],
+  ['page selection', async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+  }],
+  ['document selection', async (user: ReturnType<typeof userEvent.setup>) => {
+    await chooseDocument(user, /Type C interior door product data/i)
+  }],
+] as const)('human %s supersedes pending agent navigation', async (_name, takeOver) => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, width }) => {
+      if (pageNumber === 6) return new Promise<void>(() => {})
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  const user = userEvent.setup()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-human-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const navigation = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })
+  await waitFor(() => expectCurrentPage(/A1\.2, 1st Floor Plan/))
+
+  await takeOver(user)
+  await expect(navigation).resolves.toEqual({
+    status: 'superseded',
+    requestedDocument: { id: 'virginia-farmhouse-drawings' },
+    targetType: 'page',
+  })
+})
+
+test('navigate_document is immediate only while the exact view remains visibly applied', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-idempotence-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const input = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page' as const, pageId: 'sheet-a1.2' },
+  }
+  await expect(modelContext.executeTool('navigate_document', input))
+    .resolves.toMatchObject({ status: 'applied' })
+  const appliedRenderCount = pageRenderer.renderPage.mock.calls.length
+  const frame = document.querySelector('.pdf-page-frame')!
+  const appliedTransform = frame.getAttribute('style')
+
+  await expect(modelContext.executeTool('navigate_document', input))
+    .resolves.toMatchObject({ status: 'applied' })
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(appliedRenderCount)
+
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  await waitFor(() => expect(screen.getByText('110%')).toBeInTheDocument())
+  expect(frame.getAttribute('style')).not.toBe(appliedTransform)
+  await expect(modelContext.executeTool('navigate_document', input))
+    .resolves.toMatchObject({ status: 'applied', fit: 'page', zoom: 1 })
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(frame.getAttribute('style')).toBe(appliedTransform)
 })
 
 test('map controls and keyboard shortcuts change fit, zoom, and pages outside editable controls', async () => {

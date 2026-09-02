@@ -78,10 +78,44 @@ visibly rendered:
 A document-only result uses `"type": "document"`. The result contains no
 Document Evidence, Search Hints, OCR, highlights, or Assistance content.
 Unknown document and foreign page identities fail before changing the visible
-workspace. Navigation preserves Assistance Requests, Professional Responses,
-tabs, unfinished Point Set drafts and notes, viewed results, and existing
-overlays. The four read-only document tools remain read-only and do not move the
-workbench.
+workspace.
+
+Visible completion is failure-safe and human-controlled. One navigation call
+owns the viewer only until its requested page and full-page fit are visibly
+applied, a newer agent call arrives, or the Senior Project Manager pans, zooms,
+uses an existing fit action, selects a page, or selects a document. A newer
+agent or human action supersedes the pending call immediately. The superseded
+call returns only compact request context and no fields that imply its
+destination became visible:
+
+```json
+{
+  "status": "superseded",
+  "requestedDocument": { "id": "virginia-farmhouse-drawings" },
+  "targetType": "page"
+}
+```
+
+Late rendering from a superseded call cannot complete that call, reclaim the
+view, or roll back the newer destination. Repeating an exact destination while
+its page and fit are still visibly applied returns the existing applied result
+without rendering again. If the human has moved the view, the same input
+reapplies full-page fit before returning `applied`.
+
+Each call has a 15-second internal visible-render deadline. A PDF render failure
+or deadline expiry restores the last successfully displayed document and page
+before rejecting with `The Project Document page could not be rendered.` or
+`Document navigation timed out before the destination became visible.` Grounded
+does not expose renderer implementation details. The tool also honors its
+per-call cancellation signal; cancellation restores the prior visible view,
+rejects with `Document navigation was cancelled.`, and prevents abandoned work
+from applying later. Recovery never overwrites a human or newer-agent
+destination that acquired the viewer in the meantime.
+
+Success, failure, cancellation, and supersession preserve Assistance Requests,
+Professional Responses, tabs, unfinished Point Set drafts and notes, viewed
+results, and existing overlays. The four read-only document tools remain
+read-only and do not move the workbench.
 
 ## Create an Assistance Request
 

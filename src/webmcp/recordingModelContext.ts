@@ -4,6 +4,7 @@ export interface RecordingModelContext extends ModelContextAdapter {
   executeTool: (
     name: string,
     input: Record<string, unknown>,
+    options?: { signal?: AbortSignal },
   ) => Promise<unknown>
   getTool: (name: string) => ModelContextTool | undefined
   getToolNames: () => string[]
@@ -46,10 +47,10 @@ export function createRecordingModelContext(
         { once: true },
       )
     },
-    async executeTool(name, input) {
+    async executeTool(name, input, context) {
       const tool = tools.get(name)
       if (!tool) throw new Error(`WebMCP tool is not registered: ${name}`)
-      return tool.execute(input)
+      return tool.execute(input, context)
     },
     getTool(name) {
       return tools.get(name)

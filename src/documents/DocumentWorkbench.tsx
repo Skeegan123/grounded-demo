@@ -7,6 +7,10 @@ import {
 import { MoveHorizontal, Scan, ZoomIn, ZoomOut } from 'lucide-react'
 import type { StoredPoint } from '../demoSession/demoSession'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
+import type {
+  ViewerNavigationRequest,
+  VisibleDocumentView,
+} from './DocumentNavigator'
 import {
   MAX_DOCUMENT_ZOOM,
   MIN_DOCUMENT_ZOOM,
@@ -26,16 +30,13 @@ export interface DocumentWorkbenchProps {
   currentPage: DocumentPage
   documents: ProjectDocument[]
   fit: PageFit
+  navigationRequest?: ViewerNavigationRequest
   onFitChange: (fit: PageFit) => void
+  onHumanTakeover?: () => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
-  onVisibleViewChange?: (view: {
-    documentId: string
-    documentVersionId: string
-    pageId: string
-    fit: PageFit
-    zoom: number
-  }) => void
+  onRenderError?: (requestId: number) => void
+  onVisibleViewChange?: (view: VisibleDocumentView) => void
   onSelectDocument: (document: ProjectDocument) => void
   onSelectPage: (page: DocumentPage) => void
   onViewUndonePointPage: () => void
@@ -58,9 +59,12 @@ export function DocumentWorkbench({
   currentPage,
   documents,
   fit,
+  navigationRequest,
   onFitChange,
+  onHumanTakeover,
   onPlacePoint,
   onRemovePoint,
+  onRenderError,
   onVisibleViewChange,
   onSelectDocument,
   onSelectPage,
@@ -152,8 +156,11 @@ export function DocumentWorkbench({
           canMark={canMark}
           document={currentDocument}
           fit={fit}
+          navigationRequest={navigationRequest}
+          onHumanTakeover={onHumanTakeover}
           onPlacePoint={onPlacePoint}
           onRemovePoint={onRemovePoint}
+          onRenderError={onRenderError}
           onVisibleViewChange={onVisibleViewChange}
           onZoomChange={onZoomChange}
           page={currentPage}
