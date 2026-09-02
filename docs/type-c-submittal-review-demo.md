@@ -20,10 +20,11 @@ their own:
 > Check the Assistance Request you created and finish the Type C door
 > submittal review.
 
-## Verified tool sequence
+## Current automated tool sequence
 
-The successful run used the ordinary WebMCP descriptions to choose this
-sequence:
+The application-level document-to-Assistance tracer in
+`src/application/createGroundedApp.test.tsx` exercises this current six-tool
+sequence through the recording Model Context adapter:
 
 1. `get_project_workspace`
 2. `list_project_documents`
@@ -42,13 +43,31 @@ The repeatable searches are:
 - `Type C 24 x 80 solid wood` for the A4.3 schedule requirement;
 - `first floor plan room layout utility coats WC` for the A1.2 Search Hint.
 
-This is a tested path through general document and Assistance Request tools,
-not a required workflow. An External Agent may inspect other relevant pages or
-change the order.
+This is a tested path through all six current public tools, not a required
+workflow and not a claim about a third-party client. An External Agent may
+inspect other relevant pages or change the order.
 
-## Settled tool descriptions
+## Historical supported-client sequence
 
-The successful client run discovered these descriptions:
+ChatGPT's in-app browser rehearsed the earlier Type C flow on August 30, 2026.
+That client discovered and exercised the then-current five-tool surface:
+
+1. `get_project_workspace`
+2. `list_project_documents`
+3. `inspect_document_text` for the two submittal pages, A4.3, and A1.2
+4. `create_assistance_request`
+5. `get_assistance_request`
+
+`inspect_document_text` was later replaced by `inspect_document_evidence`, and
+`search_project_documents` was added later. The historical run therefore does
+not establish client execution of those two current contracts. On September 2,
+2026, no supported third-party WebMCP client was available in the implementation
+environment, so the current six-tool judge flow was not manually rehearsed or
+claimed there.
+
+## Current public tool descriptions
+
+The current application registers these descriptions:
 
 - `get_project_workspace`: "Introduce this Demo Project and its purpose before
   inspecting its immutable documents."
@@ -70,7 +89,7 @@ The successful client run discovered these descriptions:
 - `get_assistance_request`: "Retrieve one request from this Demo Session,
   including its final Professional Response when answered."
 
-## Observed result
+## Current automated result
 
 Search located a 24 by 80 inch hollow-core flush submitted door and a 24 by 80
 inch solid-wood, one-panel Type C contract requirement. Inspection returned the
@@ -82,12 +101,28 @@ final three-point Professional Response.
 After reload, `get_assistance_request` returned `answered`, the immutable
 drawing version, three A1.2 page references with normalized coordinates, a
 computed count of three, creation and submission timestamps, and the overall
-note. The External Agent recommended revise and resubmit because the proposed
+note. The tracer derives a revise-and-resubmit disposition because the proposed
 hollow-core flush construction does not meet the solid-wood, one-panel contract
 requirement at the three marked openings.
 
-The create-to-retrieve portion took about one minute in the local
-deployment-equivalent browser run.
+The historical August 30 create-to-retrieve portion took about one minute in
+the local deployment-equivalent supported-client run. No timing is claimed for
+a new third-party rehearsal.
+
+## Hardened-call recovery
+
+Keep Assistance questions at or below 4,000 characters; use no more than 25
+unique recommended pages, 10 supporting document references, or 25 unique pages
+per supporting reference; and keep every Assistance identifier at or below 200
+characters. A Demo Session accepts 25 pending requests; an answered or declined
+request frees a slot. A rejected create changes none of the existing queue and
+does not echo its rejected payload, so correct the named limit and retry.
+
+For evidence inspection, select either one through five unique pages or one
+through 50 unique blocks, with identifiers at or below 200 characters. If the
+complete result would exceed the 512 KiB UTF-8 cap, no partial evidence is
+returned; narrow the selectors and retry. The full contract is in
+[`webmcp-point-set-contract.md`](webmcp-point-set-contract.md).
 
 ## Recording checklist
 
@@ -105,7 +140,7 @@ deployment-equivalent browser run.
 - Select **Start over** and show an empty Current, Queue, and Done before ending
   the recording.
 
-## Client finding
+## Historical client finding
 
 The first run discovered the documents and mismatch without extra introductory
 guidance. It did expose one request-contract gap: the Point Set input could name

@@ -162,6 +162,187 @@ test('inspection input requires one exclusive non-empty unique selector', async 
   controller.abort()
 })
 
+test('inspection bounds every identifier and page or block selector collection', async () => {
+  const documents = createDocuments()
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(modelContext, documents, controller.signal)
+  const identity = {
+    documentId: 'virginia-farmhouse-drawings',
+    documentVersionId: 'virginia-farmhouse-drawings-v1',
+  }
+  const fivePageIds = [
+    'sheet-a2.2',
+    'sheet-a2.0',
+    'sheet-a2.3',
+    'sheet-a1.6',
+    'sheet-a2.1',
+  ]
+  const sixPageIds = [...fivePageIds, 'sheet-a3.1']
+  const availableBlockIds = [
+    'sheet-a0.0',
+    'sheet-a0.1',
+    'sheet-a0.2',
+  ].flatMap((pageId) => documents.inspectEvidence({
+    ...identity,
+    pageIds: [pageId],
+  }).pages.flatMap((page) => page.blocks.map((block) => block.id)))
+  expect(availableBlockIds.length).toBeGreaterThanOrEqual(51)
+
+  const fivePages = await modelContext.executeTool(
+    'inspect_document_evidence',
+    { ...identity, pageIds: fivePageIds },
+  ) as { pages: unknown[] }
+  const fiftyBlocks = await modelContext.executeTool(
+    'inspect_document_evidence',
+    { ...identity, blockIds: availableBlockIds.slice(0, 50) },
+  ) as { pages: Array<{ blocks: unknown[] }> }
+
+  expect(fivePages.pages).toHaveLength(5)
+  expect(fiftyBlocks.pages.flatMap((page) => page.blocks)).toHaveLength(50)
+  await expect(modelContext.executeTool('inspect_document_evidence', {
+    ...identity,
+    pageIds: sixPageIds,
+  })).rejects.toThrow('Expected array length to be less or equal to 5.')
+  await expect(modelContext.executeTool('inspect_document_evidence', {
+    ...identity,
+    blockIds: availableBlockIds.slice(0, 51),
+  })).rejects.toThrow('Invalid input')
+
+  const maxIdentifier = 'x'.repeat(200)
+  const oversizedIdentifier = 'x'.repeat(201)
+  const acceptedBoundaryInputs = [
+    { ...identity, documentId: maxIdentifier, pageIds: ['sheet-a4.3'] },
+    { ...identity, documentVersionId: maxIdentifier, pageIds: ['sheet-a4.3'] },
+    { ...identity, pageIds: [maxIdentifier] },
+    { ...identity, blockIds: [maxIdentifier] },
+  ]
+  const rejectedBoundaryInputs = [
+    { ...identity, documentId: oversizedIdentifier, pageIds: ['sheet-a4.3'] },
+    { ...identity, documentVersionId: oversizedIdentifier, pageIds: ['sheet-a4.3'] },
+    { ...identity, pageIds: [oversizedIdentifier] },
+    { ...identity, blockIds: [oversizedIdentifier] },
+  ]
+  for (const input of acceptedBoundaryInputs) {
+    await expect(
+      modelContext.executeTool('inspect_document_evidence', input),
+    ).rejects.not.toThrow('Invalid input')
+  }
+  for (const input of rejectedBoundaryInputs) {
+    await expect(
+      modelContext.executeTool('inspect_document_evidence', input),
+    ).rejects.toThrow('Invalid input')
+  }
+
+  controller.abort()
+})
+
+test('inspection caps the complete serialized UTF-8 response without partial evidence', async () => {
+  const maxBytes = 512 * 1024
+  type InspectionResult = ReturnType<
+    ReturnType<typeof createDocuments>['inspectEvidence']
+  >
+  const utf8ByteLength = (value: string) => new TextEncoder().encode(value).byteLength
+  const inspectionResultAtSize = (targetBytes: number): InspectionResult => {
+    const result: InspectionResult = {
+      document: {
+        id: 'document',
+        versionId: 'document-v1',
+        kind: 'contract_drawings',
+        title: 'Boundary document',
+      },
+      source: {
+        fingerprint: 'f'.repeat(64),
+        byteSize: 1,
+        pageCount: 1,
+      },
+      provenance: {
+        provider: 'reducto',
+        importerVersion: 'boundary-test',
+        sourceFingerprint: 'f'.repeat(64),
+        verified: {
+          parseExportSha256: 'a'.repeat(64),
+          model: 'r-1',
+          modelSource: 'usage.usage_breakdown.parse_model',
+        },
+        maintainerDeclaredParseSettings: {
+          chunking: 'disabled',
+          embeddingOptimization: false,
+          returnedImages: false,
+          tableOutputFormat: 'html',
+          agenticPass: false,
+          returnedOcrData: true,
+        },
+      },
+      pages: [{
+        page: {
+          id: 'page',
+          label: 'Page',
+          number: 1,
+          title: 'Boundary page',
+          width: 1,
+          height: 1,
+          rotation: 0,
+        },
+        blocks: [{
+          id: 'block',
+          order: 0,
+          sourceType: 'Text',
+          content: '',
+          contentFormat: 'text',
+          region: { left: 0, top: 0, width: 1, height: 1 },
+          classification: 'document_evidence',
+          provenance: { provider: 'reducto', sourceType: 'Text' },
+        }],
+        tableRows: [],
+      }],
+    }
+    const contentBytes = targetBytes - utf8ByteLength(JSON.stringify(result))
+    if (contentBytes < 0) throw new Error('Target response size is too small.')
+    result.pages[0]!.blocks[0]!.content =
+      'é'.repeat(Math.floor(contentBytes / 2)) + 'x'.repeat(contentBytes % 2)
+    expect(utf8ByteLength(JSON.stringify(result))).toBe(targetBytes)
+    return result
+  }
+  const executeSizedInspection = async (targetBytes: number) => {
+    const result = inspectionResultAtSize(targetBytes)
+    const documents = {
+      ...createDocuments(),
+      inspectEvidence: () => result,
+    }
+    const modelContext = createRecordingModelContext()
+    const controller = new AbortController()
+    await registerDocumentTools(modelContext, documents, controller.signal)
+    const execution = modelContext.executeTool('inspect_document_evidence', {
+      documentId: 'document',
+      documentVersionId: 'document-v1',
+      pageIds: ['page'],
+    })
+    return { controller, execution }
+  }
+
+  const below = await executeSizedInspection(maxBytes - 1)
+  await expect(below.execution).resolves.toEqual(
+    expect.objectContaining({ document: expect.objectContaining({ id: 'document' }) }),
+  )
+  below.controller.abort()
+
+  const above = await executeSizedInspection(maxBytes + 1)
+  let partialResult: unknown
+  let boundaryError: unknown
+  try {
+    partialResult = await above.execution
+  } catch (error) {
+    boundaryError = error
+  }
+  expect(partialResult).toBeUndefined()
+  expect(boundaryError).toEqual(new Error(
+    'Inspection response exceeds 512 KiB. Narrow the pageIds or blockIds selectors and retry.',
+  ))
+  expect(utf8ByteLength((boundaryError as Error).message)).toBeLessThan(200)
+  above.controller.abort()
+})
+
 test('an External Agent searches concise cross-document evidence before inspection', async () => {
   const modelContext = createRecordingModelContext()
   const controller = new AbortController()
@@ -439,7 +620,11 @@ test('search input is bounded and requires a complete immutable scope', async ()
   await expect(modelContext.executeTool('search_project_documents', {
     query: 'door',
     limit: 21,
-  })).rejects.toThrow('Invalid input')
+  })).rejects.toThrow('Invalid input at /limit.')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: 'door',
+    limit: 21,
+  })).rejects.not.toThrow('Expected integer to be less or equal to 20.')
   await expect(modelContext.executeTool('search_project_documents', {
     query: 'door',
     extra: true,

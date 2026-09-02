@@ -1,14 +1,33 @@
 import { Type } from '@sinclair/typebox'
-import type { createAssistance } from '../assistance/assistance'
+import {
+  ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT,
+  ASSISTANCE_QUESTION_CHARACTER_LIMIT,
+  ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
+  ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT,
+  ASSISTANCE_SUPPORTING_PAGE_LIMIT,
+  type createAssistance,
+} from '../assistance/assistance'
 import { defineTool } from './defineTool'
 import type { ModelContextAdapter } from './modelContext'
 
+const AssistanceIdentifier = Type.String({
+  minLength: 1,
+  maxLength: ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT,
+})
+
+const AssistanceQuestion = Type.String({
+  minLength: 1,
+  maxLength: ASSISTANCE_QUESTION_CHARACTER_LIMIT,
+  pattern: '\\S',
+})
+
 const SupportingDocumentReference = Type.Object(
   {
-    documentId: Type.String({ minLength: 1 }),
-    documentVersionId: Type.String({ minLength: 1 }),
-    pageIds: Type.Array(Type.String({ minLength: 1 }), {
+    documentId: AssistanceIdentifier,
+    documentVersionId: AssistanceIdentifier,
+    pageIds: Type.Array(AssistanceIdentifier, {
       minItems: 1,
+      maxItems: ASSISTANCE_SUPPORTING_PAGE_LIMIT,
       uniqueItems: true,
     }),
   },
@@ -17,13 +36,19 @@ const SupportingDocumentReference = Type.Object(
 
 const CreatePointSetAssistanceRequestInput = Type.Object(
   {
-    question: Type.String({ minLength: 1, pattern: '\\S' }),
+    question: AssistanceQuestion,
     responseType: Type.Literal('point_set'),
-    documentId: Type.String({ minLength: 1 }),
-    documentVersionId: Type.String({ minLength: 1 }),
-    recommendedPageIds: Type.Array(Type.String({ minLength: 1 })),
+    documentId: AssistanceIdentifier,
+    documentVersionId: AssistanceIdentifier,
+    recommendedPageIds: Type.Array(AssistanceIdentifier, {
+      maxItems: ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
+      uniqueItems: true,
+    }),
     supportingDocumentReferences: Type.Optional(
-      Type.Array(SupportingDocumentReference, { minItems: 1 }),
+      Type.Array(SupportingDocumentReference, {
+        minItems: 1,
+        maxItems: ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT,
+      }),
     ),
   },
   { additionalProperties: false },
@@ -31,7 +56,7 @@ const CreatePointSetAssistanceRequestInput = Type.Object(
 
 const CreateTextAssistanceRequestInput = Type.Object(
   {
-    question: Type.String({ minLength: 1, pattern: '\\S' }),
+    question: AssistanceQuestion,
     responseType: Type.Literal('text'),
   },
   { additionalProperties: false },
@@ -43,7 +68,7 @@ const CreateAssistanceRequestInput = Type.Union([
 ])
 
 const GetAssistanceRequestInput = Type.Object(
-  { id: Type.String({ minLength: 1 }) },
+  { id: AssistanceIdentifier },
   { additionalProperties: false },
 )
 
@@ -60,6 +85,7 @@ export function registerAssistanceTools(
         'Queue one Assistance Request requiring a Point Set or text response from a Senior Project Manager. For a Point Set, include references to other immutable documents that support the requested judgment. Returns immediately with the durable request identity.',
       schema: CreateAssistanceRequestInput,
       readOnly: false,
+      includeValidationIssueMessage: true,
       execute: (input) => assistance.createRequest(input),
     }),
     defineTool({
@@ -69,6 +95,7 @@ export function registerAssistanceTools(
         'Retrieve one request from this Demo Session, including its final Professional Response when answered.',
       schema: GetAssistanceRequestInput,
       readOnly: true,
+      includeValidationIssueMessage: true,
       execute: ({ id }) => assistance.getResult(id),
     }),
   ]

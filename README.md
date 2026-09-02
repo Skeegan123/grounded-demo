@@ -28,21 +28,33 @@ Done after reload.
 
 ## WebMCP tools
 
-The real-client tracer locked the initial Point Set contract documented in
-[`docs/webmcp-point-set-contract.md`](docs/webmcp-point-set-contract.md):
+Grounded exposes exactly six WebMCP tools. The application-level registration
+test in `src/application/webmcpRegistration.test.tsx` is the inventory source of
+truth:
 
-- `create_assistance_request` persists one request and returns its identity
-  immediately.
-- `get_assistance_request` returns the pending request or its final Professional
-  Response.
+- Four read-only document tools: `get_project_workspace`,
+  `list_project_documents`, `search_project_documents`, and
+  `inspect_document_evidence`.
+- Two Assistance tools: `create_assistance_request` persists one request and
+  returns its identity immediately; `get_assistance_request` returns the pending
+  request or its final Professional Response.
 
-Both input contracts are TypeBox schemas used for TypeScript inference, browser
-registration, and runtime validation. The application also includes a recording
-model-context adapter so the same behavior can run under Vitest without browser
-WebMCP support.
+All six register as one attempt. Grounded reports **WebMCP ready** only after
+the complete inventory is available. A failed, replaced, or unmounted attempt
+removes every tool from that attempt before the existing unavailable state is
+shown; refresh the page to retry a failed registration.
 
-The tested goal prompt, resume prompt, observed client behavior, and verified
-tool sequence are recorded in
+The public limits, successful result shapes, annotations, compact recovery
+behavior, and historical client evidence are documented in
+[`docs/webmcp-point-set-contract.md`](docs/webmcp-point-set-contract.md).
+
+The two Assistance input contracts are TypeBox schemas used for TypeScript
+inference, browser registration, and runtime validation. The application also
+includes a recording model-context adapter so the same behavior can run under
+Vitest without browser WebMCP support.
+
+The tested goal prompt, resume prompt, historical client behavior, and current
+automated tool sequence are recorded in
 [`docs/type-c-submittal-review-demo.md`](docs/type-c-submittal-review-demo.md).
 
 ## Run locally

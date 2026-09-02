@@ -8,6 +8,7 @@ export function defineTool<Schema extends TSchema>(options: {
   description: string
   schema: Schema
   readOnly: boolean
+  includeValidationIssueMessage?: boolean
   execute: (input: Static<Schema>) => Promise<unknown> | unknown
 }): ModelContextTool {
   return {
@@ -26,24 +27,48 @@ export function defineTool<Schema extends TSchema>(options: {
         let issue = collectedIssues.find((candidate) => candidate.path)
         const variants = (options.schema as TSchema & { anyOf?: TSchema[] }).anyOf
         if (!issue && variants && input && typeof input === 'object') {
-          const matchingVariant = variants.find((variant) => {
+          const variantMatches = variants.map((variant) => {
             const properties = (
               variant as TSchema & {
                 properties?: Record<string, { const?: unknown }>
               }
-            ).properties
-            const constants = Object.entries(properties ?? {}).filter(
+            ).properties ?? {}
+            const constants = Object.entries(properties).filter(
               ([, property]) => 'const' in property,
             )
-            return (
-              constants.length > 0 &&
-              constants.every(
-                ([key, property]) =>
-                  key in input &&
-                  (input as Record<string, unknown>)[key] === property.const,
-              )
-            )
+            return {
+              constantsMatch:
+                constants.length > 0 &&
+                constants.every(
+                  ([key, property]) =>
+                    key in input &&
+                    (input as Record<string, unknown>)[key] === property.const,
+                ),
+              matchingPropertyCount: Object.keys(properties).filter(
+                (key) => key in input,
+              ).length,
+              variant,
+            }
           })
+          const constantMatch = variantMatches.find(
+            ({ constantsMatch }) => constantsMatch,
+          )
+          const bestPropertyMatch = Math.max(
+            ...variantMatches.map(({ matchingPropertyCount }) =>
+              matchingPropertyCount,
+            ),
+          )
+          const propertyMatches = variantMatches.filter(
+            ({ matchingPropertyCount }) =>
+              matchingPropertyCount === bestPropertyMatch,
+          )
+          const matchingVariant = constantMatch?.variant ?? (
+            options.includeValidationIssueMessage &&
+            bestPropertyMatch > 0 &&
+            propertyMatches.length === 1
+              ? propertyMatches[0]?.variant
+              : undefined
+          )
           if (matchingVariant) {
             issue = [...Value.Errors(matchingVariant, input)].find(
               (candidate) => candidate.path,
@@ -51,7 +76,13 @@ export function defineTool<Schema extends TSchema>(options: {
           }
         }
         issue ??= collectedIssues[0]
-        throw new Error(`Invalid input${issue?.path ? ` at ${issue.path}` : ''}.`)
+        throw new Error(
+          `Invalid input${issue?.path ? ` at ${issue.path}` : ''}.${
+            options.includeValidationIssueMessage && issue?.message
+              ? ` ${issue.message}.`
+              : ''
+          }`,
+        )
       }
       return options.execute(input as Static<Schema>)
     },

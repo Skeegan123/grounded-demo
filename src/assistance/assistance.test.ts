@@ -1,5 +1,11 @@
 import { expect, test } from 'vitest'
 import {
+  ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT,
+  ASSISTANCE_QUESTION_CHARACTER_LIMIT,
+  ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
+  ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT,
+  ASSISTANCE_SUPPORTING_PAGE_LIMIT,
+  DEMO_SESSION_PENDING_ASSISTANCE_LIMIT,
   createAssistance,
   type CreatePointSetAssistanceRequest,
 } from './assistance'
@@ -250,4 +256,225 @@ test('legacy stored Point Sets derive Point Numbers from array order', async () 
     expect.objectContaining({ pointNumber: 2 }),
   ])
   assistance.close()
+})
+
+test('the domain rejects bounded Assistance input without modifying the queue', async () => {
+  const databaseName = `grounded-assistance-domain-limits-${crypto.randomUUID()}`
+  const assistance = createAssistance({
+    databaseName,
+    sessionId: 'session-1',
+    createId: createIds('request-1', 'request-2'),
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  await assistance.createRequest({
+    question: 'q'.repeat(ASSISTANCE_QUESTION_CHARACTER_LIMIT),
+    responseType: 'text',
+  })
+  const before = await assistance.listPending()
+
+  const rejectedInputs: Array<{
+    input: CreatePointSetAssistanceRequest | { question: string; responseType: 'text' }
+    message: string
+  }> = [
+    {
+      input: {
+        question: 'q'.repeat(ASSISTANCE_QUESTION_CHARACTER_LIMIT + 1),
+        responseType: 'text',
+      },
+      message: 'An Assistance question can have at most 4,000 characters.',
+    },
+    {
+      input: {
+        ...pointSetRequest,
+        documentId: 'd'.repeat(ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT + 1),
+      },
+      message: 'Assistance identifiers can have at most 200 characters.',
+    },
+    {
+      input: {
+        ...pointSetRequest,
+        recommendedPageIds: Array.from(
+          { length: ASSISTANCE_RECOMMENDED_PAGE_LIMIT + 1 },
+          (_, index) => `page-${index}`,
+        ),
+      },
+      message: 'Recommended page identifiers are limited to 25 per Assistance Request.',
+    },
+    {
+      input: {
+        ...pointSetRequest,
+        recommendedPageIds: ['sheet-a1.2', 'sheet-a1.2'],
+      },
+      message: 'Recommended page identifiers must be unique.',
+    },
+    {
+      input: {
+        ...pointSetRequest,
+        supportingDocumentReferences: Array.from(
+          { length: ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT + 1 },
+          (_, index) => ({
+            documentId: `document-${index}`,
+            documentVersionId: `version-${index}`,
+            pageIds: ['page-1'],
+          }),
+        ),
+      },
+      message: 'An Assistance Request can have at most 10 supporting document references.',
+    },
+    {
+      input: {
+        ...pointSetRequest,
+        supportingDocumentReferences: [{
+          documentId: 'virginia-farmhouse-drawings',
+          documentVersionId: 'virginia-farmhouse-drawings-v1',
+          pageIds: Array.from(
+            { length: ASSISTANCE_SUPPORTING_PAGE_LIMIT + 1 },
+            (_, index) => `page-${index}`,
+          ),
+        }],
+      },
+      message: 'Supporting page identifiers are limited to 25 per Assistance Request.',
+    },
+    {
+      input: {
+        ...pointSetRequest,
+        supportingDocumentReferences: [
+          {
+            documentId: 'type-c-door-submittal',
+            documentVersionId: 'type-c-door-submittal-v1',
+            pageIds: ['door-submittal-page-1'],
+          },
+          {
+            documentId: 'type-c-door-submittal',
+            documentVersionId: 'type-c-door-submittal-v1',
+            pageIds: ['door-submittal-page-2'],
+          },
+        ],
+      },
+      message: 'Supporting document versions must be unique within an Assistance Request.',
+    },
+  ]
+
+  for (const { input, message } of rejectedInputs) {
+    await expect(assistance.createRequest(input)).rejects.toThrow(message)
+    await expect(assistance.listPending()).resolves.toEqual(before)
+  }
+
+  assistance.close()
+})
+
+test('the twenty-sixth pending request is rejected without changing persisted queue state', async () => {
+  const databaseName = `grounded-assistance-pending-limit-${crypto.randomUUID()}`
+  let nextId = 1
+  const assistance = createAssistance({
+    databaseName,
+    sessionId: 'session-1',
+    createId: () => `request-${nextId++}`,
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  for (let index = 0; index < DEMO_SESSION_PENDING_ASSISTANCE_LIMIT; index += 1) {
+    await assistance.createRequest({
+      question: `Question ${index + 1}`,
+      responseType: 'text',
+    })
+  }
+  const database = new DemoSessionDatabase(databaseName)
+  const before = await database.requests.toArray()
+
+  await expect(assistance.createRequest({
+    question: 'This request must not be persisted.',
+    responseType: 'text',
+  })).rejects.toThrow(
+    'A Demo Session can have at most 25 pending Assistance Requests.',
+  )
+
+  expect(await database.requests.toArray()).toEqual(before)
+  await expect(assistance.listPending()).resolves.toHaveLength(
+    DEMO_SESSION_PENDING_ASSISTANCE_LIMIT,
+  )
+  database.close()
+  assistance.close()
+})
+
+test('answered and declined requests each free one pending slot', async () => {
+  const databaseName = `grounded-assistance-freed-slots-${crypto.randomUUID()}`
+  let nextId = 1
+  const assistance = createAssistance({
+    databaseName,
+    sessionId: 'session-1',
+    createId: () => `request-${nextId++}`,
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  for (let index = 0; index < DEMO_SESSION_PENDING_ASSISTANCE_LIMIT; index += 1) {
+    await assistance.createRequest({
+      question: `Question ${index + 1}`,
+      responseType: 'text',
+    })
+  }
+
+  await assistance.submitTextResponse({ requestId: 'request-1', text: 'Done.' })
+  await expect(assistance.createRequest({
+    question: 'Uses the answered request slot.',
+    responseType: 'text',
+  })).resolves.toMatchObject({ id: 'request-26' })
+  await assistance.decline({ requestId: 'request-2' })
+  await expect(assistance.createRequest({
+    question: 'Uses the declined request slot.',
+    responseType: 'text',
+  })).resolves.toMatchObject({ id: 'request-27' })
+
+  await expect(assistance.listPending()).resolves.toHaveLength(
+    DEMO_SESSION_PENDING_ASSISTANCE_LIMIT,
+  )
+  await expect(assistance.listCompleted()).resolves.toHaveLength(2)
+  assistance.close()
+})
+
+test('concurrent creates share the remaining capacity and assign one queue position', async () => {
+  const databaseName = `grounded-assistance-concurrent-limit-${crypto.randomUUID()}`
+  let seedId = 1
+  const seed = createAssistance({
+    databaseName,
+    sessionId: 'session-1',
+    createId: () => `request-${seedId++}`,
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  for (let index = 0; index < DEMO_SESSION_PENDING_ASSISTANCE_LIMIT - 1; index += 1) {
+    await seed.createRequest({ question: `Question ${index + 1}`, responseType: 'text' })
+  }
+  const first = createAssistance({
+    databaseName,
+    sessionId: 'session-1',
+    createId: () => 'concurrent-a',
+    now: () => new Date('2030-01-02T03:04:06.000Z'),
+  })
+  const second = createAssistance({
+    databaseName,
+    sessionId: 'session-1',
+    createId: () => 'concurrent-b',
+    now: () => new Date('2030-01-02T03:04:06.000Z'),
+  })
+
+  const results = await Promise.allSettled([
+    first.createRequest({ question: 'Concurrent A', responseType: 'text' }),
+    second.createRequest({ question: 'Concurrent B', responseType: 'text' }),
+  ])
+  expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1)
+  expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1)
+
+  const database = new DemoSessionDatabase(databaseName)
+  const requests = await database.requests.toArray()
+  expect(requests).toHaveLength(DEMO_SESSION_PENDING_ASSISTANCE_LIMIT)
+  expect(new Set(requests.map((request) => request.queuePosition)).size)
+    .toBe(DEMO_SESSION_PENDING_ASSISTANCE_LIMIT)
+  expect(requests.map((request) => request.queuePosition).sort((a, b) => a - b))
+    .toEqual(Array.from(
+      { length: DEMO_SESSION_PENDING_ASSISTANCE_LIMIT },
+      (_, index) => index + 1,
+    ))
+
+  database.close()
+  first.close()
+  second.close()
+  seed.close()
 })

@@ -10,6 +10,13 @@ import {
   type StoredPoint,
 } from '../demoSession/demoSession'
 
+export const ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT = 200
+export const ASSISTANCE_QUESTION_CHARACTER_LIMIT = 4_000
+export const ASSISTANCE_RECOMMENDED_PAGE_LIMIT = 25
+export const ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT = 10
+export const ASSISTANCE_SUPPORTING_PAGE_LIMIT = 25
+export const DEMO_SESSION_PENDING_ASSISTANCE_LIMIT = 25
+
 export interface CreatePointSetAssistanceRequest {
   question: string
   responseType: 'point_set'
@@ -112,6 +119,8 @@ export function createAssistance(options: AssistanceOptions) {
   const notifyListeners = () => listeners.forEach((listener) => listener())
 
   async function createRequest(input: CreateAssistanceRequest) {
+    validateCreateRequest(input)
+
     if (input.responseType === 'point_set') {
       const document = findDocument(input.documentId, input.documentVersionId)
       if (!document) throw new Error('The target document version does not exist.')
@@ -148,17 +157,38 @@ export function createAssistance(options: AssistanceOptions) {
     const request = await database.transaction(
       'rw',
       database.requests,
+      database.responses,
       async () => {
-        const lastRequest = await database.requests
+        const sessionRequests = await database.requests
           .where('[sessionId+queuePosition]')
           .between(
             [options.sessionId, Dexie.minKey],
             [options.sessionId, Dexie.maxKey],
           )
-          .last()
+          .toArray()
+        const responseIds = new Set(
+          (
+            await database.responses
+              .where('sessionId')
+              .equals(options.sessionId)
+              .toArray()
+          ).map((response) => response.requestId),
+        )
+        const pendingCount = sessionRequests.filter(
+          (request) => !responseIds.has(request.id),
+        ).length
+        if (pendingCount >= DEMO_SESSION_PENDING_ASSISTANCE_LIMIT) {
+          throw new Error(
+            `A Demo Session can have at most ${DEMO_SESSION_PENDING_ASSISTANCE_LIMIT} pending Assistance Requests.`,
+          )
+        }
+
+        const lastRequest = sessionRequests.at(-1)
+        const id = options.createId()
+        validateIdentifier(id)
         const nextRequest: AssistanceRequestRecord = {
           ...input,
-          id: options.createId(),
+          id,
           sessionId: options.sessionId,
           createdAt: options.now().toISOString(),
           queuePosition: (lastRequest?.queuePosition ?? 0) + 1,
@@ -347,6 +377,7 @@ export function createAssistance(options: AssistanceOptions) {
   }
 
   async function getResult(id: string): Promise<AssistanceResult> {
+    validateIdentifier(id)
     const request = await database.requests.get(id)
     if (!request || request.sessionId !== options.sessionId) {
       throw new Error('The Assistance Request does not exist in this Demo Session.')
@@ -433,5 +464,78 @@ export function createAssistance(options: AssistanceOptions) {
       listeners.add(listener)
       return () => listeners.delete(listener)
     },
+  }
+}
+
+function validateCreateRequest(input: CreateAssistanceRequest) {
+  if (input.question.length > ASSISTANCE_QUESTION_CHARACTER_LIMIT) {
+    throw new Error(
+      `An Assistance question can have at most ${ASSISTANCE_QUESTION_CHARACTER_LIMIT.toLocaleString('en-US')} characters.`,
+    )
+  }
+  if (input.responseType !== 'point_set') return
+
+  validateIdentifier(input.documentId)
+  validateIdentifier(input.documentVersionId)
+  validateUniqueIdentifiers(
+    input.recommendedPageIds,
+    ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
+    'Recommended page identifiers',
+  )
+
+  const references = input.supportingDocumentReferences ?? []
+  if (references.length > ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT) {
+    throw new Error(
+      `An Assistance Request can have at most ${ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT} supporting document references.`,
+    )
+  }
+
+  const documentVersions = new Set<string>()
+  for (const reference of references) {
+    validateIdentifier(reference.documentId)
+    validateIdentifier(reference.documentVersionId)
+    validateUniqueIdentifiers(
+      reference.pageIds,
+      ASSISTANCE_SUPPORTING_PAGE_LIMIT,
+      'Supporting page identifiers',
+    )
+    const key = documentVersionIdentity(reference)
+    if (documentVersions.has(key)) {
+      throw new Error(
+        'Supporting document versions must be unique within an Assistance Request.',
+      )
+    }
+    documentVersions.add(key)
+  }
+}
+
+function documentVersionIdentity(
+  reference: Pick<
+    SupportingDocumentReference,
+    'documentId' | 'documentVersionId'
+  >,
+) {
+  return JSON.stringify([reference.documentId, reference.documentVersionId])
+}
+
+function validateUniqueIdentifiers(
+  identifiers: string[],
+  limit: number,
+  label: string,
+) {
+  if (identifiers.length > limit) {
+    throw new Error(`${label} are limited to ${limit} per Assistance Request.`)
+  }
+  if (new Set(identifiers).size !== identifiers.length) {
+    throw new Error(`${label} must be unique.`)
+  }
+  identifiers.forEach(validateIdentifier)
+}
+
+function validateIdentifier(identifier: string) {
+  if (identifier.length > ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT) {
+    throw new Error(
+      `Assistance identifiers can have at most ${ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT} characters.`,
+    )
   }
 }
