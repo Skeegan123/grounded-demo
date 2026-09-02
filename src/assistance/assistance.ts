@@ -106,6 +106,14 @@ export type AssistanceCompletedResult = Exclude<
   { state: 'pending' }
 >
 
+export interface AssistanceRequestState {
+  id: string
+  state: 'pending' | 'answered' | 'declined'
+  responseType: 'point_set' | 'text'
+  question: string
+  createdAt: string
+}
+
 export interface AssistanceOptions {
   databaseName: string
   sessionId: string
@@ -254,6 +262,31 @@ export function createAssistance(options: AssistanceOptions) {
       (result): result is AssistanceCompletedResult =>
         result.state !== 'pending',
     )
+  }
+
+  async function listRequestStates(): Promise<AssistanceRequestState[]> {
+    const requests = await database.requests
+      .where('[sessionId+queuePosition]')
+      .between(
+        [options.sessionId, Dexie.minKey],
+        [options.sessionId, Dexie.maxKey],
+      )
+      .toArray()
+    const responses = await database.responses
+      .where('sessionId')
+      .equals(options.sessionId)
+      .toArray()
+    const responseByRequestId = new Map(
+      responses.map((response) => [response.requestId, response]),
+    )
+
+    return requests.map((request) => ({
+      id: request.id,
+      state: responseByRequestId.get(request.id)?.state ?? 'pending',
+      responseType: request.responseType,
+      question: request.question,
+      createdAt: request.createdAt,
+    }))
   }
 
   async function requireCurrentPendingRequest(requestId: string) {
@@ -458,6 +491,7 @@ export function createAssistance(options: AssistanceOptions) {
     getResult,
     listCompleted,
     listPending,
+    listRequestStates,
     submitPointSetResponse,
     submitTextResponse,
     subscribe(listener: () => void) {

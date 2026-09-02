@@ -20,6 +20,11 @@ their own:
 > Check the Assistance Request you created and finish the Type C door
 > submittal review.
 
+After a reload or context loss, `get_project_workspace` returns the current
+pending request or latest completed request with its durable ID. The External
+Agent can pass that ID to `get_assistance_request`; it does not need to retain
+the create call's result in conversation context.
+
 ## Current automated tool sequence
 
 The application-level document-to-Assistance tracer in
@@ -36,7 +41,9 @@ Context adapter:
 7. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
    two submittal pages as supporting references, and A1.2 as the recommended
    page
-8. `get_assistance_request` after the Professional Response
+8. `get_project_workspace` after reload to recover the latest completed
+   request ID and state
+9. `get_assistance_request` with that recovered ID
 
 The repeatable searches are:
 
@@ -75,8 +82,8 @@ The current application registers these descriptions:
 - `get_grounded_help`: "Explain Grounded's WebMCP capabilities. Call with no
   fields for a short overview, or provide one exact tool name for its purpose,
   input, result, and next step."
-- `get_project_workspace`: "Introduce this Demo Project and its purpose before
-  inspecting its immutable documents."
+- `get_project_workspace`: "Return a fresh read-only snapshot of the current
+  project, selected document and page, and resumable Assistance Request state."
 - `list_project_documents`: "List immutable document versions and stable page
   or sheet references without changing the visible workspace."
 - `search_project_documents`: "Locate concise prepared-content matches across
@@ -112,7 +119,8 @@ asked the Human Reviewer to mark every affected Type C opening on A1.2.
 The Human Reviewer marked WC, Utility, and Coats and submitted one
 final three-point Professional Response.
 
-After reload, `get_assistance_request` returned `answered`, the immutable
+After reload, `get_project_workspace` recovered the completed request ID and
+its `answered` state. `get_assistance_request` then returned the immutable
 drawing version, three A1.2 page references with normalized coordinates, a
 computed count of three, creation and submission timestamps, and the overall
 note. The tracer derives a revise-and-resubmit disposition because the proposed
@@ -150,6 +158,7 @@ returned; narrow the selectors and retry. The full contract is in
   professional judgment, and submit the Professional Response.
 - Reload the page to prove the Demo Session and Professional Response persist.
 - Send the resume prompt if the client does not continue on its own.
+- Confirm the workspace snapshot recovers the completed request ID and state.
 - Capture the retrieved Professional Response and the agent's disposition.
 - Select **Start over** and show an empty Current, Queue, and Done before ending
   the recording.

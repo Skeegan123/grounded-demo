@@ -40,10 +40,10 @@ const toolHelp: Record<GroundedToolName, ToolHelp> = {
     next: 'Call the tool that matches the user\'s goal.',
   },
   get_project_workspace: {
-    purpose: 'Return the current Project Workspace identity and purpose.',
+    purpose: 'Return the current Project Workspace and Demo Session work state.',
     input: 'No fields.',
-    result: 'The project ID, title, and description.',
-    next: 'Use list_project_documents to obtain current document and page IDs.',
+    result: 'Project identity and document count, the selected document version and page, and compact pending and completed Assistance summaries.',
+    next: 'Pass a returned request ID to get_assistance_request, or use list_project_documents for the complete catalog.',
   },
   list_project_documents: {
     purpose: 'List current immutable Project Documents and stable page references.',

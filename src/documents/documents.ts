@@ -106,6 +106,7 @@ export function createDocuments({
   const searchDocuments = createDocumentSearch(artifacts)
 
   return {
+    count: () => project.documents.length,
     describeProject: () => ({
       id: project.id,
       title: project.title,

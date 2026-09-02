@@ -116,7 +116,9 @@ test('reports ready only after the shared attempt registers all eight tools', as
   await expect(harness.modelContext.executeTool(
     'get_project_workspace',
     {},
-  )).resolves.toEqual(expect.objectContaining({ id: 'demo-virginia-farmhouse' }))
+  )).resolves.toEqual(expect.objectContaining({
+    project: expect.objectContaining({ id: 'demo-virginia-farmhouse' }),
+  }))
   await expect(harness.modelContext.executeTool(
     'get_grounded_help',
     {},

@@ -63,6 +63,229 @@ async function waitForWebMcpReady() {
   await screen.findByText('WebMCP ready')
 }
 
+test('get_project_workspace returns the fresh Demo Session snapshot without changing the workspace', async () => {
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-project-workspace-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByText('No pending Assistance Requests')
+  const before = {
+    heading: screen.getByRole('heading', {
+      name: 'Virginia Farmhouse drawing set',
+    }).textContent,
+    page: screen.getByRole('button', { name: /Current page:/ })
+      .getAttribute('aria-label'),
+    assistance: screen.getByText('No pending Assistance Requests').textContent,
+  }
+  const snapshot = await modelContext.executeTool('get_project_workspace', {})
+
+  expect(snapshot).toEqual({
+    project: {
+      id: 'demo-virginia-farmhouse',
+      title: 'Virginia Farmhouse Demo Project',
+      description:
+        'A Project Workspace for reviewing Type C interior door product data against the contract drawings.',
+      documentCount: 2,
+    },
+    documentBrowsing: {
+      selectedDocument: {
+        id: 'virginia-farmhouse-drawings',
+        versionId: 'virginia-farmhouse-drawings-v1',
+      },
+      selectedPage: { id: 'sheet-a0.0' },
+    },
+    assistance: {
+      pendingCount: 0,
+      completedCount: 0,
+      currentPending: null,
+      latestCompleted: null,
+    },
+  })
+  expect(new TextEncoder().encode(JSON.stringify(snapshot)).byteLength)
+    .toBeLessThanOrEqual(1_500)
+  expect(modelContext.getTool('get_project_workspace')?.annotations).toEqual({
+    readOnlyHint: true,
+    untrustedContentHint: true,
+  })
+  await expect(modelContext.executeTool('get_project_workspace', {
+    extra: true,
+  })).rejects.toThrow('Invalid input at /extra.')
+  expect({
+    heading: screen.getByRole('heading', {
+      name: 'Virginia Farmhouse drawing set',
+    }).textContent,
+    page: screen.getByRole('button', { name: /Current page:/ })
+      .getAttribute('aria-label'),
+    assistance: screen.getByText('No pending Assistance Requests').textContent,
+  }).toEqual(before)
+})
+
+test('get_project_workspace recovers current browsing and Assistance state across reload and Start over', async () => {
+  const user = userEvent.setup()
+  const storage = window.sessionStorage
+  const databaseName = `grounded-project-recovery-${crypto.randomUUID()}`
+  const firstModelContext = createRecordingModelContext()
+  const firstRender = render(createGroundedApp({
+    databaseName,
+    modelContext: firstModelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: storage,
+    createId: createIds('session-1', 'request-1', 'request-2'),
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  }))
+
+  await waitForWebMcpReady()
+  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
+  await firstModelContext.executeTool('create_assistance_request', {
+    question: 'Confirm whether the submitted door construction complies.',
+    responseType: 'text',
+  })
+  await firstModelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText('Confirm whether the submitted door construction complies.')
+
+  const pendingSnapshot = await firstModelContext.executeTool(
+    'get_project_workspace',
+    {},
+  )
+  expect(pendingSnapshot).toMatchObject({
+    documentBrowsing: {
+      selectedDocument: {
+        id: 'type-c-door-submittal',
+        versionId: 'type-c-door-submittal-v1',
+      },
+      selectedPage: { id: 'door-submittal-page-2' },
+    },
+    assistance: {
+      pendingCount: 2,
+      completedCount: 0,
+      currentPending: {
+        id: 'request-1',
+        state: 'pending',
+        responseType: 'text',
+        createdAt: '2030-01-02T03:04:05.000Z',
+        questionPreview:
+          'Confirm whether the submitted door construction complies.',
+      },
+      latestCompleted: null,
+    },
+  })
+  await expect(firstModelContext.executeTool('get_project_workspace', {}))
+    .resolves.toEqual(pendingSnapshot)
+  expect(screen.getByText(
+    'Confirm whether the submitted door construction complies.',
+  )).toBeInTheDocument()
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+
+  firstRender.unmount()
+  const reloadedModelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName,
+    modelContext: reloadedModelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: storage,
+    createId: createIds('session-2'),
+    now: () => new Date('2030-01-02T03:05:06.000Z'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByText('Confirm whether the submitted door construction complies.')
+  const reloadedPending = await reloadedModelContext.executeTool(
+    'get_project_workspace',
+    {},
+  ) as {
+    assistance: { currentPending: { id: string; state: string } }
+  }
+  expect(reloadedPending.assistance.currentPending).toMatchObject({
+    id: 'request-1',
+    state: 'pending',
+  })
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+
+  await user.type(
+    screen.getByLabelText('Text response'),
+    'The hollow-core submitted construction does not comply.',
+  )
+  await user.click(screen.getByRole('button', { name: 'Submit Text Response' }))
+  await screen.findByText(requestInput.question)
+  await expect(reloadedModelContext.executeTool('get_project_workspace', {}))
+    .resolves.toMatchObject({
+      assistance: {
+        pendingCount: 1,
+        completedCount: 1,
+        currentPending: {
+          id: 'request-2',
+          state: 'pending',
+          responseType: 'point_set',
+        },
+        latestCompleted: {
+          id: 'request-1',
+          state: 'answered',
+          responseType: 'text',
+        },
+      },
+    })
+
+  await user.click(screen.getByRole('button', { name: 'Decline Request' }))
+  await screen.findByText('No pending Assistance Requests')
+  const completed = await reloadedModelContext.executeTool(
+    'get_project_workspace',
+    {},
+  ) as {
+    assistance: {
+      pendingCount: number
+      completedCount: number
+      currentPending: unknown
+      latestCompleted: {
+        id: string
+        state: string
+        responseType: string
+        questionPreview: string
+      }
+    }
+  }
+  expect(completed.assistance).toMatchObject({
+    pendingCount: 0,
+    completedCount: 2,
+    currentPending: null,
+    latestCompleted: {
+      id: 'request-2',
+      state: 'declined',
+      responseType: 'point_set',
+      questionPreview: requestInput.question,
+    },
+  })
+  expect(completed.assistance.latestCompleted).not.toHaveProperty(
+    'professionalResponse',
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Start over' }))
+  await screen.findByText('No pending Assistance Requests')
+  await waitFor(() => expectCurrentPage(/A0\.0, Cover Page/))
+  await expect(reloadedModelContext.executeTool('get_project_workspace', {}))
+    .resolves.toMatchObject({
+      documentBrowsing: {
+        selectedDocument: {
+          id: 'virginia-farmhouse-drawings',
+          versionId: 'virginia-farmhouse-drawings-v1',
+        },
+        selectedPage: { id: 'sheet-a0.0' },
+      },
+      assistance: {
+        pendingCount: 0,
+        completedCount: 0,
+        currentPending: null,
+        latestCompleted: null,
+      },
+    })
+})
+
 test('the workbench opens searchable document and page overlays without changing the canvas layout', async () => {
   const user = userEvent.setup()
   render(
@@ -1604,8 +1827,11 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     {},
   ) as { documents: CatalogDocument[] }
   expect(project).toMatchObject({
-    id: 'demo-virginia-farmhouse',
-    title: 'Virginia Farmhouse Demo Project',
+    project: {
+      id: 'demo-virginia-farmhouse',
+      title: 'Virginia Farmhouse Demo Project',
+      documentCount: 2,
+    },
   })
   expect(catalog.documents).toHaveLength(2)
 
@@ -1793,9 +2019,22 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     }),
   )
   await waitForWebMcpReady()
+  const recoveredWorkspace = await reloadedModelContext.executeTool(
+    'get_project_workspace',
+    {},
+  ) as {
+    assistance: {
+      latestCompleted: { id: string; state: string; responseType: string }
+    }
+  }
+  expect(recoveredWorkspace.assistance.latestCompleted).toMatchObject({
+    id: request.id,
+    state: 'answered',
+    responseType: 'point_set',
+  })
   const retrieved = await reloadedModelContext.executeTool(
     'get_assistance_request',
-    { id: request.id },
+    { id: recoveredWorkspace.assistance.latestCompleted.id },
   ) as {
     id: string
     state: string

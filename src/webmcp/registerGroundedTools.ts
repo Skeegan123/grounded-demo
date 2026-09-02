@@ -1,11 +1,13 @@
 import type { createAssistance } from '../assistance/assistance'
 import type { createDocuments } from '../documents/documents'
 import type { DocumentNavigator } from '../documents/DocumentNavigator'
+import type { createWorkspaceStore } from '../workspace/workspaceStore'
 import type { ModelContextAdapter } from './modelContext'
 import { registerAssistanceTools } from './registerAssistanceTools'
 import { registerDocumentNavigationTool } from './registerDocumentNavigationTool'
 import { registerDocumentTools } from './registerDocumentTools'
 import { registerGroundedHelpTool } from './registerGroundedHelpTool'
+import { registerProjectWorkspaceTool } from './registerProjectWorkspaceTool'
 
 interface GroundedToolRegistration {
   assistance: ReturnType<typeof createAssistance>
@@ -13,6 +15,7 @@ interface GroundedToolRegistration {
   documents: ReturnType<typeof createDocuments>
   modelContext: ModelContextAdapter
   navigator: DocumentNavigator
+  workspaceStore: ReturnType<typeof createWorkspaceStore>
 }
 
 export async function registerGroundedTools({
@@ -21,6 +24,7 @@ export async function registerGroundedTools({
   documents,
   modelContext,
   navigator,
+  workspaceStore,
 }: GroundedToolRegistration) {
   const registrations: Promise<void>[] = []
   const availability = { ready: false }
@@ -71,6 +75,27 @@ export async function registerGroundedTools({
     registerDocumentTools(
       trackedModelContext,
       documents,
+      controller.signal,
+    ),
+    registerProjectWorkspaceTool(
+      trackedModelContext,
+      {
+        readProject: () => ({
+          ...documents.describeProject(),
+          documentCount: documents.count(),
+        }),
+        readDocumentBrowsing: () => {
+          const { selectedLocation } = workspaceStore.getState()
+          return {
+            selectedDocument: {
+              id: selectedLocation.documentId,
+              versionId: selectedLocation.documentVersionId,
+            },
+            selectedPage: { id: selectedLocation.pageId },
+          }
+        },
+        readAssistanceRequests: () => assistance.listRequestStates(),
+      },
       controller.signal,
     ),
     registerDocumentNavigationTool(

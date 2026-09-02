@@ -178,6 +178,7 @@ function App({
       documents,
       modelContext,
       navigator: documentNavigator,
+      workspaceStore,
     })
       .then(() => {
         if (active) {
@@ -210,6 +211,7 @@ function App({
     documents,
     modelContext,
     registrationAttempt,
+    workspaceStore,
   ])
 
   const defaultDocument = demoProject.documents[0]!

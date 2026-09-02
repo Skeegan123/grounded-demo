@@ -14,8 +14,8 @@ browser-local Demo Project:
 3. The Human Reviewer marks the WC, Utility, and Coats openings on
    Sheet A1.2 and submits a final Professional Response.
 4. The page reloads without changing its Demo Session.
-5. The agent retrieves the persisted response and recommends revise and
-   resubmit.
+5. The agent reads the workspace snapshot, recovers the completed request ID,
+   retrieves the persisted response, and recommends revise and resubmit.
 
 Committed requests and responses live in IndexedDB through Dexie. The Demo
 Session identity is tab-scoped in session storage. Unfinished marks and notes
@@ -34,9 +34,9 @@ truth:
 
 - One read-only help tool: `get_grounded_help` returns a short overview or
   focused guidance for one exact Grounded tool name.
-- Four read-only document tools: `get_project_workspace`,
-  `list_project_documents`, `search_project_documents`, and
-  `inspect_document_evidence`.
+- Four read-only document tools: `get_project_workspace` returns project,
+  Document Browsing, and resumable Assistance state. The other three list
+  Project Documents, search them, and inspect selected evidence.
 - One document navigation tool: `navigate_document` moves the visible
   Document Browsing workbench to a current Project Document, stable page,
   semantic block, or normalized Document Region and returns after the requested
@@ -148,7 +148,9 @@ validation rules, and commands are in
 
 WebMCP adds four read-only document tools:
 
-- `get_project_workspace` introduces the Demo Project.
+- `get_project_workspace` returns project identity and document count, the
+  selected document version and page, and compact current and completed
+  Assistance summaries.
 - `list_project_documents` returns immutable document versions and page refs.
 - `search_project_documents` returns concise ranked matches across the current
   prepared artifacts without answering the question.

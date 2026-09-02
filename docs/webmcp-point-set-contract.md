@@ -18,9 +18,9 @@ not report **WebMCP ready** until all eight registrations finish:
 | Assistance | `get_assistance_request` | `readOnlyHint: true`, `untrustedContentHint: true` |
 
 The read-only help tool returns an overview of Grounded or focused guidance for
-one exact tool name. The four read-only document tools introduce the Project
-Workspace, list its immutable documents, locate concise matches, and inspect
-the selected evidence.
+one exact tool name. The four read-only document tools snapshot the current
+Project Workspace, list its immutable documents, locate concise matches, and
+inspect the selected evidence.
 The navigation tool changes only the visible Document Browsing destination. The
 two Assistance tools queue a Human Reviewer judgment and retrieve its
 eventual Professional Response. A registration attempt is all-or-nothing: if
@@ -28,10 +28,11 @@ any registration fails, is replaced, or is unmounted, none of that attempt's
 tools remains callable after cleanup. Refreshing the page starts a new attempt.
 
 The help contract is locked by
-`src/webmcp/registerGroundedHelpTool.test.ts`; the Assistance schemas,
-annotations, limits, and result shapes are locked by
-`src/webmcp/registerAssistanceTools.test.ts`; document inspection is locked by
-`src/webmcp/registerDocumentTools.test.ts`; navigation is locked by
+`src/webmcp/registerGroundedHelpTool.test.ts`; the workspace snapshot is locked
+by `src/webmcp/registerProjectWorkspaceTool.test.ts` and application recovery
+tests; the Assistance schemas, annotations, limits, and result shapes are
+locked by `src/webmcp/registerAssistanceTools.test.ts`; document inspection is
+locked by `src/webmcp/registerDocumentTools.test.ts`; navigation is locked by
 `src/webmcp/registerDocumentNavigationTool.test.ts`; and the valid eight-tool
 application path is locked independently by
 `src/application/createGroundedApp.test.tsx`.
@@ -54,6 +55,57 @@ tool's purpose, input summary, result summary, and a useful next step. The tool
 is read-only, uses only app-authored static text, and changes no Project
 Workspace, Document Browsing, or Assistance state. Overview and focused results
 remain within 1,500 UTF-8 bytes.
+
+## Get the Project Workspace
+
+Tool: `get_project_workspace`
+
+Call the tool with `{}` to read a fresh snapshot of the current work state. The
+input rejects additional fields. A fresh Demo Session returns:
+
+```json
+{
+  "project": {
+    "id": "demo-virginia-farmhouse",
+    "title": "Virginia Farmhouse Demo Project",
+    "description": "A Project Workspace for reviewing Type C interior door product data against the contract drawings.",
+    "documentCount": 2
+  },
+  "documentBrowsing": {
+    "selectedDocument": {
+      "id": "virginia-farmhouse-drawings",
+      "versionId": "virginia-farmhouse-drawings-v1"
+    },
+    "selectedPage": { "id": "sheet-a0.0" }
+  },
+  "assistance": {
+    "pendingCount": 0,
+    "completedCount": 0,
+    "currentPending": null,
+    "latestCompleted": null
+  }
+}
+```
+
+`currentPending` is the first request in the FIFO pending queue.
+`latestCompleted` is the most recently completed request. Each non-null summary
+contains `id`, `state`, requested `responseType`, `createdAt`, and a normalized
+`questionPreview` capped at 100 UTF-8 bytes. The two counts cover every request
+in the current Demo Session, while only those two summaries are returned.
+
+The snapshot omits Professional Responses, the complete Project Document
+catalog, and the internal Demo Session ID. Use a returned request ID with
+`get_assistance_request`, and use `list_project_documents` for the catalog. This
+keeps workspace state separate from the usage guidance in `get_grounded_help`.
+
+Every execution reads persisted Assistance state and current Document Browsing
+state again. The tool does not cache results or change the visible document,
+selected page, Assistance queue, drafts, or panel state. Reloading within the
+same Demo Session preserves the selected location and resumable request IDs.
+Start over creates a new Demo Session whose Assistance counts and summaries are
+empty and whose Document Browsing selection is the default location. Results
+remain within 1,500 UTF-8 bytes and keep `readOnlyHint: true` and
+`untrustedContentHint: true`.
 
 ## Navigate a Project Document, page, block, or Document Region
 
@@ -431,9 +483,10 @@ executed the later `search_project_documents` or
 `inspect_document_evidence` contracts.
 
 The current automated document-to-Assistance tracer exercises six workflow
-tools. Application navigation tests exercise `navigate_document`, and focused
-tests exercise `get_grounded_help` through the same recording Model Context
-adapter. On September 2, 2026, no
+tools, including a second `get_project_workspace` call after reload to recover
+the completed request ID. Application navigation tests exercise
+`navigate_document`, and focused tests exercise `get_grounded_help` through the
+same recording Model Context adapter. On September 2, 2026, no
 supported third-party WebMCP client was available in the implementation
 environment, so no new manual eight-tool client rehearsal was performed or
 claimed. The current tracer sequence and the reusable client checklist are in

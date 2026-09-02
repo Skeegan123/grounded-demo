@@ -98,15 +98,6 @@ export function registerDocumentTools(
 ) {
   const tools = [
     defineTool({
-      name: 'get_project_workspace',
-      title: 'Get the Project Workspace',
-      description:
-        'Introduce this Demo Project and its purpose before inspecting its immutable documents.',
-      schema: EmptyInput,
-      readOnly: true,
-      execute: () => documents.describeProject(),
-    }),
-    defineTool({
       name: 'list_project_documents',
       title: 'List Project Workspace documents',
       description:

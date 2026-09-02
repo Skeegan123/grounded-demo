@@ -69,7 +69,6 @@ test('an External Agent discovers documents and inspects page or block evidence'
   const controller = new AbortController()
   await registerDocumentTools(modelContext, documents, controller.signal)
 
-  const project = await modelContext.executeTool('get_project_workspace', {})
   const catalog = await modelContext.executeTool('list_project_documents', {})
   const pageInspection = await modelContext.executeTool(
     'inspect_document_evidence',
@@ -109,7 +108,6 @@ test('an External Agent discovers documents and inspects page or block evidence'
   ) as typeof pageInspection
 
   expect({
-    project,
     catalog: (catalog as { documents: Array<{ id: string; pageCount: number }> })
       .documents.map(({ id, pageCount }) => ({ id, pageCount })),
     pageInspection: {
@@ -136,19 +134,12 @@ test('an External Agent discovers documents and inspects page or block evidence'
       )],
     },
     annotations: [
-      modelContext.getTool('get_project_workspace')?.annotations,
       modelContext.getTool('list_project_documents')?.annotations,
       modelContext.getTool('search_project_documents')?.annotations,
       modelContext.getTool('inspect_document_evidence')?.annotations,
     ],
     obsoleteTool: modelContext.getTool('inspect_document_text'),
   }).toEqual({
-    project: {
-      id: 'demo-virginia-farmhouse',
-      title: 'Virginia Farmhouse Demo Project',
-      description:
-        'A Project Workspace for reviewing Type C interior door product data against the contract drawings.',
-    },
     catalog: [
       { id: 'virginia-farmhouse-drawings', pageCount: 25 },
       { id: 'type-c-door-submittal', pageCount: 2 },
@@ -177,7 +168,7 @@ test('an External Agent discovers documents and inspects page or block evidence'
       blocks: [table.id],
       rowParents: [table.id],
     },
-    annotations: Array(4).fill({
+    annotations: Array(3).fill({
       readOnlyHint: true,
       untrustedContentHint: true,
     }),

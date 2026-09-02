@@ -60,6 +60,15 @@ test('returns focused help for one exact tool name', async () => {
     result: 'Ranked matches with stable document, page, block, and region references.',
     next: 'Inspect matched evidence before using it to support a claim. Search Hints only locate content.',
   })
+  await expect(modelContext.executeTool('get_grounded_help', {
+    tool: 'get_project_workspace',
+  })).resolves.toEqual({
+    tool: 'get_project_workspace',
+    purpose: 'Return the current Project Workspace and Demo Session work state.',
+    input: 'No fields.',
+    result: 'Project identity and document count, the selected document version and page, and compact pending and completed Assistance summaries.',
+    next: 'Pass a returned request ID to get_assistance_request, or use list_project_documents for the complete catalog.',
+  })
 
   controller.abort()
 })
