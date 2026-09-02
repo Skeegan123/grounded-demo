@@ -21,7 +21,7 @@ const AssistanceQuestion = Type.String({
   maxLength: ASSISTANCE_QUESTION_CHARACTER_LIMIT,
   pattern: '\\S',
   description:
-    'One focused construction judgment or clarification for the Senior Project Manager.',
+    'One focused construction judgment or clarification for the Human Reviewer.',
 })
 
 const RESPONSE_TYPE_DESCRIPTION =
@@ -114,7 +114,7 @@ export function registerAssistanceTools(
       name: 'create_assistance_request',
       title: 'Create an Assistance Request',
       description:
-        'Queue one Assistance Request requiring a Point Set or text response from a Senior Project Manager. For a Point Set, include references to other immutable documents that support the requested judgment. Returns immediately with the durable request identity.',
+        'Queue one Assistance Request requiring a Point Set or text response from a Human Reviewer. For a Point Set, include references to other immutable documents that support the requested judgment. Returns immediately with the durable request identity.',
       schema: CreateAssistanceRequestInput,
       readOnly: false,
       includeValidationIssueMessage: true,

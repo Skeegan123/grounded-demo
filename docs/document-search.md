@@ -45,5 +45,5 @@ results. Search returns rank and matched query terms, never the private score.
 
 Generated figure descriptions, synopses, and tags remain `search_hint` in both
 search and inspection. They can locate a likely plan, detail, schedule, or
-figure, but they cannot support a claim. The Senior Project Manager retains
+figure, but they cannot support a claim. The Human Reviewer retains
 visual interpretation, selection, measurement, and counting.

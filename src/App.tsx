@@ -158,10 +158,10 @@ function App({
     setZoom,
     zoomIn,
     zoomOut,
-  } = documentNavigator.seniorProjectManager
+  } = documentNavigator.userDocumentBrowsing
   useDocumentKeyboardShortcuts(
     workspaceStore,
-    documentNavigator.seniorProjectManager,
+    documentNavigator.userDocumentBrowsing,
   )
   const assistanceController = useAssistanceController({
     assistance,
@@ -471,8 +471,8 @@ function App({
             documentNavigator.dismissDocumentFocusOutline
           }
           onFitChange={setFitPreference}
-          onSeniorProjectManagerTakeover={
-            documentNavigator.takeSeniorProjectManagerControl
+          onUserTakeover={
+            documentNavigator.takeUserControl
           }
           onPlacePoint={placePoint}
           onRemovePoint={canMark ? removePoint : undefined}

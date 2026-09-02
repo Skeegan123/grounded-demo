@@ -33,7 +33,7 @@ export interface DocumentWorkbenchProps {
   destinationRequest?: DocumentDestinationRequest
   onDocumentFocusDismiss?: () => void
   onFitChange: (fit: PageFit) => void
-  onSeniorProjectManagerTakeover?: () => void
+  onUserTakeover?: () => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
   onRenderError?: (requestId: number) => void
@@ -63,7 +63,7 @@ export function DocumentWorkbench({
   destinationRequest,
   onDocumentFocusDismiss,
   onFitChange,
-  onSeniorProjectManagerTakeover,
+  onUserTakeover,
   onPlacePoint,
   onRemovePoint,
   onRenderError,
@@ -165,7 +165,7 @@ export function DocumentWorkbench({
           destinationRequest={destinationRequest}
           onDocumentFocusDismiss={onDocumentFocusDismiss}
           onEffectiveZoomChange={setFocusedZoom}
-          onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
+          onUserTakeover={onUserTakeover}
           onPlacePoint={onPlacePoint}
           onRemovePoint={onRemovePoint}
           onRenderError={onRenderError}

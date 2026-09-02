@@ -1,29 +1,56 @@
 # Role-language inventory
 
-Snapshot: 2026-09-02, commit `869b7be`, with uncommitted changes present.
+Original inventory: 2026-09-02, commit `869b7be`.
+Cleanup verified: 2026-09-02, based on commit `b45d98f`.
 
-## Result
+## Original result
 
-The flagged role label appears in 99 distinct textual locations across 22 files.
+Before cleanup, the flagged role label appeared in 99 distinct textual
+locations across 22 files.
 
-- 49 human-readable phrase occurrences appear in 16 files. This count includes capitalization, plural, hyphen, and line-wrap variants.
-- 51 code identifier or slug matches appear in 8 files.
+- 49 human-readable phrase occurrences appeared in 16 files. This count
+  includes capitalization, plural, hyphen, and line-wrap variants.
+- 51 code identifier or slug matches appeared in 8 files.
 - One database slug matches both groups, so the distinct total is 99 rather than 100.
-- Five phrase occurrences are generated copies under `dist/`. They should disappear after their source files change and the app is rebuilt.
+- Five phrase occurrences were generated copies under `dist/`.
 
-The phrase does not appear in extracted text from the four valid checked-in PDFs. Four files with a `.pdf` extension under `scripts/fixtures/reducto/assets/` are plain-text test fixtures, not PDFs, and contain no match. OCR of `artifacts/grounded-desktop-1440x900.jpg` found no visible match.
+The phrase did not appear in extracted text from the four valid checked-in
+PDFs. Four files with a `.pdf` extension under
+`scripts/fixtures/reducto/assets/` are plain-text test fixtures, not PDFs, and
+contained no match. OCR of `artifacts/grounded-desktop-1440x900.jpg` found no
+visible match.
 
-## Why it keeps returning
+## Cleanup result
 
-The strongest source is `CONTEXT.md`. It defines the label as the canonical name for the primary human role and tells agents to avoid `Construction Professional` and `PM`. Any agent reading the domain language is being instructed to use the unwanted wording.
+The current full-workspace scan returns zero matches, including source, tests,
+docs, hidden files, and generated output under `dist/`.
 
-The next strongest source is the WebMCP tool metadata in `src/webmcp/registerAssistanceTools.ts` and `src/webmcp/registerDocumentTools.ts`. Those descriptions are sent directly to an external model when the tools register. The model sees the label as part of the tool contract even if the visible interface does not show it.
+- `Human Reviewer` now names the person who evaluates an Assistance Request.
+- `Construction Professional` describes the broader product audience.
+- Navigation code now uses user-control terms instead of a business role.
+- WebMCP tool descriptions and their contract tests use the new language.
+- The production build was regenerated from the updated sources.
 
-`public/llms.txt` and the README repeat the product framing for agents and people. Tests lock the wording into expected tool descriptions and behavior names. Internal navigation APIs use the role name for ordinary human takeover and browsing behavior, so code-reading agents also keep picking it up.
+## Former injection paths
+
+The strongest source was `CONTEXT.md`. It defined the label as the canonical
+name for the primary human role and told agents to avoid `Construction
+Professional` and `PM`.
+
+The next strongest source was the WebMCP tool metadata in
+`src/webmcp/registerAssistanceTools.ts` and
+`src/webmcp/registerDocumentTools.ts`. Those descriptions are sent directly to
+an external model when the tools register.
+
+`public/llms.txt` and the README repeated the product framing for agents and
+people. Tests locked the wording into expected tool descriptions and behavior
+names. Internal navigation APIs also used the role name for ordinary user
+takeover and browsing behavior.
 
 ## Human-readable phrase inventory
 
-Counts below are occurrences, not matching lines. A wrapped phrase can span two lines.
+Counts below are occurrences, not matching lines. A wrapped phrase can span
+two lines.
 
 | Area | File | Lines | Count | What it controls |
 | --- | --- | ---: | ---: | --- |
@@ -42,11 +69,12 @@ Counts below are occurrences, not matching lines. A wrapped phrase can span two 
 | ADR | `docs/adr/0001-agent-document-navigation.md` | 5, 7 | 2 | Human takeover and navigation supersession |
 | Search docs | `docs/document-search.md` | 48 | 1 | Human authority over visual interpretation |
 | Generated public copy | `dist/llms.txt` | 3, 5 | 2 | Build copy of `public/llms.txt` |
-| Generated application bundle | `dist/assets/index-BObK4Xr2.js` | 433 | 3 | Compiled copies of the three runtime tool descriptions |
+| Generated application bundle | `dist/assets/index-*.js` | one minified line | 3 | Compiled copies of the three runtime tool descriptions |
 
 ## Code identifier and slug inventory
 
-Some lines contain the identifier more than once, so line counts and occurrence counts differ.
+Some lines contain the identifier more than once, so line counts and occurrence
+counts differ.
 
 | File | Lines | Count | Role in the code |
 | --- | ---: | ---: | --- |
@@ -58,34 +86,6 @@ Some lines contain the identifier more than once, so line counts and occurrence 
 | `src/App.tsx` | 161, 164, 474, 475 | 4 | Navigator destructuring, keyboard wiring, and workbench callback |
 | `src/webmcp/registerDocumentNavigationTool.test.ts` | 45, 53 | 2 | Navigator mock shape |
 | `src/application/createGroundedApp.test.tsx` | 1089 | 1 | Test database slug; also counted in the phrase inventory |
-
-## Suggested cleanup order
-
-1. Replace the canonical role definition and the two dependent definitions in `CONTEXT.md`. Decide on one plain name for the person before touching the rest.
-2. Change the three WebMCP descriptions and their exact-string tests. This removes the wording from live model context.
-3. Rename the navigation API around human browsing and takeover. The behavior is broader than a job title, so a capability name such as human control or local browsing will age better.
-4. Rewrite README, `public/llms.txt`, demo material, contract docs, research notes, and the ADR using the chosen language.
-5. Rebuild `dist/` rather than editing it by hand, then run the full test, typecheck, lint, and bundle checks.
-6. Run the same repository-wide scan again and require zero matches. Delete or rewrite this inventory if the intended end state is literally zero repository references.
-
-## Worktree caution
-
-Twelve matching files already had uncommitted edits when this snapshot was taken:
-
-- `CONTEXT.md`
-- `README.md`
-- `docs/adr/0001-agent-document-navigation.md`
-- `docs/type-c-submittal-review-demo.md`
-- `docs/webmcp-point-set-contract.md`
-- `src/App.tsx`
-- `src/application/createGroundedApp.test.tsx`
-- `src/documents/DocumentNavigator.ts`
-- `src/documents/DocumentWorkbench.tsx`
-- `src/documents/PdfPageViewer.test.tsx`
-- `src/documents/PdfPageViewer.tsx`
-- `src/webmcp/registerDocumentNavigationTool.test.ts`
-
-The later rewrite should preserve those edits and re-check line numbers before changing anything.
 
 ## Scope limits
 

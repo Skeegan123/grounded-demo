@@ -82,11 +82,11 @@ export interface DocumentNavigator {
   ) => Promise<DocumentNavigationResult>
   reportRenderError: (requestId: number) => void
   reportVisibleDestination: (view: VisibleDocumentDestination) => void
-  seniorProjectManager: SeniorProjectManagerDocumentBrowsing
-  takeSeniorProjectManagerControl: () => void
+  userDocumentBrowsing: UserDocumentBrowsing
+  takeUserControl: () => void
 }
 
-export interface SeniorProjectManagerDocumentBrowsing {
+export interface UserDocumentBrowsing {
   selectDocument: (selection: DocumentSelection) => void
   selectPage: (pageId: string) => void
   setFitPreference: (fit: DocumentFitPreference) => void
@@ -340,7 +340,7 @@ export function createDocumentNavigator({
     }
   }
 
-  const takeSeniorProjectManagerControl = () => {
+  const takeUserControl = () => {
     const documentFocus = visibleDestination?.fit === 'region'
       ? visibleDestination
       : undefined
@@ -355,29 +355,29 @@ export function createDocumentNavigator({
     requestDocumentDestination(undefined)
   }
 
-  const seniorProjectManager: SeniorProjectManagerDocumentBrowsing = {
+  const userDocumentBrowsing: UserDocumentBrowsing = {
     selectDocument(selection) {
-      takeSeniorProjectManagerControl()
+      takeUserControl()
       workspaceStore.getState().selectDocument(selection)
     },
     selectPage(pageId) {
-      takeSeniorProjectManagerControl()
+      takeUserControl()
       workspaceStore.getState().selectPage(pageId)
     },
     setFitPreference(fit) {
-      takeSeniorProjectManagerControl()
+      takeUserControl()
       workspaceStore.getState().setFitPreference(fit)
     },
     setZoom(zoom) {
-      takeSeniorProjectManagerControl()
+      takeUserControl()
       workspaceStore.getState().setZoom(zoom)
     },
     zoomIn() {
-      takeSeniorProjectManagerControl()
+      takeUserControl()
       workspaceStore.getState().zoomIn()
     },
     zoomOut() {
-      takeSeniorProjectManagerControl()
+      takeUserControl()
       workspaceStore.getState().zoomOut()
     },
   }
@@ -519,8 +519,8 @@ export function createDocumentNavigator({
       navigation.resolve(appliedResult(navigation, view))
     },
 
-    seniorProjectManager,
-    takeSeniorProjectManagerControl,
+    userDocumentBrowsing,
+    takeUserControl,
   }
 }
 

@@ -42,7 +42,7 @@ function createNavigator(): DocumentNavigator {
     navigate,
     reportRenderError: vi.fn(),
     reportVisibleDestination: vi.fn(),
-    seniorProjectManager: {
+    userDocumentBrowsing: {
       selectDocument: vi.fn(),
       selectPage: vi.fn(),
       setFitPreference: vi.fn(),
@@ -50,7 +50,7 @@ function createNavigator(): DocumentNavigator {
       zoomIn: vi.fn(),
       zoomOut: vi.fn(),
     },
-    takeSeniorProjectManagerControl: vi.fn(),
+    takeUserControl: vi.fn(),
   }
 }
 

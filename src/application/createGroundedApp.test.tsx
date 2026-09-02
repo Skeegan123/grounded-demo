@@ -705,7 +705,7 @@ test('invalid navigation preserves the applied Document Focus outline', async ()
   expect(pageRenderer.renderPage).toHaveBeenCalledTimes(renderCount)
 })
 
-test('Document Focus survives idempotence, yields cleanly to the Senior Project Manager, and is not restored after reload', async () => {
+test('Document Focus survives idempotence, yields cleanly to the user, and is not restored after reload', async () => {
   const storage = window.sessionStorage
   const pageRenderer = createTestPageRenderer()
   const firstModelContext = createRecordingModelContext()
@@ -1196,7 +1196,7 @@ test.each([
   ['document selection', async (user: ReturnType<typeof userEvent.setup>) => {
     await chooseDocument(user, /Type C interior door product data/i)
   }],
-] as const)('Senior Project Manager %s supersedes pending External Agent navigation', async (_name, takeOver) => {
+] as const)('User %s supersedes pending External Agent navigation', async (_name, takeOver) => {
   const pageRenderer: PdfPageRenderer = {
     renderPage: vi.fn(({ canvas, height, pageNumber, width }) => {
       if (pageNumber === 6) return new Promise<void>(() => {})
@@ -1209,7 +1209,7 @@ test.each([
   const modelContext = createRecordingModelContext()
   const user = userEvent.setup()
   render(createGroundedApp({
-    databaseName: `grounded-navigation-senior-project-manager-${crypto.randomUUID()}`,
+    databaseName: `grounded-navigation-user-control-${crypto.randomUUID()}`,
     modelContext,
     pageRenderer,
     sessionStorage: window.sessionStorage,
@@ -2291,7 +2291,7 @@ test('External Agent document search and inspection leave the visible workspace 
   })
 })
 
-test('the Senior Project Manager works the FIFO queue through Current, Queue, and Done', async () => {
+test('the Human Reviewer works the FIFO queue through Current, Queue, and Done', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
   render(

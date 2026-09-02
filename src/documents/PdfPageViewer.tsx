@@ -57,7 +57,7 @@ interface PdfPageViewerProps {
   fit?: PageFit
   destinationRequest?: DocumentDestinationRequest
   onDocumentFocusDismiss?: () => void
-  onSeniorProjectManagerTakeover?: () => void
+  onUserTakeover?: () => void
   onEffectiveZoomChange?: (zoom: number) => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
@@ -103,7 +103,7 @@ export function PdfPageViewer({
   destinationRequest,
   onDocumentFocusDismiss,
   onEffectiveZoomChange,
-  onSeniorProjectManagerTakeover,
+  onUserTakeover,
   onPlacePoint,
   onRemovePoint,
   onRenderError,
@@ -465,11 +465,11 @@ export function PdfPageViewer({
   const updateZoom = useCallback((nextZoom: number, anchor?: PageOffset) => {
     const clampedZoom = clampDocumentZoom(nextZoom)
     if (!onZoomChange || clampedZoom === zoomRef.current) return
-    onSeniorProjectManagerTakeover?.()
+    onUserTakeover?.()
     zoomRef.current = clampedZoom
     pendingZoomAnchorRef.current = anchor
     onZoomChange(clampedZoom)
-  }, [onSeniorProjectManagerTakeover, onZoomChange])
+  }, [onUserTakeover, onZoomChange])
 
   useEffect(() => {
     const host = hostRef.current
@@ -524,7 +524,7 @@ export function PdfPageViewer({
     if (!hadPointers) movementRef.current = false
     setIsPanning(true)
     if (pointersRef.current.size === 2) {
-      onSeniorProjectManagerTakeover?.()
+      onUserTakeover?.()
       movementRef.current = true
       previousPinchRef.current = pointerGesture(pointersRef.current)
     }
@@ -548,7 +548,7 @@ export function PdfPageViewer({
       Math.hypot(active.x - active.startX, active.y - active.startY) >=
       PAN_MOVEMENT_THRESHOLD
     ) {
-      if (!movementRef.current) onSeniorProjectManagerTakeover?.()
+      if (!movementRef.current) onUserTakeover?.()
       movementRef.current = true
     }
 

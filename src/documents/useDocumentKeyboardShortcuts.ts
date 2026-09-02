@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { useStore } from 'zustand'
 import { demoProject, findDocument } from '../demoProject/demoProject'
-import type { SeniorProjectManagerDocumentBrowsing } from './DocumentNavigator'
+import type { UserDocumentBrowsing } from './DocumentNavigator'
 import type { createWorkspaceStore } from '../workspace/workspaceStore'
 
 export function useDocumentKeyboardShortcuts(
   workspaceStore: ReturnType<typeof createWorkspaceStore>,
-  seniorProjectManager: SeniorProjectManagerDocumentBrowsing,
+  userDocumentBrowsing: UserDocumentBrowsing,
 ) {
   const selectedLocation = useStore(
     workspaceStore,
@@ -24,7 +24,7 @@ export function useDocumentKeyboardShortcuts(
       if (isEditableTarget(event.target)) return
       if (event.key === 'ArrowLeft' && selectedPageIndex > 0) {
         event.preventDefault()
-        seniorProjectManager.selectPage(
+        userDocumentBrowsing.selectPage(
           selectedDocument.pages[selectedPageIndex - 1]!.id,
         )
       } else if (
@@ -33,18 +33,18 @@ export function useDocumentKeyboardShortcuts(
         selectedPageIndex < selectedDocument.pages.length - 1
       ) {
         event.preventDefault()
-        seniorProjectManager.selectPage(
+        userDocumentBrowsing.selectPage(
           selectedDocument.pages[selectedPageIndex + 1]!.id,
         )
       } else if (event.key === '+' || event.key === '=') {
         event.preventDefault()
-        seniorProjectManager.zoomIn()
+        userDocumentBrowsing.zoomIn()
       } else if (event.key === '-' || event.key === '_') {
         event.preventDefault()
-        seniorProjectManager.zoomOut()
+        userDocumentBrowsing.zoomOut()
       } else if (event.key === '0') {
         event.preventDefault()
-        seniorProjectManager.setFitPreference(
+        userDocumentBrowsing.setFitPreference(
           event.shiftKey ? 'width' : 'page',
         )
       }
@@ -52,7 +52,7 @@ export function useDocumentKeyboardShortcuts(
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [
-    seniorProjectManager,
+    userDocumentBrowsing,
     selectedLocation,
   ])
 }

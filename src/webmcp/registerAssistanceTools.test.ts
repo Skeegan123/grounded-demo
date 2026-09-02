@@ -59,9 +59,9 @@ test('Assistance tool input schemas distinguish the response target from support
     requestId: getSchema.properties?.id?.description,
   }).toEqual({
     pointSetQuestion:
-      'One focused construction judgment or clarification for the Senior Project Manager.',
+      'One focused construction judgment or clarification for the Human Reviewer.',
     textQuestion:
-      'One focused construction judgment or clarification for the Senior Project Manager.',
+      'One focused construction judgment or clarification for the Human Reviewer.',
     pointSetResponseType:
       'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
     textResponseType:
@@ -460,7 +460,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
                 maxLength: 4000,
                 pattern: '\\S',
                 description:
-                  'One focused construction judgment or clarification for the Senior Project Manager.',
+                  'One focused construction judgment or clarification for the Human Reviewer.',
               },
               responseType: {
                 const: 'point_set',
@@ -556,7 +556,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
                 maxLength: 4000,
                 pattern: '\\S',
                 description:
-                  'One focused construction judgment or clarification for the Senior Project Manager.',
+                  'One focused construction judgment or clarification for the Human Reviewer.',
               },
               responseType: {
                 const: 'text',

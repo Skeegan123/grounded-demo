@@ -12,9 +12,9 @@ _Avoid_: Mini Procore, project container
 An AI agent that operates outside Grounded and uses its WebMCP tools to work within a Project Workspace.
 _Avoid_: Built-in agent, Grounded agent
 
-**Senior Project Manager**:
-The primary human role for the MVP: a senior employee of a general contractor who manages project execution and makes or coordinates judgments based on construction information.
-_Avoid_: Construction Professional, PM
+**Human Reviewer**:
+A Construction Professional who evaluates an Assistance Request and provides or coordinates the judgment it needs.
+_Avoid_: PM, job-title-specific labels
 
 **Demo Project**:
 A self-contained Project Workspace with redistributable sample documents and prepared work suitable for judging the product without third-party integrations.
@@ -57,11 +57,11 @@ Derived text that helps an External Agent locate Document Evidence but cannot su
 _Avoid_: Evidence, citation
 
 **Assistance Request**:
-A request from an External Agent for one judgment from a Senior Project Manager, with one required response type.
+A request from an External Agent for one judgment from a Human Reviewer, with one required response type.
 _Avoid_: Human request, question
 
 **Professional Response**:
-The Senior Project Manager's final reply to one Assistance Request. An answer uses the response type the External Agent requested; a decline may include a reason.
+The Human Reviewer's final reply to one Assistance Request. An answer uses the response type the External Agent requested; a decline may include a reason.
 _Avoid_: Human response, answer
 
 **Point Set**:

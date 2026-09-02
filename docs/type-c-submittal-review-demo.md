@@ -4,16 +4,16 @@ This is the repeatable goal prompt tested with ChatGPT's in-app browser on
 August 30, 2026:
 
 > Review the Type C interior door submittal against the Virginia Farmhouse
-> contract drawings. Ask the Senior Project Manager to mark affected openings
+> contract drawings. Ask the Human Reviewer to mark affected openings
 > when visual judgment is needed, then recommend a disposition.
 
-The prompt names the review goal and the Senior Project Manager judgment
+The prompt names the review goal and the Human Reviewer judgment
 boundary. It does not name the mismatch, target sheets, affected rooms, or
 final disposition.
 
 ## Resume prompt
 
-The Assistance Request returns immediately. After the Senior Project Manager
+The Assistance Request returns immediately. After the Human Reviewer
 submits a response, use this prompt to resume clients that do not continue on
 their own:
 
@@ -79,7 +79,7 @@ The current application registers these descriptions:
   immutable Project Workspace documents. Search locates evidence and does not
   answer the question; follow a match with inspect_document_evidence for full
   context. Search Hints cannot support a claim, and visual interpretation,
-  selection, measurement, or counting requires the Senior Project Manager."
+  selection, measurement, or counting requires the Human Reviewer."
 - `inspect_document_evidence`: "Inspect prepared page evidence or selected
   blocks from one immutable document version without changing the visible
   workspace. Page results include semantic blocks, table rows, and their
@@ -93,7 +93,7 @@ The current application registers these descriptions:
   annotating it; the command returns only after the destination is visibly
   rendered and fitted."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
-  Set or text response from a Senior Project Manager. For a Point Set, include
+  Set or text response from a Human Reviewer. For a Point Set, include
   references to other immutable documents that support the requested judgment.
   Returns immediately with the durable request identity."
 - `get_assistance_request`: "Retrieve one request from this Demo Session,
@@ -104,8 +104,8 @@ The current application registers these descriptions:
 Search located a 24 by 80 inch hollow-core flush submitted door and a 24 by 80
 inch solid-wood, one-panel Type C contract requirement. Inspection returned the
 complete Document Evidence for both matches. The request
-asked the Senior Project Manager to mark every affected Type C opening on A1.2.
-The Senior Project Manager marked WC, Utility, and Coats and submitted one
+asked the Human Reviewer to mark every affected Type C opening on A1.2.
+The Human Reviewer marked WC, Utility, and Coats and submitted one
 final three-point Professional Response.
 
 After reload, `get_assistance_request` returned `answered`, the immutable
@@ -156,8 +156,8 @@ The first run discovered the documents and mismatch without extra introductory
 guidance. It did expose one request-contract gap: the Point Set input could name
 the target drawing but could not carry the submittal pages supporting the
 judgment. `supportingDocumentReferences` now accepts immutable document-version
-and page identities, and Current Assistance displays them for the Senior
-Project Manager.
+and page identities, and Current Assistance displays them for the Human
+Reviewer.
 
 No Demo Project-specific skill or hidden workflow was needed.
 

@@ -19,7 +19,7 @@ not report **WebMCP ready** until all seven registrations finish:
 The four read-only document tools introduce the Project Workspace, list its
 immutable documents, locate concise matches, and inspect the selected evidence.
 The navigation tool changes only the visible Document Browsing destination. The
-two Assistance tools queue a Senior Project Manager judgment and retrieve its
+two Assistance tools queue a Human Reviewer judgment and retrieve its
 eventual Professional Response. A registration attempt is all-or-nothing: if
 any registration fails, is replaced, or is unmounted, none of that attempt's
 tools remains callable after cleanup. Refreshing the page starts a new attempt.
@@ -193,22 +193,22 @@ anywhere in the document viewer dismisses it even if no pan follows, while the
 fitted region remains in view. Resizing after dismissal does not restore it.
 Repeating the same block or region navigation creates a fresh outline and keeps
 the optimization that reuses an already visible PDF page. Assistance panel
-interaction does not dismiss the outline. Senior Project Manager pan, pinch,
-wheel, zoom, fit, page-selection, document-selection, and keyboard browsing
-take control and clear the outline and Document Focus.
+interaction does not dismiss the outline. Pan, pinch, wheel, zoom, fit,
+page-selection, document-selection, and keyboard actions by the user take
+control and clear the outline and Document Focus.
 
 While active, Document Focus recalculates from the normalized region when the
 viewport resizes. Grounded persists the selected document and page, but not the
 focus scale, offset, or outline. Reload restores that page with ordinary
-full-page fit at 100 percent. Ordinary Senior Project Manager browsing
-preferences continue to persist normally.
+full-page fit at 100 percent. Ordinary browsing preferences continue to persist
+normally.
 
-Visible completion is failure-safe and Senior Project Manager-controlled. One
+Visible completion is failure-safe and remains under user control. One
 navigation call owns the viewer only until its requested page and requested fit
-are visibly applied, a newer External Agent call arrives, or the Senior Project
-Manager pans, zooms, uses an existing fit action, selects a page, or selects a
-document. A newer External Agent or Senior Project Manager action supersedes
-the pending call immediately. The superseded call returns only compact request
+are visibly applied, a newer External Agent call arrives, or the user pans,
+zooms, uses an existing fit action, selects a page, or selects a document. A
+newer External Agent or user action supersedes the pending call immediately.
+The superseded call returns only compact request
 context and no fields that imply its destination became visible:
 
 ```json
@@ -222,9 +222,9 @@ context and no fields that imply its destination became visible:
 Late rendering from a superseded call cannot complete that call, reclaim the
 view, roll back the newer destination, or leave a stale outline. Repeating an
 exact destination while its page, fit, and outline are still visibly applied
-returns the existing applied result without rendering again. If the Senior
-Project Manager has moved the view, or dismissed the outline, the same input
-reapplies its page or region fit and visual context before returning `applied`.
+returns the existing applied result without rendering again. If the user has
+moved the view, or dismissed the outline, the same input reapplies its page or
+region fit and visual context before returning `applied`.
 
 Each call has a 15-second internal visible-render deadline. A PDF render failure
 or deadline expiry restores the last successfully displayed document and page
@@ -233,8 +233,8 @@ before rejecting with `The Project Document page could not be rendered.` or
 does not expose renderer implementation details. The tool also honors its
 per-call cancellation signal; cancellation restores the prior visible view,
 rejects with `Document navigation was cancelled.`, and prevents abandoned work
-from applying later. Recovery never overwrites a Senior Project Manager action
-or newer External Agent navigation that acquired the viewer in the meantime.
+from applying later. Recovery never overwrites a user action or newer External
+Agent navigation that acquired the viewer in the meantime.
 
 Success, failure, cancellation, and supersession preserve Assistance Requests,
 Professional Responses, tabs, unfinished Point Set drafts and notes, viewed
@@ -260,7 +260,7 @@ An Assistance Request with a text response type contains only `question` and
 `responseType`. Both discriminated shapes reject additional fields. The tool is annotated with
 `readOnlyHint: false` and `untrustedContentHint: true`.
 
-Supporting references give the Senior Project Manager the documents that
+Supporting references give the Human Reviewer the documents that
 informed the request without changing the Point Set target. Each reference has
 `documentId`, `documentVersionId`, and one through 25 unique `pageIds`. Every
 identifier in an Assistance call is limited to 200 characters. A request cannot
@@ -317,7 +317,7 @@ Point Set adds this final response:
 ```
 
 `pointNumber` is a one-based reference across the complete Point Set. Grounded
-assigns contiguous numbers when the Senior Project Manager submits the response,
+assigns contiguous numbers when the Human Reviewer submits the response,
 then stores and returns those fixed numbers. Responses saved before Point Numbers
 were added derive them from the stored array order. Point Number identifies a
 location. It does not express priority, rank, category, or importance.

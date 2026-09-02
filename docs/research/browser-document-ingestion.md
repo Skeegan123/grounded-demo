@@ -33,7 +33,7 @@ For a vector construction drawing, PDF.js can usually extract text that remains 
 
 Some visually vector pages still need OCR. Export software can convert letters to outlines. Those letters become paths, so `getTextContent()` has no characters to return. Missing or unusable character mappings can also produce weak extraction. The distinction Grounded cares about is "usable embedded text" versus "words visible only after rendering," not simply vector versus raster.
 
-The `DocumentIndex` should remain a text and location index. It is not a semantic model of the drawing. The original PDF remains authoritative for the Senior Project Manager and for any visual inspection exposed to an External Agent later.
+The `DocumentIndex` should remain a text and location index. It is not a semantic model of the drawing. The original PDF remains authoritative for the Human Reviewer and for any visual inspection exposed to an External Agent later.
 
 ## When OCR is needed
 
@@ -128,7 +128,7 @@ The exact TypeScript fields should be settled with the rest of the document-acce
 | Concern | Browser pipeline | Later server job |
 | --- | --- | --- |
 | Privacy and setup | The PDF can remain on the user's device. No account, upload, or application backend is needed. | Grounded must upload, authorize, retain, and eventually delete project documents. |
-| Responsiveness | Embedded text can appear page by page. OCR competes with viewing for the user's CPU and memory, even when workers keep the main thread responsive. | Controlled machines can run native PDF and OCR tooling without consuming the Senior Project Manager's laptop. |
+| Responsiveness | Embedded text can appear page by page. OCR competes with viewing for the user's CPU and memory, even when workers keep the main thread responsive. | Controlled machines can run native PDF and OCR tooling without consuming the user's laptop. |
 | Reliability | Work ends if the tab closes unless progress is persisted and resumed. Device performance varies. | A durable job can continue after navigation, retry failed pages, and reuse an index across devices or collaborators. |
 | Scale | Best for one person's occasional documents with page-at-a-time limits. Large sheets need conservative raster budgets or tiling. | Better for large batches, predictable OCR, and centralized reindexing when extractors change. |
 | Product cost | Fits the local-first MVP and its fresh Demo Session model. | Adds backend compute, document storage, job state, security, and operating cost before the MVP needs them. |
@@ -142,7 +142,7 @@ Cloudflare Worker compute is not an automatic fit for OCR. As of August 2026, ea
 For this MVP:
 
 1. Bundle original PDFs in the Demo Project.
-2. Use PDF.js for the Senior Project Manager's viewer and Point Set coordinate mapping.
+2. Use PDF.js for the browser viewer and Point Set coordinate mapping.
 3. Generate and commit a `DocumentIndex` for the Demo Project. Extract embedded text first. Use build-time OCR only where inspection proves it is needed.
 4. Expose indexed text and page references to the External Agent through WebMCP. Do not expose PDF.js operator lists as a supposed semantic drawing model.
 5. Define the index contract and extraction provenance now. Defer the browser ingestion coordinator, OCR worker, progress UI, document import, and server jobs.

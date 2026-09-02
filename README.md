@@ -1,8 +1,8 @@
 # Grounded
 
-Grounded is a shared construction workspace where External Agents and Senior
-Project Managers collaborate on judgments that depend on precise construction
-document interpretation.
+Grounded is a shared construction workspace where External Agents and
+Construction Professionals collaborate on judgments that depend on precise
+construction document interpretation.
 
 The current demo proves one complete Type C door Submittal Review in a
 browser-local Demo Project:
@@ -11,7 +11,7 @@ browser-local Demo Project:
    versions, and inspects the matched evidence through WebMCP.
 2. The agent creates a queued Point Set Assistance Request with immutable
    target and supporting document references.
-3. The Senior Project Manager marks the WC, Utility, and Coats openings on
+3. The Human Reviewer marks the WC, Utility, and Coats openings on
    Sheet A1.2 and submits a final Professional Response.
 4. The page reloads without changing its Demo Session.
 5. The agent retrieves the persisted response and recommends revise and

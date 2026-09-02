@@ -693,7 +693,7 @@ test('pointer-down dismisses the Document Focus outline without changing its fit
   const page = projectDocument.pages.find((candidate) => candidate.id === 'sheet-a1.2')!
   const region = { left: 0.4, top: 0.35, width: 0.2, height: 0.2 }
   const onDocumentFocusDismiss = vi.fn()
-  const onSeniorProjectManagerTakeover = vi.fn()
+  const onUserTakeover = vi.fn()
 
   render(
     <PdfPageViewer
@@ -710,7 +710,7 @@ test('pointer-down dismisses the Document Focus outline without changing its fit
       onDocumentFocusDismiss={onDocumentFocusDismiss}
       onPlacePoint={() => {}}
       onRemovePoint={() => {}}
-      onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
+      onUserTakeover={onUserTakeover}
       page={page}
       points={[{
         pageId: page.id,
@@ -743,7 +743,7 @@ test('pointer-down dismisses the Document Focus outline without changing its fit
     .not.toBeInTheDocument()
   expect(frame.getAttribute('style')).toBe(fittedTransform)
   expect(onDocumentFocusDismiss).toHaveBeenCalledTimes(1)
-  expect(onSeniorProjectManagerTakeover).not.toHaveBeenCalled()
+  expect(onUserTakeover).not.toHaveBeenCalled()
 })
 
 test('reports render failure only for the matching Document Destination request', async () => {
@@ -784,7 +784,7 @@ test('reports render failure only for the matching Document Destination request'
   expect(onRenderError).toHaveBeenCalledTimes(1)
 })
 
-test('reports Senior Project Manager takeover only after a real pan or zoom gesture', async () => {
+test('reports user takeover only after a real pan or zoom gesture', async () => {
   const renderer: PdfPageRenderer = {
     async renderPage() {},
     prefetchPages() {},
@@ -794,13 +794,13 @@ test('reports Senior Project Manager takeover only after a real pan or zoom gest
     'virginia-farmhouse-drawings-v1',
   )!
   const page = document.pages[0]!
-  const onSeniorProjectManagerTakeover = vi.fn()
+  const onUserTakeover = vi.fn()
   const onZoomChange = vi.fn()
   render(
     <PdfPageViewer
       canMark={false}
       document={document}
-      onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
+      onUserTakeover={onUserTakeover}
       onPlacePoint={() => {}}
       onZoomChange={onZoomChange}
       page={page}
@@ -824,7 +824,7 @@ test('reports Senior Project Manager takeover only after a real pan or zoom gest
     clientY: 10,
     pointerId: 1,
   })
-  expect(onSeniorProjectManagerTakeover).not.toHaveBeenCalled()
+  expect(onUserTakeover).not.toHaveBeenCalled()
   fireEvent.pointerMove(viewer, {
     buttons: 1,
     clientX: 16,
@@ -837,7 +837,7 @@ test('reports Senior Project Manager takeover only after a real pan or zoom gest
     clientY: 10,
     pointerId: 1,
   })
-  expect(onSeniorProjectManagerTakeover).toHaveBeenCalledTimes(1)
+  expect(onUserTakeover).toHaveBeenCalledTimes(1)
 
   act(() => {
     viewer.dispatchEvent(new WheelEvent('wheel', {
@@ -848,7 +848,7 @@ test('reports Senior Project Manager takeover only after a real pan or zoom gest
       deltaY: -20,
     }))
   })
-  expect(onSeniorProjectManagerTakeover).toHaveBeenCalledTimes(2)
+  expect(onUserTakeover).toHaveBeenCalledTimes(2)
   expect(onZoomChange).toHaveBeenCalled()
 })
 

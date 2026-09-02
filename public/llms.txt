@@ -1,8 +1,8 @@
 # Grounded
 
-> Grounded is a browser-based shared construction workspace where external AI agents and senior project managers collaborate on judgments that depend on precise construction document interpretation.
+> Grounded is a browser-based shared construction workspace where external AI agents and construction professionals collaborate on judgments that depend on precise construction document interpretation.
 
-The public demo covers one Type C door Submittal Review. External Agents use six WebMCP tools to inspect prepared Document Evidence, create an Assistance Request, and retrieve the Senior Project Manager's Professional Response. Project data stays in the browser for the Demo Session.
+The public demo covers one Type C door Submittal Review. External Agents use six WebMCP tools to inspect prepared Document Evidence, create an Assistance Request, and retrieve the Human Reviewer's Professional Response. Project data stays in the browser for the Demo Session.
 
 ## Project
 

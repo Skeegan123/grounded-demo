@@ -538,7 +538,7 @@ test('an External Agent searches concise cross-document evidence before inspecti
   expect(searchTool?.description).toContain('does not answer the question')
   expect(searchTool?.description).toContain('inspect_document_evidence')
   expect(searchTool?.description).toContain('Search Hints cannot support a claim')
-  expect(searchTool?.description).toContain('requires the Senior Project Manager')
+  expect(searchTool?.description).toContain('requires the Human Reviewer')
 
   controller.abort()
 })

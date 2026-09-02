@@ -121,7 +121,7 @@ export function registerDocumentTools(
       name: 'search_project_documents',
       title: 'Search Project Workspace documents',
       description:
-        'Locate concise prepared-content matches across immutable Project Workspace documents. Search locates evidence and does not answer the question; follow a match with inspect_document_evidence for full context. Search Hints cannot support a claim, and visual interpretation, selection, measurement, or counting requires the Senior Project Manager.',
+        'Locate concise prepared-content matches across immutable Project Workspace documents. Search locates evidence and does not answer the question; follow a match with inspect_document_evidence for full context. Search Hints cannot support a claim, and visual interpretation, selection, measurement, or counting requires the Human Reviewer.',
       schema: SearchProjectDocumentsInput,
       readOnly: true,
       execute: (input) => documents.search(input),
