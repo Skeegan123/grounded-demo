@@ -178,7 +178,7 @@ test('page inspection exposes ordered contract and product evidence with provena
   })
 })
 
-test('block inspection groups blocks by page in artifact order and keeps linked table rows', () => {
+test('block inspection keeps interpretation metadata without unrelated page OCR', () => {
   const documents = createDocuments()
   const pageInspection = documents.inspectEvidence({
     documentId: 'virginia-farmhouse-drawings',
@@ -205,7 +205,25 @@ test('block inspection groups blocks by page in artifact order and keeps linked 
   expect(inspection.pages[0]!.tableRows).toEqual(
     page.tableRows.filter((row) => row.parentBlockId === table.id),
   )
-  expect(inspection.pages[0]!.lowLevelOcr).toEqual(page.lowLevelOcr)
+  expect({
+    document: inspection.document,
+    source: inspection.source,
+    provenance: inspection.provenance,
+    page: inspection.pages[0]!.page,
+    blockProvenance: inspection.pages[0]!.blocks.map(
+      (block) => block.provenance,
+    ),
+  }).toEqual({
+    document: pageInspection.document,
+    source: pageInspection.source,
+    provenance: pageInspection.provenance,
+    page: page.page,
+    blockProvenance: [figure.provenance, table.provenance],
+  })
+  expect(inspection.pages[0]).not.toHaveProperty('lowLevelOcr')
+  expect(inspection.pages[0]!.blocks).not.toContainEqual(
+    page.blocks.find((block) => ![figure.id, table.id].includes(block.id)),
+  )
 })
 
 test('inspection rejects foreign document, page, and block identities plus empty or duplicate selectors', () => {
