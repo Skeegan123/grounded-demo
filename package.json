@@ -7,13 +7,19 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "bundle:check": "node scripts/check-entry-bundle.mjs",
     "deploy": "pnpm build && wrangler deploy",
     "lint": "oxlint",
     "import:document-evidence": "node scripts/import-reducto-document.mjs",
-    "test": "vitest run",
+    "test": "vitest run && pnpm test:bundle",
+    "test:bundle": "node --test scripts/check-entry-bundle.test.mjs",
     "test:browser": "playwright test",
     "typecheck": "tsc -b",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:lighthouse": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "prelighthouse:report": "node scripts/prepare-lighthouse-output.mjs",
+    "lighthouse:report": "lighthouse http://127.0.0.1:4173 --preset=desktop --only-categories=performance,accessibility,best-practices,seo --output=json --output=html --output-path=artifacts/lighthouse/grounded --chrome-flags='--headless'",
+    "lighthouse:baseline": "pnpm build && start-server-and-test preview:lighthouse http-get://127.0.0.1:4173 lighthouse:report"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.52",
@@ -34,8 +40,10 @@
     "@vitejs/plugin-react": "^6.1.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^30.0.1",
+    "lighthouse": "^13.4.1",
     "oxlint": "^1.79.0",
     "pdfjs-dist": "6.3.289",
+    "start-server-and-test": "^3.0.12",
     "typescript": "~6.0.2",
     "vite": "^8.2.2",
     "vitest": "^4.1.11",

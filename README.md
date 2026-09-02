@@ -91,7 +91,13 @@ pnpm typecheck
 pnpm test
 pnpm test:browser
 pnpm build
+pnpm bundle:check
+pnpm lighthouse:baseline
 ```
+
+`pnpm lighthouse:baseline` runs Lighthouse against a production preview, not
+the Vite development server. See [the performance baselines](docs/performance-baselines.md)
+for the recorded environment, scores, and entry-bundle budgets.
 
 The high-level behavioral test crosses the recording adapter, real application
 composition, fake IndexedDB, and visible UI for create, respond, reload, and

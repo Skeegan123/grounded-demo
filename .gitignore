@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+artifacts/lighthouse/
 dist-ssr
 playwright-report
 test-results
