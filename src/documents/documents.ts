@@ -10,8 +10,15 @@ import {
 import {
   validatePreparedEvidenceArtifacts,
   type PreparedEvidenceArtifact,
+  type PreparedEvidenceBlock,
   type PreparedEvidencePage,
 } from './preparedEvidence'
+
+export interface ResolvedCurrentDocumentBlock {
+  block: Pick<PreparedEvidenceBlock, 'id' | 'classification' | 'region'>
+  document: PreparedEvidenceArtifact['document']
+  page: PreparedEvidencePage['page']
+}
 
 export type InspectDocumentEvidenceInput =
   | {
@@ -115,6 +122,34 @@ export function createDocuments({
     })),
     search(input: SearchProjectDocumentsInput) {
       return searchDocuments(input)
+    },
+    resolveCurrentBlock(
+      documentId: string,
+      blockId: string,
+    ): ResolvedCurrentDocumentBlock {
+      const artifact = artifacts.find(
+        (candidate) => candidate.document.id === documentId,
+      )
+      const owningPage = artifact?.pages.find((page) =>
+        page.blocks.some((block) => block.id === blockId),
+      )
+      const block = owningPage?.blocks.find(
+        (candidate) => candidate.id === blockId,
+      )
+      if (!artifact || !owningPage || !block) {
+        throw new Error(
+          'The block does not belong to the current Project Document.',
+        )
+      }
+      return {
+        document: artifact.document,
+        page: owningPage.page,
+        block: {
+          id: block.id,
+          classification: block.classification,
+          region: block.region,
+        },
+      }
     },
     inspectEvidence(input: InspectDocumentEvidenceInput) {
       const artifact = artifacts.find(

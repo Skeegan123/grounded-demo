@@ -87,9 +87,10 @@ The current application registers these descriptions:
   distinguish source-derived Document Evidence from generated Search Hints,
   which can locate content but cannot support a claim by themselves."
 - `navigate_document`: "Navigate the visible Document Browsing workbench to the
-  current Project Document and, optionally, one stable page. The command returns
-  only after the requested page is visibly rendered with ordinary full-page fit
-  and does not change Assistance state or add highlighting."
+  current Project Document, one stable page, one semantic block, or one
+  normalized Document Region. Block and region navigation transiently fit the
+  complete resolved region without highlighting; the command returns only after
+  the destination is visibly rendered and fitted."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
   Set or text response from a Senior Project Manager. For a Point Set, include
   references to other immutable documents that support the requested judgment.

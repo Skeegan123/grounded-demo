@@ -226,6 +226,90 @@ test('block inspection keeps interpretation metadata without unrelated page OCR'
   )
 })
 
+test('current block resolution returns only location metadata for Document Evidence and Search Hints', () => {
+  const documents = createDocuments()
+  const evidenceMatch = documents.search({ query: 'hollow honeycomb core' })
+    .matches[0]!
+  const hintMatch = documents.search({
+    query: 'first floor plan room layout utility coats WC',
+  }).matches[0]!
+
+  const evidence = documents.resolveCurrentBlock(
+    evidenceMatch.document.id,
+    evidenceMatch.block.id,
+  )
+  const hint = documents.resolveCurrentBlock(
+    hintMatch.document.id,
+    hintMatch.block.id,
+  )
+
+  expect(evidence).toEqual({
+    document: expect.objectContaining({
+      id: 'type-c-door-submittal',
+      versionId: 'type-c-door-submittal-v1',
+    }),
+    page: expect.objectContaining({ id: 'door-submittal-page-2' }),
+    block: {
+      id: evidenceMatch.block.id,
+      classification: 'document_evidence',
+      region: evidenceMatch.region,
+    },
+  })
+  expect(hint).toEqual({
+    document: expect.objectContaining({
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    }),
+    page: expect.objectContaining({ id: 'sheet-a1.2' }),
+    block: {
+      id: hintMatch.block.id,
+      classification: 'search_hint',
+      region: hintMatch.region,
+    },
+  })
+  expect(evidence.block).not.toHaveProperty('content')
+  expect(hint.block).not.toHaveProperty('content')
+})
+
+test('current block resolution is document-scoped and maps table-row matches to their parent table', () => {
+  const artifacts = clonedArtifacts()
+  const schedule = artifacts[0]!.pages.find(
+    (page) => page.page.id === 'sheet-a4.3',
+  )!
+  const typeCRow = schedule.tableRows.find(
+    (row) => row.cells[0]?.text === 'C',
+  )!
+  typeCRow.region = { left: 0.55, top: 0.72, width: 0.25, height: 0.03 }
+  const documents = createDocuments({ artifacts })
+  const submittalBlock = documents.search({ query: 'hollow honeycomb core' })
+    .matches[0]!.block.id
+  const tableRowMatch = documents.search({
+    query: 'Type C 24 x 80 solid wood',
+    limit: 1,
+  }).matches[0]!
+  const resolvedTable = documents.resolveCurrentBlock(
+    tableRowMatch.document.id,
+    tableRowMatch.block.id,
+  )
+
+  expect(tableRowMatch.matchType).toBe('table_row')
+  expect(tableRowMatch.tableRow?.parentBlockId).toBe(tableRowMatch.block.id)
+  expect(resolvedTable.block.id).toBe(tableRowMatch.block.id)
+  expect(resolvedTable.block.region).not.toEqual(tableRowMatch.region)
+  expect(() => documents.resolveCurrentBlock(
+    'virginia-farmhouse-drawings',
+    submittalBlock,
+  )).toThrow('The block does not belong to the current Project Document.')
+  expect(() => documents.resolveCurrentBlock(
+    'virginia-farmhouse-drawings',
+    'missing-block',
+  )).toThrow('The block does not belong to the current Project Document.')
+  expect(() => documents.resolveCurrentBlock(
+    'missing-document',
+    tableRowMatch.block.id,
+  )).toThrow('The block does not belong to the current Project Document.')
+})
+
 test('inspection rejects foreign document, page, and block identities plus empty or duplicate selectors', () => {
   const documents = createDocuments()
 

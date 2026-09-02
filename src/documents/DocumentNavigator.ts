@@ -1,6 +1,7 @@
 import type { ProjectDocument } from '../demoProject/demoProject'
 import { documentKey } from '../workspace/documentBrowsingState'
 import type { createWorkspaceStore } from '../workspace/workspaceStore'
+import type { ResolvedCurrentDocumentBlock } from './documents'
 import type { DocumentRegion } from './pageGeometry'
 
 const NAVIGATION_TIMEOUT_MS = 15_000
@@ -8,12 +9,14 @@ const NAVIGATION_TIMEOUT_MS = 15_000
 export type DocumentNavigationTarget =
   | { type: 'document' }
   | { type: 'page'; pageId: string }
+  | { type: 'block'; blockId: string }
   | { type: 'region'; pageId: string; region: DocumentRegion }
 
 export interface NavigateDocumentInput {
   documentId: string
   target?:
     | { type: 'page'; pageId: string }
+    | { type: 'block'; blockId: string }
     | { type: 'region'; pageId: string; region: DocumentRegion }
 }
 
@@ -48,6 +51,7 @@ export interface AppliedDocumentNavigation {
   document: { id: string; versionId: string }
   page: { id: string }
   type: DocumentNavigationTarget['type']
+  blockId?: string
   fit: 'page' | 'region'
   region?: DocumentRegion
   zoom: number
@@ -77,12 +81,17 @@ export interface DocumentNavigator {
 interface CreateDocumentNavigatorOptions {
   documents: ProjectDocument[]
   requestViewerNavigation: (request: ViewerNavigationRequest | undefined) => void
+  resolveCurrentBlock: (
+    documentId: string,
+    blockId: string,
+  ) => ResolvedCurrentDocumentBlock
   workspaceStore: ReturnType<typeof createWorkspaceStore>
 }
 
 interface ResolvedNavigation {
   document: ProjectDocument
   pageId: string
+  blockId?: string
   region?: DocumentRegion
   type: DocumentNavigationTarget['type']
 }
@@ -102,6 +111,7 @@ interface PendingNavigation extends ResolvedNavigation {
 export function createDocumentNavigator({
   documents,
   requestViewerNavigation,
+  resolveCurrentBlock,
   workspaceStore,
 }: CreateDocumentNavigatorOptions): DocumentNavigator {
   let nextRequestId = 0
@@ -120,6 +130,7 @@ export function createDocumentNavigator({
     },
     page: { id: navigation.pageId },
     type: navigation.type,
+    ...(navigation.blockId ? { blockId: navigation.blockId } : {}),
     fit: navigation.region ? 'region' : 'page',
     zoom: view.zoom,
     ...(navigation.region ? { region: navigation.region } : {}),
@@ -253,6 +264,17 @@ export function createDocumentNavigator({
 
     const target: DocumentNavigationTarget = input.target ?? {
       type: 'document',
+    }
+    if (target.type === 'block') {
+      const resolved = resolveCurrentBlock(document.id, target.blockId)
+      validateRegion(resolved.block.region)
+      return {
+        document,
+        pageId: resolved.page.id,
+        blockId: target.blockId,
+        region: resolved.block.region,
+        type: target.type,
+      }
     }
     const rememberedPageId = workspaceStore.getState().lastPageIdByDocument[
       documentKey(document.id, document.versionId)

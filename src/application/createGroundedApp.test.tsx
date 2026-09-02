@@ -417,6 +417,172 @@ test('navigate_document visibly fits a raw Document Region and preserves unfinis
     .not.toBeInTheDocument()
 })
 
+test('navigate_document resolves Document Evidence and Search Hint blocks through the public region-focus path', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-block-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  const sourceSearch = await modelContext.executeTool('search_project_documents', {
+    query: 'hollow honeycomb core',
+    limit: 1,
+  }) as {
+    matches: Array<{
+      block: { id: string }
+      classification: string
+      document: { id: string }
+      page: { id: string }
+      region: { left: number; top: number; width: number; height: number }
+    }>
+  }
+  const hintSearch = await modelContext.executeTool('search_project_documents', {
+    query: 'first floor plan room layout utility coats WC',
+    limit: 1,
+  }) as typeof sourceSearch
+  const source = sourceSearch.matches[0]!
+  const hint = hintSearch.matches[0]!
+
+  expect(source.classification).toBe('document_evidence')
+  expect(hint.classification).toBe('search_hint')
+  const sourceResult = await modelContext.executeTool('navigate_document', {
+    documentId: source.document.id,
+    target: { type: 'block', blockId: source.block.id },
+  })
+  expect(sourceResult).toEqual({
+    status: 'applied',
+    document: {
+      id: 'type-c-door-submittal',
+      versionId: 'type-c-door-submittal-v1',
+    },
+    page: { id: source.page.id },
+    type: 'block',
+    blockId: source.block.id,
+    fit: 'region',
+    region: source.region,
+    zoom: expect.any(Number),
+  })
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+
+  const hintResult = await modelContext.executeTool('navigate_document', {
+    documentId: hint.document.id,
+    target: { type: 'block', blockId: hint.block.id },
+  })
+  expect(hintResult).toEqual({
+    status: 'applied',
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: hint.page.id },
+    type: 'block',
+    blockId: hint.block.id,
+    fit: 'region',
+    region: hint.region,
+    zoom: expect.any(Number),
+  })
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(hintResult).not.toHaveProperty('classification')
+  expect(hintResult).not.toHaveProperty('content')
+  expect(hintResult).not.toHaveProperty('evidence')
+  expect(document.querySelector('.document-focus, .navigation-focus'))
+    .not.toBeInTheDocument()
+
+  const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: hint.document.id,
+    target: { type: 'region', pageId: hint.page.id, region: hint.region },
+  })).resolves.toMatchObject({ status: 'applied', type: 'region' })
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
+})
+
+test('block navigation rejects missing and foreign IDs atomically and preserves the table-row distinction', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-block-scope-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  const submittalSearch = await modelContext.executeTool(
+    'search_project_documents',
+    { query: 'hollow honeycomb core', limit: 1 },
+  ) as {
+    matches: Array<{ block: { id: string } }>
+  }
+  const tableSearch = await modelContext.executeTool(
+    'search_project_documents',
+    { query: 'Type C 24 x 80 solid wood', limit: 1 },
+  ) as {
+    matches: Array<{
+      block: { id: string }
+      matchType: string
+      page: { id: string }
+      region: { left: number; top: number; width: number; height: number }
+      tableRow?: { parentBlockId: string }
+    }>
+  }
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const initialRenderCount = pageRenderer.renderPage.mock.calls.length
+
+  for (const blockId of [submittalSearch.matches[0]!.block.id, 'missing-block']) {
+    await expect(modelContext.executeTool('navigate_document', {
+      documentId: 'virginia-farmhouse-drawings',
+      target: { type: 'block', blockId },
+    })).rejects.toThrow(
+      'The block does not belong to the current Project Document.',
+    )
+  }
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(initialRenderCount)
+
+  const match = tableSearch.matches[0]!
+  expect(match.matchType).toBe('table_row')
+  expect(match.tableRow?.parentBlockId).toBe(match.block.id)
+  const inspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: 'virginia-farmhouse-drawings',
+      documentVersionId: 'virginia-farmhouse-drawings-v1',
+      blockIds: [match.block.id],
+    },
+  ) as {
+    pages: Array<{
+      blocks: Array<{
+        id: string
+        region: typeof match.region
+      }>
+    }>
+  }
+  const parentTable = inspection.pages[0]!.blocks[0]!
+  const tableResult = await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'block', blockId: match.block.id },
+  }) as { region: typeof match.region }
+  expect(parentTable.id).toBe(match.block.id)
+  expect(tableResult.region).toEqual(parentTable.region)
+
+  const rowResult = await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'region', pageId: match.page.id, region: match.region },
+  })
+  expect(rowResult).toMatchObject({
+    status: 'applied',
+    page: { id: match.page.id },
+    type: 'region',
+    region: match.region,
+  })
+})
+
 test('invalid Document Regions fail atomically at the public boundary', async () => {
   const modelContext = createRecordingModelContext()
   const pageRenderer = createTestPageRenderer()

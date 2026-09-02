@@ -384,6 +384,85 @@ test('raw Document Region navigation fits the real PDF inside unobscured padded 
   await expect(page.getByRole('button', { name: /Document Focus/i })).toHaveCount(0)
 })
 
+test('semantic block navigation fits its resolved real-PDF region without decoration', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1200, height: 800 })
+  await installRecordedTools(page)
+  await page.goto('/')
+  await page.waitForFunction(() => {
+    const tools = (
+      window as Window & { __groundedTools?: Map<string, unknown> }
+    ).__groundedTools
+    return tools?.has('search_project_documents') && tools.has('navigate_document')
+  })
+  const result = await page.evaluate(async () => {
+    const tools = (
+      window as Window & {
+        __groundedTools: Map<
+          string,
+          { execute: (input: unknown) => Promise<unknown> }
+        >
+      }
+    ).__groundedTools
+    const search = await tools.get('search_project_documents')!.execute({
+      query: 'first floor plan room layout utility coats WC',
+      limit: 1,
+    }) as {
+      matches: Array<{
+        block: { id: string }
+        classification: string
+        document: { id: string }
+      }>
+    }
+    const match = search.matches[0]!
+    const navigation = await tools.get('navigate_document')!.execute({
+      documentId: match.document.id,
+      target: { type: 'block', blockId: match.block.id },
+    })
+    return { classification: match.classification, navigation }
+  }) as {
+    classification: string
+    navigation: {
+      blockId: string
+      fit: string
+      page: { id: string }
+      region: { left: number; top: number; width: number; height: number }
+      status: string
+      type: string
+      zoom: number
+    }
+  }
+
+  const canvas = page.getByLabel('Rendered PDF page A1.2')
+  await expect(canvas).toBeVisible()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  await expectRegionInsideUnobscuredBounds(
+    page,
+    canvas,
+    result.navigation.region,
+  )
+  expect(result.classification).toBe('search_hint')
+  expect(result.navigation).toMatchObject({
+    status: 'applied',
+    page: { id: 'sheet-a1.2' },
+    type: 'block',
+    blockId: expect.any(String),
+    fit: 'region',
+    region: {
+      left: expect.any(Number),
+      top: expect.any(Number),
+      width: expect.any(Number),
+      height: expect.any(Number),
+    },
+  })
+  expect(await zoomPercentage(page)).toBe(Math.round(result.navigation.zoom * 100))
+  expect(result.navigation).not.toHaveProperty('classification')
+  expect(result.navigation).not.toHaveProperty('content')
+  await expect(page.locator('.document-focus, .navigation-focus')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Document Focus/i })).toHaveCount(0)
+})
+
 test('point controls stay centered, stable, and attached to their point', async ({
   page,
 }) => {
@@ -690,6 +769,44 @@ async function expectPointAt(
   })
   expect(position.x).toBeCloseTo(expected.x, 2)
   expect(position.y).toBeCloseTo(expected.y, 2)
+}
+
+async function expectRegionInsideUnobscuredBounds(
+  page: import('@playwright/test').Page,
+  canvas: Locator,
+  region: { left: number; top: number; width: number; height: number },
+) {
+  const [canvasBounds, viewerBounds, controlsBounds] = await Promise.all([
+    canvas.boundingBox(),
+    page.locator('.pdf-page-viewer').boundingBox(),
+    page.getByLabel('Document zoom').boundingBox(),
+  ])
+  if (!canvasBounds || !viewerBounds || !controlsBounds) {
+    throw new Error('Document Focus did not produce measurable PDF bounds.')
+  }
+  const regionBounds = {
+    left: canvasBounds.x + canvasBounds.width * region.left,
+    top: canvasBounds.y + canvasBounds.height * region.top,
+    right: canvasBounds.x + canvasBounds.width * (region.left + region.width),
+    bottom: canvasBounds.y + canvasBounds.height * (region.top + region.height),
+  }
+  const usable = {
+    left: viewerBounds.x,
+    top: viewerBounds.y,
+    right: viewerBounds.x + viewerBounds.width - controlsBounds.width - 24,
+    bottom: viewerBounds.y + viewerBounds.height - controlsBounds.height - 24,
+  }
+  const padding = {
+    x: (usable.right - usable.left) * 0.1,
+    y: (usable.bottom - usable.top) * 0.1,
+  }
+
+  expect(regionBounds.left).toBeGreaterThanOrEqual(usable.left + padding.x - 1)
+  expect(regionBounds.top).toBeGreaterThanOrEqual(usable.top + padding.y - 1)
+  expect(regionBounds.right).toBeLessThanOrEqual(usable.right - padding.x + 1)
+  expect(regionBounds.bottom).toBeLessThanOrEqual(usable.bottom - padding.y + 1)
+  expect(regionBounds.right).toBeLessThan(controlsBounds.x)
+  expect(regionBounds.bottom).toBeLessThan(controlsBounds.y)
 }
 
 async function installRecordedTools(page: import('@playwright/test').Page) {
