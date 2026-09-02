@@ -24,7 +24,7 @@ their own:
 
 The application-level document-to-Assistance tracer in
 `src/application/createGroundedApp.test.tsx` exercises this six-tool review
-sequence within the current seven-tool surface through the recording Model
+sequence within the current eight-tool surface through the recording Model
 Context adapter:
 
 1. `get_project_workspace`
@@ -44,9 +44,10 @@ The repeatable searches are:
 - `Type C 24 x 80 solid wood` for the A4.3 schedule requirement;
 - `first floor plan room layout utility coats WC` for the A1.2 Search Hint.
 
-This is a tested path through the six non-navigation tools. Separate
-application tests exercise `navigate_document` through the same public adapter.
-Neither path is a required workflow or a claim about a third-party client. An
+This is a tested path through six workflow tools. Separate application tests
+exercise `navigate_document`, and focused tests exercise `get_grounded_help`
+through the same public adapter. None of these paths is a required workflow or
+a claim about a third-party client. An
 External Agent may inspect other relevant pages or change the order.
 
 ## Historical supported-client sequence
@@ -64,13 +65,16 @@ That client discovered and exercised the then-current five-tool surface:
 `search_project_documents` was added later. The historical run therefore does
 not establish client execution of those two current contracts. On September 2,
 2026, no supported third-party WebMCP client was available in the implementation
-environment, so the current seven-tool surface was not manually rehearsed or
+environment, so the current eight-tool surface was not manually rehearsed or
 claimed there.
 
 ## Current public tool descriptions
 
 The current application registers these descriptions:
 
+- `get_grounded_help`: "Explain Grounded's WebMCP capabilities. Call with no
+  fields for a short overview, or provide one exact tool name for its purpose,
+  input, result, and next step."
 - `get_project_workspace`: "Introduce this Demo Project and its purpose before
   inspecting its immutable documents."
 - `list_project_documents`: "List immutable document versions and stable page

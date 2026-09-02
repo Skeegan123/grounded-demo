@@ -1,13 +1,14 @@
 # Grounded WebMCP contract
 
-## Current seven-tool inventory
+## Current eight-tool inventory
 
-Grounded exposes exactly seven public WebMCP tools. The application-level proof in
+Grounded exposes exactly eight public WebMCP tools. The application-level proof in
 `src/application/webmcpRegistration.test.tsx` asserts these exact names and does
-not report **WebMCP ready** until all seven registrations finish:
+not report **WebMCP ready** until all eight registrations finish:
 
 | Role | Tool | Annotations |
 | --- | --- | --- |
+| Help | `get_grounded_help` | `readOnlyHint: true`, `untrustedContentHint: true` |
 | Document | `get_project_workspace` | `readOnlyHint: true`, `untrustedContentHint: true` |
 | Document | `list_project_documents` | `readOnlyHint: true`, `untrustedContentHint: true` |
 | Document | `search_project_documents` | `readOnlyHint: true`, `untrustedContentHint: true` |
@@ -16,20 +17,43 @@ not report **WebMCP ready** until all seven registrations finish:
 | Assistance | `create_assistance_request` | `readOnlyHint: false`, `untrustedContentHint: true` |
 | Assistance | `get_assistance_request` | `readOnlyHint: true`, `untrustedContentHint: true` |
 
-The four read-only document tools introduce the Project Workspace, list its
-immutable documents, locate concise matches, and inspect the selected evidence.
+The read-only help tool returns an overview of Grounded or focused guidance for
+one exact tool name. The four read-only document tools introduce the Project
+Workspace, list its immutable documents, locate concise matches, and inspect
+the selected evidence.
 The navigation tool changes only the visible Document Browsing destination. The
 two Assistance tools queue a Human Reviewer judgment and retrieve its
 eventual Professional Response. A registration attempt is all-or-nothing: if
 any registration fails, is replaced, or is unmounted, none of that attempt's
 tools remains callable after cleanup. Refreshing the page starts a new attempt.
 
-The Assistance schemas, annotations, limits, and result shapes are locked by
+The help contract is locked by
+`src/webmcp/registerGroundedHelpTool.test.ts`; the Assistance schemas,
+annotations, limits, and result shapes are locked by
 `src/webmcp/registerAssistanceTools.test.ts`; document inspection is locked by
 `src/webmcp/registerDocumentTools.test.ts`; navigation is locked by
-`src/webmcp/registerDocumentNavigationTool.test.ts`; and the valid seven-tool
+`src/webmcp/registerDocumentNavigationTool.test.ts`; and the valid eight-tool
 application path is locked independently by
 `src/application/createGroundedApp.test.tsx`.
+
+## Get Grounded help
+
+Tool: `get_grounded_help`
+
+Call the tool with `{}` for a short overview of Grounded, its eight registered
+tools, and the evidence and Human Reviewer boundaries. To get focused help,
+pass one exact registered tool name:
+
+```json
+{ "tool": "search_project_documents" }
+```
+
+The optional `tool` field is a closed choice of the eight public tool names.
+Additional fields and unknown tool names are rejected. Focused help returns the
+tool's purpose, input summary, result summary, and a useful next step. The tool
+is read-only, uses only app-authored static text, and changes no Project
+Workspace, Document Browsing, or Assistance state. Overview and focused results
+remain within 1,500 UTF-8 bytes.
 
 ## Navigate a Project Document, page, block, or Document Region
 
@@ -406,10 +430,11 @@ reload. It is evidence for that historical surface, not a claim that the client
 executed the later `search_project_documents` or
 `inspect_document_evidence` contracts.
 
-The current automated document-to-Assistance tracer exercises the six
-non-navigation tools, while application navigation tests exercise the seventh
-tool through the same recording Model Context adapter. On September 2, 2026, no
+The current automated document-to-Assistance tracer exercises six workflow
+tools. Application navigation tests exercise `navigate_document`, and focused
+tests exercise `get_grounded_help` through the same recording Model Context
+adapter. On September 2, 2026, no
 supported third-party WebMCP client was available in the implementation
-environment, so no new manual seven-tool client rehearsal was performed or
+environment, so no new manual eight-tool client rehearsal was performed or
 claimed. The current tracer sequence and the reusable client checklist are in
 [`type-c-submittal-review-demo.md`](type-c-submittal-review-demo.md).

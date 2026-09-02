@@ -28,10 +28,12 @@ Done after reload.
 
 ## WebMCP tools
 
-Grounded exposes exactly seven WebMCP tools. The application-level registration
+Grounded exposes exactly eight WebMCP tools. The application-level registration
 test in `src/application/webmcpRegistration.test.tsx` is the inventory source of
 truth:
 
+- One read-only help tool: `get_grounded_help` returns a short overview or
+  focused guidance for one exact Grounded tool name.
 - Four read-only document tools: `get_project_workspace`,
   `list_project_documents`, `search_project_documents`, and
   `inspect_document_evidence`.
@@ -45,7 +47,7 @@ truth:
   returns its identity immediately; `get_assistance_request` returns the pending
   request or its final Professional Response.
 
-All seven register as one attempt. Grounded reports **WebMCP ready** only after
+All eight register as one attempt. Grounded reports **WebMCP ready** only after
 the complete inventory is available. A failed, replaced, or unmounted attempt
 removes every tool from that attempt before the existing unavailable state is
 shown; refresh the page to retry a failed registration.
@@ -74,7 +76,7 @@ pnpm dev
 ```
 
 Open the URL printed by Vite in a WebMCP-capable client. The workspace status
-changes to **WebMCP ready** once all seven tools register. A normal browser can
+changes to **WebMCP ready** once all eight tools register. A normal browser can
 still open the Project Workspace, but it cannot expose the tools to an External
 Agent.
 

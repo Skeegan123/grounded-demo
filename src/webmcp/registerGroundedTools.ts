@@ -5,6 +5,7 @@ import type { ModelContextAdapter } from './modelContext'
 import { registerAssistanceTools } from './registerAssistanceTools'
 import { registerDocumentNavigationTool } from './registerDocumentNavigationTool'
 import { registerDocumentTools } from './registerDocumentTools'
+import { registerGroundedHelpTool } from './registerGroundedHelpTool'
 
 interface GroundedToolRegistration {
   assistance: ReturnType<typeof createAssistance>
@@ -58,6 +59,10 @@ export async function registerGroundedTools({
   }
 
   const registrars = [
+    registerGroundedHelpTool(
+      trackedModelContext,
+      controller.signal,
+    ),
     registerAssistanceTools(
       trackedModelContext,
       assistance,

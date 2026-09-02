@@ -10,6 +10,7 @@ import { createGroundedApp } from './createGroundedApp'
 const TOOL_NAMES = [
   'create_assistance_request',
   'get_assistance_request',
+  'get_grounded_help',
   'get_project_workspace',
   'inspect_document_evidence',
   'list_project_documents',
@@ -59,7 +60,7 @@ function createRegistrationHarness() {
       }
     },
     async waitForAllRegistrations() {
-      await waitFor(() => expect(registrations).toHaveLength(7))
+      await waitFor(() => expect(registrations).toHaveLength(8))
     },
   }
 }
@@ -85,7 +86,7 @@ function appEnvironment(
   }
 }
 
-test('reports ready only after the shared attempt registers all seven tools', async () => {
+test('reports ready only after the shared attempt registers all eight tools', async () => {
   const harness = createRegistrationHarness()
   render(createGroundedApp(appEnvironment(harness.modelContext)))
 
@@ -98,7 +99,7 @@ test('reports ready only after the shared attempt registers all seven tools', as
   await act(async () => {
     for (const name of TOOL_NAMES.slice(0, -1)) harness.resolve(name)
   })
-  await waitFor(() => expect(harness.modelContext.getToolNames()).toHaveLength(6))
+  await waitFor(() => expect(harness.modelContext.getToolNames()).toHaveLength(7))
   expect(screen.getByText('Registering tools')).toBeInTheDocument()
   await expect(harness.modelContext.executeTool(
     'get_project_workspace',
@@ -116,9 +117,16 @@ test('reports ready only after the shared attempt registers all seven tools', as
     'get_project_workspace',
     {},
   )).resolves.toEqual(expect.objectContaining({ id: 'demo-virginia-farmhouse' }))
+  await expect(harness.modelContext.executeTool(
+    'get_grounded_help',
+    {},
+  )).resolves.toEqual(expect.objectContaining({
+    summary: expect.stringContaining('Grounded'),
+  }))
 })
 
 test.each([
+  'get_grounded_help',
   'get_assistance_request',
   'inspect_document_evidence',
   'navigate_document',
