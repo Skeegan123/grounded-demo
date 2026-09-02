@@ -1,0 +1,53 @@
+{
+  "job_id": "transient-estimate-job",
+  "duration": 1.5,
+  "usage": {
+    "num_pages": 1,
+    "credits": 2,
+    "usage_breakdown": {
+      "parse_model": "R-1"
+    }
+  },
+  "result": {
+    "type": "full",
+    "chunks": [
+      {
+        "content": "# Fixture Estimate\n\nDoor allowance: $1,250",
+        "blocks": [
+          {
+            "type": "Title",
+            "content": "Fixture Estimate",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.05,
+              "width": 0.4,
+              "height": 0.05,
+              "page": 1,
+              "original_page": 1
+            },
+            "confidence": "high"
+          },
+          {
+            "type": "Key Value",
+            "content": "Door allowance: $1,250",
+            "bbox": {
+              "left": 0.1,
+              "top": 0.16,
+              "width": 0.4,
+              "height": 0.04,
+              "page": 1,
+              "original_page": 1
+            },
+            "confidence": "high"
+          }
+        ]
+      }
+    ],
+    "ocr": {
+      "lines": [],
+      "words": []
+    }
+  },
+  "response_type": "parse",
+  "studio_link": "https://studio.reducto.invalid/job/transient-estimate-job"
+}

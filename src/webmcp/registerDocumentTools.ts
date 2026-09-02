@@ -5,16 +5,46 @@ import type { ModelContextAdapter } from './modelContext'
 
 const EmptyInput = Type.Object({}, { additionalProperties: false })
 
-const InspectDocumentTextInput = Type.Object(
+const SearchProjectDocumentsInput = Type.Object(
   {
-    documentId: Type.String({ minLength: 1 }),
-    documentVersionId: Type.String({ minLength: 1 }),
-    pageIds: Type.Array(Type.String({ minLength: 1 }), {
-      minItems: 1,
-      uniqueItems: true,
-    }),
+    query: Type.String({ minLength: 1, maxLength: 300 }),
+    scope: Type.Optional(Type.Object(
+      {
+        documentId: Type.String({ minLength: 1 }),
+        documentVersionId: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false },
+    )),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 20 })),
   },
   { additionalProperties: false },
+)
+
+const InspectDocumentEvidenceInput = Type.Union(
+  [
+    Type.Object(
+      {
+        documentId: Type.String({ minLength: 1 }),
+        documentVersionId: Type.String({ minLength: 1 }),
+        pageIds: Type.Array(Type.String({ minLength: 1 }), {
+          minItems: 1,
+          uniqueItems: true,
+        }),
+      },
+      { additionalProperties: false },
+    ),
+    Type.Object(
+      {
+        documentId: Type.String({ minLength: 1 }),
+        documentVersionId: Type.String({ minLength: 1 }),
+        blockIds: Type.Array(Type.String({ minLength: 1 }), {
+          minItems: 1,
+          uniqueItems: true,
+        }),
+      },
+      { additionalProperties: false },
+    ),
+  ],
 )
 
 export function registerDocumentTools(
@@ -44,13 +74,22 @@ export function registerDocumentTools(
       }),
     }),
     defineTool({
-      name: 'inspect_document_text',
-      title: 'Inspect prepared document text',
+      name: 'search_project_documents',
+      title: 'Search Project Workspace documents',
       description:
-        'Return prepared positioned text for specified stable page identities in one immutable document version.',
-      schema: InspectDocumentTextInput,
+        'Locate concise prepared-content matches across immutable Project Workspace documents. Search locates evidence and does not answer the question; follow a match with inspect_document_evidence for full context. Search Hints cannot support a claim, and visual interpretation, selection, measurement, or counting requires the Senior Project Manager.',
+      schema: SearchProjectDocumentsInput,
       readOnly: true,
-      execute: (input) => documents.inspectText(input),
+      execute: (input) => documents.search(input),
+    }),
+    defineTool({
+      name: 'inspect_document_evidence',
+      title: 'Inspect prepared Document Evidence',
+      description:
+        'Inspect complete pages or selected blocks from one immutable document version without changing the visible workspace. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
+      schema: InspectDocumentEvidenceInput,
+      readOnly: true,
+      execute: (input) => documents.inspectEvidence(input),
     }),
   ]
 

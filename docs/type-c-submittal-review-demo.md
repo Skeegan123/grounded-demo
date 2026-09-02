@@ -27,13 +27,20 @@ sequence:
 
 1. `get_project_workspace`
 2. `list_project_documents`
-3. `inspect_document_text` for both submittal pages
-4. `inspect_document_text` for A4.3, Doors & Windows
-5. `inspect_document_text` for A1.2, 1st Floor Plan
-6. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
+3. `search_project_documents` for the submitted product and contract requirement
+4. `inspect_document_evidence` for the matched submittal blocks
+5. `inspect_document_evidence` for the matched A4.3 door-schedule table
+6. `inspect_document_evidence` for the matched A1.2 floor-plan Search Hint
+7. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
    two submittal pages as supporting references, and A1.2 as the recommended
    page
-7. `get_assistance_request` after the Professional Response
+8. `get_assistance_request` after the Professional Response
+
+The repeatable searches are:
+
+- `hollow honeycomb core` for the submitted construction;
+- `Type C 24 x 80 solid wood` for the A4.3 schedule requirement;
+- `first floor plan room layout utility coats WC` for the A1.2 Search Hint.
 
 This is a tested path through general document and Assistance Request tools,
 not a required workflow. An External Agent may inspect other relevant pages or
@@ -47,8 +54,15 @@ The successful client run discovered these descriptions:
   inspecting its immutable documents."
 - `list_project_documents`: "List immutable document versions and stable page
   or sheet references without changing the visible workspace."
-- `inspect_document_text`: "Return prepared positioned text for specified
-  stable page identities in one immutable document version."
+- `search_project_documents`: "Locate concise prepared-content matches across
+  immutable Project Workspace documents. Search locates evidence and does not
+  answer the question; follow a match with inspect_document_evidence for full
+  context. Search Hints cannot support a claim, and visual interpretation,
+  selection, measurement, or counting requires the Senior Project Manager."
+- `inspect_document_evidence`: "Inspect complete pages or selected blocks from
+  one immutable document version without changing the visible workspace.
+  Results distinguish source-derived Document Evidence from generated Search
+  Hints, which can locate content but cannot support a claim by themselves."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
   Set or text response from a Senior Project Manager. For a Point Set, include
   references to other immutable documents that support the requested judgment.
@@ -58,8 +72,9 @@ The successful client run discovered these descriptions:
 
 ## Observed result
 
-The document text exposed a 24 by 80 inch hollow-core flush submitted door and
-a 24 by 80 inch solid-wood, one-panel Type C contract requirement. The request
+Search located a 24 by 80 inch hollow-core flush submitted door and a 24 by 80
+inch solid-wood, one-panel Type C contract requirement. Inspection returned the
+complete Document Evidence for both matches. The request
 asked the Senior Project Manager to mark every affected Type C opening on A1.2.
 The Senior Project Manager marked WC, Utility, and Coats and submitted one
 final three-point Professional Response.
@@ -100,3 +115,7 @@ and page identities, and Current Assistance displays them for the Senior
 Project Manager.
 
 No Demo Project-specific skill or hidden workflow was needed.
+
+Normal runtime reads the two committed prepared artifacts offline. Reducto is
+used only for the one-time Studio exports and local import. The demo needs no
+Reducto account, API key, Parse job, result URL, or network request at runtime.

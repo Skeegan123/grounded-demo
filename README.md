@@ -7,8 +7,8 @@ document interpretation.
 The current demo proves one complete Type C door Submittal Review in a
 browser-local Demo Project:
 
-1. An External Agent inspects the drawing set and fictional submittal through
-   WebMCP and finds the hollow-core versus solid-wood mismatch.
+1. An External Agent discovers the Project Workspace, searches both document
+   versions, and inspects the matched evidence through WebMCP.
 2. The agent creates a queued Point Set Assistance Request with immutable
    target and supporting document references.
 3. The Senior Project Manager marks the WC, Utility, and Coats openings on
@@ -56,7 +56,7 @@ pnpm dev
 ```
 
 Open the URL printed by Vite in a WebMCP-capable client. The workspace status
-changes to **WebMCP ready** once all five tools register. A normal browser can
+changes to **WebMCP ready** once all six tools register. A normal browser can
 still open the Project Workspace, but it cannot expose the tools to an External
 Agent.
 
@@ -111,23 +111,31 @@ in `public/demo-project/`. Their creator, source, license, retrieval details,
 checksums, byte sizes, and page counts are recorded in
 `public/demo-project/ASSET-NOTICES.md`.
 
-The generated `DocumentIndex` files live under
-`src/documents/generated/`. Regenerate them after replacing either PDF:
+One schema version 2 Document Evidence artifact is committed for each immutable
+document version under `src/documents/generated/`. The offline importer converts
+one local Reducto Parse export at a time. The manifest binds each document
+version to the exact raw-export SHA-256, and runtime loads the complete artifact
+set from those manifest version identities. Required Studio settings,
+validation rules, and commands are in
+[`docs/document-evidence-import.md`](docs/document-evidence-import.md).
 
-```bash
-pnpm prepare:demo-project-index
-```
-
-The generator tries PDF.js embedded-text extraction first. The drawing set uses
-outlined lettering, so each drawing page falls back to build-time Tesseract OCR.
-The submittal retains its embedded text. The application does not run OCR in the
-browser.
-
-WebMCP adds three read-only document tools:
+WebMCP adds four read-only document tools:
 
 - `get_project_workspace` introduces the Demo Project.
 - `list_project_documents` returns immutable document versions and page refs.
-- `inspect_document_text` returns prepared positioned text for requested pages.
+- `search_project_documents` returns concise ranked matches across the current
+  prepared artifacts without answering the question.
+- `inspect_document_evidence` returns ordered Document Evidence and labeled
+  Search Hints for requested pages or blocks.
+
+The deterministic normalization, fuzzy tolerance, Search Hint policy, and
+minimum relevance gate are documented in
+[`docs/document-search.md`](docs/document-search.md).
+
+The complete public path is discovery, catalog listing, cross-document search,
+evidence inspection, Assistance Request creation, and Professional Response
+retrieval. Normal runtime reads the committed artifacts. It does not need a
+Reducto account, API key, Parse job, result URL, or network request.
 
 ## License
 

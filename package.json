@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "deploy": "pnpm build && wrangler pages deploy",
     "lint": "oxlint",
-    "prepare:demo-project-index": "node scripts/generate-demo-project-index.mjs",
+    "import:document-evidence": "node scripts/import-reducto-document.mjs",
     "test": "vitest run",
     "test:browser": "playwright test",
     "typecheck": "tsc -b",
