@@ -182,19 +182,20 @@ payloads, or other source text.
 
 Document Focus adds no button, highlight, selection, annotation, focus outline,
 badge, or other visible decoration. It recalculates from the normalized region
-when the viewport resizes. Human pan, zoom, fit, page, or document actions clear
-it and remain authoritative. The selected document and page are persisted, but
+when the viewport resizes. Senior Project Manager pan, zoom, fit, page, or
+document actions clear it and remain authoritative. The selected document and
+page are persisted, but
 the focus scale and offset are not: reload restores that page with ordinary
-full-page fit at 100 percent. Ordinary human browsing preferences continue to
-persist normally.
+full-page fit at 100 percent. Ordinary Senior Project Manager browsing
+preferences continue to persist normally.
 
-Visible completion is failure-safe and human-controlled. One navigation call
-owns the viewer only until its requested page and requested fit are visibly
-applied, a newer agent call arrives, or the Senior Project Manager pans, zooms,
-uses an existing fit action, selects a page, or selects a document. A newer
-agent or human action supersedes the pending call immediately. The superseded
-call returns only compact request context and no fields that imply its
-destination became visible:
+Visible completion is failure-safe and Senior Project Manager-controlled. One
+navigation call owns the viewer only until its requested page and requested fit
+are visibly applied, a newer External Agent call arrives, or the Senior Project
+Manager pans, zooms, uses an existing fit action, selects a page, or selects a
+document. A newer External Agent or Senior Project Manager action supersedes
+the pending call immediately. The superseded call returns only compact request
+context and no fields that imply its destination became visible:
 
 ```json
 {
@@ -207,8 +208,8 @@ destination became visible:
 Late rendering from a superseded call cannot complete that call, reclaim the
 view, or roll back the newer destination. Repeating an exact destination while
 its page and fit are still visibly applied returns the existing applied result
-without rendering again. If the human has moved the view, the same input
-reapplies its page or region fit before returning `applied`.
+without rendering again. If the Senior Project Manager has moved the view, the
+same input reapplies its page or region fit before returning `applied`.
 
 Each call has a 15-second internal visible-render deadline. A PDF render failure
 or deadline expiry restores the last successfully displayed document and page
@@ -217,8 +218,8 @@ before rejecting with `The Project Document page could not be rendered.` or
 does not expose renderer implementation details. The tool also honors its
 per-call cancellation signal; cancellation restores the prior visible view,
 rejects with `Document navigation was cancelled.`, and prevents abandoned work
-from applying later. Recovery never overwrites a human or newer-agent
-destination that acquired the viewer in the meantime.
+from applying later. Recovery never overwrites a Senior Project Manager action
+or newer External Agent navigation that acquired the viewer in the meantime.
 
 Success, failure, cancellation, and supersession preserve Assistance Requests,
 Professional Responses, tabs, unfinished Point Set drafts and notes, viewed

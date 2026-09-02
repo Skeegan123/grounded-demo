@@ -9,9 +9,10 @@ import {
 import {
   createDefaultDocumentBrowsingState,
   documentKey,
+  type DocumentBrowsingSnapshot,
   type DocumentBrowsingState,
-  type DocumentDestination,
   type DocumentFitPreference,
+  type DocumentSelection,
 } from './documentBrowsingState'
 
 export interface WorkspaceState extends DocumentBrowsingState {
@@ -23,7 +24,8 @@ export interface WorkspaceState extends DocumentBrowsingState {
   addPoint: (point: StoredPoint) => void
   clearDraft: () => void
   removePoint: (index: number) => void
-  selectDocument: (destination: DocumentDestination) => void
+  restoreDocumentBrowsing: (snapshot: DocumentBrowsingSnapshot) => void
+  selectDocument: (selection: DocumentSelection) => void
   selectPage: (pageId: string) => void
   setAssistanceTab: (tab: 'current' | 'queue' | 'done') => void
   setAssistanceCollapsed: (collapsed: boolean) => void
@@ -54,13 +56,18 @@ export function createWorkspaceStore(
       set((state) => ({
         points: state.points.filter((_, pointIndex) => pointIndex !== index),
       })),
-    selectDocument: (destination) =>
+    restoreDocumentBrowsing: (snapshot) => set({
+      ...snapshot,
+      selectedLocation: { ...snapshot.selectedLocation },
+      lastPageIdByDocument: { ...snapshot.lastPageIdByDocument },
+    }),
+    selectDocument: (selection) =>
       set((state) => {
         const {
           documentId: selectedDocumentId,
           documentVersionId: selectedDocumentVersionId,
           pageId: requestedPageId,
-        } = destination
+        } = selection
         const document = demoProject.documents.find(
           (candidate) =>
             candidate.id === selectedDocumentId &&

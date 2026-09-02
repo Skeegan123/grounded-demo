@@ -8,8 +8,8 @@ import { MoveHorizontal, Scan, ZoomIn, ZoomOut } from 'lucide-react'
 import type { StoredPoint } from '../demoSession/demoSession'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
 import type {
-  ViewerNavigationRequest,
-  VisibleDocumentView,
+  DocumentDestinationRequest,
+  VisibleDocumentDestination,
 } from './DocumentNavigator'
 import {
   MAX_DOCUMENT_ZOOM,
@@ -30,13 +30,13 @@ export interface DocumentWorkbenchProps {
   currentPage: DocumentPage
   documents: ProjectDocument[]
   fit: PageFit
-  navigationRequest?: ViewerNavigationRequest
+  destinationRequest?: DocumentDestinationRequest
   onFitChange: (fit: PageFit) => void
-  onHumanTakeover?: () => void
+  onSeniorProjectManagerTakeover?: () => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
   onRenderError?: (requestId: number) => void
-  onVisibleViewChange?: (view: VisibleDocumentView) => void
+  onVisibleDestinationChange?: (view: VisibleDocumentDestination) => void
   onSelectDocument: (document: ProjectDocument) => void
   onSelectPage: (page: DocumentPage) => void
   onViewUndonePointPage: () => void
@@ -59,13 +59,13 @@ export function DocumentWorkbench({
   currentPage,
   documents,
   fit,
-  navigationRequest,
+  destinationRequest,
   onFitChange,
-  onHumanTakeover,
+  onSeniorProjectManagerTakeover,
   onPlacePoint,
   onRemovePoint,
   onRenderError,
-  onVisibleViewChange,
+  onVisibleDestinationChange,
   onSelectDocument,
   onSelectPage,
   onViewUndonePointPage,
@@ -82,7 +82,7 @@ export function DocumentWorkbench({
   const zoomControlsRef = useRef<HTMLDivElement>(null)
   const [viewerInsets, setViewerInsets] = useState<PageViewportInsets>({})
   const [focusedZoom, setFocusedZoom] = useState(zoom)
-  const effectiveZoom = navigationRequest?.fit === 'region'
+  const effectiveZoom = destinationRequest?.fit === 'region'
     ? focusedZoom
     : zoom
 
@@ -160,13 +160,13 @@ export function DocumentWorkbench({
           canMark={canMark}
           document={currentDocument}
           fit={fit}
-          navigationRequest={navigationRequest}
+          destinationRequest={destinationRequest}
           onEffectiveZoomChange={setFocusedZoom}
-          onHumanTakeover={onHumanTakeover}
+          onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
           onPlacePoint={onPlacePoint}
           onRemovePoint={onRemovePoint}
           onRenderError={onRenderError}
-          onVisibleViewChange={onVisibleViewChange}
+          onVisibleDestinationChange={onVisibleDestinationChange}
           onZoomChange={onZoomChange}
           page={currentPage}
           points={points}
