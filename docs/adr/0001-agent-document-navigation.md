@@ -1,0 +1,3 @@
+# Agent document navigation is current-only and visibly applied
+
+Grounded exposes `navigate_document` as a focused Document Browsing command: it accepts the identity of the currently accessible Project Document and an optional page, block, or region target, while `DocumentNavigator` resolves the target without exposing historical document versions. A call succeeds only after the requested destination is rendered and fitted without highlighting; newer navigation or human interaction supersedes pending agent navigation, and Assistance state remains untouched. This makes tool results describe the view a person can actually see while keeping version history and workflow automation outside the MVP.
