@@ -23,10 +23,24 @@ export interface PageViewportInsets {
   right?: number
 }
 
+export interface DocumentRegion {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+export interface RegionFocusGeometry {
+  offset: PageOffset
+  page: PageSize
+  zoom: number
+}
+
 export type PageFit = 'page' | 'width'
 
 export const MIN_DOCUMENT_ZOOM = 0.25
 export const MAX_DOCUMENT_ZOOM = 4
+export const DOCUMENT_FOCUS_EDGE_RESERVE = 0.1
 
 export function clampDocumentZoom(zoom: number) {
   return Math.min(MAX_DOCUMENT_ZOOM, Math.max(MIN_DOCUMENT_ZOOM, zoom))
@@ -52,6 +66,73 @@ export function fitPageInBounds(
   return {
     width: page.width * fitScale * zoom,
     height: page.height * fitScale * zoom,
+  }
+}
+
+export function fitRegionInBounds({
+  insets = {},
+  page,
+  region,
+  viewport,
+}: {
+  insets?: PageViewportInsets
+  page: PageSize
+  region: DocumentRegion
+  viewport: PageSize
+}): RegionFocusGeometry {
+  const ordinaryPage = fitPageInBounds(page, viewport, 1, 'page')
+  const ordinaryScale = page.width > 0 ? ordinaryPage.width / page.width : 0
+  const usableWidth = Math.max(
+    0,
+    viewport.width - Math.max(0, insets.right ?? 0),
+  )
+  const usableHeight = Math.max(
+    0,
+    viewport.height - Math.max(0, insets.bottom ?? 0),
+  )
+  if (
+    ordinaryScale <= 0 ||
+    usableWidth <= 0 ||
+    usableHeight <= 0 ||
+    region.width <= 0 ||
+    region.height <= 0
+  ) {
+    return { offset: { x: 0, y: 0 }, page: ordinaryPage, zoom: 1 }
+  }
+
+  const contentWidth = usableWidth * (1 - DOCUMENT_FOCUS_EDGE_RESERVE * 2)
+  const contentHeight = usableHeight * (1 - DOCUMENT_FOCUS_EDGE_RESERVE * 2)
+  const absoluteScale = Math.min(
+    contentWidth / (page.width * region.width),
+    contentHeight / (page.height * region.height),
+  )
+  const zoom = clampDocumentZoom(absoluteScale / ordinaryScale)
+  const focusedPage = {
+    width: page.width * ordinaryScale * zoom,
+    height: page.height * ordinaryScale * zoom,
+  }
+  const padding = {
+    x: usableWidth * DOCUMENT_FOCUS_EDGE_RESERVE,
+    y: usableHeight * DOCUMENT_FOCUS_EDGE_RESERVE,
+  }
+
+  return {
+    zoom,
+    page: focusedPage,
+    offset: {
+      x: focusAxisOffset({
+        contentEnd: usableWidth - padding.x,
+        contentStart: padding.x,
+        regionEnd: (region.left + region.width) * focusedPage.width,
+        regionStart: region.left * focusedPage.width,
+      }),
+      y: focusAxisOffset({
+        contentEnd: usableHeight - padding.y,
+        contentStart: padding.y,
+        regionEnd: (region.top + region.height) * focusedPage.height,
+        regionStart: region.top * focusedPage.height,
+      }),
+    },
   }
 }
 
@@ -147,4 +228,22 @@ function clampAxisOffset(
 ) {
   if (pageLength <= viewportLength) return (viewportLength - pageLength) / 2
   return Math.min(0, Math.max(viewportLength - endInset - pageLength, offset))
+}
+
+function focusAxisOffset({
+  contentEnd,
+  contentStart,
+  regionEnd,
+  regionStart,
+}: {
+  contentEnd: number
+  contentStart: number
+  regionEnd: number
+  regionStart: number
+}) {
+  const centered = (contentStart + contentEnd - regionStart - regionEnd) / 2
+  const minimum = contentEnd - regionEnd
+  const maximum = contentStart - regionStart
+  if (minimum > maximum) return centered
+  return Math.min(maximum, Math.max(minimum, centered))
 }

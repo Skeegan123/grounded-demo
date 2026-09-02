@@ -309,6 +309,81 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
 })
 
+test('raw Document Region navigation fits the real PDF inside unobscured padded bounds', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1200, height: 800 })
+  await installRecordedTools(page)
+  await page.goto('/')
+  await page.waitForFunction(() => (
+    window as Window & { __groundedTools?: Map<string, unknown> }
+  ).__groundedTools?.has('navigate_document'))
+  const region = { left: 0.38, top: 0.32, width: 0.24, height: 0.2 }
+  const result = await page.evaluate(async (input) => {
+    const tool = (
+      window as Window & {
+        __groundedTools: Map<string, { execute: (input: unknown) => Promise<unknown> }>
+      }
+    ).__groundedTools.get('navigate_document')!
+    return tool.execute({
+      documentId: 'virginia-farmhouse-drawings',
+      target: { type: 'region', pageId: 'sheet-a1.2', region: input },
+    })
+  }, region) as {
+    fit: string
+    page: { id: string }
+    region: typeof region
+    status: string
+    zoom: number
+  }
+
+  const canvas = page.getByLabel('Rendered PDF page A1.2')
+  const viewer = page.locator('.pdf-page-viewer')
+  const zoomControls = page.getByLabel('Document zoom')
+  await expect(canvas).toBeVisible()
+  await expect(page.getByText('Rendering PDF page')).toBeHidden()
+  const [canvasBounds, viewerBounds, controlsBounds] = await Promise.all([
+    canvas.boundingBox(),
+    viewer.boundingBox(),
+    zoomControls.boundingBox(),
+  ])
+  if (!canvasBounds || !viewerBounds || !controlsBounds) {
+    throw new Error('Document Focus did not produce measurable PDF bounds.')
+  }
+  const regionBounds = {
+    left: canvasBounds.x + canvasBounds.width * region.left,
+    top: canvasBounds.y + canvasBounds.height * region.top,
+    right: canvasBounds.x + canvasBounds.width * (region.left + region.width),
+    bottom: canvasBounds.y + canvasBounds.height * (region.top + region.height),
+  }
+  const usable = {
+    left: viewerBounds.x,
+    top: viewerBounds.y,
+    right: viewerBounds.x + viewerBounds.width - controlsBounds.width - 24,
+    bottom: viewerBounds.y + viewerBounds.height - controlsBounds.height - 24,
+  }
+  const padding = {
+    x: (usable.right - usable.left) * 0.1,
+    y: (usable.bottom - usable.top) * 0.1,
+  }
+
+  expect(result).toMatchObject({
+    status: 'applied',
+    page: { id: 'sheet-a1.2' },
+    fit: 'region',
+    region,
+  })
+  expect(await zoomPercentage(page)).toBe(Math.round(result.zoom * 100))
+  expect(regionBounds.left).toBeGreaterThanOrEqual(usable.left + padding.x - 1)
+  expect(regionBounds.top).toBeGreaterThanOrEqual(usable.top + padding.y - 1)
+  expect(regionBounds.right).toBeLessThanOrEqual(usable.right - padding.x + 1)
+  expect(regionBounds.bottom).toBeLessThanOrEqual(usable.bottom - padding.y + 1)
+  expect(regionBounds.right).toBeLessThan(controlsBounds.x)
+  expect(regionBounds.bottom).toBeLessThan(controlsBounds.y)
+  await expect(page.locator('.document-focus, .navigation-focus')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Document Focus/i })).toHaveCount(0)
+})
+
 test('point controls stay centered, stable, and attached to their point', async ({
   page,
 }) => {

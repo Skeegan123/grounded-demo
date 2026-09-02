@@ -9,20 +9,42 @@ const navigationIdentifier = (description: string) => Type.String({
   description,
 })
 
+const documentRegion = Type.Object(
+  {
+    left: Type.Number({ minimum: 0, maximum: 1 }),
+    top: Type.Number({ minimum: 0, maximum: 1 }),
+    width: Type.Number({ exclusiveMinimum: 0, maximum: 1 }),
+    height: Type.Number({ exclusiveMinimum: 0, maximum: 1 }),
+  },
+  { additionalProperties: false },
+)
+
 const NavigateDocumentInput = Type.Object(
   {
     documentId: navigationIdentifier(
       'The stable Project Document ID copied exactly from list_project_documents or another tool result. Grounded resolves its currently accessible immutable version.',
     ),
-    target: Type.Optional(Type.Object(
-      {
-        type: Type.Literal('page'),
-        pageId: navigationIdentifier(
-          'The stable page ID copied exactly from the current Project Document catalog or another tool result.',
-        ),
-      },
-      { additionalProperties: false },
-    )),
+    target: Type.Optional(Type.Union([
+      Type.Object(
+        {
+          type: Type.Literal('page'),
+          pageId: navigationIdentifier(
+            'The stable page ID copied exactly from the current Project Document catalog or another tool result.',
+          ),
+        },
+        { additionalProperties: false },
+      ),
+      Type.Object(
+        {
+          type: Type.Literal('region'),
+          pageId: navigationIdentifier(
+            'The stable page ID that owns this normalized Document Region.',
+          ),
+          region: documentRegion,
+        },
+        { additionalProperties: false },
+      ),
+    ])),
   },
   { additionalProperties: false },
 )
@@ -36,7 +58,7 @@ export function registerDocumentNavigationTool(
     name: 'navigate_document',
     title: 'Navigate to a Project Document destination',
     description:
-      'Navigate the visible Document Browsing workbench to the current Project Document and, optionally, one stable page. The command returns only after the requested page is visibly rendered with ordinary full-page fit and does not change Assistance state or add highlighting.',
+      'Navigate the visible Document Browsing workbench to the current Project Document, one stable page, or one normalized Document Region. Region navigation transiently fits the complete region without highlighting; the command returns only after the destination is visibly rendered and fitted.',
     schema: NavigateDocumentInput,
     readOnly: false,
     includeValidationIssueMessage: true,
