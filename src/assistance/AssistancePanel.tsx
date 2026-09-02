@@ -30,6 +30,7 @@ interface AssistancePanelProps {
   loading: boolean
   note: string
   onDecline: () => void
+  onOpenTargetPage: (pageId: string) => void
   onOpenSupportingReference: (
     documentId: string,
     documentVersionId: string,
@@ -41,20 +42,19 @@ interface AssistancePanelProps {
   onSetText: (text: string) => void
   onSubmitPointSet: () => void
   onSubmitText: () => void
-  onTargetNavigation: () => void
   onUndoPoint: () => void
-  onViewPointSet: (result: AssistanceCompletedResult) => void
+  onTogglePointSet: (result: AssistanceCompletedResult) => void
   pending: AssistanceRequestView[]
   pointCount: number
-  recommendedPageLabels: string
+  recommendedPages: DocumentPage[]
   responseError: string
   responseMessage: string
   responsePending: boolean
   supportingDocuments?: SupportingDocumentView[]
   targetDocument: ProjectDocument
-  targetNavigationLabel: string
   targetPage: DocumentPage
   text: string
+  viewedPointSetId: string
 }
 
 export function AssistancePanel({
@@ -68,6 +68,7 @@ export function AssistancePanel({
   loading,
   note,
   onDecline,
+  onOpenTargetPage,
   onOpenSupportingReference,
   onSelectTab,
   onSetDeclineReason,
@@ -75,20 +76,19 @@ export function AssistancePanel({
   onSetText,
   onSubmitPointSet,
   onSubmitText,
-  onTargetNavigation,
   onUndoPoint,
-  onViewPointSet,
+  onTogglePointSet,
   pending,
   pointCount,
-  recommendedPageLabels,
+  recommendedPages,
   responseError,
   responseMessage,
   responsePending,
   supportingDocuments,
   targetDocument,
-  targetNavigationLabel,
   targetPage,
   text,
+  viewedPointSetId,
 }: AssistancePanelProps) {
   return (
     <aside
@@ -98,10 +98,7 @@ export function AssistancePanel({
       tabIndex={-1}
     >
       <div className="assistance-heading">
-        <div>
-          <p className="pane-kicker">FIFO work rail</p>
-          <h2 id="assistance-title">Current Assistance</h2>
-        </div>
+        <h2 id="assistance-title">Current Assistance</h2>
       </div>
       <div className="assistance-tabs" role="tablist" aria-label="Assistance Requests">
         {(
@@ -156,21 +153,20 @@ export function AssistancePanel({
           declineReason={declineReason}
           note={note}
           onDecline={onDecline}
+          onOpenTargetPage={onOpenTargetPage}
           onOpenSupportingReference={onOpenSupportingReference}
           onSetDeclineReason={onSetDeclineReason}
           onSetNote={onSetNote}
           onSetText={onSetText}
           onSubmitPointSet={onSubmitPointSet}
           onSubmitText={onSubmitText}
-          onTargetNavigation={onTargetNavigation}
           onUndoPoint={onUndoPoint}
           pending={pending}
           pointCount={pointCount}
-          recommendedPageLabels={recommendedPageLabels}
+          recommendedPages={recommendedPages}
           responsePending={responsePending}
           supportingDocuments={supportingDocuments}
           targetDocument={targetDocument}
-          targetNavigationLabel={targetNavigationLabel}
           targetPage={targetPage}
           text={text}
         />
@@ -188,7 +184,6 @@ export function AssistancePanel({
             <article className="history-card" key={request.id}>
               <div className="request-meta">
                 <span>Locked · {index + 2} in line</span>
-                <code>{request.id}</code>
               </div>
               <p className="question">{request.question}</p>
               <small>{responseTypeName(request)} response</small>
@@ -208,11 +203,11 @@ export function AssistancePanel({
             <article className="history-card" key={result.id}>
               <div className="request-meta">
                 <span>{result.state === 'answered' ? 'Answered' : 'Declined'}</span>
-                <code>{result.id}</code>
               </div>
               <p className="question">{result.question}</p>
               <CompletedResponse
-                onViewPointSet={() => onViewPointSet(result)}
+                isViewingPointSet={viewedPointSetId === result.id}
+                onTogglePointSet={() => onTogglePointSet(result)}
                 result={result}
               />
             </article>
@@ -233,21 +228,20 @@ interface CurrentRequestCardProps {
   declineReason: string
   note: string
   onDecline: () => void
+  onOpenTargetPage: AssistancePanelProps['onOpenTargetPage']
   onOpenSupportingReference: AssistancePanelProps['onOpenSupportingReference']
   onSetDeclineReason: (reason: string) => void
   onSetNote: (note: string) => void
   onSetText: (text: string) => void
   onSubmitPointSet: () => void
   onSubmitText: () => void
-  onTargetNavigation: () => void
   onUndoPoint: () => void
   pending: AssistanceRequestView[]
   pointCount: number
-  recommendedPageLabels: string
+  recommendedPages: DocumentPage[]
   responsePending: boolean
   supportingDocuments?: SupportingDocumentView[]
   targetDocument: ProjectDocument
-  targetNavigationLabel: string
   targetPage: DocumentPage
   text: string
 }
@@ -258,7 +252,6 @@ function CurrentRequestCard(props: CurrentRequestCardProps) {
     <div className="request-card">
       <div className="request-meta">
         <span>Pending</span>
-        <code>{current.id}</code>
       </div>
       <p className="question">{current.question}</p>
       {current.responseType === 'point_set'
@@ -308,6 +301,10 @@ function CurrentRequestCard(props: CurrentRequestCardProps) {
 function PointSetResponseForm(
   props: CurrentRequestCardProps & { current: PointSetRequest },
 ) {
+  const targetPages = props.recommendedPages.length > 0
+    ? props.recommendedPages
+    : [props.targetPage]
+
   return (
     <>
       <dl>
@@ -322,44 +319,58 @@ function PointSetResponseForm(
             <small>{props.targetDocument.versionId}</small>
           </dd>
         </div>
-        <div>
-          <dt>Recommended pages</dt>
-          <dd>{props.recommendedPageLabels || 'None'}</dd>
+      </dl>
+      <section className="workspace-destinations" aria-labelledby="workspace-destinations-title">
+        <h3 id="workspace-destinations-title">Open in workspace</h3>
+        <div className="destination-group">
+          <p>
+            {props.recommendedPages.length > 0 ? 'Recommended' : 'Target'}{' '}
+            {targetPages.length === 1 ? 'page' : 'pages'}
+          </p>
+          <div className="destination-links">
+            {targetPages.map((page) => (
+              <button
+                aria-label={`Open ${page.label}: ${page.title}`}
+                key={page.id}
+                onClick={() => props.onOpenTargetPage(page.id)}
+                type="button"
+              >
+                <strong>{page.label}</strong>
+                <span>{page.title}</span>
+              </button>
+            ))}
+          </div>
         </div>
         {props.supportingDocuments && props.supportingDocuments.length > 0 && (
-          <div>
-            <dt>Supporting documents</dt>
-            <dd>
-              <ul className="supporting-documents">
-                {props.supportingDocuments.map(({ document, pages }) => (
-                  <li key={`${document.id}:${document.versionId}`}>
-                    <span>{document.title}</span>
-                    <small>
-                      {document.versionId} · Pages{' '}
-                      {pages.map((page) => page.label).join(', ')}
-                    </small>
-                    <span className="supporting-page-links">
-                      {pages.map((page) => (
-                        <button
-                          key={page.id}
-                          onClick={() => props.onOpenSupportingReference(
-                            document.id,
-                            document.versionId,
-                            page.id,
-                          )}
-                          type="button"
-                        >
-                          Open page {page.label}
-                        </button>
-                      ))}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </dd>
+          <div className="destination-group">
+            <p>Supporting documents</p>
+            <ul className="supporting-documents">
+              {props.supportingDocuments.map(({ document, pages }) => (
+                <li key={`${document.id}:${document.versionId}`}>
+                  <span>{document.title}</span>
+                  <div className="destination-links supporting-page-links">
+                    {pages.map((page) => (
+                      <button
+                        aria-label={`Open supporting page ${page.label}: ${page.title}`}
+                        key={page.id}
+                        onClick={() => props.onOpenSupportingReference(
+                          document.id,
+                          document.versionId,
+                          page.id,
+                        )}
+                        type="button"
+                      >
+                        <strong>Page {page.label}</strong>
+                        <span>{page.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
-      </dl>
+      </section>
       <div className="point-controls">
         <div>
           <strong>
@@ -368,7 +379,7 @@ function PointSetResponseForm(
           <span>
             {props.canMark
               ? 'Click the drawing to mark locations.'
-              : `Open ${props.targetPage.label} to place points.`}
+              : `Open ${targetPages.map((page) => page.label).join(' or ')} to place points.`}
           </span>
         </div>
         <button
@@ -379,13 +390,6 @@ function PointSetResponseForm(
           Undo
         </button>
       </div>
-      <button
-        className="response-page-button"
-        onClick={props.onTargetNavigation}
-        type="button"
-      >
-        {props.targetNavigationLabel}
-      </button>
     </>
   )
 }
@@ -425,10 +429,12 @@ function SubmitResponseButton(props: CurrentRequestCardProps) {
 }
 
 function CompletedResponse({
-  onViewPointSet,
+  isViewingPointSet,
+  onTogglePointSet,
   result,
 }: {
-  onViewPointSet: () => void
+  isViewingPointSet: boolean
+  onTogglePointSet: () => void
   result: AssistanceCompletedResult
 }) {
   const response = result.professionalResponse
@@ -438,11 +444,12 @@ function CompletedResponse({
         <p>{response.count} {response.count === 1 ? 'point' : 'points'}</p>
         <small>{response.document.id} · {response.document.versionId}</small>
         <button
-          className="response-page-button"
-          onClick={onViewPointSet}
+          aria-pressed={isViewingPointSet}
+          className="point-set-toggle"
+          onClick={onTogglePointSet}
           type="button"
         >
-          View Point Set on drawing
+          {isViewingPointSet ? 'Hide Point Set' : 'Show Point Set'}
         </button>
         {response.points.length > 0 && (
           <ol className="point-summary">
@@ -485,7 +492,7 @@ export function AssistanceRequestStrip({
   onTargetNavigation: () => void
   onUndoPoint: () => void
   pointCount: number
-  targetNavigationLabel: string
+  targetNavigationLabel?: string
 }) {
   const isPointSet = current.responseType === 'point_set'
   return (
@@ -506,9 +513,11 @@ export function AssistanceRequestStrip({
             >
               Undo
             </button>
-            <button onClick={onTargetNavigation} type="button">
-              {targetNavigationLabel}
-            </button>
+            {targetNavigationLabel && (
+              <button onClick={onTargetNavigation} type="button">
+                {targetNavigationLabel}
+              </button>
+            )}
           </>
         )}
         <button onClick={onOpenAssistance} type="button">View request</button>

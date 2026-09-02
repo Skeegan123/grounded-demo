@@ -257,7 +257,22 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
       'Type C interior door product data and review cover',
     ),
   ).toBeInTheDocument()
-  expect(within(currentAssistance).getByText(/Pages 1, 2/)).toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open supporting page 1: Submittal cover',
+  })).toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+  })).toBeInTheDocument()
+  expect(within(currentAssistance).queryByText('FIFO work rail'))
+    .not.toBeInTheDocument()
+  expect(within(currentAssistance).queryByText('request-1'))
+    .not.toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  })).toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open A4.3: Doors & Windows',
+  })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: /Current page:/ }))
   let pagePicker = screen.getByRole('dialog', { name: 'Choose a page' })
@@ -269,7 +284,9 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   })).toHaveAccessibleDescription('Recommended')
   await user.keyboard('{Escape}')
 
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   expect(screen.getByLabelText('Rendered PDF page A1.2')).toBeInTheDocument()
   await waitFor(() => expect(pageRenderer.renderPage).toHaveBeenCalledWith(
@@ -300,8 +317,9 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   expect(within(pagePicker).getByRole('option', {
     name: /^A4\.3 Doors & Windows$/,
   })).toHaveAccessibleDescription('Recommended')
-  await user.click(within(pagePicker).getByRole('option', {
-    name: /^A4\.3 Doors & Windows$/,
+  await user.keyboard('{Escape}')
+  await user.click(within(currentAssistance).getByRole('button', {
+    name: 'Open A4.3: Doors & Windows',
   }))
   const secondDrawingPage = await screen.findByLabelText('Drawing page A4.3')
   Object.defineProperty(secondDrawingPage, 'getBoundingClientRect', {
@@ -410,7 +428,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   )
 
   await user.click(await screen.findByRole('tab', { name: 'Done 1' }))
-  await user.click(screen.getByRole('button', { name: 'View Point Set on drawing' }))
+  await user.click(screen.getByRole('button', { name: 'Show Point Set' }))
   const reloadedOverlay = await screen.findByLabelText('Drawing page A1.2')
   const reloadedMark = within(reloadedOverlay).getByText('1')
   expect(reloadedOverlay).toContainElement(reloadedMark)
@@ -440,6 +458,13 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
     left: '75%',
     top: '25%',
   })
+  const hidePointSet = screen.getByRole('button', { name: 'Hide Point Set' })
+  expect(hidePointSet).toHaveAttribute('aria-pressed', 'true')
+  await user.click(hidePointSet)
+  expectCurrentPage(/A4\.3, Doors & Windows/)
+  expect(reloadedSecondOverlay.querySelector('.point-mark')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Show Point Set' }))
+    .toHaveAttribute('aria-pressed', 'false')
 })
 
 test('the public Type C journey reaches a revise-and-resubmit disposition', async () => {
@@ -633,10 +658,19 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
   expect(within(currentAssistance).getByText(
     'Type C interior door product data and review cover',
   )).toBeInTheDocument()
-  expect(within(currentAssistance).getByText(/Pages A4\.3/)).toBeInTheDocument()
-  expect(within(currentAssistance).getByText(/Pages 1, 2/)).toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open supporting page A4.3: Doors & Windows',
+  })).toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open supporting page 1: Submittal cover',
+  })).toBeInTheDocument()
+  expect(within(currentAssistance).getByRole('button', {
+    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+  })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
     configurable: true,
@@ -764,7 +798,9 @@ test('reopening a submitted Point Set starts on its earliest marked document pag
     recommendedPageIds: ['sheet-a4.3'],
   })
   await screen.findByText(requestInput.question)
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A4.3: Doors & Windows',
+  }))
 
   const laterPage = await screen.findByLabelText('Drawing page A4.3')
   Object.defineProperty(laterPage, 'getBoundingClientRect', {
@@ -806,7 +842,7 @@ test('reopening a submitted Point Set starts on its earliest marked document pag
   await screen.findByText('No pending Assistance Requests')
 
   await user.click(screen.getByRole('tab', { name: 'Done 1' }))
-  await user.click(screen.getByRole('button', { name: 'View Point Set on drawing' }))
+  await user.click(screen.getByRole('button', { name: 'Show Point Set' }))
   expectCurrentPage(/A1\.2, 1st Floor Plan/)
 })
 
@@ -829,7 +865,9 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
   const drawingPage = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(drawingPage, 'getBoundingClientRect', {
     value: () => ({
@@ -955,7 +993,7 @@ test('Document Browsing restores each document location and reloads the current 
     .not.toHaveAttribute('aria-pressed')
 })
 
-test('an Assistance Request leaves Document Browsing in place until Go to target', async () => {
+test('an Assistance Request leaves Document Browsing in place until a target page is opened', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
   render(
@@ -982,7 +1020,9 @@ test('an Assistance Request leaves Document Browsing in place until Go to target
   expectCurrentPage(/2, Hollow-core flush wood door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
 
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
 
   expect(screen.getByRole('heading', { name: 'Virginia Farmhouse drawing set' }))
     .toBeInTheDocument()
@@ -990,7 +1030,7 @@ test('an Assistance Request leaves Document Browsing in place until Go to target
   expect(screen.getByText('100%')).toBeInTheDocument()
 })
 
-test('Go to target uses the target document first page without a recommendation', async () => {
+test('the target link uses the target document first page without a recommendation', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
   render(
@@ -1012,7 +1052,9 @@ test('Go to target uses the target document first page without a recommendation'
   await screen.findByText(requestInput.question)
 
   expectCurrentPage(/A4\.3, Doors & Windows/)
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A0.0: Cover Page',
+  }))
   expectCurrentPage(/A0\.0, Cover Page/)
 })
 
@@ -1076,7 +1118,9 @@ test('External Agent document search and inspection leave the visible workspace 
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
   const targetPage = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(targetPage, 'getBoundingClientRect', {
     configurable: true,
@@ -1150,7 +1194,9 @@ test('External Agent document search and inspection leave the visible workspace 
   })
   expect(visibleState()).toEqual(beforeSearch)
 
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
   const restoredTargetPage = await screen.findByLabelText('Drawing page A1.2')
   expect(
     within(restoredTargetPage)
@@ -1192,7 +1238,19 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
   await screen.findByText(requestInput.question)
   await screen.findByText('2 waiting')
   expect(screen.getByText('Next: State the recommended disposition.')).toBeInTheDocument()
-  expect(screen.getByText('A1.2, A4.3')).toBeInTheDocument()
+  expect(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  })).toBeInTheDocument()
+  expect(screen.getByRole('button', {
+    name: 'Open A4.3: Doors & Windows',
+  })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Hide Assistance' }))
+  const multiPageStrip = screen.getByLabelText('Active Assistance Request')
+  expect(within(multiPageStrip).queryByRole('button', { name: 'Open A1.2' }))
+    .not.toBeInTheDocument()
+  await user.click(within(multiPageStrip).getByRole('button', {
+    name: 'View request',
+  }))
   await choosePage(user, /^A4\.3 Doors & Windows$/)
   expect(await screen.findByLabelText('Drawing page A4.3')).toHaveAttribute('role', 'button')
 
@@ -1227,7 +1285,7 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
   expect(screen.getByText('The page is not legible.')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', {
-    name: 'View Point Set on drawing',
+    name: 'Show Point Set',
   }))
   expectCurrentPage(/A0\.0, Cover Page/)
 })
@@ -1257,6 +1315,8 @@ test('Assistance collapse survives reload and View request restores the rail', a
     .not.toBeInTheDocument()
   const strip = screen.getByLabelText('Active Assistance Request')
   expect(within(strip).getByText('Point Set, 0 marked')).toBeInTheDocument()
+  expect(within(strip).getByRole('button', { name: 'Open A1.2' }))
+    .toBeInTheDocument()
 
   firstRender.unmount()
   render(
@@ -1283,7 +1343,7 @@ test('Assistance collapse survives reload and View request restores the rail', a
   await screen.findByText('No pending Assistance Requests')
 })
 
-test('supporting references preserve the Point Set draft and Return to target resumes placement', async () => {
+test('supporting references preserve the Point Set draft and returning to the target resumes placement', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
   render(
@@ -1299,7 +1359,9 @@ test('supporting references preserve the Point Set draft and Return to target re
   await modelContext.waitForTool('create_assistance_request')
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
   const targetOverlay = await screen.findByLabelText('Drawing page A1.2')
   Object.defineProperty(targetOverlay, 'getBoundingClientRect', {
     configurable: true,
@@ -1319,7 +1381,9 @@ test('supporting references preserve the Point Set draft and Return to target re
   await screen.findByText('1 point')
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
 
-  await user.click(screen.getByRole('button', { name: 'Open page 2' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+  }))
   expect(screen.getByRole('heading', {
     name: 'Type C interior door product data and review cover',
   })).toBeInTheDocument()
@@ -1332,7 +1396,7 @@ test('supporting references preserve the Point Set draft and Return to target re
   await user.click(screen.getByRole('button', { name: 'Hide Assistance' }))
   const strip = screen.getByLabelText('Active Assistance Request')
   expect(within(strip).getByText('Point Set, 1 marked')).toBeInTheDocument()
-  await user.click(within(strip).getByRole('button', { name: 'Return to target' }))
+  await user.click(within(strip).getByRole('button', { name: 'Return to A1.2' }))
   expectCurrentPage(/A1\.2, 1st Floor Plan/)
   const returnedOverlay = await screen.findByLabelText('Drawing page A1.2')
   expect(within(returnedOverlay).getByText('1')).toBeInTheDocument()
@@ -1368,7 +1432,9 @@ test('Point Set placement stays blocked while the selected page is pending or fa
   await modelContext.waitForTool('create_assistance_request')
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
-  await user.click(screen.getByRole('button', { name: 'Go to target' }))
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
 
   const targetOverlay = await screen.findByLabelText('Drawing page A1.2')
   expect(targetOverlay).not.toHaveAttribute('role', 'button')

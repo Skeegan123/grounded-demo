@@ -170,15 +170,11 @@ function App({
         pointSetCurrent.documentVersionId,
       ) ?? defaultDocument
     : defaultDocument
-  const targetPage =
-    pointSetCurrent?.recommendedPageIds
-      .map((pageId) => findPage(targetDocument, pageId))
-      .find((page) => page !== undefined) ?? targetDocument.pages[0]!
+  const recommendedPages = pointSetCurrent?.recommendedPageIds
+    .map((pageId) => findPage(targetDocument, pageId))
+    .filter((page): page is NonNullable<typeof page> => Boolean(page)) ?? []
+  const targetPage = recommendedPages[0] ?? targetDocument.pages[0]!
   const openedSupportingReference = supportingReferenceRequestId === current?.id
-  const recommendedPageLabels = pointSetCurrent?.recommendedPageIds
-    .map((pageId) => findPage(targetDocument, pageId)?.label)
-    .filter((label): label is string => Boolean(label))
-    .join(', ')
   const supportingDocuments = pointSetCurrent?.supportingDocumentReferences
     ?.map((reference) => {
       const document = findDocument(
@@ -212,7 +208,9 @@ function App({
       selectedDocument.versionId === pointSetCurrent.documentVersionId,
   )
   const targetNavigationLabel =
-    openedSupportingReference && !canMark ? 'Return to target' : 'Go to target'
+    openedSupportingReference && !canMark
+      ? `Return to ${targetPage.label}`
+      : `Open ${targetPage.label}`
   const visiblePoints = canMark
     ? points
     : toStoredPoints(viewedPointSet)
@@ -256,6 +254,17 @@ function App({
       documentId: targetDocument.id,
       documentVersionId: targetDocument.versionId,
       pageId: targetPage.id,
+    })
+  }
+
+  const openTargetPage = (pageId: string) => {
+    if (!pointSetCurrent) return
+    setViewedPointSetId('')
+    setSupportingReferenceRequestId('')
+    selectDocument({
+      documentId: targetDocument.id,
+      documentVersionId: targetDocument.versionId,
+      pageId,
     })
   }
 
@@ -311,9 +320,13 @@ function App({
     })
   }
 
-  const viewPointSet = (result: AssistanceCompletedResult) => {
+  const togglePointSet = (result: AssistanceCompletedResult) => {
     const pointSetResult = asPointSetResult(result)
     if (!pointSetResult) return
+    if (viewedPointSetId === pointSetResult.id) {
+      setViewedPointSetId('')
+      return
+    }
     const document = findDocument(
       pointSetResult.professionalResponse.document.id,
       pointSetResult.professionalResponse.document.versionId,
@@ -439,7 +452,9 @@ function App({
               onTargetNavigation={goToTarget}
               onUndoPoint={undoLatestPoint}
               pointCount={points.length}
-              targetNavigationLabel={targetNavigationLabel}
+              targetNavigationLabel={
+                recommendedPages.length <= 1 ? targetNavigationLabel : undefined
+              }
             />
           ) : undefined}
           undoNotice={undoNotice}
@@ -458,6 +473,7 @@ function App({
             loading={loading}
             note={note}
             onDecline={() => void declineCurrent()}
+            onOpenTargetPage={openTargetPage}
             onOpenSupportingReference={openSupportingReference}
             onSelectTab={setAssistanceTab}
             onSetDeclineReason={setDeclineReason}
@@ -468,20 +484,19 @@ function App({
             }}
             onSubmitPointSet={() => void submitPointSet()}
             onSubmitText={() => void submitText()}
-            onTargetNavigation={goToTarget}
             onUndoPoint={undoLatestPoint}
-            onViewPointSet={viewPointSet}
+            onTogglePointSet={togglePointSet}
             pending={pending}
             pointCount={points.length}
-            recommendedPageLabels={recommendedPageLabels ?? ''}
+            recommendedPages={recommendedPages}
             responseError={responseError}
             responseMessage={responseMessage}
             responsePending={responsePending}
             supportingDocuments={supportingDocuments}
             targetDocument={targetDocument}
-            targetNavigationLabel={targetNavigationLabel}
             targetPage={targetPage}
             text={text}
+            viewedPointSetId={viewedPointSetId}
           />
         )}
 

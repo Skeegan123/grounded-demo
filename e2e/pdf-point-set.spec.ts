@@ -237,7 +237,9 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
       recommendedPageIds: ['sheet-a1.2'],
     })
   })
-  await page.getByRole('button', { name: 'Go to target' }).click()
+  await page.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }).click()
 
   const canvas = page.getByLabel('Rendered PDF page A1.2')
   const overlay = page.getByLabel('Drawing page A1.2')
@@ -313,7 +315,9 @@ test('point controls stay centered, stable, and attached to their point', async 
   await installRecordedTools(page)
   await page.goto('/')
   await createPointSetRequest(page)
-  await page.getByRole('button', { name: 'Go to target' }).click()
+  await page.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }).click()
 
   const overlay = page.getByLabel('Drawing page A1.2')
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
@@ -388,7 +392,9 @@ test('clicks place compact pins while drags and marker removal stay safe', async
   await installRecordedTools(page)
   await page.goto('/')
   await createPointSetRequest(page)
-  await page.getByRole('button', { name: 'Go to target' }).click()
+  await page.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }).click()
 
   const overlay = page.getByLabel('Drawing page A1.2')
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
@@ -551,7 +557,7 @@ test('constrained workbenches keep request actions by the canvas and open suppor
     documentBounds.y + documentBounds.height - 1,
   )
 
-  await strip.getByRole('button', { name: 'Go to target' }).click()
+  await strip.getByRole('button', { name: 'Open A1.2' }).click()
   const targetOverlay = page.getByLabel('Drawing page A1.2')
   await expect(targetOverlay).toBeVisible()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
@@ -563,7 +569,9 @@ test('constrained workbenches keep request actions by the canvas and open suppor
   )
   await expect(strip.getByText('Point Set, 1 marked')).toBeVisible()
 
-  await page.getByRole('button', { name: 'Open page 2' }).click()
+  await page.getByRole('button', {
+    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+  }).click()
   await expect(page.getByRole('heading', {
     name: 'Type C interior door product data and review cover',
   })).toBeVisible()
@@ -573,7 +581,7 @@ test('constrained workbenches keep request actions by the canvas and open suppor
   await expect(page.getByLabel('Drawing page 2')).not.toHaveAttribute('role', 'button')
   await expect(strip.getByText('Point Set, 1 marked')).toBeVisible()
 
-  await strip.getByRole('button', { name: 'Return to target' }).click()
+  await strip.getByRole('button', { name: 'Return to A1.2' }).click()
   await expect(page.getByLabel('Drawing page A1.2')).toBeVisible()
   await expect(page.getByLabel('Drawing page A1.2').locator('.point-mark'))
     .toHaveCount(1)
