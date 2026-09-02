@@ -732,7 +732,7 @@ test('constrained workbenches keep request actions by the canvas and open suppor
   await expect(page.getByRole('button', {
     name: /Current page: 2, Hollow-core flush wood door product data/,
   })).toBeVisible()
-  await expect(page.getByLabel('Drawing page 2')).not.toHaveAttribute('role', 'button')
+  await expect(page.getByLabel('Drawing page 2')).toHaveAttribute('role', 'group')
   await expect(strip.getByText('Point Set, 1 marked')).toBeVisible()
 
   await strip.getByRole('button', { name: 'Return to A1.2' }).click()

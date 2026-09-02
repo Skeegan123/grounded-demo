@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "grounded-discovery-canary",
+      "type": "skill-md",
+      "description": "Confirm that an agent exploring Grounded found this skill through the site's HTTP Link header.",
+      "url": "/.well-known/agent-skills/grounded-discovery-canary/SKILL.md",
+      "digest": "sha256:3ed495fb30bf866ca61471d8f418861189c5be41bf996c873be303789c0a8283"
+    }
+  ]
+}

@@ -634,7 +634,7 @@ export function PdfPageViewer({
               ? `point-set-overlay marking${pointControlsDismissed ? ' point-controls-dismissed' : ''}`
               : `point-set-overlay${pointControlsDismissed ? ' point-controls-dismissed' : ''}`}
             onClick={placePointFromClick}
-            role={canMark && isCurrentRender ? 'button' : undefined}
+            role="group"
           >
             {isDisplayedPage && pagePoints.map((point) => (
               <span

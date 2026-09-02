@@ -222,12 +222,12 @@ test('placement waits for the matching render and a drag never adds a point', as
   )
 
   const firstOverlay = await screen.findByLabelText('Drawing page A0.0')
-  expect(firstOverlay).not.toHaveAttribute('role', 'button')
+  expect(firstOverlay).toHaveAttribute('role', 'group')
   fireEvent.click(firstOverlay, { clientX: 10, clientY: 10 })
   expect(onPlacePoint).not.toHaveBeenCalled()
 
   requests[0]!.resolve()
-  await waitFor(() => expect(firstOverlay).toHaveAttribute('role', 'button'))
+  await waitFor(() => expect(firstOverlay).toHaveClass('marking'))
   const frame = firstOverlay.parentElement!
   Object.defineProperty(frame, 'getBoundingClientRect', {
     configurable: true,
@@ -286,7 +286,7 @@ test('placement waits for the matching render and a drag never adds a point', as
     />,
   )
   const secondOverlay = await screen.findByLabelText('Drawing page A0.1')
-  expect(secondOverlay).not.toHaveAttribute('role', 'button')
+  expect(secondOverlay).toHaveAttribute('role', 'group')
   expect(screen.getByLabelText('Rendered PDF page A0.1'))
     .toHaveStyle({ visibility: 'hidden' })
   fireEvent.click(secondOverlay, { clientX: 10, clientY: 10 })
