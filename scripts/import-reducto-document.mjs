@@ -8,8 +8,9 @@ import {
 } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { htmlToPlainText } from '../src/documents/htmlToPlainText.js'
 
-const IMPORTER_VERSION = 'grounded-reducto-importer-1'
+const IMPORTER_VERSION = 'grounded-reducto-importer-2'
 const DEFAULT_MANIFEST_PATH = fileURLToPath(
   new URL('../src/demoProject/demoProjectManifest.json', import.meta.url),
 )
@@ -20,7 +21,7 @@ const DEFAULT_OUTPUT_DIRECTORY = fileURLToPath(
   new URL('../src/documents/generated', import.meta.url),
 )
 
-const PARSE_SETTINGS = Object.freeze({
+const MAINTAINER_DECLARED_PARSE_SETTINGS = Object.freeze({
   chunking: 'disabled',
   embeddingOptimization: false,
   returnedImages: false,
@@ -153,30 +154,6 @@ function contentFormatFor(sourceType, content, name) {
   return 'html'
 }
 
-function decodeHtml(value) {
-  const named = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    nbsp: ' ',
-    quot: '"',
-  }
-  return value
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (match, entity) => {
-      if (entity[0] === '#') {
-        const hexadecimal = entity[1]?.toLowerCase() === 'x'
-        const codePoint = Number.parseInt(entity.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10)
-        return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match
-      }
-      return named[entity.toLowerCase()] ?? match
-    })
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
 function positiveSpan(attributes, attributeName) {
   const match = attributes.match(new RegExp(`\\b${attributeName}\\s*=\\s*["']?(\\d+)`, 'i'))
   if (!match) return 1
@@ -192,7 +169,7 @@ function tableRowsFor(block, blockId) {
     const cellPattern = /<(th|td)([^>]*)>([\s\S]*?)<\/\1>/gi
     for (const cellMatch of rowMatch[1].matchAll(cellPattern)) {
       cells.push({
-        text: decodeHtml(cellMatch[3]),
+        text: htmlToPlainText(cellMatch[3]).replace(/\s+/g, ' ').trim(),
         header: cellMatch[1].toLowerCase() === 'th',
         rowSpan: positiveSpan(cellMatch[2], 'rowspan'),
         columnSpan: positiveSpan(cellMatch[2], 'colspan'),
@@ -261,6 +238,26 @@ function validateManifestDocument(manifest, documentId) {
   const file = requireRecord(document.file, `manifest document ${documentId}.file`)
   requireString(file.name, `manifest document ${documentId}.file.name`)
   requireString(file.sha256, `manifest document ${documentId}.file.sha256`)
+  const preparedEvidence = requireRecord(
+    document.preparedEvidence,
+    `manifest document ${documentId}.preparedEvidence`,
+  )
+  const parseExportSha256 = requireString(
+    preparedEvidence.parseExportSha256,
+    `manifest document ${documentId}.preparedEvidence.parseExportSha256`,
+  )
+  if (!/^[a-f0-9]{64}$/.test(parseExportSha256)) {
+    fail(
+      `manifest document ${documentId}.preparedEvidence.parseExportSha256 must be a lowercase SHA-256 fingerprint.`,
+    )
+  }
+  const requiredModel = requireString(
+    preparedEvidence.requiredModel,
+    `manifest document ${documentId}.preparedEvidence.requiredModel`,
+  )
+  if (requiredModel !== 'r-1') {
+    fail(`manifest document ${documentId} must require the supported r-1 model.`)
+  }
   const pageCount = requireInteger(
     file.pageCount,
     `manifest document ${documentId}.file.pageCount`,
@@ -311,7 +308,7 @@ function sourceFingerprintFor(document, sourceDirectory) {
   return { fingerprint, byteSize: bytes.byteLength }
 }
 
-function validatedParseResult(exportValue, pageCount) {
+function validatedParseResult(exportValue, pageCount, requiredModel) {
   const response = requireRecord(exportValue, 'Reducto export')
   if (response.response_type !== 'parse') {
     fail('the export response_type must be "parse".')
@@ -321,6 +318,19 @@ function validatedParseResult(exportValue, pageCount) {
     fail('the export must contain a self-contained full Parse result, not an expiring URL result.')
   }
   const usage = requireRecord(response.usage, 'Reducto export.usage')
+  const usageBreakdown = requireRecord(
+    usage.usage_breakdown,
+    'Reducto export.usage.usage_breakdown',
+  )
+  const model = requireString(
+    usageBreakdown.parse_model,
+    'Reducto export.usage.usage_breakdown.parse_model',
+  ).trim().toLowerCase()
+  if (model !== requiredModel) {
+    fail(
+      `Reducto export model ${model} does not match the manifest-required model ${requiredModel}.`,
+    )
+  }
   const parsedPageCount = requireInteger(
     usage.num_pages,
     'Reducto export.usage.num_pages',
@@ -332,7 +342,7 @@ function validatedParseResult(exportValue, pageCount) {
   }
   const chunks = requireArray(result.chunks, 'Reducto export.result.chunks')
   if (chunks.length === 0) fail('Reducto export.result.chunks is empty.')
-  return { result, chunks }
+  return { result, chunks, model }
 }
 
 function importedBlocks(document, chunks) {
@@ -417,7 +427,7 @@ function importedOcrRecords(result, document) {
 
 export function createPreparedEvidenceArtifact({
   documentId,
-  exportValue,
+  exportBytes,
   manifest,
   sourceDirectory,
 }) {
@@ -425,8 +435,25 @@ export function createPreparedEvidenceArtifact({
     requireRecord(manifest, 'manifest'),
     documentId,
   )
+  const exportFingerprint = sha256(exportBytes)
+  if (exportFingerprint !== document.preparedEvidence.parseExportSha256) {
+    fail(
+      `Parse export SHA-256 ${exportFingerprint} does not match ${document.versionId}; expected ${document.preparedEvidence.parseExportSha256}.`,
+    )
+  }
+  let exportValue
+  try {
+    exportValue = JSON.parse(exportBytes.toString('utf8'))
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    fail(`Reducto export could not be read as JSON: ${reason}`)
+  }
   const { fingerprint, byteSize } = sourceFingerprintFor(document, sourceDirectory)
-  const { result, chunks } = validatedParseResult(exportValue, document.pages.length)
+  const { result, chunks, model } = validatedParseResult(
+    exportValue,
+    document.pages.length,
+    document.preparedEvidence.requiredModel,
+  )
   const blocksByPage = importedBlocks(document, chunks)
   const ocrByPage = importedOcrRecords(result, document)
 
@@ -445,10 +472,14 @@ export function createPreparedEvidenceArtifact({
     },
     provenance: {
       provider: 'reducto',
-      model: 'r-1',
       importerVersion: IMPORTER_VERSION,
       sourceFingerprint: fingerprint,
-      parseSettings: PARSE_SETTINGS,
+      verified: {
+        parseExportSha256: exportFingerprint,
+        model,
+        modelSource: 'usage.usage_breakdown.parse_model',
+      },
+      maintainerDeclaredParseSettings: MAINTAINER_DECLARED_PARSE_SETTINGS,
     },
     pages: document.pages.map((page) => {
       const blocks = blocksByPage[page.number - 1]
@@ -515,6 +546,15 @@ function readJson(path, description) {
   }
 }
 
+function readBytes(path, description) {
+  try {
+    return readFileSync(path)
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    fail(`${description} at ${path} could not be read: ${reason}`)
+  }
+}
+
 function writeArtifact(path, artifact) {
   mkdirSync(dirname(path), { recursive: true })
   const temporaryPath = join(
@@ -540,10 +580,10 @@ export function runImportCommand(argumentsList) {
     }
   }
   const manifest = readJson(options.manifestPath, 'manifest')
-  const exportValue = readJson(options.exportPath, 'Reducto export')
+  const exportBytes = readBytes(options.exportPath, 'Reducto export')
   const artifact = createPreparedEvidenceArtifact({
     documentId: options.documentId,
-    exportValue,
+    exportBytes,
     manifest,
     sourceDirectory: options.sourceDirectory,
   })

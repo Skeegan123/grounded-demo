@@ -19,6 +19,10 @@
         "sha256": "ea0739d6335054df5f3dad59e326efc5963b93377648a39c3973bf0f0d986231",
         "pageCount": 2
       },
+      "preparedEvidence": {
+        "parseExportSha256": "9334458075b84ea0b3dc259c2d353c1ab04c9d0e246c964f01a1947ff1b46960",
+        "requiredModel": "r-1"
+      },
       "pages": [
         {
           "id": "fixture-sheet-a1.0",
@@ -55,6 +59,10 @@
         "sha256": "8881b15d0a31d09b7e90e69c85d01f1b024b4b7d89eb0b81062be59622cabe0b",
         "pageCount": 2
       },
+      "preparedEvidence": {
+        "parseExportSha256": "c6783d560a7d1130d33fe270cf41e53c0173fbdfcfb0df3577163a2e1781d131",
+        "requiredModel": "r-1"
+      },
       "pages": [
         {
           "id": "fixture-submittal-v4-cover",
@@ -88,6 +96,10 @@
         "byteSize": 35,
         "sha256": "9cbdaf7af491c087cc5a53908017230e66e30c2a17c4052e16151dd2f707f427",
         "pageCount": 1
+      },
+      "preparedEvidence": {
+        "parseExportSha256": "492488a7c33d7379edbc555f9ea0c68f891f241c58ebc022c9d37f084cb904a7",
+        "requiredModel": "r-1"
       },
       "pages": [
         {

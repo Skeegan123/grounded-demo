@@ -78,10 +78,14 @@ export interface PreparedEvidenceArtifact {
   }
   provenance: {
     provider: 'reducto'
-    model: 'r-1'
     importerVersion: string
     sourceFingerprint: string
-    parseSettings: {
+    verified: {
+      parseExportSha256: string
+      model: 'r-1'
+      modelSource: 'usage.usage_breakdown.parse_model'
+    }
+    maintainerDeclaredParseSettings: {
       chunking: 'disabled'
       embeddingOptimization: false
       returnedImages: false
@@ -297,6 +301,12 @@ function validateArtifactPages(
 }
 
 function validateArtifact(candidate: Record<string, unknown>, document: ProjectDocument) {
+  if (
+    !/^[a-f0-9]{64}$/.test(document.preparedEvidence.parseExportSha256) ||
+    document.preparedEvidence.requiredModel !== 'r-1'
+  ) {
+    invalid(document, 'manifest prepared-evidence binding is invalid.')
+  }
   if (!isRecord(candidate.document)) {
     invalid(document, 'document metadata is missing.')
   }
@@ -324,15 +334,22 @@ function validateArtifact(candidate: Record<string, unknown>, document: ProjectD
   const provenance = candidate.provenance
   if (
     provenance.provider !== 'reducto' ||
-    provenance.model !== 'r-1' ||
     !nonEmptyString(provenance.importerVersion) ||
     provenance.sourceFingerprint !== document.file.sha256 ||
     provenance.sourceFingerprint !== candidate.source.fingerprint ||
-    !isRecord(provenance.parseSettings)
+    !isRecord(provenance.verified) ||
+    provenance.verified.parseExportSha256 !==
+      document.preparedEvidence.parseExportSha256 ||
+    provenance.verified.model !== document.preparedEvidence.requiredModel ||
+    provenance.verified.modelSource !== 'usage.usage_breakdown.parse_model' ||
+    !isRecord(provenance.maintainerDeclaredParseSettings)
   ) {
-    invalid(document, 'Reducto provenance does not match the immutable source.')
+    invalid(
+      document,
+      'Reducto provenance does not match the immutable source or bound Parse export.',
+    )
   }
-  const settings = provenance.parseSettings
+  const settings = provenance.maintainerDeclaredParseSettings
   if (
     settings.chunking !== 'disabled' ||
     settings.embeddingOptimization !== false ||

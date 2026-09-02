@@ -3,8 +3,6 @@ import {
   type DocumentPage,
   type ProjectWorkspace,
 } from '../demoProject/demoProject'
-import typeCSubmittalEvidence from './generated/type-c-door-submittal-v1.json'
-import virginiaFarmhouseEvidence from './generated/virginia-farmhouse-drawings-v1.json'
 import {
   createDocumentSearch,
   type SearchProjectDocumentsInput,
@@ -27,14 +25,23 @@ export type InspectDocumentEvidenceInput =
       blockIds: string[]
     }
 
-const preparedEvidenceArtifacts: unknown = [
-  virginiaFarmhouseEvidence,
-  typeCSubmittalEvidence,
-]
+const preparedEvidenceArtifactsByPath = import.meta.glob(
+  './generated/*.json',
+  { eager: true, import: 'default' },
+) as Record<string, unknown>
 
 interface CreateDocumentsOptions {
   project?: ProjectWorkspace
   artifacts?: unknown
+}
+
+function preparedArtifactsFor(project: ProjectWorkspace) {
+  return project.documents.flatMap((document) => {
+    const artifact = preparedEvidenceArtifactsByPath[
+      `./generated/${document.versionId}.json`
+    ]
+    return artifact === undefined ? [] : [artifact]
+  })
 }
 
 function catalogPageReference(page: DocumentPage) {
@@ -84,10 +91,10 @@ function requireUniqueSelection(ids: string[], kind: 'page' | 'block') {
 
 export function createDocuments({
   project = demoProject,
-  artifacts: artifactSource = preparedEvidenceArtifacts,
+  artifacts: artifactSource,
 }: CreateDocumentsOptions = {}) {
   const artifacts = validatePreparedEvidenceArtifacts(
-    artifactSource,
+    artifactSource ?? preparedArtifactsFor(project),
     project.documents,
   )
   const searchDocuments = createDocumentSearch(artifacts)

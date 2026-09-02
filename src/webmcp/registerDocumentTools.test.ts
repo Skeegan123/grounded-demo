@@ -19,7 +19,10 @@ test('an External Agent discovers documents and inspects page or block evidence'
       pageIds: ['sheet-a4.3'],
     },
   ) as {
-    provenance: { provider: string; model: string }
+    provenance: {
+      provider: string
+      verified: { model: string; parseExportSha256: string }
+    }
     pages: Array<{
       blocks: Array<{
         id: string
@@ -52,7 +55,9 @@ test('an External Agent discovers documents and inspects page or block evidence'
     pageInspection: {
       provenance: {
         provider: pageInspection.provenance.provider,
-        model: pageInspection.provenance.model,
+        model: pageInspection.provenance.verified.model,
+        parseExportSha256:
+          pageInspection.provenance.verified.parseExportSha256,
       },
       table: {
         contentFormat: table.contentFormat,
@@ -89,7 +94,12 @@ test('an External Agent discovers documents and inspects page or block evidence'
       { id: 'type-c-door-submittal', pageCount: 2 },
     ],
     pageInspection: {
-      provenance: { provider: 'reducto', model: 'r-1' },
+      provenance: {
+        provider: 'reducto',
+        model: 'r-1',
+        parseExportSha256:
+          'c2b333cb18e0a10fe704743ddff5933756d5122616a6be4a45c4b28f4289d674',
+      },
       table: {
         contentFormat: 'html',
         classification: 'document_evidence',

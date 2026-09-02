@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+import { demoProject } from '../demoProject/demoProject'
 import drawingEvidence from './generated/virginia-farmhouse-drawings-v1.json'
 import supportingEvidence from './generated/type-c-door-submittal-v1.json'
 import { createDocuments } from './documents'
@@ -128,9 +129,13 @@ test('page inspection exposes ordered contract and product evidence with provena
     },
     provenance: {
       provider: 'reducto',
-      model: 'r-1',
-      importerVersion: 'grounded-reducto-importer-1',
-      parseSettings: {
+      importerVersion: 'grounded-reducto-importer-2',
+      verified: {
+        parseExportSha256: 'c2b333cb18e0a10fe704743ddff5933756d5122616a6be4a45c4b28f4289d674',
+        model: 'r-1',
+        modelSource: 'usage.usage_breakdown.parse_model',
+      },
+      maintainerDeclaredParseSettings: {
         chunking: 'disabled',
         tableOutputFormat: 'html',
         returnedOcrData: true,
@@ -421,6 +426,12 @@ test('startup rejects missing, duplicate, obsolete, stale, and mismatched artifa
   )
   expectInvalidArtifacts(
     (artifacts) => {
+      artifacts[0]!.provenance.verified.parseExportSha256 = '0'.repeat(64)
+    },
+    'Reducto provenance does not match the immutable source or bound Parse export.',
+  )
+  expectInvalidArtifacts(
+    (artifacts) => {
       artifacts[0]!.pages.pop()
     },
     'page count does not match the immutable document version.',
@@ -437,5 +448,17 @@ test('startup rejects missing, duplicate, obsolete, stale, and mismatched artifa
       page.tableRows[0]!.parentBlockId = 'missing-table-block'
     },
     'has an invalid table row',
+  )
+})
+
+test('default runtime artifacts follow manifest versions and report a missing version', () => {
+  const project = structuredClone(demoProject)
+  project.documents[1]!.versionId = 'type-c-door-submittal-v2'
+
+  expect(() => createDocuments({ project })).toThrow(
+    'Invalid prepared evidence for type-c-door-submittal-v2: the current document artifact is missing.',
+  )
+  expect(() => createDocuments({ project })).toThrow(
+    'pnpm import:document-evidence --document type-c-door-submittal --export <parse-export.json>',
   )
 })

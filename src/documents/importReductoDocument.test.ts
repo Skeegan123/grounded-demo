@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -58,7 +59,10 @@ interface ImportedArtifact {
 }
 
 interface MutableManifest {
-  documents: Array<{ file: { sha256: string; [key: string]: unknown } }>
+  documents: Array<{
+    file: { sha256: string; [key: string]: unknown }
+    preparedEvidence: { parseExportSha256: string; [key: string]: unknown }
+  }>
   [key: string]: unknown
 }
 
@@ -98,6 +102,10 @@ function readJson<T>(path: string) {
   return JSON.parse(readFileSync(path, 'utf8')) as T
 }
 
+function sha256(value: string) {
+  return createHash('sha256').update(value).digest('hex')
+}
+
 test('the public import command converts a drawing Parse export into one deterministic artifact', () => {
   const scratchDirectory = mkdtempSync(join(tmpdir(), 'grounded-reducto-drawing-'))
   const firstOutput = join(scratchDirectory, 'first.json')
@@ -127,10 +135,14 @@ test('the public import command converts a drawing Parse export into one determi
     },
     provenance: {
       provider: 'reducto',
-      model: 'r-1',
-      importerVersion: 'grounded-reducto-importer-1',
+      importerVersion: 'grounded-reducto-importer-2',
       sourceFingerprint: 'ea0739d6335054df5f3dad59e326efc5963b93377648a39c3973bf0f0d986231',
-      parseSettings: {
+      verified: {
+        parseExportSha256: '9334458075b84ea0b3dc259c2d353c1ab04c9d0e246c964f01a1947ff1b46960',
+        model: 'r-1',
+        modelSource: 'usage.usage_breakdown.parse_model',
+      },
+      maintainerDeclaredParseSettings: {
         chunking: 'disabled',
         embeddingOptimization: false,
         returnedImages: false,
@@ -286,23 +298,86 @@ test.each<InvalidExportCase>([
     }),
     error: 'parsed 1 pages but the manifest requires 2',
   },
+  {
+    name: 'missing exported Parse model',
+    mutateExport: (value) => {
+      const changed = structuredClone(value)
+      delete changed.usage.usage_breakdown
+      return changed
+    },
+    error: 'usage.usage_breakdown is missing',
+  },
 ])('rejects $name before writing output', ({ mutateExport, error }) => {
   const scratchDirectory = mkdtempSync(join(tmpdir(), 'grounded-reducto-invalid-'))
   const exportPath = join(scratchDirectory, 'invalid-export.json')
   const outputPath = join(scratchDirectory, 'must-not-exist.json')
-  writeFileSync(
-    exportPath,
-    JSON.stringify(
-      mutateExport(
-        readJson<MutableParseFixture>(join(fixtureDirectory, 'drawing-parse.json')),
-      ),
+  const serializedExport = JSON.stringify(
+    mutateExport(
+      readJson<MutableParseFixture>(join(fixtureDirectory, 'drawing-parse.json')),
     ),
   )
+  writeFileSync(exportPath, serializedExport)
+  const boundManifest = readJson<MutableManifest>(manifestPath)
+  boundManifest.documents[0]!.preparedEvidence.parseExportSha256 =
+    sha256(serializedExport)
+  const boundManifestPath = join(scratchDirectory, 'bound-manifest.json')
+  writeFileSync(boundManifestPath, JSON.stringify(boundManifest))
 
-  const result = importDocument('fixture-drawings', exportPath, outputPath)
+  const result = importDocument(
+    'fixture-drawings',
+    exportPath,
+    outputPath,
+    ['--manifest', boundManifestPath],
+  )
 
   expect(result.status).toBe(1)
   expect(result.stderr).toContain(error)
+  expect(existsSync(outputPath)).toBe(false)
+})
+
+test('rejects a wrong same-page-count Parse export before reading its content', () => {
+  const scratchDirectory = mkdtempSync(join(tmpdir(), 'grounded-reducto-swapped-'))
+  const outputPath = join(scratchDirectory, 'must-not-exist.json')
+  const result = importDocument(
+    'fixture-drawings',
+    join(fixtureDirectory, 'supporting-v4-parse.json'),
+    outputPath,
+  )
+
+  expect(result.status).toBe(1)
+  expect(result.stderr).toContain('Parse export SHA-256')
+  expect(result.stderr).toContain('does not match fixture-drawings-v1')
+  expect(existsSync(outputPath)).toBe(false)
+})
+
+test('rejects a bound export whose reported Parse model is wrong', () => {
+  const scratchDirectory = mkdtempSync(join(tmpdir(), 'grounded-reducto-model-'))
+  const exportPath = join(scratchDirectory, 'wrong-model.json')
+  const outputPath = join(scratchDirectory, 'must-not-exist.json')
+  const exportValue = readJson<MutableParseFixture>(
+    join(fixtureDirectory, 'drawing-parse.json'),
+  )
+  const usageBreakdown = exportValue.usage.usage_breakdown as Record<string, unknown>
+  usageBreakdown.parse_model = 'R-2'
+  const serializedExport = JSON.stringify(exportValue)
+  writeFileSync(exportPath, serializedExport)
+  const boundManifest = readJson<MutableManifest>(manifestPath)
+  boundManifest.documents[0]!.preparedEvidence.parseExportSha256 =
+    sha256(serializedExport)
+  const boundManifestPath = join(scratchDirectory, 'bound-manifest.json')
+  writeFileSync(boundManifestPath, JSON.stringify(boundManifest))
+
+  const result = importDocument(
+    'fixture-drawings',
+    exportPath,
+    outputPath,
+    ['--manifest', boundManifestPath],
+  )
+
+  expect(result.status).toBe(1)
+  expect(result.stderr).toContain(
+    'export model r-2 does not match the manifest-required model r-1',
+  )
   expect(existsSync(outputPath)).toBe(false)
 })
 

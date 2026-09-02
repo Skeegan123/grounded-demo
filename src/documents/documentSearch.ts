@@ -6,6 +6,7 @@ import type {
   PreparedEvidenceTableCell,
   PreparedEvidenceTableRow,
 } from './preparedEvidence'
+import { htmlToPlainText } from './htmlToPlainText.js'
 
 export interface SearchProjectDocumentsInput {
   query: string
@@ -115,32 +116,6 @@ const STOP_WORDS = new Set([
   'with',
 ])
 
-const HTML_ENTITIES: Record<string, string> = {
-  amp: '&',
-  apos: "'",
-  gt: '>',
-  lt: '<',
-  nbsp: ' ',
-  quot: '"',
-}
-
-function decodeHtml(value: string) {
-  return value
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (match, entity: string) => {
-      if (entity.startsWith('#')) {
-        const hexadecimal = entity[1]?.toLowerCase() === 'x'
-        const codePoint = Number.parseInt(
-          entity.slice(hexadecimal ? 2 : 1),
-          hexadecimal ? 16 : 10,
-        )
-        return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match
-      }
-      return HTML_ENTITIES[entity.toLowerCase()] ?? match
-    })
-}
-
 function canonicalizeDimensions(value: string) {
   return value.replace(
     /(\d+(?:[- ]\d+\/\d+)?)\s*(?:in(?:ch(?:es)?)?\.?|["″])?\s*(?:x|by)\s*(\d+(?:[- ]\d+\/\d+)?)\s*(?:in(?:ch(?:es)?)?\.?|["″])?/gi,
@@ -150,7 +125,7 @@ function canonicalizeDimensions(value: string) {
 
 function normalizeText(value: string) {
   return canonicalizeDimensions(
-    decodeHtml(value)
+    htmlToPlainText(value)
       .normalize('NFKC')
       .toLowerCase()
       .replace(/[‘’]/g, "'")
@@ -598,7 +573,7 @@ function compareScored(left: ScoredRecord, right: ScoredRecord) {
 }
 
 function snippet(value: string) {
-  const plain = decodeHtml(value).replace(/\s+/g, ' ').trim()
+  const plain = htmlToPlainText(value).replace(/\s+/g, ' ').trim()
   if (plain.length <= 240) return plain
   const shortened = plain.slice(0, 237)
   const lastSpace = shortened.lastIndexOf(' ')

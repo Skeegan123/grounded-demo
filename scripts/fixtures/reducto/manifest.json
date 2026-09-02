@@ -19,6 +19,10 @@
         "sha256": "ea0739d6335054df5f3dad59e326efc5963b93377648a39c3973bf0f0d986231",
         "pageCount": 2
       },
+      "preparedEvidence": {
+        "parseExportSha256": "9334458075b84ea0b3dc259c2d353c1ab04c9d0e246c964f01a1947ff1b46960",
+        "requiredModel": "r-1"
+      },
       "pages": [
         {
           "id": "fixture-sheet-a1.0",
@@ -54,6 +58,10 @@
         "byteSize": 23,
         "sha256": "1f664c5a22a3148063e7c51457ccc79a8a923638333e360c9cb4966efcca9dcb",
         "pageCount": 1
+      },
+      "preparedEvidence": {
+        "parseExportSha256": "5cb571229784dac2995e201c0110ef558816ae17416983ae6849b4948f563cdd",
+        "requiredModel": "r-1"
       },
       "pages": [
         {

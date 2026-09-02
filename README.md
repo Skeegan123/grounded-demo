@@ -113,8 +113,10 @@ checksums, byte sizes, and page counts are recorded in
 
 One schema version 2 Document Evidence artifact is committed for each immutable
 document version under `src/documents/generated/`. The offline importer converts
-one local Reducto Parse export at a time. Its required Studio settings,
-validation rules, and command are in
+one local Reducto Parse export at a time. The manifest binds each document
+version to the exact raw-export SHA-256, and runtime loads the complete artifact
+set from those manifest version identities. Required Studio settings,
+validation rules, and commands are in
 [`docs/document-evidence-import.md`](docs/document-evidence-import.md).
 
 WebMCP adds four read-only document tools:

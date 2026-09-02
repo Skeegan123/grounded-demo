@@ -21,6 +21,10 @@
         "sha256": "2049cb0424de69c753e4345c2c87c4632cec75b0dd3ac0c8d1462f735c8a27af",
         "pageCount": 25
       },
+      "preparedEvidence": {
+        "parseExportSha256": "c2b333cb18e0a10fe704743ddff5933756d5122616a6be4a45c4b28f4289d674",
+        "requiredModel": "r-1"
+      },
       "pages": [
         { "id": "sheet-a0.0", "label": "A0.0", "number": 1, "title": "Cover Page", "sheetNumber": "A0.0", "width": 1224, "height": 792, "rotation": 270 },
         { "id": "sheet-a0.1", "label": "A0.1", "number": 2, "title": "Project Information", "sheetNumber": "A0.1", "width": 1224, "height": 792, "rotation": 270 },
@@ -61,6 +65,10 @@
         "byteSize": 4557,
         "sha256": "b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658",
         "pageCount": 2
+      },
+      "preparedEvidence": {
+        "parseExportSha256": "77cccf0646588ce5dc3e6da5a9608f15a22a2e13fac2fdb49053fda111791958",
+        "requiredModel": "r-1"
       },
       "pages": [
         { "id": "door-submittal-page-1", "label": "1", "number": 1, "title": "Submittal cover", "width": 612, "height": 792, "rotation": 0 },

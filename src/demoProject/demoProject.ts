@@ -24,6 +24,10 @@ export interface ProjectDocument {
     sha256: string
     pageCount: number
   }
+  preparedEvidence: {
+    parseExportSha256: string
+    requiredModel: string
+  }
   pages: DocumentPage[]
 }
 
@@ -67,6 +71,7 @@ export function createProjectWorkspace(
       ...document,
       kind: projectDocumentKind(document.kind),
       file: { ...document.file },
+      preparedEvidence: { ...document.preparedEvidence },
       pages: document.pages.map((page) => ({ ...page })),
     })),
   }

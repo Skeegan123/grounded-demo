@@ -16,6 +16,10 @@ const estimate: ProjectDocument = {
     sha256: '9cbdaf7af491c087cc5a53908017230e66e30c2a17c4052e16151dd2f707f427',
     pageCount: 1,
   },
+  preparedEvidence: {
+    parseExportSha256: '0'.repeat(64),
+    requiredModel: 'r-1',
+  },
   pages: [{
     id: 'fixture-estimate-page-1',
     label: '1',

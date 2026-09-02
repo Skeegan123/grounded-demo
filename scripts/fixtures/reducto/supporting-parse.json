@@ -3,7 +3,10 @@
   "duration": 2.1,
   "usage": {
     "num_pages": 1,
-    "credits": 2
+    "credits": 2,
+    "usage_breakdown": {
+      "parse_model": "R-1"
+    }
   },
   "result": {
     "type": "full",

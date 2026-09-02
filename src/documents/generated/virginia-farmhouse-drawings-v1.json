@@ -13,10 +13,14 @@
   },
   "provenance": {
     "provider": "reducto",
-    "model": "r-1",
-    "importerVersion": "grounded-reducto-importer-1",
+    "importerVersion": "grounded-reducto-importer-2",
     "sourceFingerprint": "2049cb0424de69c753e4345c2c87c4632cec75b0dd3ac0c8d1462f735c8a27af",
-    "parseSettings": {
+    "verified": {
+      "parseExportSha256": "c2b333cb18e0a10fe704743ddff5933756d5122616a6be4a45c4b28f4289d674",
+      "model": "r-1",
+      "modelSource": "usage.usage_breakdown.parse_model"
+    },
+    "maintainerDeclaredParseSettings": {
       "chunking": "disabled",
       "embeddingOptimization": false,
       "returnedImages": false,
