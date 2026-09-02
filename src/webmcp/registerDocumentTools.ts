@@ -90,20 +90,28 @@ export function registerDocumentTools(
       name: 'inspect_document_evidence',
       title: 'Inspect prepared Document Evidence',
       description:
-        'Inspect complete pages or selected blocks from one immutable document version without changing the visible workspace. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
+        'Inspect prepared page evidence or selected blocks from one immutable document version without changing the visible workspace. Page results include semantic blocks and table rows while omitting the stored low-level word and line OCR. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
       schema: InspectDocumentEvidenceInput,
       readOnly: true,
       includeValidationIssueMessage: true,
       execute: (input) => {
         const result = documents.inspectEvidence(input)
-        const serialized = JSON.stringify(result)
+        const agentResult = {
+          ...result,
+          pages: result.pages.map((page) => ({
+            page: page.page,
+            blocks: page.blocks,
+            tableRows: page.tableRows,
+          })),
+        }
+        const serialized = JSON.stringify(agentResult)
         const byteLength = new TextEncoder().encode(serialized).byteLength
         if (byteLength > MAX_INSPECTION_RESPONSE_BYTES) {
           throw new Error(
             'Inspection response exceeds 512 KiB. Narrow the pageIds or blockIds selectors and retry.',
           )
         }
-        return result
+        return agentResult
       },
     }),
   ]

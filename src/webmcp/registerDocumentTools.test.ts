@@ -127,6 +127,49 @@ test('an External Agent discovers documents and inspects page or block evidence'
   controller.abort()
 })
 
+test('page inspection returns prepared Document Evidence within the agent context budget', async () => {
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(
+    modelContext,
+    createDocuments(),
+    controller.signal,
+  )
+
+  const inspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: 'virginia-farmhouse-drawings',
+      documentVersionId: 'virginia-farmhouse-drawings-v1',
+      pageIds: ['sheet-a0.2'],
+    },
+  ) as {
+    pages: Array<{
+      page: { id: string }
+      blocks: unknown[]
+      tableRows: unknown[]
+      lowLevelOcr?: unknown
+    }>
+  }
+  const serializedBytes = new TextEncoder().encode(
+    JSON.stringify(inspection),
+  ).byteLength
+
+  expect({
+    pageId: inspection.pages[0]?.page.id,
+    hasPreparedBlocks: Boolean(inspection.pages[0]?.blocks.length),
+    hasLowLevelOcr: Object.hasOwn(inspection.pages[0] ?? {}, 'lowLevelOcr'),
+    withinContextBudget: serializedBytes <= 24 * 1024,
+  }).toEqual({
+    pageId: 'sheet-a0.2',
+    hasPreparedBlocks: true,
+    hasLowLevelOcr: false,
+    withinContextBudget: true,
+  })
+
+  controller.abort()
+})
+
 test('inspection input requires one exclusive non-empty unique selector', async () => {
   const modelContext = createRecordingModelContext()
   const controller = new AbortController()

@@ -148,9 +148,12 @@ Professional Response may include a reason:
 - `blockIds`: one through 50 unique block identifiers.
 
 Every inspection identifier is limited to 200 characters. Page inspection
-returns the complete selected pages. Block inspection returns every selected
+returns each selected page's semantic blocks and table rows while omitting the
+stored low-level word and line OCR. Block inspection returns every selected
 block with the page, document/source provenance, and relevant table rows needed
-to interpret it, while omitting unrelated page-wide low-level OCR content.
+to interpret it. The raw OCR remains in the prepared artifact for bounded
+location-oriented features rather than being added to an External Agent's
+default context.
 
 The complete serialized result is capped at 512 KiB measured as UTF-8 bytes at
 the public tool boundary. If a result would exceed that cap, Grounded returns no
