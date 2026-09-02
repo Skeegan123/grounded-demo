@@ -85,6 +85,7 @@ export function registerAssistanceTools(
         'Queue one Assistance Request requiring a Point Set or text response from a Senior Project Manager. For a Point Set, include references to other immutable documents that support the requested judgment. Returns immediately with the durable request identity.',
       schema: CreateAssistanceRequestInput,
       readOnly: false,
+      includeValidationIssueMessage: true,
       execute: (input) => assistance.createRequest(input),
     }),
     defineTool({
@@ -94,6 +95,7 @@ export function registerAssistanceTools(
         'Retrieve one request from this Demo Session, including its final Professional Response when answered.',
       schema: GetAssistanceRequestInput,
       readOnly: true,
+      includeValidationIssueMessage: true,
       execute: ({ id }) => assistance.getResult(id),
     }),
   ]

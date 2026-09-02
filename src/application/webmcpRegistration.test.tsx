@@ -99,10 +99,22 @@ test('reports ready only after the shared attempt registers all six existing too
   })
   await waitFor(() => expect(harness.modelContext.getToolNames()).toHaveLength(5))
   expect(screen.getByText('Registering tools')).toBeInTheDocument()
+  await expect(harness.modelContext.executeTool(
+    'get_project_workspace',
+    {},
+  )).rejects.toThrow('The Grounded WebMCP tool set is not ready.')
+  await expect(harness.modelContext.executeTool(
+    'create_assistance_request',
+    { question: 'Do not queue this before readiness.', responseType: 'text' },
+  )).rejects.toThrow('The Grounded WebMCP tool set is not ready.')
 
   await act(async () => harness.resolve(TOOL_NAMES.at(-1)!))
   await screen.findByText('WebMCP ready')
   expect(harness.modelContext.getToolNames().sort()).toEqual(TOOL_NAMES)
+  await expect(harness.modelContext.executeTool(
+    'get_project_workspace',
+    {},
+  )).resolves.toEqual(expect.objectContaining({ id: 'demo-virginia-farmhouse' }))
 })
 
 test.each([
@@ -118,6 +130,9 @@ test.each([
     harness.resolve('get_project_workspace')
   })
   await waitFor(() => expect(harness.modelContext.getToolNames()).toHaveLength(2))
+  const partiallyRegisteredTool = harness.registrations.get(
+    'get_project_workspace',
+  )!.tool
 
   await act(async () => {
     harness.reject(
@@ -131,6 +146,9 @@ test.each([
     ).toBe(true)
   })
   expect(harness.modelContext.getToolNames()).toEqual([])
+  await expect(partiallyRegisteredTool.execute({})).rejects.toThrow(
+    'The Grounded WebMCP tool set is not ready.',
+  )
   expect(screen.queryByText('Registration failed')).not.toBeInTheDocument()
 
   await act(async () => harness.resolvePending())
@@ -151,7 +169,9 @@ test('replacing an attempt aborts its partial surface and refuses its late regis
 
   await first.waitForAllRegistrations()
   await act(async () => first.resolve('create_assistance_request'))
-  await first.modelContext.waitForTool('create_assistance_request')
+  const replacedTool = await first.modelContext.waitForTool(
+    'create_assistance_request',
+  )
 
   view.rerender(
     createGroundedApp(appEnvironment(second.modelContext, databaseName)),
@@ -159,6 +179,10 @@ test('replacing an attempt aborts its partial surface and refuses its late regis
   await second.waitForAllRegistrations()
   expect(first.registrations.values().next().value?.signal?.aborted).toBe(true)
   expect(first.modelContext.getToolNames()).toEqual([])
+  await expect(replacedTool.execute({
+    question: 'Do not queue this from a replaced attempt.',
+    responseType: 'text',
+  })).rejects.toThrow('The Grounded WebMCP tool set is not ready.')
 
   await act(async () => {
     first.resolvePending()
@@ -175,11 +199,16 @@ test('unmounting aborts the attempt and removes partial tools without late leaks
 
   await harness.waitForAllRegistrations()
   await act(async () => harness.resolve('get_project_workspace'))
-  await harness.modelContext.waitForTool('get_project_workspace')
+  const unmountedTool = await harness.modelContext.waitForTool(
+    'get_project_workspace',
+  )
 
   view.unmount()
   expect(harness.registrations.values().next().value?.signal?.aborted).toBe(true)
   expect(harness.modelContext.getToolNames()).toEqual([])
+  await expect(unmountedTool.execute({})).rejects.toThrow(
+    'The Grounded WebMCP tool set is not ready.',
+  )
 
   await act(async () => harness.resolvePending())
   expect(harness.modelContext.getToolNames()).toEqual([])

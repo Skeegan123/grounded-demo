@@ -183,13 +183,7 @@ export function createAssistance(options: AssistanceOptions) {
           )
         }
 
-        const lastRequest = await database.requests
-          .where('[sessionId+queuePosition]')
-          .between(
-            [options.sessionId, Dexie.minKey],
-            [options.sessionId, Dexie.maxKey],
-          )
-          .last()
+        const lastRequest = sessionRequests.at(-1)
         const id = options.createId()
         validateIdentifier(id)
         const nextRequest: AssistanceRequestRecord = {
@@ -505,10 +499,7 @@ function validateCreateRequest(input: CreateAssistanceRequest) {
       ASSISTANCE_SUPPORTING_PAGE_LIMIT,
       'Supporting page identifiers',
     )
-    const key = JSON.stringify([
-      reference.documentId,
-      reference.documentVersionId,
-    ])
+    const key = documentVersionIdentity(reference)
     if (documentVersions.has(key)) {
       throw new Error(
         'Supporting document versions must be unique within an Assistance Request.',
@@ -516,6 +507,15 @@ function validateCreateRequest(input: CreateAssistanceRequest) {
     }
     documentVersions.add(key)
   }
+}
+
+function documentVersionIdentity(
+  reference: Pick<
+    SupportingDocumentReference,
+    'documentId' | 'documentVersionId'
+  >,
+) {
+  return JSON.stringify([reference.documentId, reference.documentVersionId])
 }
 
 function validateUniqueIdentifiers(

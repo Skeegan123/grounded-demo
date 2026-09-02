@@ -59,6 +59,10 @@ function expectCurrentPage(name: string | RegExp) {
     .toHaveAccessibleName(name)
 }
 
+async function waitForWebMcpReady() {
+  await screen.findByText('WebMCP ready')
+}
+
 test('the workbench opens searchable document and page overlays without changing the canvas layout', async () => {
   const user = userEvent.setup()
   render(
@@ -240,7 +244,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', {
     ...requestInput,
     recommendedPageIds: ['sheet-a1.2', 'sheet-a4.3'],
@@ -388,7 +392,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
       now: () => new Date('2030-01-02T03:05:06.000Z'),
     }),
   )
-  await reloadedModelContext.waitForTool('get_assistance_request')
+  await waitForWebMcpReady()
 
   const retrieved = await reloadedModelContext.executeTool(
     'get_assistance_request',
@@ -514,7 +518,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     }>
   }
 
-  await modelContext.waitForTool('get_project_workspace')
+  await waitForWebMcpReady()
   const project = await modelContext.executeTool('get_project_workspace', {})
   const catalog = await modelContext.executeTool(
     'list_project_documents',
@@ -709,7 +713,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
       now: () => new Date('2030-01-02T03:05:06.000Z'),
     }),
   )
-  await reloadedModelContext.waitForTool('get_assistance_request')
+  await waitForWebMcpReady()
   const retrieved = await reloadedModelContext.executeTool(
     'get_assistance_request',
     { id: request.id },
@@ -792,7 +796,7 @@ test('reopening a submitted Point Set starts on its earliest marked document pag
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', {
     ...requestInput,
     recommendedPageIds: ['sheet-a4.3'],
@@ -861,7 +865,7 @@ test('reload keeps a pending request but discards its unfinished Point Set draft
       now: () => new Date('2030-01-02T03:04:05.000Z'),
     }),
   )
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
@@ -923,7 +927,7 @@ test('Start over creates an isolated Demo Session and clears transient workspace
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await chooseDocument(user, /Type C interior door product data and review cover/i)
   await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
@@ -1006,7 +1010,7 @@ test('an Assistance Request leaves Document Browsing in place until a target pag
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await chooseDocument(user, /Type C interior door product data and review cover/i)
   await choosePage(user, /^2 Hollow-core flush wood door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
@@ -1043,7 +1047,7 @@ test('the target link uses the target document first page without a recommendati
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await choosePage(user, /^A4\.3 Doors & Windows$/)
   await modelContext.executeTool('create_assistance_request', {
     ...requestInput,
@@ -1086,7 +1090,7 @@ test('a validation failure explains how to submit the requested Professional Res
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', {
     question: 'State the recommended disposition.',
     responseType: 'text',
@@ -1114,7 +1118,7 @@ test('External Agent document search and inspection leave the visible workspace 
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
@@ -1221,7 +1225,7 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
       now: () => new Date('2030-01-02T03:04:05.000Z'),
     }),
   )
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', {
     ...requestInput,
     recommendedPageIds: ['sheet-a1.2', 'sheet-a4.3'],
@@ -1305,7 +1309,7 @@ test('Assistance collapse survives reload and View request restores the rail', a
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
   expect(screen.queryByLabelText('Active Assistance Request')).not.toBeInTheDocument()
@@ -1356,7 +1360,7 @@ test('supporting references preserve the Point Set draft and returning to the ta
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
   await user.click(screen.getByRole('button', {
@@ -1429,7 +1433,7 @@ test('Point Set placement stays blocked while the selected page is pending or fa
     }),
   )
 
-  await modelContext.waitForTool('create_assistance_request')
+  await waitForWebMcpReady()
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
   await user.click(screen.getByRole('button', {

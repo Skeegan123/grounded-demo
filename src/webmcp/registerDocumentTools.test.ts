@@ -203,7 +203,7 @@ test('inspection bounds every identifier and page or block selector collection',
   await expect(modelContext.executeTool('inspect_document_evidence', {
     ...identity,
     pageIds: sixPageIds,
-  })).rejects.toThrow('Invalid input')
+  })).rejects.toThrow('Expected array length to be less or equal to 5.')
   await expect(modelContext.executeTool('inspect_document_evidence', {
     ...identity,
     blockIds: availableBlockIds.slice(0, 51),
@@ -620,7 +620,11 @@ test('search input is bounded and requires a complete immutable scope', async ()
   await expect(modelContext.executeTool('search_project_documents', {
     query: 'door',
     limit: 21,
-  })).rejects.toThrow('Invalid input')
+  })).rejects.toThrow('Invalid input at /limit.')
+  await expect(modelContext.executeTool('search_project_documents', {
+    query: 'door',
+    limit: 21,
+  })).rejects.not.toThrow('Expected integer to be less or equal to 20.')
   await expect(modelContext.executeTool('search_project_documents', {
     query: 'door',
     extra: true,

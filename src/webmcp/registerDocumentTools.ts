@@ -4,7 +4,7 @@ import { defineTool } from './defineTool'
 import type { ModelContextAdapter } from './modelContext'
 
 const EmptyInput = Type.Object({}, { additionalProperties: false })
-const ToolFacingIdentifier = Type.String({ minLength: 1, maxLength: 200 })
+const InspectionIdentifier = Type.String({ minLength: 1, maxLength: 200 })
 const MAX_INSPECTION_RESPONSE_BYTES = 512 * 1024
 
 const SearchProjectDocumentsInput = Type.Object(
@@ -26,9 +26,9 @@ const InspectDocumentEvidenceInput = Type.Union(
   [
     Type.Object(
       {
-        documentId: ToolFacingIdentifier,
-        documentVersionId: ToolFacingIdentifier,
-        pageIds: Type.Array(ToolFacingIdentifier, {
+        documentId: InspectionIdentifier,
+        documentVersionId: InspectionIdentifier,
+        pageIds: Type.Array(InspectionIdentifier, {
           minItems: 1,
           maxItems: 5,
           uniqueItems: true,
@@ -38,9 +38,9 @@ const InspectDocumentEvidenceInput = Type.Union(
     ),
     Type.Object(
       {
-        documentId: ToolFacingIdentifier,
-        documentVersionId: ToolFacingIdentifier,
-        blockIds: Type.Array(ToolFacingIdentifier, {
+        documentId: InspectionIdentifier,
+        documentVersionId: InspectionIdentifier,
+        blockIds: Type.Array(InspectionIdentifier, {
           minItems: 1,
           maxItems: 50,
           uniqueItems: true,
@@ -93,6 +93,7 @@ export function registerDocumentTools(
         'Inspect complete pages or selected blocks from one immutable document version without changing the visible workspace. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
       schema: InspectDocumentEvidenceInput,
       readOnly: true,
+      includeValidationIssueMessage: true,
       execute: (input) => {
         const result = documents.inspectEvidence(input)
         const serialized = JSON.stringify(result)
