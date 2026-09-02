@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "deploy": "pnpm build && wrangler pages deploy",
+    "deploy": "pnpm build && wrangler deploy",
     "lint": "oxlint",
     "import:document-evidence": "node scripts/import-reducto-document.mjs",
     "test": "vitest run",

@@ -1,5 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "grounded-webmcp",
-  "pages_build_output_dir": "./dist"
+  "name": "grounded-demo",
+  "compatibility_date": "2026-09-02",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
 }
