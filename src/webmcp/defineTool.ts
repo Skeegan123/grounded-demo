@@ -51,7 +51,11 @@ export function defineTool<Schema extends TSchema>(options: {
           }
         }
         issue ??= collectedIssues[0]
-        throw new Error(`Invalid input${issue?.path ? ` at ${issue.path}` : ''}.`)
+        throw new Error(
+          `Invalid input${issue?.path ? ` at ${issue.path}` : ''}.${
+            issue?.message ? ` ${issue.message}.` : ''
+          }`,
+        )
       }
       return options.execute(input as Static<Schema>)
     },
