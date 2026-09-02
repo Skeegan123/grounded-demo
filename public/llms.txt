@@ -1,0 +1,15 @@
+# Grounded
+
+> Grounded is a browser-based shared construction workspace where external AI agents and senior project managers collaborate on judgments that depend on precise construction document interpretation.
+
+The public demo covers one Type C door Submittal Review. External Agents use six WebMCP tools to inspect prepared Document Evidence, create an Assistance Request, and retrieve the Senior Project Manager's Professional Response. Project data stays in the browser for the Demo Session.
+
+## Project
+
+- [Open the Grounded demo](https://grounded-demo.contact-f32.workers.dev/): Use the live Project Workspace in a WebMCP-capable client.
+- [Grounded on GitHub](https://github.com/Skeegan123/grounded-demo): Read the source code, setup instructions, and project overview.
+
+## Documentation
+
+- [WebMCP contract](https://raw.githubusercontent.com/Skeegan123/grounded-demo/main/docs/webmcp-point-set-contract.md): Review the six public tools, their inputs, outputs, limits, and recovery behavior.
+- [Type C Submittal Review demo](https://raw.githubusercontent.com/Skeegan123/grounded-demo/main/docs/type-c-submittal-review-demo.md): Follow the tested demo workflow and judge checklist.

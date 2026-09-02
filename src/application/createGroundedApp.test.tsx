@@ -436,7 +436,7 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
   const reloadedOverlay = await screen.findByLabelText('Drawing page A1.2')
   const reloadedMark = within(reloadedOverlay).getByText('1')
   expect(reloadedOverlay).toContainElement(reloadedMark)
-  expect(reloadedOverlay).not.toHaveAttribute('role', 'button')
+  expect(reloadedOverlay).toHaveAttribute('role', 'group')
   expect(within(reloadedOverlay).queryByRole('button', { name: /Remove point/ }))
     .not.toBeInTheDocument()
   expect(reloadedMark.closest('.point-mark')).toHaveStyle({
@@ -1256,7 +1256,7 @@ test('the Senior Project Manager works the FIFO queue through Current, Queue, an
     name: 'View request',
   }))
   await choosePage(user, /^A4\.3 Doors & Windows$/)
-  expect(await screen.findByLabelText('Drawing page A4.3')).toHaveAttribute('role', 'button')
+  expect(await screen.findByLabelText('Drawing page A4.3')).toHaveAttribute('role', 'group')
 
   await user.click(await screen.findByRole('tab', { name: 'Queue 2' }))
   expect(screen.getByText('State the recommended disposition.')).toBeInTheDocument()
@@ -1393,7 +1393,7 @@ test('supporting references preserve the Point Set draft and returning to the ta
   })).toBeInTheDocument()
   expectCurrentPage(/2, Hollow-core flush wood door product data/)
   expect(screen.getByText('100%')).toBeInTheDocument()
-  expect(screen.getByLabelText('Drawing page 2')).not.toHaveAttribute('role', 'button')
+  expect(screen.getByLabelText('Drawing page 2')).toHaveAttribute('role', 'group')
   expect(screen.getByText(requestInput.question)).toBeInTheDocument()
   expect(screen.getByText('1 point')).toBeInTheDocument()
 
@@ -1404,7 +1404,7 @@ test('supporting references preserve the Point Set draft and returning to the ta
   expectCurrentPage(/A1\.2, 1st Floor Plan/)
   const returnedOverlay = await screen.findByLabelText('Drawing page A1.2')
   expect(within(returnedOverlay).getByText('1')).toBeInTheDocument()
-  expect(returnedOverlay).toHaveAttribute('role', 'button')
+  expect(returnedOverlay).toHaveAttribute('role', 'group')
 })
 
 test('Point Set placement stays blocked while the selected page is pending or failed', async () => {
@@ -1441,13 +1441,13 @@ test('Point Set placement stays blocked while the selected page is pending or fa
   }))
 
   const targetOverlay = await screen.findByLabelText('Drawing page A1.2')
-  expect(targetOverlay).not.toHaveAttribute('role', 'button')
+  expect(targetOverlay).toHaveAttribute('role', 'group')
   expect(screen.getByRole('status')).toHaveTextContent('Rendering PDF page')
   fireEvent.click(targetOverlay, { clientX: 20, clientY: 20 })
   expect(screen.getByText('0 points')).toBeInTheDocument()
 
   resolveTargetRender?.()
-  await waitFor(() => expect(targetOverlay).toHaveAttribute('role', 'button'))
+  await waitFor(() => expect(targetOverlay).toHaveClass('marking'))
   Object.defineProperty(targetOverlay, 'getBoundingClientRect', {
     configurable: true,
     value: () => ({
@@ -1470,7 +1470,7 @@ test('Point Set placement stays blocked while the selected page is pending or fa
   expect(await screen.findByRole('alert')).toHaveTextContent(
     'The selected drawing page failed to render.',
   )
-  expect(failedOverlay).not.toHaveAttribute('role', 'button')
+  expect(failedOverlay).toHaveAttribute('role', 'group')
   fireEvent.click(failedOverlay, { clientX: 20, clientY: 20 })
   expect(screen.getByText('1 point')).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Open authoritative PDF page' }))
