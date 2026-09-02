@@ -5,6 +5,7 @@ import type { createWorkspaceStore } from '../workspace/workspaceStore'
 
 export function useDocumentKeyboardShortcuts(
   workspaceStore: ReturnType<typeof createWorkspaceStore>,
+  onHumanTakeover: () => void = () => {},
 ) {
   const selectedLocation = useStore(
     workspaceStore,
@@ -30,6 +31,7 @@ export function useDocumentKeyboardShortcuts(
       if (isEditableTarget(event.target)) return
       if (event.key === 'ArrowLeft' && selectedPageIndex > 0) {
         event.preventDefault()
+        onHumanTakeover()
         selectPage(selectedDocument.pages[selectedPageIndex - 1]!.id)
       } else if (
         event.key === 'ArrowRight' &&
@@ -37,15 +39,19 @@ export function useDocumentKeyboardShortcuts(
         selectedPageIndex < selectedDocument.pages.length - 1
       ) {
         event.preventDefault()
+        onHumanTakeover()
         selectPage(selectedDocument.pages[selectedPageIndex + 1]!.id)
       } else if (event.key === '+' || event.key === '=') {
         event.preventDefault()
+        onHumanTakeover()
         zoomIn()
       } else if (event.key === '-' || event.key === '_') {
         event.preventDefault()
+        onHumanTakeover()
         zoomOut()
       } else if (event.key === '0') {
         event.preventDefault()
+        onHumanTakeover()
         setFitPreference(event.shiftKey ? 'width' : 'page')
       }
     }
@@ -53,6 +59,7 @@ export function useDocumentKeyboardShortcuts(
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [
     selectPage,
+    onHumanTakeover,
     selectedLocation,
     setFitPreference,
     zoomIn,

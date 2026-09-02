@@ -529,6 +529,183 @@ test('rapid intentional zoom coalesces obsolete replacement renders', async () =
   )
 })
 
+test('visible navigation acknowledgement is keyed to the current viewer request', async () => {
+  const requests: RenderPageRequestWithResolve[] = []
+  const renderer: PdfPageRenderer = {
+    renderPage(request) {
+      return new Promise<void>((resolve) => requests.push({ ...request, resolve }))
+    },
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const firstPage = document.pages[0]!
+  const secondPage = document.pages[1]!
+  const onVisibleViewChange = vi.fn()
+  const view = render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      navigationRequest={{
+        id: 1,
+        documentId: document.id,
+        documentVersionId: document.versionId,
+        pageId: firstPage.id,
+        fit: 'page',
+        zoom: 1,
+      }}
+      onPlacePoint={() => {}}
+      onVisibleViewChange={onVisibleViewChange}
+      page={firstPage}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+  await waitFor(() => expect(requests).toHaveLength(1))
+
+  view.rerender(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      navigationRequest={{
+        id: 2,
+        documentId: document.id,
+        documentVersionId: document.versionId,
+        pageId: secondPage.id,
+        fit: 'page',
+        zoom: 1,
+      }}
+      onPlacePoint={() => {}}
+      onVisibleViewChange={onVisibleViewChange}
+      page={secondPage}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+  await waitFor(() => expect(requests).toHaveLength(2))
+  expect(requests[0]!.signal.aborted).toBe(true)
+  act(() => requests[0]!.resolve())
+  expect(onVisibleViewChange).not.toHaveBeenCalled()
+
+  act(() => requests[1]!.resolve())
+  await waitFor(() => expect(onVisibleViewChange).toHaveBeenCalledWith(
+    expect.objectContaining({ pageId: secondPage.id, requestId: 2 }),
+  ))
+  expect(onVisibleViewChange).not.toHaveBeenCalledWith(
+    expect.objectContaining({ requestId: 1 }),
+  )
+})
+
+test('reports render failure only for the matching viewer request', async () => {
+  const renderer: PdfPageRenderer = {
+    async renderPage() {
+      throw new Error('Renderer implementation detail.')
+    },
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const onRenderError = vi.fn()
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      navigationRequest={{
+        id: 12,
+        documentId: document.id,
+        documentVersionId: document.versionId,
+        pageId: page.id,
+        fit: 'page',
+        zoom: 1,
+      }}
+      onPlacePoint={() => {}}
+      onRenderError={onRenderError}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+
+  await waitFor(() => expect(onRenderError).toHaveBeenCalledWith(12))
+  expect(onRenderError).toHaveBeenCalledTimes(1)
+})
+
+test('reports human takeover only after a real pan or zoom gesture', async () => {
+  const renderer: PdfPageRenderer = {
+    async renderPage() {},
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const onHumanTakeover = vi.fn()
+  const onZoomChange = vi.fn()
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      onHumanTakeover={onHumanTakeover}
+      onPlacePoint={() => {}}
+      onZoomChange={onZoomChange}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+  const canvas = await screen.findByLabelText('Rendered PDF page A0.0')
+  const viewer = canvas.closest('.pdf-page-viewer')!
+
+  fireEvent.pointerDown(viewer, {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+  fireEvent.pointerMove(viewer, {
+    buttons: 1,
+    clientX: 15,
+    clientY: 10,
+    pointerId: 1,
+  })
+  expect(onHumanTakeover).not.toHaveBeenCalled()
+  fireEvent.pointerMove(viewer, {
+    buttons: 1,
+    clientX: 16,
+    clientY: 10,
+    pointerId: 1,
+  })
+  fireEvent.pointerMove(viewer, {
+    buttons: 1,
+    clientX: 20,
+    clientY: 10,
+    pointerId: 1,
+  })
+  expect(onHumanTakeover).toHaveBeenCalledTimes(1)
+
+  act(() => {
+    viewer.dispatchEvent(new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 100,
+      clientY: 100,
+      deltaY: -20,
+    }))
+  })
+  expect(onHumanTakeover).toHaveBeenCalledTimes(2)
+  expect(onZoomChange).toHaveBeenCalled()
+})
+
 type RenderPageRequestWithResolve = RenderPageRequest & {
   resolve: () => void
 }

@@ -40,6 +40,6 @@ export function registerDocumentNavigationTool(
     schema: NavigateDocumentInput,
     readOnly: false,
     includeValidationIssueMessage: true,
-    execute: (input) => navigator.navigate(input),
+    execute: (input, context) => navigator.navigate(input, context),
   }), { signal })
 }

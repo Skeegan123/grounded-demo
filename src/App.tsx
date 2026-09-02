@@ -22,7 +22,10 @@ import {
   DocumentWorkbench,
 } from './documents/DocumentWorkbench'
 import type { PdfPageRenderer } from './documents/PdfPageViewer'
-import { createDocumentNavigator } from './documents/DocumentNavigator'
+import {
+  createDocumentNavigator,
+  type ViewerNavigationRequest,
+} from './documents/DocumentNavigator'
 import { useDocumentKeyboardShortcuts } from './documents/useDocumentKeyboardShortcuts'
 import { useConstrainedWorkbench } from './documents/useConstrainedWorkbench'
 import {
@@ -76,9 +79,12 @@ function App({
     () => ({ assistance, documents, modelContext, workspaceStore }),
     [assistance, documents, modelContext, workspaceStore],
   )
+  const [viewerNavigationRequest, setViewerNavigationRequest] =
+    useState<ViewerNavigationRequest>()
   const documentNavigator = useMemo(
     () => createDocumentNavigator({
       documents: demoProject.documents,
+      requestViewerNavigation: setViewerNavigationRequest,
       workspaceStore,
     }),
     [workspaceStore],
@@ -153,7 +159,10 @@ function App({
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
   const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
   const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
-  useDocumentKeyboardShortcuts(workspaceStore)
+  useDocumentKeyboardShortcuts(
+    workspaceStore,
+    documentNavigator.takeHumanControl,
+  )
   const assistanceController = useAssistanceController({
     assistance,
     workspaceStore,
@@ -192,6 +201,7 @@ function App({
       })
     return () => {
       active = false
+      documentNavigator.cancelPending()
       controller.abort()
     }
   }, [
@@ -302,6 +312,7 @@ function App({
 
   const goToTarget = () => {
     if (!pointSetCurrent) return
+    documentNavigator.takeHumanControl()
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument({
@@ -313,6 +324,7 @@ function App({
 
   const openTargetPage = (pageId: string) => {
     if (!pointSetCurrent) return
+    documentNavigator.takeHumanControl()
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument({
@@ -344,6 +356,7 @@ function App({
 
   const openUndonePointPage = () => {
     if (!undoNotice || !pointSetCurrent) return
+    documentNavigator.takeHumanControl()
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument({
@@ -359,6 +372,7 @@ function App({
     documentVersionId: string,
     pageId: string,
   ) => {
+    documentNavigator.takeHumanControl()
     setSupportingReferenceRequestId(current?.id ?? '')
     selectDocument({ documentId, documentVersionId, pageId })
   }
@@ -387,6 +401,7 @@ function App({
     )
     if (!document) return
     const pageId = firstMarkedPageId(document, pointSetResult)
+    documentNavigator.takeHumanControl()
     setViewedPointSetId(pointSetResult.id)
     selectDocument({
       documentId: document.id,
@@ -456,19 +471,37 @@ function App({
           currentPage={selectedPage}
           documents={demoProject.documents}
           fit={fitPreference}
-          onFitChange={setFitPreference}
+          navigationRequest={viewerNavigationRequest}
+          onFitChange={(fit) => {
+            documentNavigator.takeHumanControl()
+            setFitPreference(fit)
+          }}
+          onHumanTakeover={documentNavigator.takeHumanControl}
           onPlacePoint={placePoint}
           onRemovePoint={canMark ? removePoint : undefined}
+          onRenderError={documentNavigator.reportRenderError}
           onVisibleViewChange={documentNavigator.reportVisibleView}
-          onSelectDocument={(document) => selectDocument({
-            documentId: document.id,
-            documentVersionId: document.versionId,
-          })}
-          onSelectPage={(page) => selectPage(page.id)}
+          onSelectDocument={(document) => {
+            documentNavigator.takeHumanControl()
+            selectDocument({
+              documentId: document.id,
+              documentVersionId: document.versionId,
+            })
+          }}
+          onSelectPage={(page) => {
+            documentNavigator.takeHumanControl()
+            selectPage(page.id)
+          }}
           onViewUndonePointPage={openUndonePointPage}
           onZoomChange={setZoom}
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
+          onZoomIn={() => {
+            documentNavigator.takeHumanControl()
+            zoomIn()
+          }}
+          onZoomOut={() => {
+            documentNavigator.takeHumanControl()
+            zoomOut()
+          }}
           pageItems={selectedDocument.pages.map((page) => {
             const isRecommended = Boolean(
               selectedDocumentIsTarget &&

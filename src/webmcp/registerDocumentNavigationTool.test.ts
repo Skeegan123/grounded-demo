@@ -22,8 +22,11 @@ function createNavigator(): DocumentNavigator {
     zoom: 1,
   }))
   return {
+    cancelPending: vi.fn(),
     navigate,
+    reportRenderError: vi.fn(),
     reportVisibleView: vi.fn(),
+    takeHumanControl: vi.fn(),
   }
 }
 
@@ -92,7 +95,7 @@ test('registers a strict non-read-only document and page navigation contract', a
   expect(navigator.navigate).toHaveBeenCalledWith({
     documentId: 'document-1',
     target: { type: 'page', pageId: 'page-2' },
-  })
+  }, undefined)
 
   controller.abort()
 })
@@ -139,4 +142,26 @@ test.each([
   expect(navigator.navigate).not.toHaveBeenCalled()
 
   controller.abort()
+})
+
+test('forwards the per-call cancellation signal to the navigator', async () => {
+  const modelContext = createRecordingModelContext()
+  const navigator = createNavigator()
+  const registrationController = new AbortController()
+  const callController = new AbortController()
+  await registerDocumentNavigationTool(
+    modelContext,
+    navigator,
+    registrationController.signal,
+  )
+
+  await modelContext.executeTool('navigate_document', {
+    documentId: 'document-1',
+  }, { signal: callController.signal })
+
+  expect(navigator.navigate).toHaveBeenCalledWith(
+    { documentId: 'document-1' },
+    { signal: callController.signal },
+  )
+  registrationController.abort()
 })
