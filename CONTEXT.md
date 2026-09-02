@@ -32,6 +32,22 @@ _Avoid_: Document review, PDF review
 Exploring construction documents in a Project Workspace independently of any active Assistance Request or Submittal Review.
 _Avoid_: Document review, PDF review
 
+**Project Document**:
+The currently accessible version of a construction document in a Project Workspace. The MVP exposes at most one version for each document identity.
+_Avoid_: PDF file, document version when referring to the visible catalog entry
+
+**Document Destination**:
+One location to show during Document Browsing, addressed at document, page, block, or region precision.
+_Avoid_: Viewer target, navigation target
+
+**Document Focus**:
+A transient Document Browsing state that fits one Document Region into view without selecting, annotating, or highlighting it.
+_Avoid_: Highlight, selection
+
+**Document Region**:
+A rectangular area within one page of a Project Document, expressed from the top-left as normalized left, top, width, and height values between zero and one.
+_Avoid_: Coordinates, bounding box
+
 **Document Evidence**:
 Content from one immutable document version that may support a claim and can be traced to a page and, when available, a region.
 _Avoid_: Search result, search hint

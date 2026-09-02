@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { createGroundedApp } from './createGroundedApp'
@@ -188,6 +188,862 @@ test('the workbench stops page navigation at boundaries and resets direct naviga
   expect(within(more).getByRole('link', { name: 'Open authoritative PDF' }))
     .toHaveAttribute('href', '/demo-project/virginia-farmhouse-drawing-set.pdf#page=25')
   expect(within(more).getByText('Keyboard shortcuts')).toBeInTheDocument()
+})
+
+test('navigate_document waits for its requested page to be visibly rendered and returns the applied view', async () => {
+  let resolveTargetRender: (() => void) | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, width }) => {
+      canvas.width = width
+      canvas.height = height
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => {
+          resolveTargetRender = resolve
+        })
+      }
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-page-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  let settled = false
+  const navigation = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  }).then((result) => {
+    settled = true
+    return result
+  })
+
+  await waitFor(() => expectCurrentPage(/A1\.2, 1st Floor Plan/))
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(screen.getByText('Rendering PDF page')).toBeInTheDocument()
+  expect(settled).toBe(false)
+
+  resolveTargetRender?.()
+  await expect(navigation).resolves.toEqual({
+    status: 'applied',
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: 'sheet-a1.2' },
+    type: 'page',
+    fit: 'page',
+    zoom: 1,
+  })
+  expect(screen.getByLabelText('Rendered PDF page A1.2')).toBeInTheDocument()
+})
+
+test('navigate_document restores the current-session page and preserves unfinished Assistance work', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-document-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1', 'request-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
+  const drawingPage = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(drawingPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(drawingPage, { clientX: 40, clientY: 60 })
+  await user.type(
+    screen.getByLabelText('Overall note optional'),
+    'Keep this draft intact.',
+  )
+  await screen.findByText('1 point')
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+    target: { type: 'page', pageId: 'door-submittal-page-2' },
+  })).resolves.toMatchObject({
+    status: 'applied',
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    type: 'page',
+    fit: 'page',
+    zoom: 1,
+  })
+  expect(screen.getByText(requestInput.question)).toBeInTheDocument()
+  expect(screen.getByLabelText('Overall note optional')).toHaveValue(
+    'Keep this draft intact.',
+  )
+  expect(screen.getByText('1 point')).toBeInTheDocument()
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+  })).resolves.toEqual({
+    status: 'applied',
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: 'sheet-a1.2' },
+    type: 'document',
+    fit: 'page',
+    zoom: 1,
+  })
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(within(screen.getByLabelText('Drawing page A1.2')).getByText('1'))
+    .toBeInTheDocument()
+})
+
+test('document-only navigation opens a never-before-opened Project Document on its first page', async () => {
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-document-first-page-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+  })).resolves.toMatchObject({
+    status: 'applied',
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-1' },
+    type: 'document',
+    fit: 'page',
+    zoom: 1,
+  })
+  expectCurrentPage(/1, Submittal cover/)
+  expect(screen.getByLabelText('Rendered PDF page 1')).toBeVisible()
+})
+
+test('invalid navigate_document identities do not change the visible workbench', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-invalid-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await user.click(screen.getByRole('button', { name: 'Fit width' }))
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  expect(screen.getByText('110%')).toBeInTheDocument()
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'missing-document',
+  })).rejects.toThrow(
+    'The Project Document does not exist in this Project Workspace.',
+  )
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'missing-page' },
+  })).rejects.toThrow('The page does not belong to the Project Document.')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByText('110%')).toBeInTheDocument()
+})
+
+test('navigate_document visibly fits a raw Document Region and preserves unfinished Assistance work', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-region-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1', 'request-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('create_assistance_request', requestInput)
+  await screen.findByText(requestInput.question)
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.2: 1st Floor Plan',
+  }))
+  const drawingPage = await screen.findByLabelText('Drawing page A1.2')
+  Object.defineProperty(drawingPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(drawingPage, { clientX: 40, clientY: 60 })
+  await user.type(
+    screen.getByLabelText('Overall note optional'),
+    'Keep this region review draft.',
+  )
+  const region = { left: 0.4, top: 0.35, width: 0.2, height: 0.2 }
+
+  const result = await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'region', pageId: 'sheet-a1.2', region },
+  })
+
+  expect(result).toEqual({
+    status: 'applied',
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: 'sheet-a1.2' },
+    type: 'region',
+    fit: 'region',
+    region,
+    zoom: expect.closeTo(3.8431372549, 8),
+  })
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(screen.getByText('384%')).toBeInTheDocument()
+  expect(screen.getByText(requestInput.question)).toBeInTheDocument()
+  expect(screen.getByLabelText('Overall note optional')).toHaveValue(
+    'Keep this region review draft.',
+  )
+  expect(within(screen.getByLabelText('Drawing page A1.2')).getByText('1'))
+    .toBeInTheDocument()
+  expect(document.querySelector('.document-focus, .navigation-focus'))
+    .not.toBeInTheDocument()
+})
+
+test('navigate_document resolves Document Evidence and Search Hint blocks through the public region-focus path', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-block-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  const sourceSearch = await modelContext.executeTool('search_project_documents', {
+    query: 'hollow honeycomb core',
+    limit: 1,
+  }) as {
+    matches: Array<{
+      block: { id: string }
+      classification: string
+      document: { id: string }
+      page: { id: string }
+      region: { left: number; top: number; width: number; height: number }
+    }>
+  }
+  const hintSearch = await modelContext.executeTool('search_project_documents', {
+    query: 'first floor plan room layout utility coats WC',
+    limit: 1,
+  }) as typeof sourceSearch
+  const source = sourceSearch.matches[0]!
+  const hint = hintSearch.matches[0]!
+
+  expect(source.classification).toBe('document_evidence')
+  expect(hint.classification).toBe('search_hint')
+  const sourceResult = await modelContext.executeTool('navigate_document', {
+    documentId: source.document.id,
+    target: { type: 'block', blockId: source.block.id },
+  })
+  expect(sourceResult).toEqual({
+    status: 'applied',
+    document: {
+      id: 'type-c-door-submittal',
+      versionId: 'type-c-door-submittal-v1',
+    },
+    page: { id: source.page.id },
+    type: 'block',
+    blockId: source.block.id,
+    fit: 'region',
+    region: source.region,
+    zoom: expect.any(Number),
+  })
+  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+
+  const hintResult = await modelContext.executeTool('navigate_document', {
+    documentId: hint.document.id,
+    target: { type: 'block', blockId: hint.block.id },
+  })
+  expect(hintResult).toEqual({
+    status: 'applied',
+    document: {
+      id: 'virginia-farmhouse-drawings',
+      versionId: 'virginia-farmhouse-drawings-v1',
+    },
+    page: { id: hint.page.id },
+    type: 'block',
+    blockId: hint.block.id,
+    fit: 'region',
+    region: hint.region,
+    zoom: expect.any(Number),
+  })
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(hintResult).not.toHaveProperty('classification')
+  expect(hintResult).not.toHaveProperty('content')
+  expect(hintResult).not.toHaveProperty('evidence')
+  expect(document.querySelector('.document-focus, .navigation-focus'))
+    .not.toBeInTheDocument()
+
+  const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: hint.document.id,
+    target: { type: 'region', pageId: hint.page.id, region: hint.region },
+  })).resolves.toMatchObject({ status: 'applied', type: 'region' })
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
+})
+
+test('block navigation rejects missing and foreign IDs atomically and preserves the table-row distinction', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-block-scope-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  const submittalSearch = await modelContext.executeTool(
+    'search_project_documents',
+    { query: 'hollow honeycomb core', limit: 1 },
+  ) as {
+    matches: Array<{ block: { id: string } }>
+  }
+  const tableSearch = await modelContext.executeTool(
+    'search_project_documents',
+    { query: 'Type C 24 x 80 solid wood', limit: 1 },
+  ) as {
+    matches: Array<{
+      block: { id: string }
+      matchType: string
+      page: { id: string }
+      region: { left: number; top: number; width: number; height: number }
+      tableRow?: { parentBlockId: string }
+    }>
+  }
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const initialRenderCount = pageRenderer.renderPage.mock.calls.length
+
+  for (const blockId of [submittalSearch.matches[0]!.block.id, 'missing-block']) {
+    await expect(modelContext.executeTool('navigate_document', {
+      documentId: 'virginia-farmhouse-drawings',
+      target: { type: 'block', blockId },
+    })).rejects.toThrow(
+      'The block does not belong to the current Project Document.',
+    )
+  }
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(initialRenderCount)
+
+  const match = tableSearch.matches[0]!
+  expect(match.matchType).toBe('table_row')
+  expect(match.tableRow?.parentBlockId).toBe(match.block.id)
+  const inspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: 'virginia-farmhouse-drawings',
+      documentVersionId: 'virginia-farmhouse-drawings-v1',
+      blockIds: [match.block.id],
+    },
+  ) as {
+    pages: Array<{
+      blocks: Array<{
+        id: string
+        region: typeof match.region
+      }>
+    }>
+  }
+  const parentTable = inspection.pages[0]!.blocks[0]!
+  const tableResult = await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'block', blockId: match.block.id },
+  }) as { region: typeof match.region }
+  expect(parentTable.id).toBe(match.block.id)
+  expect(tableResult.region).toEqual(parentTable.region)
+
+  const rowResult = await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'region', pageId: match.page.id, region: match.region },
+  })
+  expect(rowResult).toMatchObject({
+    status: 'applied',
+    page: { id: match.page.id },
+    type: 'region',
+    region: match.region,
+  })
+})
+
+test('invalid Document Regions fail atomically at the public boundary', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-invalid-region-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const renderCount = pageRenderer.renderPage.mock.calls.length
+  const base = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region',
+      pageId: 'sheet-a1.2',
+      region: { left: 0.8, top: 0.2, width: 0.3, height: 0.2 },
+    },
+  }
+
+  await expect(modelContext.executeTool('navigate_document', base))
+    .rejects.toThrow('contained within the page')
+  await expect(modelContext.executeTool('navigate_document', {
+    ...base,
+    target: {
+      ...base.target,
+      pageId: 'missing-page',
+      region: { left: 0.2, top: 0.2, width: 0.3, height: 0.2 },
+    },
+  })).rejects.toThrow('The page does not belong to the Project Document.')
+  await expect(modelContext.executeTool('navigate_document', {
+    ...base,
+    target: {
+      type: 'page',
+      pageId: 'sheet-a1.2',
+      region: base.target.region,
+    },
+  })).rejects.toThrow('Invalid input')
+  await expect(modelContext.executeTool('navigate_document', {
+    ...base,
+    target: {
+      ...base.target,
+      region: { ...base.target.region, width: Number.NaN },
+    },
+  })).rejects.toThrow('Invalid input')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(renderCount)
+})
+
+test('Document Focus survives idempotence, yields cleanly to the Senior Project Manager, and is not restored after reload', async () => {
+  const storage = window.sessionStorage
+  const pageRenderer = createTestPageRenderer()
+  const firstModelContext = createRecordingModelContext()
+  const databaseName = `grounded-transient-region-${crypto.randomUUID()}`
+  const firstRender = render(createGroundedApp({
+    databaseName,
+    modelContext: firstModelContext,
+    pageRenderer,
+    sessionStorage: storage,
+    createId: createIds('session-1'),
+  }))
+  const input = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region' as const,
+      pageId: 'sheet-a1.2',
+      region: { left: 0.4, top: 0.35, width: 0.2, height: 0.2 },
+    },
+  }
+
+  await waitForWebMcpReady()
+  await firstModelContext.executeTool('navigate_document', input)
+  expect(screen.getByText('384%')).toBeInTheDocument()
+  const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
+  await firstModelContext.executeTool('navigate_document', input)
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
+
+  firstRender.unmount()
+
+  const secondModelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName,
+    modelContext: secondModelContext,
+    pageRenderer,
+    sessionStorage: storage,
+    createId: createIds('unexpected-session'),
+  }))
+  await waitForWebMcpReady()
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(screen.getByText('100%')).toBeInTheDocument()
+
+  await secondModelContext.executeTool('navigate_document', input)
+  expect(screen.getByText('384%')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }))
+  expect(screen.getByText('394%')).toBeInTheDocument()
+})
+
+test('navigate_document restores the last visible page after a render failure', async () => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, pageNumber, width }) => {
+      if (pageNumber === 6) throw new Error('Sensitive renderer details.')
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-render-failure-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })).rejects.toThrow('The Project Document page could not be rendered.')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByLabelText('Rendered PDF page A0.0')).toBeVisible()
+  expect(screen.queryByText('Sensitive renderer details.')).not.toBeInTheDocument()
+})
+
+test('failed cross-document navigation restores remembered pages and the exact ordinary fit and zoom', async () => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, pageNumber, url, width }) => {
+      if (url.includes('type-c') && pageNumber === 2) {
+        throw new Error('Sensitive renderer details.')
+      }
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  const user = userEvent.setup()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-cross-document-recovery-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+  })).resolves.toMatchObject({ page: { id: 'door-submittal-page-1' } })
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+  })).resolves.toMatchObject({ page: { id: 'sheet-a0.0' } })
+
+  await user.click(screen.getByRole('button', { name: 'Fit width' }))
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  await waitFor(() => expect(screen.getByText('110%')).toBeInTheDocument())
+  const ordinaryCanvas = screen.getByLabelText('Rendered PDF page A0.0')
+  const ordinarySize = {
+    height: (ordinaryCanvas as HTMLCanvasElement).height,
+    width: (ordinaryCanvas as HTMLCanvasElement).width,
+  }
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+    target: { type: 'page', pageId: 'door-submittal-page-2' },
+  })).rejects.toThrow('The Project Document page could not be rendered.')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByText('110%')).toBeInTheDocument()
+  const restoredCanvas = screen.getByLabelText('Rendered PDF page A0.0')
+  expect((restoredCanvas as HTMLCanvasElement).width).toBe(ordinarySize.width)
+  expect((restoredCanvas as HTMLCanvasElement).height).toBe(ordinarySize.height)
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+  })).resolves.toMatchObject({
+    status: 'applied',
+    page: { id: 'door-submittal-page-1' },
+  })
+  expectCurrentPage(/1, Submittal cover/)
+})
+
+test('navigate_document times out after 15 seconds and restores the last visible page', async () => {
+  const pending: Array<{ resolve: () => void; signal: AbortSignal }> = []
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => pending.push({ resolve, signal }))
+      }
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-timeout-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  vi.useFakeTimers()
+  try {
+    const navigation = modelContext.executeTool('navigate_document', {
+      documentId: 'virginia-farmhouse-drawings',
+      target: { type: 'page', pageId: 'sheet-a1.2' },
+    }).then(
+      () => undefined,
+      (error: unknown) => error,
+    )
+    await act(async () => {})
+    expectCurrentPage(/A1\.2, 1st Floor Plan/)
+    expect(pending).toHaveLength(1)
+
+    await act(async () => {
+      vi.advanceTimersByTime(15_000)
+    })
+    await expect(navigation).resolves.toEqual(expect.objectContaining({
+      message: 'Document navigation timed out before the destination became visible.',
+    }))
+    expectCurrentPage(/A0\.0, Cover Page/)
+    expect(pending[0]!.signal.aborted).toBe(true)
+
+    act(() => pending[0]!.resolve())
+    expectCurrentPage(/A0\.0, Cover Page/)
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
+test('caller cancellation restores the visible page and cannot apply late', async () => {
+  let targetRender: { resolve: () => void; signal: AbortSignal } | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => {
+          targetRender = { resolve, signal }
+        })
+      }
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-cancel-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const controller = new AbortController()
+  const navigation = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  }, { signal: controller.signal })
+  await waitFor(() => expect(targetRender).toBeDefined())
+
+  controller.abort()
+  await expect(navigation).rejects.toThrow('Document navigation was cancelled.')
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(targetRender!.signal.aborted).toBe(true)
+  act(() => targetRender!.resolve())
+  expectCurrentPage(/A0\.0, Cover Page/)
+})
+
+test('newer External Agent navigation supersedes an older call and owns visible completion', async () => {
+  let oldRender: { resolve: () => void; signal: AbortSignal } | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
+      if (pageNumber === 6) {
+        return new Promise<void>((resolve) => {
+          oldRender = { resolve, signal }
+        })
+      }
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-supersession-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const older = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })
+  await waitFor(() => expect(oldRender).toBeDefined())
+  const newer = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.3' },
+  })
+
+  await expect(older).resolves.toEqual({
+    status: 'superseded',
+    requestedDocument: { id: 'virginia-farmhouse-drawings' },
+    targetType: 'page',
+  })
+  await expect(newer).resolves.toMatchObject({
+    status: 'applied',
+    page: { id: 'sheet-a1.3' },
+  })
+  expectCurrentPage(/A1\.3, 2nd Floor Plan/)
+  expect(oldRender!.signal.aborted).toBe(true)
+  act(() => oldRender!.resolve())
+  expectCurrentPage(/A1\.3, 2nd Floor Plan/)
+})
+
+test.each([
+  ['pan', async () => {
+    const viewer = document.querySelector('.pdf-page-viewer')!
+    fireEvent.pointerDown(viewer, {
+      button: 0,
+      clientX: 20,
+      clientY: 20,
+      pointerId: 1,
+      pointerType: 'mouse',
+    })
+    fireEvent.pointerMove(viewer, {
+      clientX: 30,
+      clientY: 20,
+      pointerId: 1,
+      pointerType: 'mouse',
+    })
+  }],
+  ['zoom', async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  }],
+  ['fit', async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Fit page' }))
+  }],
+  ['page selection', async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+  }],
+  ['document selection', async (user: ReturnType<typeof userEvent.setup>) => {
+    await chooseDocument(user, /Type C interior door product data/i)
+  }],
+] as const)('Senior Project Manager %s supersedes pending External Agent navigation', async (_name, takeOver) => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(({ canvas, height, pageNumber, width }) => {
+      if (pageNumber === 6) return new Promise<void>(() => {})
+      canvas.width = width
+      canvas.height = height
+      return Promise.resolve()
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  const user = userEvent.setup()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-senior-project-manager-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const navigation = modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })
+  await waitFor(() => expectCurrentPage(/A1\.2, 1st Floor Plan/))
+
+  await takeOver(user)
+  await expect(navigation).resolves.toEqual({
+    status: 'superseded',
+    requestedDocument: { id: 'virginia-farmhouse-drawings' },
+    targetType: 'page',
+  })
+})
+
+test('navigate_document is immediate only while the exact view remains visibly applied', async () => {
+  const user = userEvent.setup()
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-idempotence-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const input = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page' as const, pageId: 'sheet-a1.2' },
+  }
+  await expect(modelContext.executeTool('navigate_document', input))
+    .resolves.toMatchObject({ status: 'applied' })
+  const appliedRenderCount = pageRenderer.renderPage.mock.calls.length
+  const frame = document.querySelector('.pdf-page-frame')!
+  const appliedTransform = frame.getAttribute('style')
+
+  await expect(modelContext.executeTool('navigate_document', input))
+    .resolves.toMatchObject({ status: 'applied' })
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(appliedRenderCount)
+
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  await waitFor(() => expect(screen.getByText('110%')).toBeInTheDocument())
+  expect(frame.getAttribute('style')).not.toBe(appliedTransform)
+  await expect(modelContext.executeTool('navigate_document', input))
+    .resolves.toMatchObject({ status: 'applied', fit: 'page', zoom: 1 })
+  expect(screen.getByText('100%')).toBeInTheDocument()
+  expect(frame.getAttribute('style')).toBe(appliedTransform)
 })
 
 test('map controls and keyboard shortcuts change fit, zoom, and pages outside editable controls', async () => {

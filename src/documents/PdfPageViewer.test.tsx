@@ -529,6 +529,268 @@ test('rapid intentional zoom coalesces obsolete replacement renders', async () =
   )
 })
 
+test('visible Document Destination acknowledgement is keyed to the current request', async () => {
+  const requests: RenderPageRequestWithResolve[] = []
+  const renderer: PdfPageRenderer = {
+    renderPage(request) {
+      return new Promise<void>((resolve) => requests.push({ ...request, resolve }))
+    },
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const firstPage = document.pages[0]!
+  const secondPage = document.pages[1]!
+  const onVisibleDestinationChange = vi.fn()
+  const view = render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      destinationRequest={{
+        id: 1,
+        documentId: document.id,
+        documentVersionId: document.versionId,
+        pageId: firstPage.id,
+        fit: 'page',
+        zoom: 1,
+      }}
+      onPlacePoint={() => {}}
+      onVisibleDestinationChange={onVisibleDestinationChange}
+      page={firstPage}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+  await waitFor(() => expect(requests).toHaveLength(1))
+
+  view.rerender(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      destinationRequest={{
+        id: 2,
+        documentId: document.id,
+        documentVersionId: document.versionId,
+        pageId: secondPage.id,
+        fit: 'page',
+        zoom: 1,
+      }}
+      onPlacePoint={() => {}}
+      onVisibleDestinationChange={onVisibleDestinationChange}
+      page={secondPage}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+  await waitFor(() => expect(requests).toHaveLength(2))
+  expect(requests[0]!.signal.aborted).toBe(true)
+  act(() => requests[0]!.resolve())
+  expect(onVisibleDestinationChange).not.toHaveBeenCalled()
+
+  act(() => requests[1]!.resolve())
+  await waitFor(() => expect(onVisibleDestinationChange).toHaveBeenCalledWith(
+    expect.objectContaining({ pageId: secondPage.id, requestId: 2 }),
+  ))
+  expect(onVisibleDestinationChange).not.toHaveBeenCalledWith(
+    expect.objectContaining({ requestId: 1 }),
+  )
+})
+
+test('Document Focus recomputes its effective zoom and remains acknowledged after resize', async () => {
+  const originalResizeObserver = globalThis.ResizeObserver
+  let resize: ((width: number, height: number) => void) | undefined
+  class ControlledResizeObserver implements ResizeObserver {
+    private readonly callback: ResizeObserverCallback
+    constructor(callback: ResizeObserverCallback) {
+      this.callback = callback
+    }
+    disconnect() {}
+    observe(target: Element) {
+      resize = (width, height) => this.callback([{
+        target,
+        contentRect: { width, height },
+      } as ResizeObserverEntry], this)
+      resize(600, 500)
+    }
+    unobserve() {}
+  }
+  globalThis.ResizeObserver = ControlledResizeObserver
+
+  try {
+    const renderer: PdfPageRenderer = {
+      renderPage: vi.fn(async () => {}),
+      prefetchPages() {},
+    }
+    const document = findDocument(
+      'virginia-farmhouse-drawings',
+      'virginia-farmhouse-drawings-v1',
+    )!
+    const page = document.pages.find((candidate) => candidate.id === 'sheet-a1.2')!
+    const region = { left: 0.55, top: 0.2, width: 0.3, height: 0.25 }
+    const onEffectiveZoomChange = vi.fn()
+    const onVisibleDestinationChange = vi.fn()
+    render(
+      <PdfPageViewer
+        canMark={false}
+        document={document}
+        destinationRequest={{
+          id: 47,
+          documentId: document.id,
+          documentVersionId: document.versionId,
+          pageId: page.id,
+          fit: 'region',
+          region,
+        }}
+        onEffectiveZoomChange={onEffectiveZoomChange}
+        onPlacePoint={() => {}}
+        onVisibleDestinationChange={onVisibleDestinationChange}
+        page={page}
+        points={[]}
+        renderer={renderer}
+        viewportInsets={{ right: 100, bottom: 80 }}
+        zoom={1}
+      />,
+    )
+
+    await waitFor(() => expect(onVisibleDestinationChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fit: 'region',
+        region,
+        requestId: 47,
+      }),
+    ))
+    const initialZoom = onEffectiveZoomChange.mock.calls.at(-1)?.[0] as number
+    const initialTransform = globalThis.document.querySelector('.pdf-page-frame')
+      ?.getAttribute('style')
+
+    act(() => resize?.(900, 400))
+    await waitFor(() => expect(onEffectiveZoomChange.mock.calls.at(-1)?.[0])
+      .not.toBe(initialZoom))
+    await waitFor(() => expect(globalThis.document.querySelector('.pdf-page-frame')
+      ?.getAttribute('style')).not.toBe(initialTransform))
+    await waitFor(() => expect(onVisibleDestinationChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        fit: 'region',
+        region,
+        requestId: 47,
+        zoom: onEffectiveZoomChange.mock.calls.at(-1)?.[0],
+      }),
+    ))
+  } finally {
+    globalThis.ResizeObserver = originalResizeObserver
+  }
+})
+
+test('reports render failure only for the matching Document Destination request', async () => {
+  const renderer: PdfPageRenderer = {
+    async renderPage() {
+      throw new Error('Renderer implementation detail.')
+    },
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const onRenderError = vi.fn()
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      destinationRequest={{
+        id: 12,
+        documentId: document.id,
+        documentVersionId: document.versionId,
+        pageId: page.id,
+        fit: 'page',
+        zoom: 1,
+      }}
+      onPlacePoint={() => {}}
+      onRenderError={onRenderError}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+
+  await waitFor(() => expect(onRenderError).toHaveBeenCalledWith(12))
+  expect(onRenderError).toHaveBeenCalledTimes(1)
+})
+
+test('reports Senior Project Manager takeover only after a real pan or zoom gesture', async () => {
+  const renderer: PdfPageRenderer = {
+    async renderPage() {},
+    prefetchPages() {},
+  }
+  const document = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = document.pages[0]!
+  const onSeniorProjectManagerTakeover = vi.fn()
+  const onZoomChange = vi.fn()
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={document}
+      onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
+      onPlacePoint={() => {}}
+      onZoomChange={onZoomChange}
+      page={page}
+      points={[]}
+      renderer={renderer}
+      zoom={1}
+    />,
+  )
+  const canvas = await screen.findByLabelText('Rendered PDF page A0.0')
+  const viewer = canvas.closest('.pdf-page-viewer')!
+
+  fireEvent.pointerDown(viewer, {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+  fireEvent.pointerMove(viewer, {
+    buttons: 1,
+    clientX: 15,
+    clientY: 10,
+    pointerId: 1,
+  })
+  expect(onSeniorProjectManagerTakeover).not.toHaveBeenCalled()
+  fireEvent.pointerMove(viewer, {
+    buttons: 1,
+    clientX: 16,
+    clientY: 10,
+    pointerId: 1,
+  })
+  fireEvent.pointerMove(viewer, {
+    buttons: 1,
+    clientX: 20,
+    clientY: 10,
+    pointerId: 1,
+  })
+  expect(onSeniorProjectManagerTakeover).toHaveBeenCalledTimes(1)
+
+  act(() => {
+    viewer.dispatchEvent(new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 100,
+      clientY: 100,
+      deltaY: -20,
+    }))
+  })
+  expect(onSeniorProjectManagerTakeover).toHaveBeenCalledTimes(2)
+  expect(onZoomChange).toHaveBeenCalled()
+})
+
 type RenderPageRequestWithResolve = RenderPageRequest & {
   resolve: () => void
 }

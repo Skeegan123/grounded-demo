@@ -7,6 +7,10 @@ import {
 import { MoveHorizontal, Scan, ZoomIn, ZoomOut } from 'lucide-react'
 import type { StoredPoint } from '../demoSession/demoSession'
 import type { DocumentPage, ProjectDocument } from '../demoProject/demoProject'
+import type {
+  DocumentDestinationRequest,
+  VisibleDocumentDestination,
+} from './DocumentNavigator'
 import {
   MAX_DOCUMENT_ZOOM,
   MIN_DOCUMENT_ZOOM,
@@ -26,9 +30,13 @@ export interface DocumentWorkbenchProps {
   currentPage: DocumentPage
   documents: ProjectDocument[]
   fit: PageFit
+  destinationRequest?: DocumentDestinationRequest
   onFitChange: (fit: PageFit) => void
+  onSeniorProjectManagerTakeover?: () => void
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
+  onRenderError?: (requestId: number) => void
+  onVisibleDestinationChange?: (view: VisibleDocumentDestination) => void
   onSelectDocument: (document: ProjectDocument) => void
   onSelectPage: (page: DocumentPage) => void
   onViewUndonePointPage: () => void
@@ -51,9 +59,13 @@ export function DocumentWorkbench({
   currentPage,
   documents,
   fit,
+  destinationRequest,
   onFitChange,
+  onSeniorProjectManagerTakeover,
   onPlacePoint,
   onRemovePoint,
+  onRenderError,
+  onVisibleDestinationChange,
   onSelectDocument,
   onSelectPage,
   onViewUndonePointPage,
@@ -69,6 +81,10 @@ export function DocumentWorkbench({
 }: DocumentWorkbenchProps) {
   const zoomControlsRef = useRef<HTMLDivElement>(null)
   const [viewerInsets, setViewerInsets] = useState<PageViewportInsets>({})
+  const [focusedZoom, setFocusedZoom] = useState(zoom)
+  const effectiveZoom = destinationRequest?.fit === 'region'
+    ? focusedZoom
+    : zoom
 
   useLayoutEffect(() => {
     const controls = zoomControlsRef.current
@@ -104,18 +120,18 @@ export function DocumentWorkbench({
             aria-label="Zoom out"
             className="icon-button tooltip-button"
             data-tooltip="Zoom out"
-            disabled={zoom <= MIN_DOCUMENT_ZOOM}
+            disabled={effectiveZoom <= MIN_DOCUMENT_ZOOM}
             onClick={onZoomOut}
             type="button"
           >
             <ZoomOut aria-hidden="true" size={17} strokeWidth={1.8} />
           </button>
-          <span aria-live="polite">{Math.round(zoom * 100)}%</span>
+          <span aria-live="polite">{Math.round(effectiveZoom * 100)}%</span>
           <button
             aria-label="Zoom in"
             className="icon-button tooltip-button"
             data-tooltip="Zoom in"
-            disabled={zoom >= MAX_DOCUMENT_ZOOM}
+            disabled={effectiveZoom >= MAX_DOCUMENT_ZOOM}
             onClick={onZoomIn}
             type="button"
           >
@@ -144,8 +160,13 @@ export function DocumentWorkbench({
           canMark={canMark}
           document={currentDocument}
           fit={fit}
+          destinationRequest={destinationRequest}
+          onEffectiveZoomChange={setFocusedZoom}
+          onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
           onPlacePoint={onPlacePoint}
           onRemovePoint={onRemovePoint}
+          onRenderError={onRenderError}
+          onVisibleDestinationChange={onVisibleDestinationChange}
           onZoomChange={onZoomChange}
           page={currentPage}
           points={points}

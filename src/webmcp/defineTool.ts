@@ -9,7 +9,10 @@ export function defineTool<Schema extends TSchema>(options: {
   schema: Schema
   readOnly: boolean
   includeValidationIssueMessage?: boolean
-  execute: (input: Static<Schema>) => Promise<unknown> | unknown
+  execute: (
+    input: Static<Schema>,
+    context?: { signal?: AbortSignal },
+  ) => Promise<unknown> | unknown
 }): ModelContextTool {
   return {
     name: options.name,
@@ -20,7 +23,7 @@ export function defineTool<Schema extends TSchema>(options: {
       readOnlyHint: options.readOnly,
       untrustedContentHint: true,
     },
-    async execute(input) {
+    async execute(input, context) {
       if (!Value.Check(options.schema, input)) {
         const issues = Value.Errors(options.schema, input)
         const collectedIssues = [...issues]
@@ -84,7 +87,7 @@ export function defineTool<Schema extends TSchema>(options: {
           }`,
         )
       }
-      return options.execute(input as Static<Schema>)
+      return options.execute(input as Static<Schema>, context)
     },
   }
 }

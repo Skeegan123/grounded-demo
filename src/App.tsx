@@ -22,6 +22,10 @@ import {
   DocumentWorkbench,
 } from './documents/DocumentWorkbench'
 import type { PdfPageRenderer } from './documents/PdfPageViewer'
+import {
+  createDocumentNavigator,
+  type DocumentDestinationRequest,
+} from './documents/DocumentNavigator'
 import { useDocumentKeyboardShortcuts } from './documents/useDocumentKeyboardShortcuts'
 import { useConstrainedWorkbench } from './documents/useConstrainedWorkbench'
 import {
@@ -72,8 +76,19 @@ function App({
   workspaceStore,
 }: AppProps) {
   const registrationAttempt = useMemo(
-    () => ({ assistance, documents, modelContext }),
-    [assistance, documents, modelContext],
+    () => ({ assistance, documents, modelContext, workspaceStore }),
+    [assistance, documents, modelContext, workspaceStore],
+  )
+  const [documentDestinationRequest, setDocumentDestinationRequest] =
+    useState<DocumentDestinationRequest>()
+  const documentNavigator = useMemo(
+    () => createDocumentNavigator({
+      documents: demoProject.documents,
+      requestDocumentDestination: setDocumentDestinationRequest,
+      resolveCurrentBlock: documents.resolveCurrentBlock,
+      workspaceStore,
+    }),
+    [documents, workspaceStore],
   )
   const [registrationSnapshot, setRegistrationSnapshot] =
     useState<RegistrationSnapshot>(() => ({
@@ -121,8 +136,6 @@ function App({
   )
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
   const removePoint = useStore(workspaceStore, (state) => state.removePoint)
-  const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
-  const selectPage = useStore(workspaceStore, (state) => state.selectPage)
   const setAssistanceTab = useStore(
     workspaceStore,
     (state) => state.setAssistanceTab,
@@ -137,15 +150,19 @@ function App({
   )
   const setNote = useStore(workspaceStore, (state) => state.setNote)
   const setText = useStore(workspaceStore, (state) => state.setText)
-  const setFitPreference = useStore(
-    workspaceStore,
-    (state) => state.setFitPreference,
-  )
-  const setZoom = useStore(workspaceStore, (state) => state.setZoom)
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
-  const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
-  const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
-  useDocumentKeyboardShortcuts(workspaceStore)
+  const {
+    selectDocument,
+    selectPage,
+    setFitPreference,
+    setZoom,
+    zoomIn,
+    zoomOut,
+  } = documentNavigator.seniorProjectManager
+  useDocumentKeyboardShortcuts(
+    workspaceStore,
+    documentNavigator.seniorProjectManager,
+  )
   const assistanceController = useAssistanceController({
     assistance,
     workspaceStore,
@@ -160,6 +177,7 @@ function App({
       controller,
       documents,
       modelContext,
+      navigator: documentNavigator,
     })
       .then(() => {
         if (active) {
@@ -183,9 +201,16 @@ function App({
       })
     return () => {
       active = false
+      documentNavigator.cancelPending()
       controller.abort()
     }
-  }, [assistance, documents, modelContext, registrationAttempt])
+  }, [
+    assistance,
+    documentNavigator,
+    documents,
+    modelContext,
+    registrationAttempt,
+  ])
 
   const defaultDocument = demoProject.documents[0]!
   const {
@@ -441,13 +466,23 @@ function App({
           currentPage={selectedPage}
           documents={demoProject.documents}
           fit={fitPreference}
+          destinationRequest={documentDestinationRequest}
           onFitChange={setFitPreference}
+          onSeniorProjectManagerTakeover={
+            documentNavigator.takeSeniorProjectManagerControl
+          }
           onPlacePoint={placePoint}
           onRemovePoint={canMark ? removePoint : undefined}
-          onSelectDocument={(document) => selectDocument({
-            documentId: document.id,
-            documentVersionId: document.versionId,
-          })}
+          onRenderError={documentNavigator.reportRenderError}
+          onVisibleDestinationChange={
+            documentNavigator.reportVisibleDestination
+          }
+          onSelectDocument={(document) => {
+            selectDocument({
+              documentId: document.id,
+              documentVersionId: document.versionId,
+            })
+          }}
           onSelectPage={(page) => selectPage(page.id)}
           onViewUndonePointPage={openUndonePointPage}
           onZoomChange={setZoom}
