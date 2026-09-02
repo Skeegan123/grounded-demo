@@ -249,6 +249,164 @@ test('an External Agent searches concise cross-document evidence before inspecti
   controller.abort()
 })
 
+test('search tolerates ordinary query differences without weakening exact precedence', async () => {
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(
+    modelContext,
+    createDocuments(),
+    controller.signal,
+  )
+
+  type SearchResult = {
+    query: string
+    matches: Array<{
+      rank: number
+      matchedTerms: string[]
+      document: { id: string; versionId: string }
+      page: { id: string; sheetNumber?: string }
+      block: { id: string; type: string }
+      matchType: string
+      snippet: string
+      classification: string
+      tableRow?: { cells: Array<{ text: string }> }
+    }>
+  }
+  const search = async (query: string, limit?: number) =>
+    modelContext.executeTool('search_project_documents', {
+      query,
+      ...(limit === undefined ? {} : { limit }),
+    }) as Promise<SearchResult>
+
+  const fuzzy = await search('honycomb interior dor core')
+  const repeatedFuzzy = await search('honycomb interior dor core')
+  const reorderedPlural = await search('wood-solid, Type C doors: 24" x 80"')
+  const exactProduct = await search('BRD-HC2480-BIR')
+  const exactSheet = await search('A4.3')
+
+  expect(repeatedFuzzy).toEqual(fuzzy)
+  expect(fuzzy.matches).toContainEqual(expect.objectContaining({
+    document: expect.objectContaining({ id: 'type-c-door-submittal' }),
+    page: expect.objectContaining({ id: 'door-submittal-page-2' }),
+    matchedTerms: expect.arrayContaining(['honycomb', 'interior', 'core']),
+    classification: 'document_evidence',
+  }))
+  expect(reorderedPlural.matches[0]).toMatchObject({
+    rank: 1,
+    matchedTerms: ['wood', 'solid', 'type', 'c', 'doors', '24x80'],
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a4.3', sheetNumber: 'A4.3' },
+    matchType: 'table_row',
+    classification: 'document_evidence',
+    tableRow: {
+      cells: [
+        { text: 'C' },
+        { text: '24"x80"' },
+        { text: 'WOOD' },
+        { text: '1-PANEL' },
+        { text: 'SOLID WOOD' },
+        { text: 'ANTIQUE PREFERRED' },
+      ],
+    },
+  })
+  expect(exactProduct.matches[0]).toMatchObject({
+    rank: 1,
+    matchedTerms: ['brd-hc2480-bir'],
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-2' },
+    snippet: 'Model BRD-HC2480-BIR',
+  })
+  expect(exactSheet.matches[0]).toMatchObject({
+    rank: 1,
+    matchedTerms: ['a4.3'],
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a4.3', sheetNumber: 'A4.3' },
+  })
+  expect(exactProduct.matches[0]).not.toHaveProperty('score')
+  expect(exactProduct.matches[0]).not.toHaveProperty('confidence')
+
+  controller.abort()
+})
+
+test('search labels generated hints and returns an honest empty miss', async () => {
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(
+    modelContext,
+    createDocuments(),
+    controller.signal,
+  )
+
+  type SearchResult = {
+    query: string
+    matches: Array<{
+      rank: number
+      document: { id: string; versionId: string }
+      page: { id: string; sheetNumber?: string }
+      block: { id: string; type: string }
+      classification: string
+      snippet: string
+    }>
+  }
+  const floorPlan = await modelContext.executeTool('search_project_documents', {
+    query: 'first floor room layuot doors utility coats',
+  }) as SearchResult
+  const badgeSearch = await modelContext.executeTool('search_project_documents', {
+    query: 'Creative Commons license badge',
+  }) as SearchResult
+  const miss = await modelContext.executeTool('search_project_documents', {
+    query: 'quantum observatory cryogenic telescope',
+    limit: 20,
+  }) as SearchResult
+
+  expect(floorPlan.matches[0]).toMatchObject({
+    rank: 1,
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a1.2', sheetNumber: 'A1.2' },
+    block: { type: 'Figure' },
+    classification: 'search_hint',
+  })
+  const badgeHint = badgeSearch.matches.find(
+    (match) =>
+      match.block.type === 'Figure' &&
+      match.classification === 'search_hint' &&
+      match.snippet.includes('Creative Commons'),
+  )
+  expect(badgeHint).toBeDefined()
+
+  const badgeInspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: badgeHint!.document.id,
+      documentVersionId: badgeHint!.document.versionId,
+      blockIds: [badgeHint!.block.id],
+    },
+  ) as {
+    pages: Array<{
+      blocks: Array<{
+        id: string
+        sourceType: string
+        content: string
+        classification: string
+      }>
+    }>
+  }
+  expect(badgeInspection.pages.flatMap((page) => page.blocks)).toContainEqual(
+    expect.objectContaining({
+      id: badgeHint!.block.id,
+      sourceType: 'Figure',
+      classification: 'search_hint',
+      content: expect.stringContaining('Creative Commons'),
+    }),
+  )
+  expect(miss).toEqual({
+    query: 'quantum observatory cryogenic telescope',
+    matches: [],
+  })
+
+  controller.abort()
+})
+
 test('search input is bounded and requires a complete immutable scope', async () => {
   const modelContext = createRecordingModelContext()
   const controller = new AbortController()

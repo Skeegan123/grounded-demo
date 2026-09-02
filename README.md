@@ -126,6 +126,10 @@ WebMCP adds four read-only document tools:
 - `inspect_document_evidence` returns ordered Document Evidence and labeled
   Search Hints for requested pages or blocks.
 
+The deterministic normalization, fuzzy tolerance, Search Hint policy, and
+minimum relevance gate are documented in
+[`docs/document-search.md`](docs/document-search.md).
+
 ## License
 
 Grounded source code is available under the [MIT License](LICENSE). The bundled

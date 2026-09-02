@@ -64,17 +64,34 @@ interface SearchRecord {
 
 interface ScoredRecord {
   record: SearchRecord
+  matchClass: number
   score: number
   matchedTerms: string[]
+}
+
+interface QueryTerm {
+  value: string
+  canonical: string
+  weight: number
+  ordinaryWord: boolean
+  constructionIdentifier: boolean
+}
+
+interface FuzzyTokenMatch {
+  token: string
+  source: 'primary' | 'header'
+  similarity: number
 }
 
 const DEFAULT_RESULT_LIMIT = 8
 const MAX_RESULT_LIMIT = 20
 const MAX_QUERY_LENGTH = 300
-
-// A score of 120 is one exact primary-content token. Multi-token queries must
-// also meet the coverage rules in scoreRecord, so one stray word cannot qualify.
-const MIN_RELEVANCE_SCORE = 120
+const MIN_EXACT_SIGNAL_COVERAGE = 0.5
+const MIN_FUZZY_ONLY_COVERAGE = 0.7
+const MIN_FUZZY_ONLY_TERMS = 2
+const SINGLE_FUZZY_MIN_LENGTH = 8
+const SINGLE_FUZZY_MIN_SIMILARITY = 0.875
+const UNCOMMON_TOKEN_MAX_RECORDS = 2
 
 const STOP_WORDS = new Set([
   'a',
@@ -138,6 +155,7 @@ function normalizeText(value: string) {
       .toLowerCase()
       .replace(/[‘’]/g, "'")
       .replace(/[“”]/g, '"')
+      .replace(/[‐‑‒–—−]/g, '-')
       .replace(/[×✕]/g, 'x'),
   )
     .replace(/["″]/g, '')
@@ -146,26 +164,66 @@ function normalizeText(value: string) {
     .trim()
 }
 
+function rawTokensFor(value: string) {
+  return value.match(/[\p{L}\p{N}]+(?:[./'-][\p{L}\p{N}]+)*/gu) ?? []
+}
+
+function pluralFold(token: string) {
+  if (!/^[a-z]+$/.test(token) || token.length <= 3) return token
+  if (token.endsWith('ies') && token.length > 4) return `${token.slice(0, -3)}y`
+  if (/(?:ches|shes|xes|zes|sses)$/.test(token)) return token.slice(0, -2)
+  if (
+    token.endsWith('s') &&
+    !token.endsWith('ss') &&
+    !token.endsWith('us') &&
+    !token.endsWith('is')
+  ) {
+    return token.slice(0, -1)
+  }
+  return token
+}
+
 function tokensFor(value: string) {
   const tokens: string[] = []
   const seen = new Set<string>()
-  const matches = value.match(/[\p{L}\p{N}]+(?:[./'-][\p{L}\p{N}]+)*/gu) ?? []
+  const matches = rawTokensFor(value)
   for (const match of matches) {
     const candidates = [match]
     if (match.includes('-') && !/\d/.test(match)) {
       candidates.push(...match.split('-'))
     }
     for (const candidate of candidates) {
-      if (!candidate || seen.has(candidate)) continue
-      seen.add(candidate)
-      tokens.push(candidate)
+      const canonical = pluralFold(candidate)
+      if (!canonical || seen.has(canonical)) continue
+      seen.add(canonical)
+      tokens.push(canonical)
     }
   }
   return tokens
 }
 
 function significantQueryTerms(query: string) {
-  return tokensFor(query).filter((token) => !STOP_WORDS.has(token))
+  const terms: QueryTerm[] = []
+  const seen = new Set<string>()
+  for (const rawValue of rawTokensFor(query)) {
+    const values = rawValue.includes('-') && !/\d/.test(rawValue)
+      ? rawValue.split('-')
+      : [rawValue]
+    for (const value of values) {
+      const canonical = pluralFold(value)
+      if (STOP_WORDS.has(canonical) || seen.has(canonical)) continue
+      seen.add(canonical)
+      const constructionIdentifier = isConstructionIdentifier(canonical)
+      terms.push({
+        value,
+        canonical,
+        weight: constructionIdentifier ? 1.5 : 1,
+        ordinaryWord: /^[a-z]+$/.test(canonical),
+        constructionIdentifier,
+      })
+    }
+  }
+  return terms
 }
 
 function isConstructionIdentifier(token: string) {
@@ -287,32 +345,94 @@ function recordsForArtifact(
   return records
 }
 
-function editDistance(left: string, right: string) {
-  const previous = Array.from({ length: right.length + 1 }, (_, index) => index)
+function damerauLevenshtein(left: string, right: string) {
+  const distances = Array.from(
+    { length: left.length + 1 },
+    (_, leftIndex) => Array.from(
+      { length: right.length + 1 },
+      (_, rightIndex) => leftIndex === 0 ? rightIndex : rightIndex === 0 ? leftIndex : 0,
+    ),
+  )
   for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
-    const current = [leftIndex]
     for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
-      current[rightIndex] = Math.min(
-        current[rightIndex - 1]! + 1,
-        previous[rightIndex]! + 1,
-        previous[rightIndex - 1]! +
-          (left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1),
+      const substitution = left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1
+      distances[leftIndex]![rightIndex] = Math.min(
+        distances[leftIndex - 1]![rightIndex]! + 1,
+        distances[leftIndex]![rightIndex - 1]! + 1,
+        distances[leftIndex - 1]![rightIndex - 1]! + substitution,
       )
+      if (
+        leftIndex > 1 &&
+        rightIndex > 1 &&
+        left[leftIndex - 1] === right[rightIndex - 2] &&
+        left[leftIndex - 2] === right[rightIndex - 1]
+      ) {
+        distances[leftIndex]![rightIndex] = Math.min(
+          distances[leftIndex]![rightIndex]!,
+          distances[leftIndex - 2]![rightIndex - 2]! + 1,
+        )
+      }
     }
-    previous.splice(0, previous.length, ...current)
   }
-  return previous[right.length]!
+  return distances[left.length]![right.length]!
 }
 
-function hasFuzzyMatch(term: string, tokens: Set<string>) {
-  if (term.length < 5) return false
-  const maximumDistance = term.length >= 8 ? 2 : 1
-  return [...tokens].some(
-    (token) =>
-      token.length >= 5 &&
-      Math.abs(token.length - term.length) <= maximumDistance &&
-      editDistance(term, token) <= maximumDistance,
+function bestFuzzyMatch(
+  term: QueryTerm,
+  record: SearchRecord,
+  usedTokens: Set<string>,
+) {
+  if (!term.ordinaryWord || term.canonical.length < 5) return undefined
+  const maximumDistance = term.canonical.length >= 8 ? 2 : 1
+  const candidates: FuzzyTokenMatch[] = []
+  for (const [source, tokens] of [
+    ['primary', record.primaryTokens],
+    ['header', record.headerTokens],
+  ] as const) {
+    for (const token of tokens) {
+      if (
+        usedTokens.has(token) ||
+        !/^[a-z]+$/.test(token) ||
+        token.length < 5 ||
+        Math.abs(token.length - term.canonical.length) > maximumDistance
+      ) {
+        continue
+      }
+      const distance = damerauLevenshtein(term.canonical, token)
+      const similarity = 1 - distance / Math.max(term.canonical.length, token.length)
+      if (distance <= maximumDistance && similarity >= 0.8) {
+        candidates.push({ token, source, similarity })
+      }
+    }
+  }
+  return candidates.sort((left, right) =>
+    right.similarity - left.similarity ||
+    (left.source === right.source ? 0 : left.source === 'primary' ? -1 : 1) ||
+    left.token.localeCompare(right.token),
+  )[0]
+}
+
+function corpusTokenFrequencies(records: SearchRecord[]) {
+  const frequencies = new Map<string, number>()
+  for (const record of records) {
+    const tokens = new Set([
+      ...record.primaryTokens,
+      ...record.headerTokens,
+    ])
+    for (const token of tokens) {
+      frequencies.set(token, (frequencies.get(token) ?? 0) + 1)
+    }
+  }
+  return frequencies
+}
+
+function weightedCoverage(terms: QueryTerm[], matched: Set<string>) {
+  const totalWeight = terms.reduce((total, term) => total + term.weight, 0)
+  const matchedWeight = terms.reduce(
+    (total, term) => total + (matched.has(term.canonical) ? term.weight : 0),
+    0,
   )
+  return totalWeight === 0 ? 0 : matchedWeight / totalWeight
 }
 
 function containsPhrase(value: string, phrase: string) {
@@ -327,10 +447,18 @@ function containsPhrase(value: string, phrase: string) {
   return false
 }
 
-function scoreRecord(record: SearchRecord, query: string, terms: string[]) {
+function scoreRecord(
+  record: SearchRecord,
+  query: string,
+  terms: QueryTerm[],
+  tokenFrequencies: Map<string, number>,
+) {
   const matched = new Set<string>()
-  const contentMatched = new Set<string>()
+  const exactMatched = new Set<string>()
+  const lexicalExactMatched = new Set<string>()
   const fuzzyMatched = new Set<string>()
+  const fuzzyMatches = new Map<string, FuzzyTokenMatch>()
+  const usedCorpusTokens = new Set<string>()
   let score = 0
 
   const primaryPhrase = containsPhrase(record.primaryText, query)
@@ -339,48 +467,58 @@ function scoreRecord(record: SearchRecord, query: string, terms: string[]) {
   if (headerPhrase) score += 900
 
   for (const term of terms) {
-    if (record.primaryTokens.has(term)) {
-      matched.add(term)
-      contentMatched.add(term)
+    if (record.primaryTokens.has(term.canonical)) {
+      matched.add(term.canonical)
+      exactMatched.add(term.canonical)
+      lexicalExactMatched.add(term.canonical)
+      usedCorpusTokens.add(term.canonical)
       score += 120
-      if (isConstructionIdentifier(term)) score += 140
+      if (term.constructionIdentifier) score += 140
       continue
     }
-    if (record.headerTokens.has(term)) {
-      matched.add(term)
-      contentMatched.add(term)
+    if (record.headerTokens.has(term.canonical)) {
+      matched.add(term.canonical)
+      exactMatched.add(term.canonical)
+      lexicalExactMatched.add(term.canonical)
+      usedCorpusTokens.add(term.canonical)
       score += 80
-      if (isConstructionIdentifier(term)) score += 120
+      if (term.constructionIdentifier) score += 120
       continue
     }
-    if (record.contextTokens.has(term)) {
-      matched.add(term)
-      contentMatched.add(term)
+    if (record.contextTokens.has(term.canonical)) {
+      matched.add(term.canonical)
+      exactMatched.add(term.canonical)
+      lexicalExactMatched.add(term.canonical)
+      usedCorpusTokens.add(term.canonical)
       score += 35
-      continue
-    }
-    if (
-      hasFuzzyMatch(term, record.primaryTokens) ||
-      hasFuzzyMatch(term, record.headerTokens)
-    ) {
-      matched.add(term)
-      fuzzyMatched.add(term)
-      score += 30
     }
   }
 
-  if (contentMatched.size > 0 || fuzzyMatched.size > 0) {
+  for (const term of terms) {
+    if (matched.has(term.canonical)) continue
+    const fuzzy = bestFuzzyMatch(term, record, usedCorpusTokens)
+    if (!fuzzy) continue
+    matched.add(term.canonical)
+    fuzzyMatched.add(term.canonical)
+    fuzzyMatches.set(term.canonical, fuzzy)
+    usedCorpusTokens.add(fuzzy.token)
+    score += fuzzy.source === 'primary' ? 30 : 25
+  }
+
+  if (lexicalExactMatched.size > 0 || fuzzyMatched.size > 0) {
     for (const term of terms) {
-      if (!matched.has(term) && record.metadataTokens.has(term)) {
-        matched.add(term)
+      if (!matched.has(term.canonical) && record.metadataTokens.has(term.canonical)) {
+        matched.add(term.canonical)
+        exactMatched.add(term.canonical)
         score += 10
       }
-      if (record.pageReferenceTokens.has(term)) score += 100
+      if (record.pageReferenceTokens.has(term.canonical)) score += 100
     }
   }
 
-  const exactCoverage = contentMatched.size / terms.length
-  const totalCoverage = matched.size / terms.length
+  const exactCoverage = weightedCoverage(terms, exactMatched)
+  const totalCoverage = weightedCoverage(terms, matched)
+  const fuzzyCoverage = weightedCoverage(terms, fuzzyMatched)
   if (exactCoverage === 1) score += 350
   else if (exactCoverage >= 0.6) score += 120
   if (record.matchType === 'table_row' && matched.size > 0) score += 60
@@ -392,26 +530,52 @@ function scoreRecord(record: SearchRecord, query: string, terms: string[]) {
   }
 
   const exactIdentifier = terms.some(
-    (term) => isConstructionIdentifier(term) && contentMatched.has(term),
+    (term) =>
+      term.constructionIdentifier && lexicalExactMatched.has(term.canonical),
   )
+  const singleFuzzyTerm = terms.length === 1 ? terms[0] : undefined
+  const singleFuzzyMatch = singleFuzzyTerm
+    ? fuzzyMatches.get(singleFuzzyTerm.canonical)
+    : undefined
+  const uncommonSingleFuzzy =
+    lexicalExactMatched.size === 0 &&
+    fuzzyMatched.size === 1 &&
+    singleFuzzyTerm !== undefined &&
+    singleFuzzyMatch !== undefined &&
+    singleFuzzyTerm.canonical.length >= SINGLE_FUZZY_MIN_LENGTH &&
+    singleFuzzyMatch.similarity >= SINGLE_FUZZY_MIN_SIMILARITY &&
+    (tokenFrequencies.get(singleFuzzyMatch.token) ?? 0) <= UNCOMMON_TOKEN_MAX_RECORDS
   const qualifies =
     primaryPhrase ||
-    headerPhrase ||
     exactIdentifier ||
-    exactCoverage === 1 ||
-    (contentMatched.size >= 2 && totalCoverage >= 0.5) ||
-    (terms.length === 1 && contentMatched.size === 1) ||
-    (fuzzyMatched.size > 0 && totalCoverage >= 0.75)
+    (lexicalExactMatched.size > 0 && totalCoverage >= MIN_EXACT_SIGNAL_COVERAGE) ||
+    (lexicalExactMatched.size === 0 &&
+      fuzzyMatched.size >= MIN_FUZZY_ONLY_TERMS &&
+      fuzzyCoverage >= MIN_FUZZY_ONLY_COVERAGE) ||
+    uncommonSingleFuzzy
 
-  if (!qualifies || score < MIN_RELEVANCE_SCORE) return undefined
+  if (!qualifies) return undefined
+  const matchClass = primaryPhrase || exactIdentifier
+    ? 1
+    : exactCoverage === 1
+      ? 2
+      : fuzzyMatched.size === 0
+        ? 3
+        : lexicalExactMatched.size > 0
+          ? 4
+          : 5
   return {
     record,
+    matchClass,
     score,
-    matchedTerms: terms.filter((term) => matched.has(term)),
+    matchedTerms: terms
+      .filter((term) => matched.has(term.canonical))
+      .map((term) => term.value),
   } satisfies ScoredRecord
 }
 
 function compareScored(left: ScoredRecord, right: ScoredRecord) {
+  if (left.matchClass !== right.matchClass) return left.matchClass - right.matchClass
   if (left.score !== right.score) return right.score - left.score
   if (left.record.documentOrder !== right.record.documentOrder) {
     return left.record.documentOrder - right.record.documentOrder
@@ -479,6 +643,7 @@ export function createDocumentSearch(artifacts: PreparedEvidenceArtifact[]) {
   const records = artifacts.flatMap((artifact, documentOrder) =>
     recordsForArtifact(artifact, documentOrder),
   )
+  const tokenFrequencies = corpusTokenFrequencies(records)
 
   return (input: SearchProjectDocumentsInput) => {
     if (typeof input.query !== 'string') throw new Error('A search query is required.')
@@ -512,7 +677,7 @@ export function createDocumentSearch(artifacts: PreparedEvidenceArtifact[]) {
 
     if (terms.length === 0) return { query, matches: [] }
     const matches = scopedRecords
-      .map((record) => scoreRecord(record, query, terms))
+      .map((record) => scoreRecord(record, query, terms, tokenFrequencies))
       .filter((match): match is ScoredRecord => match !== undefined)
       .sort(compareScored)
       .slice(0, limit)
