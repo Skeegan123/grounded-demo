@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { PanelRightClose, PanelRightOpen } from 'lucide-react'
 import { useStore } from 'zustand'
 import type {
@@ -32,9 +32,8 @@ import {
   findDocument,
   findPage,
 } from './demoProject/demoProject'
-import { registerAssistanceTools } from './webmcp/registerAssistanceTools'
-import { registerDocumentTools } from './webmcp/registerDocumentTools'
 import type { ModelContextAdapter } from './webmcp/modelContext'
+import { registerGroundedTools } from './webmcp/registerGroundedTools'
 import type { createWorkspaceStore } from './workspace/workspaceStore'
 import './App.css'
 
@@ -49,6 +48,12 @@ interface AppProps {
 }
 
 type RegistrationState = 'ready' | 'unsupported' | 'error' | 'registering'
+
+interface RegistrationSnapshot {
+  attempt: object
+  error: string
+  state: RegistrationState
+}
 
 interface UndoNotice {
   pageId: string
@@ -66,10 +71,26 @@ function App({
   sessionId,
   workspaceStore,
 }: AppProps) {
-  const [registration, setRegistration] = useState<RegistrationState>(() =>
-    modelContext ? 'registering' : 'unsupported',
+  const registrationAttempt = useMemo(
+    () => ({ assistance, documents, modelContext }),
+    [assistance, documents, modelContext],
   )
-  const [registrationError, setRegistrationError] = useState('')
+  const [registrationSnapshot, setRegistrationSnapshot] =
+    useState<RegistrationSnapshot>(() => ({
+      attempt: registrationAttempt,
+      error: '',
+      state: modelContext ? 'registering' : 'unsupported',
+    }))
+  const registrationIsCurrent =
+    registrationSnapshot.attempt === registrationAttempt
+  const registration = registrationIsCurrent
+    ? registrationSnapshot.state
+    : modelContext
+      ? 'registering'
+      : 'unsupported'
+  const registrationError = registrationIsCurrent
+    ? registrationSnapshot.error
+    : ''
   const [viewedPointSetId, setViewedPointSetId] = useState('')
   const [undoNotice, setUndoNotice] = useState<UndoNotice>()
   const [supportingReferenceRequestId, setSupportingReferenceRequestId] =
@@ -132,21 +153,39 @@ function App({
 
   useEffect(() => {
     if (!modelContext) return
+    let active = true
     const controller = new AbortController()
-    Promise.all([
-      registerAssistanceTools(modelContext, assistance, controller.signal),
-      registerDocumentTools(modelContext, documents, controller.signal),
-    ])
-      .then(() => setRegistration('ready'))
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return
-        setRegistration('error')
-        setRegistrationError(
-          error instanceof Error ? error.message : 'Tool registration failed.',
-        )
+    registerGroundedTools({
+      assistance,
+      controller,
+      documents,
+      modelContext,
+    })
+      .then(() => {
+        if (active) {
+          setRegistrationSnapshot({
+            attempt: registrationAttempt,
+            error: '',
+            state: 'ready',
+          })
+        }
       })
-    return () => controller.abort()
-  }, [assistance, documents, modelContext])
+      .catch((error: unknown) => {
+        if (!active) return
+        setRegistrationSnapshot({
+          attempt: registrationAttempt,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Tool registration failed.',
+          state: 'error',
+        })
+      })
+    return () => {
+      active = false
+      controller.abort()
+    }
+  }, [assistance, documents, modelContext, registrationAttempt])
 
   const defaultDocument = demoProject.documents[0]!
   const {

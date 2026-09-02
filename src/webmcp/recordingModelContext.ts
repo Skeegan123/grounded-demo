@@ -6,19 +6,39 @@ export interface RecordingModelContext extends ModelContextAdapter {
     input: Record<string, unknown>,
   ) => Promise<unknown>
   getTool: (name: string) => ModelContextTool | undefined
+  getToolNames: () => string[]
   waitForTool: (name: string) => Promise<ModelContextTool>
 }
 
-export function createRecordingModelContext(): RecordingModelContext {
+export interface RecordingRegistration {
+  signal?: AbortSignal
+  tool: ModelContextTool
+}
+
+interface RecordingModelContextOptions {
+  registrationControl?: (
+    registration: RecordingRegistration,
+  ) => Promise<void> | void
+}
+
+export function createRecordingModelContext(
+  options: RecordingModelContextOptions = {},
+): RecordingModelContext {
   const tools = new Map<string, ModelContextTool>()
   const waiters = new Map<string, Array<(tool: ModelContextTool) => void>>()
 
   return {
-    async registerTool(tool, options) {
+    async registerTool(tool, registrationOptions) {
+      await options.registrationControl?.({
+        signal: registrationOptions?.signal,
+        tool,
+      })
+      if (registrationOptions?.signal?.aborted) return
+
       tools.set(tool.name, tool)
       waiters.get(tool.name)?.forEach((resolve) => resolve(tool))
       waiters.delete(tool.name)
-      options?.signal?.addEventListener(
+      registrationOptions?.signal?.addEventListener(
         'abort',
         () => {
           if (tools.get(tool.name) === tool) tools.delete(tool.name)
@@ -33,6 +53,9 @@ export function createRecordingModelContext(): RecordingModelContext {
     },
     getTool(name) {
       return tools.get(name)
+    },
+    getToolNames() {
+      return [...tools.keys()]
     },
     waitForTool(name) {
       const existing = tools.get(name)
