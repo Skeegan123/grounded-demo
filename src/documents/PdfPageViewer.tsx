@@ -51,6 +51,13 @@ interface PdfPageViewerProps {
   fit?: PageFit
   onPlacePoint: (point: NormalizedPoint) => void
   onRemovePoint?: (globalIndex: number) => void
+  onVisibleViewChange?: (view: {
+    documentId: string
+    documentVersionId: string
+    pageId: string
+    fit: PageFit
+    zoom: number
+  }) => void
   onZoomChange?: (zoom: number) => void
   page: DocumentPage
   points: StoredPoint[]
@@ -90,6 +97,7 @@ export function PdfPageViewer({
   fit = 'page',
   onPlacePoint,
   onRemovePoint,
+  onVisibleViewChange,
   onZoomChange,
   page,
   points,
@@ -292,6 +300,25 @@ export function PdfPageViewer({
     renderedSize.width > 0 &&
     renderedSize.height > 0 &&
     renderResult.identity !== renderIdentity
+
+  useEffect(() => {
+    if (!isCurrentRender) return
+    onVisibleViewChange?.({
+      documentId: document.id,
+      documentVersionId: document.versionId,
+      pageId: page.id,
+      fit,
+      zoom,
+    })
+  }, [
+    document.id,
+    document.versionId,
+    fit,
+    isCurrentRender,
+    onVisibleViewChange,
+    page.id,
+    zoom,
+  ])
   const selectedPointIndex = selectedPoint?.renderIdentity === renderIdentity
     ? selectedPoint.globalIndex
     : undefined

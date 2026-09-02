@@ -1,7 +1,9 @@
 import type { createAssistance } from '../assistance/assistance'
 import type { createDocuments } from '../documents/documents'
+import type { DocumentNavigator } from '../documents/DocumentNavigator'
 import type { ModelContextAdapter } from './modelContext'
 import { registerAssistanceTools } from './registerAssistanceTools'
+import { registerDocumentNavigationTool } from './registerDocumentNavigationTool'
 import { registerDocumentTools } from './registerDocumentTools'
 
 interface GroundedToolRegistration {
@@ -9,6 +11,7 @@ interface GroundedToolRegistration {
   controller: AbortController
   documents: ReturnType<typeof createDocuments>
   modelContext: ModelContextAdapter
+  navigator: DocumentNavigator
 }
 
 export async function registerGroundedTools({
@@ -16,6 +19,7 @@ export async function registerGroundedTools({
   controller,
   documents,
   modelContext,
+  navigator,
 }: GroundedToolRegistration) {
   const registrations: Promise<void>[] = []
   const availability = { ready: false }
@@ -62,6 +66,11 @@ export async function registerGroundedTools({
     registerDocumentTools(
       trackedModelContext,
       documents,
+      controller.signal,
+    ),
+    registerDocumentNavigationTool(
+      trackedModelContext,
+      navigator,
       controller.signal,
     ),
   ]

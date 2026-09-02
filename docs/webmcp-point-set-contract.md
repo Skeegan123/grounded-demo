@@ -1,10 +1,10 @@
 # Grounded WebMCP contract
 
-## Current six-tool inventory
+## Current seven-tool inventory
 
-Grounded exposes exactly six public WebMCP tools. The application-level proof in
+Grounded exposes exactly seven public WebMCP tools. The application-level proof in
 `src/application/webmcpRegistration.test.tsx` asserts these exact names and does
-not report **WebMCP ready** until all six registrations finish:
+not report **WebMCP ready** until all seven registrations finish:
 
 | Role | Tool | Annotations |
 | --- | --- | --- |
@@ -12,20 +12,76 @@ not report **WebMCP ready** until all six registrations finish:
 | Document | `list_project_documents` | `readOnlyHint: true`, `untrustedContentHint: true` |
 | Document | `search_project_documents` | `readOnlyHint: true`, `untrustedContentHint: true` |
 | Document | `inspect_document_evidence` | `readOnlyHint: true`, `untrustedContentHint: true` |
+| Navigation | `navigate_document` | `readOnlyHint: false`, `untrustedContentHint: true` |
 | Assistance | `create_assistance_request` | `readOnlyHint: false`, `untrustedContentHint: true` |
 | Assistance | `get_assistance_request` | `readOnlyHint: true`, `untrustedContentHint: true` |
 
-The four document tools introduce the Project Workspace, list its immutable
-documents, locate concise matches, and inspect the selected evidence. The two
-Assistance tools queue a Senior Project Manager judgment and retrieve its
+The four read-only document tools introduce the Project Workspace, list its
+immutable documents, locate concise matches, and inspect the selected evidence.
+The navigation tool changes only the visible Document Browsing destination. The
+two Assistance tools queue a Senior Project Manager judgment and retrieve its
 eventual Professional Response. A registration attempt is all-or-nothing: if
 any registration fails, is replaced, or is unmounted, none of that attempt's
 tools remains callable after cleanup. Refreshing the page starts a new attempt.
 
 The Assistance schemas, annotations, limits, and result shapes are locked by
 `src/webmcp/registerAssistanceTools.test.ts`; document inspection is locked by
-`src/webmcp/registerDocumentTools.test.ts`; and the valid six-tool application
-path is locked independently by `src/application/createGroundedApp.test.tsx`.
+`src/webmcp/registerDocumentTools.test.ts`; navigation is locked by
+`src/webmcp/registerDocumentNavigationTool.test.ts`; and the valid seven-tool
+application path is locked independently by
+`src/application/createGroundedApp.test.tsx`.
+
+## Navigate a Project Document or page
+
+Tool: `navigate_document`
+
+The root input contains exactly one required `documentId` and an optional
+`target`. `documentId` is a non-empty string of at most 200 characters. Grounded
+resolves it to the currently accessible Project Document and returns that
+document's current immutable `versionId`; callers cannot provide or select a
+`documentVersionId`, and additional root properties are rejected.
+
+Omitting `target` opens the Project Document at its most recently visited page
+in the current Demo Session, falling back to its first page. The only explicit
+target currently accepted is this strict page shape:
+
+```json
+{
+  "documentId": "virginia-farmhouse-drawings",
+  "target": {
+    "type": "page",
+    "pageId": "sheet-a1.2"
+  }
+}
+```
+
+`pageId` is a non-empty stable identity of at most 200 characters. The target
+rejects additional properties, including display labels, page numbers, titles,
+and indexes. Both document-only and page navigation use ordinary full-page fit
+at 100 percent. A successful call returns only after that page and fit are
+visibly rendered:
+
+```json
+{
+  "status": "applied",
+  "document": {
+    "id": "virginia-farmhouse-drawings",
+    "versionId": "virginia-farmhouse-drawings-v1"
+  },
+  "page": { "id": "sheet-a1.2" },
+  "type": "page",
+  "fit": "page",
+  "zoom": 1
+}
+```
+
+A document-only result uses `"type": "document"`. The result contains no
+Document Evidence, Search Hints, OCR, highlights, or Assistance content.
+Unknown document and foreign page identities fail before changing the visible
+workspace. Navigation preserves Assistance Requests, Professional Responses,
+tabs, unfinished Point Set drafts and notes, viewed results, and existing
+overlays. The four read-only document tools remain read-only and do not move the
+workbench.
 
 ## Create an Assistance Request
 
@@ -192,9 +248,10 @@ reload. It is evidence for that historical surface, not a claim that the client
 executed the later `search_project_documents` or
 `inspect_document_evidence` contracts.
 
-The current automated document-to-Assistance tracer exercises all six current
-tools using the recording Model Context adapter. On September 2, 2026, no
+The current automated document-to-Assistance tracer exercises the six
+non-navigation tools, while application navigation tests exercise the seventh
+tool through the same recording Model Context adapter. On September 2, 2026, no
 supported third-party WebMCP client was available in the implementation
-environment, so no new manual six-tool client rehearsal was performed or
+environment, so no new manual seven-tool client rehearsal was performed or
 claimed. The current tracer sequence and the reusable client checklist are in
 [`type-c-submittal-review-demo.md`](type-c-submittal-review-demo.md).

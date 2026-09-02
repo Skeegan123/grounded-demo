@@ -13,6 +13,7 @@ const TOOL_NAMES = [
   'get_project_workspace',
   'inspect_document_evidence',
   'list_project_documents',
+  'navigate_document',
   'search_project_documents',
 ]
 
@@ -58,7 +59,7 @@ function createRegistrationHarness() {
       }
     },
     async waitForAllRegistrations() {
-      await waitFor(() => expect(registrations).toHaveLength(6))
+      await waitFor(() => expect(registrations).toHaveLength(7))
     },
   }
 }
@@ -84,7 +85,7 @@ function appEnvironment(
   }
 }
 
-test('reports ready only after the shared attempt registers all six existing tools', async () => {
+test('reports ready only after the shared attempt registers all seven tools', async () => {
   const harness = createRegistrationHarness()
   render(createGroundedApp(appEnvironment(harness.modelContext)))
 
@@ -97,7 +98,7 @@ test('reports ready only after the shared attempt registers all six existing too
   await act(async () => {
     for (const name of TOOL_NAMES.slice(0, -1)) harness.resolve(name)
   })
-  await waitFor(() => expect(harness.modelContext.getToolNames()).toHaveLength(5))
+  await waitFor(() => expect(harness.modelContext.getToolNames()).toHaveLength(6))
   expect(screen.getByText('Registering tools')).toBeInTheDocument()
   await expect(harness.modelContext.executeTool(
     'get_project_workspace',
@@ -120,6 +121,7 @@ test('reports ready only after the shared attempt registers all six existing too
 test.each([
   'get_assistance_request',
   'inspect_document_evidence',
+  'navigate_document',
 ])('aborts when %s fails and waits for partial and late registrations to clean up before reporting it', async (failedTool) => {
   const harness = createRegistrationHarness()
   render(createGroundedApp(appEnvironment(harness.modelContext)))
