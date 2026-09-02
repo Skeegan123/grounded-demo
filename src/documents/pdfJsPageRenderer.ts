@@ -34,6 +34,10 @@ interface PdfJsPageRendererOptions {
   outputScale?: () => number
 }
 
+// Limits each RGBA backing canvas to about 48 MB, or about 96 MB for the
+// viewer's two-canvas buffer, before PDF.js working memory.
+export const MAX_PDF_CANVAS_PIXELS = 12_000_000
+
 async function loadPdfDocument(url: string): Promise<PdfDocument> {
   const pdfJs = await import('pdfjs-dist')
   pdfJs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
@@ -85,12 +89,18 @@ export function createPdfJsPageRenderer(
     const viewport = page.getViewport({
       scale: request.width / unscaledViewport.width,
     })
-    const scale = outputScale()
+    const requestedScale = outputScale()
+    const maximumScale = Math.sqrt(
+      MAX_PDF_CANVAS_PIXELS / (viewport.width * viewport.height),
+    )
+    const scale = Math.min(requestedScale, maximumScale)
+    const capped = scale < requestedScale
     const context = request.canvas.getContext('2d', { alpha: false })
     if (!context) throw new Error('The browser could not create a PDF canvas.')
 
-    request.canvas.width = Math.ceil(viewport.width * scale)
-    request.canvas.height = Math.ceil(viewport.height * scale)
+    const physicalDimension = capped ? Math.floor : Math.ceil
+    request.canvas.width = physicalDimension(viewport.width * scale)
+    request.canvas.height = physicalDimension(viewport.height * scale)
     const renderTask = page.render({
       canvas: request.canvas,
       canvasContext: context,

@@ -64,3 +64,51 @@ test('the PDF.js renderer preserves crop and rotation viewport geometry and canc
   await expect(rendering).rejects.toThrow('Rendering cancelled.')
   expect(cancel).toHaveBeenCalledOnce()
 })
+
+test('the PDF.js renderer caps extreme backing canvases without changing page geometry', async () => {
+  const render = vi.fn((_options: { transform: number[] | undefined }) => ({
+    cancel: vi.fn(),
+    promise: Promise.resolve(),
+  }))
+  const getViewport = vi.fn(({ scale }: { scale: number }) => ({
+    width: 5_000 * scale,
+    height: 3_000 * scale,
+  }))
+  const renderer = createPdfJsPageRenderer({
+    loadDocument: async () => ({
+      getPage: async () => ({ getViewport, render }),
+    }),
+    outputScale: () => 3,
+  })
+  const canvas = document.createElement('canvas')
+  const context = {} as CanvasRenderingContext2D
+  vi.spyOn(canvas, 'getContext').mockReturnValue(context)
+
+  await renderer.renderPage({
+    canvas,
+    height: 3_000,
+    pageNumber: 1,
+    signal: new AbortController().signal,
+    url: '/extreme.pdf',
+    width: 5_000,
+  })
+
+  const transform = render.mock.calls[0]![0].transform
+  const effectiveScale = transform?.[0]
+  expect(effectiveScale).toBeCloseTo(Math.sqrt(12_000_000 / 15_000_000), 10)
+  expect(canvas.width * canvas.height).toBeLessThanOrEqual(12_000_000)
+  expect(canvas.width / canvas.height).toBeCloseTo(5 / 3, 3)
+  expect(render).toHaveBeenCalledWith({
+    canvas,
+    canvasContext: context,
+    transform: [
+      effectiveScale,
+      0,
+      0,
+      effectiveScale,
+      0,
+      0,
+    ],
+    viewport: { width: 5_000, height: 3_000 },
+  })
+})
