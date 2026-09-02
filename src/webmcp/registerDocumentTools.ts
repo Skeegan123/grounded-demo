@@ -4,20 +4,44 @@ import { defineTool } from './defineTool'
 import type { ModelContextAdapter } from './modelContext'
 
 const EmptyInput = Type.Object({}, { additionalProperties: false })
-const InspectionIdentifier = Type.String({ minLength: 1, maxLength: 200 })
+const inspectionIdentifier = (description: string) => Type.String({
+  minLength: 1,
+  maxLength: 200,
+  description,
+})
 const MAX_INSPECTION_RESPONSE_BYTES = 512 * 1024
 
 const SearchProjectDocumentsInput = Type.Object(
   {
-    query: Type.String({ minLength: 1, maxLength: 300 }),
+    query: Type.String({
+      minLength: 1,
+      maxLength: 300,
+      description:
+        'A construction phrase, identifier, note, schedule entry, or requirement to search for in prepared evidence.',
+    }),
     scope: Type.Optional(Type.Object(
       {
-        documentId: Type.String({ minLength: 1 }),
-        documentVersionId: Type.String({ minLength: 1 }),
+        documentId: Type.String({
+          minLength: 1,
+          description: 'The immutable document ID for the optional search scope.',
+        }),
+        documentVersionId: Type.String({
+          minLength: 1,
+          description:
+            'The immutable version ID paired with scope.documentId.',
+        }),
       },
-      { additionalProperties: false },
+      {
+        additionalProperties: false,
+        description:
+          'Optional immutable document/version pair copied exactly from list_project_documents or another tool result.',
+      },
     )),
-    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 20 })),
+    limit: Type.Optional(Type.Integer({
+      minimum: 1,
+      maximum: 20,
+      description: 'Maximum matches to return, from 1 through 20.',
+    })),
   },
   { additionalProperties: false },
 )
@@ -26,24 +50,40 @@ const InspectDocumentEvidenceInput = Type.Union(
   [
     Type.Object(
       {
-        documentId: InspectionIdentifier,
-        documentVersionId: InspectionIdentifier,
-        pageIds: Type.Array(InspectionIdentifier, {
+        documentId: inspectionIdentifier(
+          'The immutable document ID copied exactly from the document catalog or search result.',
+        ),
+        documentVersionId: inspectionIdentifier(
+          'The immutable version ID paired with documentId.',
+        ),
+        pageIds: Type.Array(inspectionIdentifier(
+          'A page ID returned by the document catalog or search.',
+        ), {
           minItems: 1,
           maxItems: 5,
           uniqueItems: true,
+          description:
+            'One to five page IDs returned by the document catalog or search, used to inspect complete page-level evidence.',
         }),
       },
       { additionalProperties: false },
     ),
     Type.Object(
       {
-        documentId: InspectionIdentifier,
-        documentVersionId: InspectionIdentifier,
-        blockIds: Type.Array(InspectionIdentifier, {
+        documentId: inspectionIdentifier(
+          'The immutable document ID copied exactly from the document catalog or search result.',
+        ),
+        documentVersionId: inspectionIdentifier(
+          'The immutable version ID paired with documentId.',
+        ),
+        blockIds: Type.Array(inspectionIdentifier(
+          'An exact semantic block ID returned by search.',
+        ), {
           minItems: 1,
           maxItems: 50,
           uniqueItems: true,
+          description:
+            'One to fifty exact semantic block IDs returned by search, used for focused inspection.',
         }),
       },
       { additionalProperties: false },

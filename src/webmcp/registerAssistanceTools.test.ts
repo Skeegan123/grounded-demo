@@ -11,6 +11,82 @@ import { demoProject } from '../demoProject/demoProject'
 import { createRecordingModelContext } from './recordingModelContext'
 import { registerAssistanceTools } from './registerAssistanceTools'
 
+interface RegisteredInputSchema {
+  anyOf?: RegisteredInputSchema[]
+  description?: string
+  items?: RegisteredInputSchema
+  properties?: Record<string, RegisteredInputSchema>
+}
+
+test('Assistance tool input schemas distinguish the response target from supporting evidence', async () => {
+  const assistance = createAssistance({
+    databaseName: `grounded-webmcp-descriptions-${crypto.randomUUID()}`,
+    sessionId: 'session-1',
+    createId: () => 'request-1',
+    now: () => new Date('2030-01-02T03:04:05.000Z'),
+  })
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerAssistanceTools(modelContext, assistance, controller.signal)
+
+  const createSchema = JSON.parse(JSON.stringify(
+    modelContext.getTool('create_assistance_request')?.inputSchema,
+  )) as RegisteredInputSchema
+  const getSchema = JSON.parse(JSON.stringify(
+    modelContext.getTool('get_assistance_request')?.inputSchema,
+  )) as RegisteredInputSchema
+  const pointSet = createSchema.anyOf?.[0]
+  const text = createSchema.anyOf?.[1]
+  const supportingReference =
+    pointSet?.properties?.supportingDocumentReferences?.items
+
+  expect({
+    pointSetQuestion: pointSet?.properties?.question?.description,
+    textQuestion: text?.properties?.question?.description,
+    pointSetResponseType: pointSet?.properties?.responseType?.description,
+    textResponseType: text?.properties?.responseType?.description,
+    targetDocumentId: pointSet?.properties?.documentId?.description,
+    targetDocumentVersionId:
+      pointSet?.properties?.documentVersionId?.description,
+    recommendedPageIds: pointSet?.properties?.recommendedPageIds?.description,
+    supportingDocumentReferences:
+      pointSet?.properties?.supportingDocumentReferences?.description,
+    supportingDocumentId:
+      supportingReference?.properties?.documentId?.description,
+    supportingDocumentVersionId:
+      supportingReference?.properties?.documentVersionId?.description,
+    supportingPageIds: supportingReference?.properties?.pageIds?.description,
+    requestId: getSchema.properties?.id?.description,
+  }).toEqual({
+    pointSetQuestion:
+      'One focused construction judgment or clarification for the Senior Project Manager.',
+    textQuestion:
+      'One focused construction judgment or clarification for the Senior Project Manager.',
+    pointSetResponseType:
+      'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+    textResponseType:
+      'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+    targetDocumentId:
+      'The immutable document ID on which a returned Point Set should be placed.',
+    targetDocumentVersionId:
+      'The immutable document version on which a returned Point Set should be placed.',
+    recommendedPageIds:
+      'Suggested starting pages for review, not a restriction on where the final response may point.',
+    supportingDocumentReferences:
+      'Immutable document and page references that support the judgment, distinct from the Point Set target document.',
+    supportingDocumentId: 'The immutable supporting evidence document ID.',
+    supportingDocumentVersionId:
+      'The immutable supporting evidence version paired with documentId.',
+    supportingPageIds:
+      'One to twenty-five page IDs in the supporting document version that support the judgment.',
+    requestId:
+      'The exact durable Assistance Request ID returned when the request was created.',
+  })
+
+  controller.abort()
+  assistance.close()
+})
+
 test('the create tool rejects a blank question through its TypeBox contract', async () => {
   const assistance = createAssistance({
     databaseName: `grounded-webmcp-${crypto.randomUUID()}`,
@@ -383,31 +459,78 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
                 minLength: 1,
                 maxLength: 4000,
                 pattern: '\\S',
+                description:
+                  'One focused construction judgment or clarification for the Senior Project Manager.',
               },
-              responseType: { const: 'point_set', type: 'string' },
-              documentId: { type: 'string', minLength: 1, maxLength: 200 },
-              documentVersionId: { type: 'string', minLength: 1, maxLength: 200 },
+              responseType: {
+                const: 'point_set',
+                type: 'string',
+                description:
+                  'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+              },
+              documentId: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 200,
+                description:
+                  'The immutable document ID on which a returned Point Set should be placed.',
+              },
+              documentVersionId: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 200,
+                description:
+                  'The immutable document version on which a returned Point Set should be placed.',
+              },
               recommendedPageIds: {
                 type: 'array',
                 maxItems: 25,
                 uniqueItems: true,
-                items: { type: 'string', minLength: 1, maxLength: 200 },
+                description:
+                  'Suggested starting pages for review, not a restriction on where the final response may point.',
+                items: {
+                  type: 'string',
+                  minLength: 1,
+                  maxLength: 200,
+                  description:
+                    'A suggested starting page ID in the Point Set target document.',
+                },
               },
               supportingDocumentReferences: {
                 type: 'array',
                 minItems: 1,
                 maxItems: 10,
+                description:
+                  'Immutable document and page references that support the judgment, distinct from the Point Set target document.',
                 items: {
                   type: 'object',
                   properties: {
-                    documentId: { type: 'string', minLength: 1, maxLength: 200 },
-                    documentVersionId: { type: 'string', minLength: 1, maxLength: 200 },
+                    documentId: {
+                      type: 'string',
+                      minLength: 1,
+                      maxLength: 200,
+                      description: 'The immutable supporting evidence document ID.',
+                    },
+                    documentVersionId: {
+                      type: 'string',
+                      minLength: 1,
+                      maxLength: 200,
+                      description:
+                        'The immutable supporting evidence version paired with documentId.',
+                    },
                     pageIds: {
                       type: 'array',
                       minItems: 1,
                       maxItems: 25,
                       uniqueItems: true,
-                      items: { type: 'string', minLength: 1, maxLength: 200 },
+                      description:
+                        'One to twenty-five page IDs in the supporting document version that support the judgment.',
+                      items: {
+                        type: 'string',
+                        minLength: 1,
+                        maxLength: 200,
+                        description: 'A page ID in the supporting document version.',
+                      },
                     },
                   },
                   required: ['documentId', 'documentVersionId', 'pageIds'],
@@ -432,8 +555,15 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
                 minLength: 1,
                 maxLength: 4000,
                 pattern: '\\S',
+                description:
+                  'One focused construction judgment or clarification for the Senior Project Manager.',
               },
-              responseType: { const: 'text', type: 'string' },
+              responseType: {
+                const: 'text',
+                type: 'string',
+                description:
+                  'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+              },
             },
             required: ['question', 'responseType'],
             additionalProperties: false,
@@ -452,7 +582,13 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
       inputSchema: {
         type: 'object',
         properties: {
-          id: { type: 'string', minLength: 1, maxLength: 200 },
+          id: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 200,
+            description:
+              'The exact durable Assistance Request ID returned when the request was created.',
+          },
         },
         required: ['id'],
         additionalProperties: false,

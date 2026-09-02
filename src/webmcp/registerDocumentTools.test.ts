@@ -3,6 +3,66 @@ import { createDocuments } from '../documents/documents'
 import { createRecordingModelContext } from './recordingModelContext'
 import { registerDocumentTools } from './registerDocumentTools'
 
+interface RegisteredInputSchema {
+  anyOf?: RegisteredInputSchema[]
+  description?: string
+  properties?: Record<string, RegisteredInputSchema>
+}
+
+test('document tool input schemas explain how to provide search and inspection inputs', async () => {
+  const modelContext = createRecordingModelContext()
+  const controller = new AbortController()
+  await registerDocumentTools(
+    modelContext,
+    createDocuments(),
+    controller.signal,
+  )
+
+  const searchSchema = JSON.parse(JSON.stringify(
+    modelContext.getTool('search_project_documents')?.inputSchema,
+  )) as RegisteredInputSchema
+  const inspectionSchema = JSON.parse(JSON.stringify(
+    modelContext.getTool('inspect_document_evidence')?.inputSchema,
+  )) as RegisteredInputSchema
+  const pageInspection = inspectionSchema.anyOf?.[0]
+  const blockInspection = inspectionSchema.anyOf?.[1]
+
+  expect({
+    query: searchSchema.properties?.query?.description,
+    scope: searchSchema.properties?.scope?.description,
+    scopeDocumentId:
+      searchSchema.properties?.scope?.properties?.documentId?.description,
+    scopeDocumentVersionId:
+      searchSchema.properties?.scope?.properties?.documentVersionId?.description,
+    limit: searchSchema.properties?.limit?.description,
+    inspectionDocumentId:
+      pageInspection?.properties?.documentId?.description,
+    inspectionDocumentVersionId:
+      pageInspection?.properties?.documentVersionId?.description,
+    pageIds: pageInspection?.properties?.pageIds?.description,
+    blockIds: blockInspection?.properties?.blockIds?.description,
+  }).toEqual({
+    query:
+      'A construction phrase, identifier, note, schedule entry, or requirement to search for in prepared evidence.',
+    scope:
+      'Optional immutable document/version pair copied exactly from list_project_documents or another tool result.',
+    scopeDocumentId: 'The immutable document ID for the optional search scope.',
+    scopeDocumentVersionId:
+      'The immutable version ID paired with scope.documentId.',
+    limit: 'Maximum matches to return, from 1 through 20.',
+    inspectionDocumentId:
+      'The immutable document ID copied exactly from the document catalog or search result.',
+    inspectionDocumentVersionId:
+      'The immutable version ID paired with documentId.',
+    pageIds:
+      'One to five page IDs returned by the document catalog or search, used to inspect complete page-level evidence.',
+    blockIds:
+      'One to fifty exact semantic block IDs returned by search, used for focused inspection.',
+  })
+
+  controller.abort()
+})
+
 test('an External Agent discovers documents and inspects page or block evidence', async () => {
   const documents = createDocuments()
   const modelContext = createRecordingModelContext()
