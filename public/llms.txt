@@ -6,7 +6,7 @@ The public demo covers one Type C door Submittal Review. External Agents use six
 
 ## Project
 
-- [Open the Grounded demo](https://grounded-demo.contact-f32.workers.dev/): Use the live Project Workspace in a WebMCP-capable client.
+- [Open the Grounded demo](https://grounded-demo.keegangaffney.com/): Use the live Project Workspace in a WebMCP-capable client.
 - [Grounded on GitHub](https://github.com/Skeegan123/grounded-demo): Read the source code, setup instructions, and project overview.
 
 ## Documentation
