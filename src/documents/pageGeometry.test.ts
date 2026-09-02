@@ -144,24 +144,6 @@ test.each([
   if (region.top === 0) expect(geometry.offset.y).toBeCloseTo(padding.y, 10)
 })
 
-test('right and bottom overlays are excluded before reserving focus padding', () => {
-  const region = { left: 0.4, top: 0.4, width: 0.2, height: 0.2 }
-  const viewport = { width: 1000, height: 1000 }
-  const insets = { right: 200, bottom: 300 }
-  const geometry = fitRegionInBounds({
-    insets,
-    page: { width: 1000, height: 1000 },
-    region,
-    viewport,
-  })
-  const bounds = focusedRegionBounds(geometry, region)
-
-  expect(geometry.zoom).toBeCloseTo(2.8, 10)
-  expectContainedWithReserve(bounds, viewport, insets)
-  expect(bounds.left + bounds.width / 2).toBeCloseTo(400, 10)
-  expect(bounds.top + bounds.height / 2).toBeCloseTo(350, 10)
-})
-
 test('resizing recalculates zoom and offset from the same normalized region', () => {
   const region = { left: 0.55, top: 0.2, width: 0.3, height: 0.25 }
   const page = { width: 1200, height: 800 }
@@ -193,22 +175,17 @@ function focusedRegionBounds(
 function expectContainedWithReserve(
   bounds: ReturnType<typeof focusedRegionBounds>,
   viewport: { width: number; height: number },
-  insets: { right?: number; bottom?: number } = {},
 ) {
-  const usable = {
-    width: viewport.width - (insets.right ?? 0),
-    height: viewport.height - (insets.bottom ?? 0),
-  }
   expect(bounds.left).toBeGreaterThanOrEqual(
-    usable.width * DOCUMENT_FOCUS_EDGE_RESERVE - 1e-9,
+    viewport.width * DOCUMENT_FOCUS_EDGE_RESERVE - 1e-9,
   )
   expect(bounds.top).toBeGreaterThanOrEqual(
-    usable.height * DOCUMENT_FOCUS_EDGE_RESERVE - 1e-9,
+    viewport.height * DOCUMENT_FOCUS_EDGE_RESERVE - 1e-9,
   )
   expect(bounds.left + bounds.width).toBeLessThanOrEqual(
-    usable.width * (1 - DOCUMENT_FOCUS_EDGE_RESERVE) + 1e-9,
+    viewport.width * (1 - DOCUMENT_FOCUS_EDGE_RESERVE) + 1e-9,
   )
   expect(bounds.top + bounds.height).toBeLessThanOrEqual(
-    usable.height * (1 - DOCUMENT_FOCUS_EDGE_RESERVE) + 1e-9,
+    viewport.height * (1 - DOCUMENT_FOCUS_EDGE_RESERVE) + 1e-9,
   )
 }

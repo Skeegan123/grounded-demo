@@ -70,26 +70,18 @@ export function fitPageInBounds(
 }
 
 export function fitRegionInBounds({
-  insets = {},
   page,
   region,
   viewport,
 }: {
-  insets?: PageViewportInsets
   page: PageSize
   region: DocumentRegion
   viewport: PageSize
 }): RegionFocusGeometry {
   const ordinaryPage = fitPageInBounds(page, viewport, 1, 'page')
   const ordinaryScale = page.width > 0 ? ordinaryPage.width / page.width : 0
-  const usableWidth = Math.max(
-    0,
-    viewport.width - Math.max(0, insets.right ?? 0),
-  )
-  const usableHeight = Math.max(
-    0,
-    viewport.height - Math.max(0, insets.bottom ?? 0),
-  )
+  const usableWidth = Math.max(0, viewport.width)
+  const usableHeight = Math.max(0, viewport.height)
   if (
     ordinaryScale <= 0 ||
     usableWidth <= 0 ||

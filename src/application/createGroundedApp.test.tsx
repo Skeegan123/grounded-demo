@@ -428,18 +428,25 @@ test('navigate_document visibly fits a raw Document Region and preserves unfinis
     type: 'region',
     fit: 'region',
     region,
-    zoom: expect.closeTo(3.8431372549, 8),
+    zoom: 4,
   })
   expectCurrentPage(/A1\.2, 1st Floor Plan/)
-  expect(screen.getByText('384%')).toBeInTheDocument()
+  expect(screen.getByText('400%')).toBeInTheDocument()
   expect(screen.getByText(requestInput.question)).toBeInTheDocument()
   expect(screen.getByLabelText('Overall note optional')).toHaveValue(
     'Keep this region review draft.',
   )
   expect(within(screen.getByLabelText('Drawing page A1.2')).getByText('1'))
     .toBeInTheDocument()
-  expect(document.querySelector('.document-focus, .navigation-focus'))
-    .not.toBeInTheDocument()
+  const focusOutline = document.querySelector('.document-focus-outline')
+  expect(focusOutline).toBeInTheDocument()
+  expect(focusOutline).toHaveAttribute('aria-hidden', 'true')
+  expect(focusOutline).toHaveStyle({
+    left: '40%',
+    top: '35%',
+    width: '20%',
+    height: '20%',
+  })
 })
 
 test('navigate_document resolves Document Evidence and Search Hint blocks through the public region-focus path', async () => {
@@ -515,10 +522,14 @@ test('navigate_document resolves Document Evidence and Search Hint blocks throug
   expect(hintResult).not.toHaveProperty('classification')
   expect(hintResult).not.toHaveProperty('content')
   expect(hintResult).not.toHaveProperty('evidence')
-  expect(document.querySelector('.document-focus, .navigation-focus'))
-    .not.toBeInTheDocument()
+  expect(document.querySelector('.document-focus-outline')).toHaveStyle({
+    left: `${hint.region.left * 100}%`,
+    top: `${hint.region.top * 100}%`,
+    width: `${hint.region.width * 100}%`,
+    height: `${hint.region.height * 100}%`,
+  })
 
-  const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
+  const focusedRenderCount = vi.mocked(pageRenderer.renderPage).mock.calls.length
   await expect(modelContext.executeTool('navigate_document', {
     documentId: hint.document.id,
     target: { type: 'region', pageId: hint.page.id, region: hint.region },
@@ -662,6 +673,38 @@ test('invalid Document Regions fail atomically at the public boundary', async ()
   expect(pageRenderer.renderPage).toHaveBeenCalledTimes(renderCount)
 })
 
+test('invalid navigation preserves the applied Document Focus outline', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-invalid-navigation-focus-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+  const region = { left: 0.4, top: 0.35, width: 0.2, height: 0.2 }
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'region', pageId: 'sheet-a1.2', region },
+  })
+  const outline = document.querySelector('.document-focus-outline')
+  const renderCount = pageRenderer.renderPage.mock.calls.length
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'missing-document',
+    target: { type: 'region', pageId: 'sheet-a1.2', region },
+  })).rejects.toThrow(
+    'The Project Document does not exist in this Project Workspace.',
+  )
+
+  expect(document.querySelector('.document-focus-outline')).toBe(outline)
+  expectCurrentPage(/A1\.2, 1st Floor Plan/)
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(renderCount)
+})
+
 test('Document Focus survives idempotence, yields cleanly to the Senior Project Manager, and is not restored after reload', async () => {
   const storage = window.sessionStorage
   const pageRenderer = createTestPageRenderer()
@@ -685,7 +728,8 @@ test('Document Focus survives idempotence, yields cleanly to the Senior Project 
 
   await waitForWebMcpReady()
   await firstModelContext.executeTool('navigate_document', input)
-  expect(screen.getByText('384%')).toBeInTheDocument()
+  expect(screen.getByText('400%')).toBeInTheDocument()
+  expect(document.querySelector('.document-focus-outline')).toBeInTheDocument()
   const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
   await firstModelContext.executeTool('navigate_document', input)
   expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
@@ -705,9 +749,142 @@ test('Document Focus survives idempotence, yields cleanly to the Senior Project 
   expect(screen.getByText('100%')).toBeInTheDocument()
 
   await secondModelContext.executeTool('navigate_document', input)
-  expect(screen.getByText('384%')).toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }))
-  expect(screen.getByText('394%')).toBeInTheDocument()
+  expect(screen.getByText('400%')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }))
+  expect(screen.getByText('390%')).toBeInTheDocument()
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
+})
+
+test('repeating a dismissed Document Focus restores its outline without rerendering the visible page', async () => {
+  const modelContext = createRecordingModelContext()
+  const pageRenderer = createTestPageRenderer()
+  render(createGroundedApp({
+    databaseName: `grounded-repeat-dismissed-focus-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+  const input = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region' as const,
+      pageId: 'sheet-a1.2',
+      region: { left: 0.4, top: 0.35, width: 0.2, height: 0.2 },
+    },
+  }
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('navigate_document', input)
+  const outline = document.querySelector('.document-focus-outline')!
+  const viewer = outline.closest('.pdf-page-viewer')!
+  const frame = outline.closest('.pdf-page-frame')!
+  const fittedTransform = frame.getAttribute('style')
+  const focusedRenderCount = pageRenderer.renderPage.mock.calls.length
+
+  fireEvent.pointerDown(viewer, {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
+  expect(frame.getAttribute('style')).toBe(fittedTransform)
+
+  await modelContext.executeTool('navigate_document', input)
+
+  expect(document.querySelector('.document-focus-outline')).toBeInTheDocument()
+  expect(frame.getAttribute('style')).toBe(fittedTransform)
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
+})
+
+test('page and document navigation remove the Document Focus outline', async () => {
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-clear-focus-navigation-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+  const regionInput = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region' as const,
+      pageId: 'sheet-a1.2',
+      region: { left: 0.4, top: 0.35, width: 0.2, height: 0.2 },
+    },
+  }
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('navigate_document', regionInput)
+  expect(document.querySelector('.document-focus-outline')).toBeInTheDocument()
+
+  await modelContext.executeTool('navigate_document', {
+    documentId: regionInput.documentId,
+    target: { type: 'page', pageId: regionInput.target.pageId },
+  })
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
+
+  await modelContext.executeTool('navigate_document', regionInput)
+  expect(document.querySelector('.document-focus-outline')).toBeInTheDocument()
+  await modelContext.executeTool('navigate_document', {
+    documentId: regionInput.documentId,
+  })
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
+})
+
+test('pointer-down during region rendering dismisses the eventual outline until navigation is repeated', async () => {
+  let finishFocusedRender: (() => void) | undefined
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, pageNumber, width }) => {
+      if (pageNumber === 6) {
+        await new Promise<void>((resolve) => {
+          finishFocusedRender = resolve
+        })
+      }
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-pending-focus-dismissal-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+  const input = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region' as const,
+      pageId: 'sheet-a1.2',
+      region: { left: 0.4, top: 0.35, width: 0.2, height: 0.2 },
+    },
+  }
+
+  await waitForWebMcpReady()
+  await screen.findByLabelText('Rendered PDF page A0.0')
+  const navigation = modelContext.executeTool('navigate_document', input)
+  await waitFor(() => expect(finishFocusedRender).toBeTypeOf('function'))
+  const viewer = document.querySelector('.pdf-page-viewer')!
+  fireEvent.pointerDown(viewer, {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+  act(() => finishFocusedRender?.())
+  await navigation
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
+  const focusedRenderCount = vi.mocked(pageRenderer.renderPage).mock.calls.length
+
+  await modelContext.executeTool('navigate_document', input)
+
+  expect(document.querySelector('.document-focus-outline')).toBeInTheDocument()
+  expect(pageRenderer.renderPage).toHaveBeenCalledTimes(focusedRenderCount)
 })
 
 test('navigate_document restores the last visible page after a render failure', async () => {
@@ -739,6 +916,52 @@ test('navigate_document restores the last visible page after a render failure', 
   expectCurrentPage(/A0\.0, Cover Page/)
   expect(screen.getByLabelText('Rendered PDF page A0.0')).toBeVisible()
   expect(screen.queryByText('Sensitive renderer details.')).not.toBeInTheDocument()
+})
+
+test('render-failure rollback does not restore a dismissed Document Focus outline', async () => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, pageNumber, width }) => {
+      if (pageNumber === 6) throw new Error('Sensitive renderer details.')
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-dismissed-focus-recovery-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+  const focusedInput = {
+    documentId: 'virginia-farmhouse-drawings',
+    target: {
+      type: 'region' as const,
+      pageId: 'sheet-a1.3',
+      region: { left: 0.4, top: 0.35, width: 0.2, height: 0.2 },
+    },
+  }
+
+  await waitForWebMcpReady()
+  await modelContext.executeTool('navigate_document', focusedInput)
+  const outline = document.querySelector('.document-focus-outline')!
+  fireEvent.pointerDown(outline.closest('.pdf-page-viewer')!, {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+    target: { type: 'page', pageId: 'sheet-a1.2' },
+  })).rejects.toThrow('The Project Document page could not be rendered.')
+
+  expectCurrentPage(/A1\.3, 2nd Floor Plan/)
+  expect(document.querySelector('.document-focus-outline')).not.toBeInTheDocument()
 })
 
 test('failed cross-document navigation restores remembered pages and the exact ordinary fit and zoom', async () => {

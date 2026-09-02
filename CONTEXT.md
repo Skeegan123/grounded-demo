@@ -41,7 +41,7 @@ One location to show during Document Browsing, addressed at document, page, bloc
 _Avoid_: Viewer target, navigation target
 
 **Document Focus**:
-A transient Document Browsing state that fits one Document Region into view without selecting, annotating, or highlighting it.
+A transient Document Browsing state that fits one Document Region into view and shows a Document Focus outline after the region is visibly applied. The outline identifies the destination without selecting, annotating, highlighting, or classifying it.
 _Avoid_: Highlight, selection
 
 **Document Region**:

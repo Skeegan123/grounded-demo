@@ -88,9 +88,10 @@ The current application registers these descriptions:
   which can locate content but cannot support a claim by themselves."
 - `navigate_document`: "Navigate the visible Document Browsing workbench to the
   current Project Document, one stable page, one semantic block, or one
-  normalized Document Region. Block and region navigation transiently fit the
-  complete resolved region without highlighting; the command returns only after
-  the destination is visibly rendered and fitted."
+  normalized Document Region. Block and region navigation transiently fit and
+  outline the complete resolved region without highlighting, selecting, or
+  annotating it; the command returns only after the destination is visibly
+  rendered and fitted."
 - `create_assistance_request`: "Queue one Assistance Request requiring a Point
   Set or text response from a Senior Project Manager. For a Point Set, include
   references to other immutable documents that support the requested judgment.

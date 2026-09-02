@@ -31,6 +31,7 @@ export interface DocumentWorkbenchProps {
   documents: ProjectDocument[]
   fit: PageFit
   destinationRequest?: DocumentDestinationRequest
+  onDocumentFocusDismiss?: () => void
   onFitChange: (fit: PageFit) => void
   onSeniorProjectManagerTakeover?: () => void
   onPlacePoint: (point: NormalizedPoint) => void
@@ -60,6 +61,7 @@ export function DocumentWorkbench({
   documents,
   fit,
   destinationRequest,
+  onDocumentFocusDismiss,
   onFitChange,
   onSeniorProjectManagerTakeover,
   onPlacePoint,
@@ -161,6 +163,7 @@ export function DocumentWorkbench({
           document={currentDocument}
           fit={fit}
           destinationRequest={destinationRequest}
+          onDocumentFocusDismiss={onDocumentFocusDismiss}
           onEffectiveZoomChange={setFocusedZoom}
           onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
           onPlacePoint={onPlacePoint}

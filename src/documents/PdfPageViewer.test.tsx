@@ -685,6 +685,67 @@ test('Document Focus recomputes its effective zoom and remains acknowledged afte
   }
 })
 
+test('pointer-down dismisses the Document Focus outline without changing its fitted view', async () => {
+  const projectDocument = findDocument(
+    'virginia-farmhouse-drawings',
+    'virginia-farmhouse-drawings-v1',
+  )!
+  const page = projectDocument.pages.find((candidate) => candidate.id === 'sheet-a1.2')!
+  const region = { left: 0.4, top: 0.35, width: 0.2, height: 0.2 }
+  const onDocumentFocusDismiss = vi.fn()
+  const onSeniorProjectManagerTakeover = vi.fn()
+
+  render(
+    <PdfPageViewer
+      canMark={false}
+      document={projectDocument}
+      destinationRequest={{
+        id: 48,
+        documentId: projectDocument.id,
+        documentVersionId: projectDocument.versionId,
+        pageId: page.id,
+        fit: 'region',
+        region,
+      }}
+      onDocumentFocusDismiss={onDocumentFocusDismiss}
+      onPlacePoint={() => {}}
+      onRemovePoint={() => {}}
+      onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
+      page={page}
+      points={[{
+        pageId: page.id,
+        pageLabel: page.label,
+        pageNumber: page.number,
+        x: 0.5,
+        y: 0.5,
+      }]}
+      renderer={{ async renderPage() {}, prefetchPages() {} }}
+      zoom={1}
+    />,
+  )
+
+  const outline = await waitFor(() => {
+    const element = globalThis.document.querySelector('.document-focus-outline')
+    expect(element).toBeInTheDocument()
+    return element!
+  })
+  const frame = outline.closest('.pdf-page-frame')!
+  const fittedTransform = frame.getAttribute('style')
+
+  fireEvent.pointerDown(screen.getByRole('button', { name: 'Point 1' }), {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+
+  expect(globalThis.document.querySelector('.document-focus-outline'))
+    .not.toBeInTheDocument()
+  expect(frame.getAttribute('style')).toBe(fittedTransform)
+  expect(onDocumentFocusDismiss).toHaveBeenCalledTimes(1)
+  expect(onSeniorProjectManagerTakeover).not.toHaveBeenCalled()
+})
+
 test('reports render failure only for the matching Document Destination request', async () => {
   const renderer: PdfPageRenderer = {
     async renderPage() {

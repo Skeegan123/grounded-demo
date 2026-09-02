@@ -38,6 +38,7 @@ function createNavigator(): DocumentNavigator {
   }))
   return {
     cancelPending: vi.fn(),
+    dismissDocumentFocusOutline: vi.fn(),
     navigate,
     reportRenderError: vi.fn(),
     reportVisibleDestination: vi.fn(),

@@ -122,10 +122,10 @@ Grounded resolves the exact semantic block region and owning page, then uses the
 same fitting lifecycle as a raw region. Both source-derived Document Evidence
 blocks and generated Search Hint blocks can be navigated; this location-only
 action neither changes their classification nor implies that a Search Hint can
-support a claim. Grounded fits the complete region into the unobscured viewer,
-centers it when page-edge clamping permits, reserves 10 percent of the usable
-viewport on every edge, excludes right and bottom control overlays, and clamps
-the computed scale to the existing 25–400 percent range. The existing zoom
+support a claim. Grounded fits the complete region into the full document
+viewer, centers it when page-edge clamping permits, reserves 10 percent of the
+viewer on every edge, ignores floating control overlays, and clamps the
+computed scale to the existing 25–400 percent range. The existing zoom
 percentage shows the actual scale and the applied result reports it with the
 exact normalized region:
 
@@ -180,12 +180,26 @@ pass the search match's raw `region` with its `page.id` as a region target.
 Navigation never returns block content, OCR, classification claims, evidence
 payloads, or other source text.
 
-Document Focus adds no button, highlight, selection, annotation, focus outline,
-badge, or other visible decoration. It recalculates from the normalized region
-when the viewport resizes. Senior Project Manager pan, zoom, fit, page, or
-document actions clear it and remain authoritative. The selected document and
-page are persisted, but
-the focus scale and offset are not: reload restores that page with ordinary
+After the region is visibly rendered and fitted, Document Focus draws a
+transient outline at the exact normalized Document Region. The fixed-width
+stroke stays inside the page edge, above the PDF canvas and below Point Set
+markers. It is hidden from accessibility APIs, ignores pointer events, and is
+visual context only. It is not a highlight, selection, annotation, evidence
+classification, badge, or control. Document-only and page navigation never
+show it.
+
+A new block or region navigation replaces the prior outline. A pointer-down
+anywhere in the document viewer dismisses it even if no pan follows, while the
+fitted region remains in view. Resizing after dismissal does not restore it.
+Repeating the same block or region navigation creates a fresh outline and keeps
+the optimization that reuses an already visible PDF page. Assistance panel
+interaction does not dismiss the outline. Senior Project Manager pan, pinch,
+wheel, zoom, fit, page-selection, document-selection, and keyboard browsing
+take control and clear the outline and Document Focus.
+
+While active, Document Focus recalculates from the normalized region when the
+viewport resizes. Grounded persists the selected document and page, but not the
+focus scale, offset, or outline. Reload restores that page with ordinary
 full-page fit at 100 percent. Ordinary Senior Project Manager browsing
 preferences continue to persist normally.
 
@@ -206,10 +220,11 @@ context and no fields that imply its destination became visible:
 ```
 
 Late rendering from a superseded call cannot complete that call, reclaim the
-view, or roll back the newer destination. Repeating an exact destination while
-its page and fit are still visibly applied returns the existing applied result
-without rendering again. If the Senior Project Manager has moved the view, the
-same input reapplies its page or region fit before returning `applied`.
+view, roll back the newer destination, or leave a stale outline. Repeating an
+exact destination while its page, fit, and outline are still visibly applied
+returns the existing applied result without rendering again. If the Senior
+Project Manager has moved the view, or dismissed the outline, the same input
+reapplies its page or region fit and visual context before returning `applied`.
 
 Each call has a 15-second internal visible-render deadline. A PDF render failure
 or deadline expiry restores the last successfully displayed document and page
@@ -350,7 +365,7 @@ Every inspection identifier is limited to 200 characters. Page inspection
 returns each selected page's semantic blocks and table rows. Block inspection
 returns every selected block with the page, document/source provenance, and
 relevant table rows needed to interpret it. Normalized semantic block and table
-row regions support navigation and highlighting without shipping word-level
+row regions support navigation and Document Focus outlines without shipping word-level
 OCR in the browser artifact or adding it to an External Agent's context.
 
 The complete serialized result is capped at 512 KiB measured as UTF-8 bytes at

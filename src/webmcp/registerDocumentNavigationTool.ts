@@ -67,7 +67,7 @@ export function registerDocumentNavigationTool(
     name: 'navigate_document',
     title: 'Navigate to a Project Document destination',
     description:
-      'Navigate the visible Document Browsing workbench to the current Project Document, one stable page, one semantic block, or one normalized Document Region. Block and region navigation transiently fit the complete resolved region without highlighting; the command returns only after the destination is visibly rendered and fitted.',
+      'Navigate the visible Document Browsing workbench to the current Project Document, one stable page, one semantic block, or one normalized Document Region. Block and region navigation transiently fit and outline the complete resolved region without highlighting, selecting, or annotating it; the command returns only after the destination is visibly rendered and fitted.',
     schema: NavigateDocumentInput,
     readOnly: false,
     includeValidationIssueMessage: true,

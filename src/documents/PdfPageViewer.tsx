@@ -56,6 +56,7 @@ interface PdfPageViewerProps {
   document: ProjectDocument
   fit?: PageFit
   destinationRequest?: DocumentDestinationRequest
+  onDocumentFocusDismiss?: () => void
   onSeniorProjectManagerTakeover?: () => void
   onEffectiveZoomChange?: (zoom: number) => void
   onPlacePoint: (point: NormalizedPoint) => void
@@ -100,6 +101,7 @@ export function PdfPageViewer({
   document,
   fit = 'page',
   destinationRequest,
+  onDocumentFocusDismiss,
   onEffectiveZoomChange,
   onSeniorProjectManagerTakeover,
   onPlacePoint,
@@ -140,6 +142,8 @@ export function PdfPageViewer({
     status: 'idle',
   })
   const [displayedRender, setDisplayedRender] = useState<DisplayedRender>()
+  const [dismissedFocusRequestId, setDismissedFocusRequestId] =
+    useState<number>()
   const [pointControlsDismissed, setPointControlsDismissed] = useState(false)
   const [selectedPoint, setSelectedPoint] = useState<{
     globalIndex: number
@@ -194,13 +198,12 @@ export function PdfPageViewer({
   const focusGeometry = useMemo(
     () => focusedRegion
       ? fitRegionInBounds({
-          insets: clampingInsets,
           page,
           region: focusedRegion,
           viewport: availableSize,
         })
       : undefined,
-    [availableSize, clampingInsets, focusedRegion, page],
+    [availableSize, focusedRegion, page],
   )
   const effectiveFit: PageFit | 'region' = focusGeometry ? 'region' : fit
   const effectiveZoom = focusGeometry?.zoom ?? zoom
@@ -210,6 +213,12 @@ export function PdfPageViewer({
   )
   const renderIdentity = `${pageIdentity}:${renderedSize.width}x${renderedSize.height}`
   const destinationRequestId = matchingDestinationRequest?.id
+  const showsDocumentFocusOutline = Boolean(
+    destinationRequestId !== undefined &&
+    destinationRequestId !== dismissedFocusRequestId &&
+    matchingDestinationRequest?.fit === 'region' &&
+    matchingDestinationRequest.showFocusOutline !== false,
+  )
 
   useLayoutEffect(() => {
     zoomRef.current = effectiveZoom
@@ -521,6 +530,12 @@ export function PdfPageViewer({
     }
   }
 
+  const dismissDocumentFocusOutline = () => {
+    if (!focusedRegion || destinationRequestId === undefined) return
+    setDismissedFocusRequestId(destinationRequestId)
+    onDocumentFocusDismiss?.()
+  }
+
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const active = pointersRef.current.get(event.pointerId)
     if (!active) return
@@ -597,6 +612,7 @@ export function PdfPageViewer({
       className={`pdf-page-viewer${isPanning ? ' panning' : ''}`}
       onPointerCancel={(event) => finishPointer(event, false)}
       onPointerDown={handlePointerDown}
+      onPointerDownCapture={dismissDocumentFocusOutline}
       onPointerMove={handlePointerMove}
       onPointerUp={(event) => finishPointer(event, true)}
       ref={hostRef}
@@ -628,6 +644,18 @@ export function PdfPageViewer({
               }}
             />
           ))}
+          {isCurrentRender && focusedRegion && showsDocumentFocusOutline && (
+            <div
+              aria-hidden="true"
+              className="document-focus-outline"
+              style={{
+                height: `${focusedRegion.height * 100}%`,
+                left: `${focusedRegion.left * 100}%`,
+                top: `${focusedRegion.top * 100}%`,
+                width: `${focusedRegion.width * 100}%`,
+              }}
+            />
+          )}
           <div
             aria-label={`Drawing page ${page.label}`}
             className={canMark && isCurrentRender

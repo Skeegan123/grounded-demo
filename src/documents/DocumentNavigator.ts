@@ -37,7 +37,11 @@ interface DocumentDestinationRequestBase extends DocumentLocation {
 
 export type DocumentDestinationRequest = DocumentDestinationRequestBase & (
   | { fit: DocumentFitPreference; zoom: number }
-  | { fit: 'region'; region: DocumentRegion }
+  | {
+      fit: 'region'
+      region: DocumentRegion
+      showFocusOutline?: boolean
+    }
 )
 
 export type VisibleDocumentDestination = DocumentLocation & {
@@ -71,6 +75,7 @@ export type DocumentNavigationResult =
 
 export interface DocumentNavigator {
   cancelPending: () => void
+  dismissDocumentFocusOutline: () => void
   navigate: (
     input: NavigateDocumentInput,
     context?: DocumentNavigationExecutionContext,
@@ -113,8 +118,10 @@ interface ResolvedDocumentDestination {
 interface PendingExternalAgentNavigation extends ResolvedDocumentDestination {
   abort?: { listener: () => void; signal: AbortSignal }
   error?: Error
+  focusOutlineDismissed: boolean
   phase: 'requested' | 'rollback'
   previousBrowsing: DocumentBrowsingSnapshot
+  previousDocumentFocusOutlineVisible: boolean
   previousVisibleDestination?: VisibleDocumentDestination
   reject: (error: Error) => void
   resolve: (result: DocumentNavigationResult) => void
@@ -131,6 +138,7 @@ export function createDocumentNavigator({
 }: CreateDocumentNavigatorOptions): DocumentNavigator {
   let nextRequestId = 0
   let activeDocumentFocus: DocumentDestinationRequest | undefined
+  let documentFocusOutlineVisible = false
   let pending: PendingExternalAgentNavigation | undefined
   let visibleDestination: VisibleDocumentDestination | undefined
 
@@ -197,6 +205,9 @@ export function createDocumentNavigator({
     if (pending !== navigation) return
     pending = undefined
     clearResources(navigation)
+    documentFocusOutlineVisible =
+      navigation.previousDocumentFocusOutlineVisible &&
+      !navigation.focusOutlineDismissed
     requestDocumentDestination(activeDocumentFocus)
     navigation.reject(error)
   }
@@ -206,6 +217,7 @@ export function createDocumentNavigator({
     pending = undefined
     clearResources(navigation)
     activeDocumentFocus = undefined
+    documentFocusOutlineVisible = false
     requestDocumentDestination(undefined)
     if (navigation.phase === 'rollback') {
       navigation.reject(navigation.error!)
@@ -217,6 +229,7 @@ export function createDocumentNavigator({
   const requestView = (
     navigation: PendingExternalAgentNavigation,
     view: VisibleDocumentDestination,
+    showFocusOutline = true,
   ) => {
     const requestBase: DocumentDestinationRequestBase = {
       id: ++nextRequestId,
@@ -226,7 +239,12 @@ export function createDocumentNavigator({
     }
     const request: DocumentDestinationRequest =
       view.fit === 'region'
-        ? { ...requestBase, fit: 'region', region: view.region }
+        ? {
+            ...requestBase,
+            fit: 'region',
+            region: view.region,
+            showFocusOutline,
+          }
         : { ...requestBase, fit: view.fit, zoom: view.zoom }
     navigation.destinationRequestId = request.id
     navigation.destinationRequest = request
@@ -265,7 +283,11 @@ export function createDocumentNavigator({
       return
     }
 
-    requestView(navigation, previous)
+    requestView(
+      navigation,
+      previous,
+      navigation.previousDocumentFocusOutlineVisible,
+    )
   }
 
   const resolveInput = (
@@ -329,6 +351,7 @@ export function createDocumentNavigator({
     }
     visibleDestination = undefined
     activeDocumentFocus = undefined
+    documentFocusOutlineVisible = false
     requestDocumentDestination(undefined)
   }
 
@@ -367,7 +390,13 @@ export function createDocumentNavigator({
       )
       visibleDestination = undefined
       activeDocumentFocus = undefined
+      documentFocusOutlineVisible = false
       requestDocumentDestination(undefined)
+    },
+
+    dismissDocumentFocusOutline() {
+      documentFocusOutlineVisible = false
+      if (pending) pending.focusOutlineDismissed = true
     },
 
     async navigate(input, context) {
@@ -375,11 +404,15 @@ export function createDocumentNavigator({
         captureDocumentBrowsingSnapshot(workspaceStore.getState())
       const previousVisibleDestination =
         pending?.previousVisibleDestination ?? visibleDestination
+      const previousDocumentFocusOutlineVisible =
+        pending?.previousDocumentFocusOutlineVisible ??
+        documentFocusOutlineVisible
       const destination = resolveInput(input, previousBrowsing)
       if (
         !pending &&
         matches(destination, visibleDestination) &&
-        stateMatches(destination)
+        stateMatches(destination) &&
+        (!destination.region || documentFocusOutlineVisible)
       ) {
         return appliedResult(destination, visibleDestination!)
       }
@@ -391,12 +424,15 @@ export function createDocumentNavigator({
 
       visibleDestination = undefined
       activeDocumentFocus = undefined
+      documentFocusOutlineVisible = false
       return new Promise<DocumentNavigationResult>((resolve, reject) => {
         const next: PendingExternalAgentNavigation = {
           ...destination,
           destinationRequestId: 0,
+          focusOutlineDismissed: false,
           phase: 'requested',
           previousBrowsing,
+          previousDocumentFocusOutlineVisible,
           previousVisibleDestination,
           reject,
           resolve,
@@ -464,6 +500,9 @@ export function createDocumentNavigator({
         activeDocumentFocus = view.fit === 'region'
           ? navigation.destinationRequest
           : undefined
+        documentFocusOutlineVisible =
+          navigation.previousDocumentFocusOutlineVisible &&
+          !navigation.focusOutlineDismissed
         finishWithError(navigation, navigation.error!)
         return
       }
@@ -474,6 +513,8 @@ export function createDocumentNavigator({
       activeDocumentFocus = navigation.region
         ? navigation.destinationRequest
         : undefined
+      documentFocusOutlineVisible = Boolean(navigation.region) &&
+        !navigation.focusOutlineDismissed
       requestDocumentDestination(activeDocumentFocus)
       navigation.resolve(appliedResult(navigation, view))
     },

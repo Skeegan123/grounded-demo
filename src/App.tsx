@@ -467,6 +467,9 @@ function App({
           documents={demoProject.documents}
           fit={fitPreference}
           destinationRequest={documentDestinationRequest}
+          onDocumentFocusDismiss={
+            documentNavigator.dismissDocumentFocusOutline
+          }
           onFitChange={setFitPreference}
           onSeniorProjectManagerTakeover={
             documentNavigator.takeSeniorProjectManagerControl

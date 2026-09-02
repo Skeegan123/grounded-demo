@@ -38,7 +38,9 @@ truth:
 - One document navigation tool: `navigate_document` moves the visible
   Document Browsing workbench to a current Project Document, stable page,
   semantic block, or normalized Document Region and returns after the requested
-  page or transient region fit is visibly applied.
+  page or transient region fit is visibly applied. Block and region navigation
+  adds a dismissible Document Focus outline without creating a highlight,
+  selection, or annotation.
 - Two Assistance tools: `create_assistance_request` persists one request and
   returns its identity immediately; `get_assistance_request` returns the pending
   request or its final Professional Response.

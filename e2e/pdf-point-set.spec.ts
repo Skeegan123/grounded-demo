@@ -309,7 +309,7 @@ test('the actual Demo Project PDF keeps a Point Set aligned on Sheet A1.2', asyn
   await expectMarkerAligned(canvas, mark, { x: 0.5, y: 0.25 })
 })
 
-test('raw Document Region navigation fits the real PDF inside unobscured padded bounds', async ({
+test('raw Document Region navigation centers and outlines the real PDF region in the full viewer', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1200, height: 800 })
@@ -339,15 +339,13 @@ test('raw Document Region navigation fits the real PDF inside unobscured padded 
 
   const canvas = page.getByLabel('Rendered PDF page A1.2')
   const viewer = page.locator('.pdf-page-viewer')
-  const zoomControls = page.getByLabel('Document zoom')
   await expect(canvas).toBeVisible()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
-  const [canvasBounds, viewerBounds, controlsBounds] = await Promise.all([
+  const [canvasBounds, viewerBounds] = await Promise.all([
     canvas.boundingBox(),
     viewer.boundingBox(),
-    zoomControls.boundingBox(),
   ])
-  if (!canvasBounds || !viewerBounds || !controlsBounds) {
+  if (!canvasBounds || !viewerBounds) {
     throw new Error('Document Focus did not produce measurable PDF bounds.')
   }
   const regionBounds = {
@@ -356,17 +354,6 @@ test('raw Document Region navigation fits the real PDF inside unobscured padded 
     right: canvasBounds.x + canvasBounds.width * (region.left + region.width),
     bottom: canvasBounds.y + canvasBounds.height * (region.top + region.height),
   }
-  const usable = {
-    left: viewerBounds.x,
-    top: viewerBounds.y,
-    right: viewerBounds.x + viewerBounds.width - controlsBounds.width - 24,
-    bottom: viewerBounds.y + viewerBounds.height - controlsBounds.height - 24,
-  }
-  const padding = {
-    x: (usable.right - usable.left) * 0.1,
-    y: (usable.bottom - usable.top) * 0.1,
-  }
-
   expect(result).toMatchObject({
     status: 'applied',
     page: { id: 'sheet-a1.2' },
@@ -374,17 +361,22 @@ test('raw Document Region navigation fits the real PDF inside unobscured padded 
     region,
   })
   expect(await zoomPercentage(page)).toBe(Math.round(result.zoom * 100))
-  expect(regionBounds.left).toBeGreaterThanOrEqual(usable.left + padding.x - 1)
-  expect(regionBounds.top).toBeGreaterThanOrEqual(usable.top + padding.y - 1)
-  expect(regionBounds.right).toBeLessThanOrEqual(usable.right - padding.x + 1)
-  expect(regionBounds.bottom).toBeLessThanOrEqual(usable.bottom - padding.y + 1)
-  expect(regionBounds.right).toBeLessThan(controlsBounds.x)
-  expect(regionBounds.bottom).toBeLessThan(controlsBounds.y)
-  await expect(page.locator('.document-focus, .navigation-focus')).toHaveCount(0)
+  expect((regionBounds.left + regionBounds.right) / 2).toBeCloseTo(
+    viewerBounds.x + viewerBounds.width / 2,
+    0,
+  )
+  expect((regionBounds.top + regionBounds.bottom) / 2).toBeCloseTo(
+    viewerBounds.y + viewerBounds.height / 2,
+    0,
+  )
+  const focusOutline = page.locator('.document-focus-outline')
+  await expect(focusOutline).toHaveCount(1)
+  await expect(focusOutline).toHaveAttribute('aria-hidden', 'true')
+  await expectOutlineMatchesRegion(canvas, focusOutline, region)
   await expect(page.getByRole('button', { name: /Document Focus/i })).toHaveCount(0)
 })
 
-test('semantic block navigation fits its resolved real-PDF region without decoration', async ({
+test('semantic block navigation fits and outlines its resolved real-PDF region', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1200, height: 800 })
@@ -437,7 +429,7 @@ test('semantic block navigation fits its resolved real-PDF region without decora
   const canvas = page.getByLabel('Rendered PDF page A1.2')
   await expect(canvas).toBeVisible()
   await expect(page.getByText('Rendering PDF page')).toBeHidden()
-  await expectRegionInsideUnobscuredBounds(
+  await expectRegionCenteredInViewer(
     page,
     canvas,
     result.navigation.region,
@@ -459,8 +451,30 @@ test('semantic block navigation fits its resolved real-PDF region without decora
   expect(await zoomPercentage(page)).toBe(Math.round(result.navigation.zoom * 100))
   expect(result.navigation).not.toHaveProperty('classification')
   expect(result.navigation).not.toHaveProperty('content')
-  await expect(page.locator('.document-focus, .navigation-focus')).toHaveCount(0)
+  const focusOutline = page.locator('.document-focus-outline')
+  await expect(focusOutline).toHaveCount(1)
+  await expect(focusOutline).toHaveAttribute('aria-hidden', 'true')
+  await expect(focusOutline).toHaveCSS('pointer-events', 'none')
+  await expect(focusOutline).toHaveCSS(
+    'box-shadow',
+    'rgb(215, 25, 32) 0px 0px 0px 3px inset',
+  )
+  await expectOutlineMatchesRegion(canvas, focusOutline, result.navigation.region)
   await expect(page.getByRole('button', { name: /Document Focus/i })).toHaveCount(0)
+
+  await page.getByRole('tab', { name: /Current/ }).click()
+  await expect(focusOutline).toHaveCount(1)
+  const fittedCanvasBounds = await canvas.boundingBox()
+  await page.locator('.pdf-page-viewer').dispatchEvent('pointerdown', {
+    button: 0,
+    clientX: 10,
+    clientY: 10,
+    pointerId: 1,
+  })
+  await expect(focusOutline).toHaveCount(0)
+  expect(await canvas.boundingBox()).toEqual(fittedCanvasBounds)
+  await page.setViewportSize({ width: 1100, height: 720 })
+  await expect(focusOutline).toHaveCount(0)
 })
 
 test('point controls stay centered, stable, and attached to their point', async ({
@@ -771,17 +785,16 @@ async function expectPointAt(
   expect(position.y).toBeCloseTo(expected.y, 2)
 }
 
-async function expectRegionInsideUnobscuredBounds(
+async function expectRegionCenteredInViewer(
   page: import('@playwright/test').Page,
   canvas: Locator,
   region: { left: number; top: number; width: number; height: number },
 ) {
-  const [canvasBounds, viewerBounds, controlsBounds] = await Promise.all([
+  const [canvasBounds, viewerBounds] = await Promise.all([
     canvas.boundingBox(),
     page.locator('.pdf-page-viewer').boundingBox(),
-    page.getByLabel('Document zoom').boundingBox(),
   ])
-  if (!canvasBounds || !viewerBounds || !controlsBounds) {
+  if (!canvasBounds || !viewerBounds) {
     throw new Error('Document Focus did not produce measurable PDF bounds.')
   }
   const regionBounds = {
@@ -790,23 +803,38 @@ async function expectRegionInsideUnobscuredBounds(
     right: canvasBounds.x + canvasBounds.width * (region.left + region.width),
     bottom: canvasBounds.y + canvasBounds.height * (region.top + region.height),
   }
-  const usable = {
-    left: viewerBounds.x,
-    top: viewerBounds.y,
-    right: viewerBounds.x + viewerBounds.width - controlsBounds.width - 24,
-    bottom: viewerBounds.y + viewerBounds.height - controlsBounds.height - 24,
-  }
-  const padding = {
-    x: (usable.right - usable.left) * 0.1,
-    y: (usable.bottom - usable.top) * 0.1,
-  }
+  expect((regionBounds.left + regionBounds.right) / 2).toBeCloseTo(
+    viewerBounds.x + viewerBounds.width / 2,
+    0,
+  )
+  expect((regionBounds.top + regionBounds.bottom) / 2).toBeCloseTo(
+    viewerBounds.y + viewerBounds.height / 2,
+    0,
+  )
+}
 
-  expect(regionBounds.left).toBeGreaterThanOrEqual(usable.left + padding.x - 1)
-  expect(regionBounds.top).toBeGreaterThanOrEqual(usable.top + padding.y - 1)
-  expect(regionBounds.right).toBeLessThanOrEqual(usable.right - padding.x + 1)
-  expect(regionBounds.bottom).toBeLessThanOrEqual(usable.bottom - padding.y + 1)
-  expect(regionBounds.right).toBeLessThan(controlsBounds.x)
-  expect(regionBounds.bottom).toBeLessThan(controlsBounds.y)
+async function expectOutlineMatchesRegion(
+  canvas: Locator,
+  outline: Locator,
+  region: { left: number; top: number; width: number; height: number },
+) {
+  const [canvasBounds, outlineBounds] = await Promise.all([
+    canvas.boundingBox(),
+    outline.boundingBox(),
+  ])
+  if (!canvasBounds || !outlineBounds) {
+    throw new Error('The PDF canvas or Document Focus outline has no bounds.')
+  }
+  expect(outlineBounds.x).toBeCloseTo(
+    canvasBounds.x + canvasBounds.width * region.left,
+    0,
+  )
+  expect(outlineBounds.y).toBeCloseTo(
+    canvasBounds.y + canvasBounds.height * region.top,
+    0,
+  )
+  expect(outlineBounds.width).toBeCloseTo(canvasBounds.width * region.width, 0)
+  expect(outlineBounds.height).toBeCloseTo(canvasBounds.height * region.height, 0)
 }
 
 async function installRecordedTools(page: import('@playwright/test').Page) {
