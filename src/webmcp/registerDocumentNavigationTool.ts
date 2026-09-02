@@ -36,6 +36,15 @@ const NavigateDocumentInput = Type.Object(
       ),
       Type.Object(
         {
+          type: Type.Literal('block'),
+          blockId: navigationIdentifier(
+            'A stable semantic block ID copied exactly from search_project_documents or inspect_document_evidence. Grounded resolves its owning page and Document Region within the current Project Document.',
+          ),
+        },
+        { additionalProperties: false },
+      ),
+      Type.Object(
+        {
           type: Type.Literal('region'),
           pageId: navigationIdentifier(
             'The stable page ID that owns this normalized Document Region.',
@@ -58,7 +67,7 @@ export function registerDocumentNavigationTool(
     name: 'navigate_document',
     title: 'Navigate to a Project Document destination',
     description:
-      'Navigate the visible Document Browsing workbench to the current Project Document, one stable page, or one normalized Document Region. Region navigation transiently fits the complete region without highlighting; the command returns only after the destination is visibly rendered and fitted.',
+      'Navigate the visible Document Browsing workbench to the current Project Document, one stable page, one semantic block, or one normalized Document Region. Block and region navigation transiently fit the complete resolved region without highlighting; the command returns only after the destination is visibly rendered and fitted.',
     schema: NavigateDocumentInput,
     readOnly: false,
     includeValidationIssueMessage: true,

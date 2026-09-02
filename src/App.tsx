@@ -85,9 +85,10 @@ function App({
     () => createDocumentNavigator({
       documents: demoProject.documents,
       requestViewerNavigation: setViewerNavigationRequest,
+      resolveCurrentBlock: documents.resolveCurrentBlock,
       workspaceStore,
     }),
-    [workspaceStore],
+    [documents, workspaceStore],
   )
   const [registrationSnapshot, setRegistrationSnapshot] =
     useState<RegistrationSnapshot>(() => ({

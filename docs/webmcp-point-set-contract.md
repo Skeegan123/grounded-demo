@@ -31,7 +31,7 @@ The Assistance schemas, annotations, limits, and result shapes are locked by
 application path is locked independently by
 `src/application/createGroundedApp.test.tsx`.
 
-## Navigate a Project Document, page, or Document Region
+## Navigate a Project Document, page, block, or Document Region
 
 Tool: `navigate_document`
 
@@ -43,7 +43,7 @@ document's current immutable `versionId`; callers cannot provide or select a
 
 Omitting `target` opens the Project Document at its most recently visited page
 in the current Demo Session, falling back to its first page. An explicit target
-is either a strict page shape:
+is one of three strict shapes. A page target is:
 
 ```json
 {
@@ -55,7 +55,19 @@ is either a strict page shape:
 }
 ```
 
-or a strict raw Document Region shape:
+A semantic block target is:
+
+```json
+{
+  "documentId": "virginia-farmhouse-drawings",
+  "target": {
+    "type": "block",
+    "blockId": "block-id-from-search-or-inspection"
+  }
+}
+```
+
+A raw Document Region target is:
 
 ```json
 {
@@ -73,12 +85,15 @@ or a strict raw Document Region shape:
 }
 ```
 
-`pageId` is a non-empty stable identity of at most 200 characters. Every target
-and nested region rejects additional properties, including display labels, page
-numbers, titles, and indexes. Region values use the top-left normalized
-coordinate convention: `left` and `top` are finite values from zero through one;
-`width` and `height` are finite and positive; and the complete rectangle must
-remain inside the page.
+`pageId` and `blockId` are non-empty stable identities of at most 200
+characters. A block target contains no `pageId`: Grounded resolves its owning
+page from the validated prepared-evidence artifact for the specified current
+Project Document. Missing blocks and IDs belonging to another document fail
+before the viewer changes. Every target and nested region rejects additional
+properties, including display labels, page numbers, titles, and indexes. Region
+values use the top-left normalized coordinate convention: `left` and `top` are
+finite values from zero through one; `width` and `height` are finite and
+positive; and the complete rectangle must remain inside the page.
 
 Document-only and page navigation use ordinary full-page fit at 100 percent. A
 successful call returns only after that page and fit are visibly rendered:
@@ -102,12 +117,17 @@ Document Evidence, Search Hints, OCR, highlights, or Assistance content.
 Unknown document and foreign page identities fail before changing the visible
 workspace.
 
-A region target creates transient Document Focus. Grounded fits the complete
-region into the unobscured viewer, centers it when page-edge clamping permits,
-reserves 10 percent of the usable viewport on every edge, excludes right and
-bottom control overlays, and clamps the computed scale to the existing 25–400
-percent range. The existing zoom percentage shows the actual scale and the
-applied result reports it with the exact normalized region:
+A block or region target creates transient Document Focus. For a block,
+Grounded resolves the exact semantic block region and owning page, then uses the
+same fitting lifecycle as a raw region. Both source-derived Document Evidence
+blocks and generated Search Hint blocks can be navigated; this location-only
+action neither changes their classification nor implies that a Search Hint can
+support a claim. Grounded fits the complete region into the unobscured viewer,
+centers it when page-edge clamping permits, reserves 10 percent of the usable
+viewport on every edge, excludes right and bottom control overlays, and clamps
+the computed scale to the existing 25–400 percent range. The existing zoom
+percentage shows the actual scale and the applied result reports it with the
+exact normalized region:
 
 ```json
 {
@@ -128,6 +148,37 @@ applied result reports it with the exact normalized region:
   "zoom": 3.84
 }
 ```
+
+A block result additionally reports the requested `blockId` and the resolved
+page and region:
+
+```json
+{
+  "status": "applied",
+  "document": {
+    "id": "virginia-farmhouse-drawings",
+    "versionId": "virginia-farmhouse-drawings-v1"
+  },
+  "page": { "id": "sheet-a4.3" },
+  "type": "block",
+  "blockId": "resolved-parent-table-block-id",
+  "fit": "region",
+  "region": {
+    "left": 0.12,
+    "top": 0.48,
+    "width": 0.76,
+    "height": 0.28
+  },
+  "zoom": 2.31
+}
+```
+
+Search results for a table row intentionally expose the parent table as
+`block.id`, while the result's `region` is the narrower matched row. Navigating
+that block ID therefore fits the complete parent table. To frame only the row,
+pass the search match's raw `region` with its `page.id` as a region target.
+Navigation never returns block content, OCR, classification claims, evidence
+payloads, or other source text.
 
 Document Focus adds no button, highlight, selection, annotation, focus outline,
 badge, or other visible decoration. It recalculates from the normalized region

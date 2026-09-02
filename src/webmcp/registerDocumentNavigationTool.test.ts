@@ -8,6 +8,7 @@ import { createRecordingModelContext } from './recordingModelContext'
 import { registerDocumentNavigationTool } from './registerDocumentNavigationTool'
 
 function createNavigator(): DocumentNavigator {
+  const blockRegion = { left: 0.1, top: 0.2, width: 0.3, height: 0.4 }
   const navigate: DocumentNavigator['navigate'] = vi.fn(async (
     input: NavigateDocumentInput,
   ): Promise<AppliedDocumentNavigation> => ({
@@ -16,10 +17,23 @@ function createNavigator(): DocumentNavigator {
       id: input.documentId,
       versionId: `${input.documentId}-v1`,
     },
-    page: { id: input.target?.pageId ?? 'first-page' },
+    page: {
+      id: input.target?.type === 'page' || input.target?.type === 'region'
+        ? input.target.pageId
+        : input.target?.type === 'block'
+          ? 'resolved-block-page'
+          : 'first-page',
+    },
     type: input.target?.type ?? 'document',
-    fit: input.target?.type === 'region' ? 'region' : 'page',
-    ...(input.target?.type === 'region' ? { region: input.target.region } : {}),
+    ...(input.target?.type === 'block' ? { blockId: input.target.blockId } : {}),
+    fit: input.target?.type === 'region' || input.target?.type === 'block'
+      ? 'region'
+      : 'page',
+    ...(input.target?.type === 'region'
+      ? { region: input.target.region }
+      : input.target?.type === 'block'
+        ? { region: blockRegion }
+        : {}),
     zoom: 1,
   }))
   return {
@@ -63,13 +77,14 @@ test('registers a strict non-read-only document and page navigation contract', a
     rootAdditionalProperties: schema.additionalProperties,
     required: schema.required,
     documentId: schema.properties.documentId,
-    targetVariants: schema.properties.target.anyOf.map((variant) => ({
-      additionalProperties: variant.additionalProperties,
-      required: variant.required,
-      type: variant.properties.type?.const,
-      pageId: variant.properties.pageId,
-      region: variant.properties.region,
-    })),
+      targetVariants: schema.properties.target.anyOf.map((variant) => ({
+        additionalProperties: variant.additionalProperties,
+        required: variant.required,
+        type: variant.properties.type?.const,
+        pageId: variant.properties.pageId,
+        blockId: variant.properties.blockId,
+        region: variant.properties.region,
+      })),
   }).toEqual({
     annotations: {
       readOnlyHint: false,
@@ -84,6 +99,15 @@ test('registers a strict non-read-only document and page navigation contract', a
         required: ['type', 'pageId'],
         type: 'page',
         pageId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
+        blockId: undefined,
+        region: undefined,
+      },
+      {
+        additionalProperties: false,
+        required: ['type', 'blockId'],
+        type: 'block',
+        pageId: undefined,
+        blockId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
         region: undefined,
       },
       {
@@ -91,6 +115,7 @@ test('registers a strict non-read-only document and page navigation contract', a
         required: ['type', 'pageId', 'region'],
         type: 'region',
         pageId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
+        blockId: undefined,
         region: expect.objectContaining({
           additionalProperties: false,
           required: ['left', 'top', 'width', 'height'],
@@ -139,6 +164,31 @@ test('delegates an exact normalized Document Region and returns its applied focu
   })
 })
 
+test('delegates a strict semantic block target and returns its resolved focus without evidence content', async () => {
+  const modelContext = createRecordingModelContext()
+  const navigator = createNavigator()
+  const controller = new AbortController()
+  await registerDocumentNavigationTool(modelContext, navigator, controller.signal)
+
+  const result = await modelContext.executeTool('navigate_document', {
+    documentId: 'document-1',
+    target: { type: 'block', blockId: 'block-7' },
+  })
+
+  expect(result).toEqual({
+    status: 'applied',
+    document: { id: 'document-1', versionId: 'document-1-v1' },
+    page: { id: 'resolved-block-page' },
+    type: 'block',
+    blockId: 'block-7',
+    fit: 'region',
+    region: { left: 0.1, top: 0.2, width: 0.3, height: 0.4 },
+    zoom: 1,
+  })
+  expect(result).not.toHaveProperty('classification')
+  expect(result).not.toHaveProperty('content')
+})
+
 test.each([
   {},
   { documentId: '' },
@@ -165,6 +215,25 @@ test.each([
     target: { type: 'page', pageId: 'page-2', index: 1 },
   },
   { documentId: 'document-1', target: { type: 'block', pageId: 'page-2' } },
+  { documentId: 'document-1', target: { type: 'block', blockId: '' } },
+  {
+    documentId: 'document-1',
+    target: { type: 'block', blockId: 'x'.repeat(201) },
+  },
+  {
+    documentId: 'document-1',
+    target: { type: 'block', blockId: 'block-7', pageId: 'page-2' },
+  },
+  {
+    documentId: 'document-1',
+    target: { type: 'block', blockId: 'block-7', region: {
+      left: 0, top: 0, width: 0.2, height: 0.2,
+    } },
+  },
+  {
+    documentId: 'document-1',
+    target: { type: 'block', blockId: 'block-7', extra: true },
+  },
   {
     documentId: 'document-1',
     target: {
