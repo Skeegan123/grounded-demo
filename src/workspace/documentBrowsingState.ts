@@ -12,16 +12,19 @@ export interface DocumentLocation {
   pageId: string
 }
 
-export type DocumentDestination = Omit<DocumentLocation, 'pageId'> & {
+export type DocumentSelection = Omit<DocumentLocation, 'pageId'> & {
   pageId?: string
 }
 
-export interface DocumentBrowsingState {
-  assistanceCollapsed: boolean
+export interface DocumentBrowsingSnapshot {
   selectedLocation: DocumentLocation
   lastPageIdByDocument: Record<string, string>
   fitPreference: DocumentFitPreference
   zoom: number
+}
+
+export interface DocumentBrowsingState extends DocumentBrowsingSnapshot {
+  assistanceCollapsed: boolean
 }
 
 const DOCUMENT_BROWSING_STORAGE_KEY_PREFIX = 'grounded.document-browsing:'
@@ -45,6 +48,17 @@ export function createDefaultDocumentBrowsingState(): DocumentBrowsingState {
     },
     fitPreference: 'page',
     zoom: 1,
+  }
+}
+
+export function captureDocumentBrowsingSnapshot(
+  state: DocumentBrowsingState,
+): DocumentBrowsingSnapshot {
+  return {
+    selectedLocation: { ...state.selectedLocation },
+    lastPageIdByDocument: { ...state.lastPageIdByDocument },
+    fitPreference: state.fitPreference,
+    zoom: state.zoom,
   }
 }
 

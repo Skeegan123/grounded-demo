@@ -24,7 +24,7 @@ import {
 import type { PdfPageRenderer } from './documents/PdfPageViewer'
 import {
   createDocumentNavigator,
-  type ViewerNavigationRequest,
+  type DocumentDestinationRequest,
 } from './documents/DocumentNavigator'
 import { useDocumentKeyboardShortcuts } from './documents/useDocumentKeyboardShortcuts'
 import { useConstrainedWorkbench } from './documents/useConstrainedWorkbench'
@@ -79,12 +79,12 @@ function App({
     () => ({ assistance, documents, modelContext, workspaceStore }),
     [assistance, documents, modelContext, workspaceStore],
   )
-  const [viewerNavigationRequest, setViewerNavigationRequest] =
-    useState<ViewerNavigationRequest>()
+  const [documentDestinationRequest, setDocumentDestinationRequest] =
+    useState<DocumentDestinationRequest>()
   const documentNavigator = useMemo(
     () => createDocumentNavigator({
       documents: demoProject.documents,
-      requestViewerNavigation: setViewerNavigationRequest,
+      requestDocumentDestination: setDocumentDestinationRequest,
       resolveCurrentBlock: documents.resolveCurrentBlock,
       workspaceStore,
     }),
@@ -136,8 +136,6 @@ function App({
   )
   const addPoint = useStore(workspaceStore, (state) => state.addPoint)
   const removePoint = useStore(workspaceStore, (state) => state.removePoint)
-  const selectDocument = useStore(workspaceStore, (state) => state.selectDocument)
-  const selectPage = useStore(workspaceStore, (state) => state.selectPage)
   const setAssistanceTab = useStore(
     workspaceStore,
     (state) => state.setAssistanceTab,
@@ -152,17 +150,18 @@ function App({
   )
   const setNote = useStore(workspaceStore, (state) => state.setNote)
   const setText = useStore(workspaceStore, (state) => state.setText)
-  const setFitPreference = useStore(
-    workspaceStore,
-    (state) => state.setFitPreference,
-  )
-  const setZoom = useStore(workspaceStore, (state) => state.setZoom)
   const undoPoint = useStore(workspaceStore, (state) => state.undoPoint)
-  const zoomIn = useStore(workspaceStore, (state) => state.zoomIn)
-  const zoomOut = useStore(workspaceStore, (state) => state.zoomOut)
+  const {
+    selectDocument,
+    selectPage,
+    setFitPreference,
+    setZoom,
+    zoomIn,
+    zoomOut,
+  } = documentNavigator.seniorProjectManager
   useDocumentKeyboardShortcuts(
     workspaceStore,
-    documentNavigator.takeHumanControl,
+    documentNavigator.seniorProjectManager,
   )
   const assistanceController = useAssistanceController({
     assistance,
@@ -313,7 +312,6 @@ function App({
 
   const goToTarget = () => {
     if (!pointSetCurrent) return
-    documentNavigator.takeHumanControl()
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument({
@@ -325,7 +323,6 @@ function App({
 
   const openTargetPage = (pageId: string) => {
     if (!pointSetCurrent) return
-    documentNavigator.takeHumanControl()
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument({
@@ -357,7 +354,6 @@ function App({
 
   const openUndonePointPage = () => {
     if (!undoNotice || !pointSetCurrent) return
-    documentNavigator.takeHumanControl()
     setViewedPointSetId('')
     setSupportingReferenceRequestId('')
     selectDocument({
@@ -373,7 +369,6 @@ function App({
     documentVersionId: string,
     pageId: string,
   ) => {
-    documentNavigator.takeHumanControl()
     setSupportingReferenceRequestId(current?.id ?? '')
     selectDocument({ documentId, documentVersionId, pageId })
   }
@@ -402,7 +397,6 @@ function App({
     )
     if (!document) return
     const pageId = firstMarkedPageId(document, pointSetResult)
-    documentNavigator.takeHumanControl()
     setViewedPointSetId(pointSetResult.id)
     selectDocument({
       documentId: document.id,
@@ -472,37 +466,28 @@ function App({
           currentPage={selectedPage}
           documents={demoProject.documents}
           fit={fitPreference}
-          navigationRequest={viewerNavigationRequest}
-          onFitChange={(fit) => {
-            documentNavigator.takeHumanControl()
-            setFitPreference(fit)
-          }}
-          onHumanTakeover={documentNavigator.takeHumanControl}
+          destinationRequest={documentDestinationRequest}
+          onFitChange={setFitPreference}
+          onSeniorProjectManagerTakeover={
+            documentNavigator.takeSeniorProjectManagerControl
+          }
           onPlacePoint={placePoint}
           onRemovePoint={canMark ? removePoint : undefined}
           onRenderError={documentNavigator.reportRenderError}
-          onVisibleViewChange={documentNavigator.reportVisibleView}
+          onVisibleDestinationChange={
+            documentNavigator.reportVisibleDestination
+          }
           onSelectDocument={(document) => {
-            documentNavigator.takeHumanControl()
             selectDocument({
               documentId: document.id,
               documentVersionId: document.versionId,
             })
           }}
-          onSelectPage={(page) => {
-            documentNavigator.takeHumanControl()
-            selectPage(page.id)
-          }}
+          onSelectPage={(page) => selectPage(page.id)}
           onViewUndonePointPage={openUndonePointPage}
           onZoomChange={setZoom}
-          onZoomIn={() => {
-            documentNavigator.takeHumanControl()
-            zoomIn()
-          }}
-          onZoomOut={() => {
-            documentNavigator.takeHumanControl()
-            zoomOut()
-          }}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
           pageItems={selectedDocument.pages.map((page) => {
             const isRecommended = Boolean(
               selectedDocumentIsTarget &&

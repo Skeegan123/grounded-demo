@@ -1,56 +1,58 @@
 import type { ProjectDocument } from '../demoProject/demoProject'
-import { documentKey } from '../workspace/documentBrowsingState'
+import {
+  captureDocumentBrowsingSnapshot,
+  documentKey,
+  type DocumentBrowsingSnapshot,
+  type DocumentFitPreference,
+  type DocumentLocation,
+  type DocumentSelection,
+} from '../workspace/documentBrowsingState'
 import type { createWorkspaceStore } from '../workspace/workspaceStore'
 import type { ResolvedCurrentDocumentBlock } from './documents'
 import type { DocumentRegion } from './pageGeometry'
 
 const NAVIGATION_TIMEOUT_MS = 15_000
 
-export type DocumentNavigationTarget =
-  | { type: 'document' }
+export type ExplicitDocumentDestination =
   | { type: 'page'; pageId: string }
   | { type: 'block'; blockId: string }
   | { type: 'region'; pageId: string; region: DocumentRegion }
 
+export type DocumentDestination =
+  | { type: 'document' }
+  | ExplicitDocumentDestination
+
 export interface NavigateDocumentInput {
   documentId: string
-  target?:
-    | { type: 'page'; pageId: string }
-    | { type: 'block'; blockId: string }
-    | { type: 'region'; pageId: string; region: DocumentRegion }
+  target?: ExplicitDocumentDestination
 }
 
 export interface DocumentNavigationExecutionContext {
   signal?: AbortSignal
 }
 
-interface ViewerNavigationRequestBase {
+interface DocumentDestinationRequestBase extends DocumentLocation {
   id: number
-  documentId: string
-  documentVersionId: string
-  pageId: string
 }
 
-export type ViewerNavigationRequest = ViewerNavigationRequestBase & (
-  | { fit: 'page'; zoom: 1 }
+export type DocumentDestinationRequest = DocumentDestinationRequestBase & (
+  | { fit: DocumentFitPreference; zoom: number }
   | { fit: 'region'; region: DocumentRegion }
 )
 
-export interface VisibleDocumentView {
-  documentId: string
-  documentVersionId: string
-  pageId: string
-  fit: 'page' | 'width' | 'region'
-  region?: DocumentRegion
+export type VisibleDocumentDestination = DocumentLocation & {
   zoom: number
   requestId?: number
-}
+} & (
+  | { fit: DocumentFitPreference; region?: never }
+  | { fit: 'region'; region: DocumentRegion }
+)
 
 export interface AppliedDocumentNavigation {
   status: 'applied'
   document: { id: string; versionId: string }
   page: { id: string }
-  type: DocumentNavigationTarget['type']
+  type: DocumentDestination['type']
   blockId?: string
   fit: 'page' | 'region'
   region?: DocumentRegion
@@ -60,7 +62,7 @@ export interface AppliedDocumentNavigation {
 export interface SupersededDocumentNavigation {
   status: 'superseded'
   requestedDocument: { id: string }
-  targetType: DocumentNavigationTarget['type']
+  targetType: DocumentDestination['type']
 }
 
 export type DocumentNavigationResult =
@@ -74,13 +76,25 @@ export interface DocumentNavigator {
     context?: DocumentNavigationExecutionContext,
   ) => Promise<DocumentNavigationResult>
   reportRenderError: (requestId: number) => void
-  reportVisibleView: (view: VisibleDocumentView) => void
-  takeHumanControl: () => void
+  reportVisibleDestination: (view: VisibleDocumentDestination) => void
+  seniorProjectManager: SeniorProjectManagerDocumentBrowsing
+  takeSeniorProjectManagerControl: () => void
+}
+
+export interface SeniorProjectManagerDocumentBrowsing {
+  selectDocument: (selection: DocumentSelection) => void
+  selectPage: (pageId: string) => void
+  setFitPreference: (fit: DocumentFitPreference) => void
+  setZoom: (zoom: number) => void
+  zoomIn: () => void
+  zoomOut: () => void
 }
 
 interface CreateDocumentNavigatorOptions {
   documents: ProjectDocument[]
-  requestViewerNavigation: (request: ViewerNavigationRequest | undefined) => void
+  requestDocumentDestination: (
+    request: DocumentDestinationRequest | undefined,
+  ) => void
   resolveCurrentBlock: (
     documentId: string,
     blockId: string,
@@ -88,88 +102,85 @@ interface CreateDocumentNavigatorOptions {
   workspaceStore: ReturnType<typeof createWorkspaceStore>
 }
 
-interface ResolvedNavigation {
+interface ResolvedDocumentDestination {
   document: ProjectDocument
-  pageId: string
+  location: DocumentLocation
   blockId?: string
   region?: DocumentRegion
-  type: DocumentNavigationTarget['type']
+  type: DocumentDestination['type']
 }
 
-interface PendingNavigation extends ResolvedNavigation {
+interface PendingExternalAgentNavigation extends ResolvedDocumentDestination {
   abort?: { listener: () => void; signal: AbortSignal }
   error?: Error
   phase: 'requested' | 'rollback'
-  previousView?: VisibleDocumentView
+  previousBrowsing: DocumentBrowsingSnapshot
+  previousVisibleDestination?: VisibleDocumentDestination
   reject: (error: Error) => void
   resolve: (result: DocumentNavigationResult) => void
   timeout?: ReturnType<typeof setTimeout>
-  viewerRequest?: ViewerNavigationRequest
-  viewerRequestId: number
+  destinationRequest?: DocumentDestinationRequest
+  destinationRequestId: number
 }
 
 export function createDocumentNavigator({
   documents,
-  requestViewerNavigation,
+  requestDocumentDestination,
   resolveCurrentBlock,
   workspaceStore,
 }: CreateDocumentNavigatorOptions): DocumentNavigator {
   let nextRequestId = 0
-  let activeFocusRequest: ViewerNavigationRequest | undefined
-  let pending: PendingNavigation | undefined
-  let visibleView: VisibleDocumentView | undefined
+  let activeDocumentFocus: DocumentDestinationRequest | undefined
+  let pending: PendingExternalAgentNavigation | undefined
+  let visibleDestination: VisibleDocumentDestination | undefined
 
   const appliedResult = (
-    navigation: ResolvedNavigation,
-    view: VisibleDocumentView,
+    destination: ResolvedDocumentDestination,
+    view: VisibleDocumentDestination,
   ): AppliedDocumentNavigation => ({
     status: 'applied',
     document: {
-      id: navigation.document.id,
-      versionId: navigation.document.versionId,
+      id: destination.document.id,
+      versionId: destination.document.versionId,
     },
-    page: { id: navigation.pageId },
-    type: navigation.type,
-    ...(navigation.blockId ? { blockId: navigation.blockId } : {}),
-    fit: navigation.region ? 'region' : 'page',
+    page: { id: destination.location.pageId },
+    type: destination.type,
+    ...(destination.blockId ? { blockId: destination.blockId } : {}),
+    fit: destination.region ? 'region' : 'page',
     zoom: view.zoom,
-    ...(navigation.region ? { region: navigation.region } : {}),
+    ...(destination.region ? { region: destination.region } : {}),
   })
 
   const supersededResult = (
-    navigation: ResolvedNavigation,
+    destination: ResolvedDocumentDestination,
   ): SupersededDocumentNavigation => ({
     status: 'superseded',
-    requestedDocument: { id: navigation.document.id },
-    targetType: navigation.type,
+    requestedDocument: { id: destination.document.id },
+    targetType: destination.type,
   })
 
   const matches = (
-    navigation: ResolvedNavigation,
-    view: VisibleDocumentView | undefined,
+    destination: ResolvedDocumentDestination,
+    view: VisibleDocumentDestination | undefined,
   ) => Boolean(
     view &&
-    view.documentId === navigation.document.id &&
-    view.documentVersionId === navigation.document.versionId &&
-    view.pageId === navigation.pageId &&
-    view.fit === (navigation.region ? 'region' : 'page') &&
-    (navigation.region
-      ? regionsEqual(view.region, navigation.region)
+    sameDocumentLocation(view, destination.location) &&
+    view.fit === (destination.region ? 'region' : 'page') &&
+    (destination.region
+      ? regionsEqual(view.region, destination.region)
       : view.zoom === 1)
   )
 
-  const stateMatches = (navigation: ResolvedNavigation) => {
+  const stateMatches = (destination: ResolvedDocumentDestination) => {
     const state = workspaceStore.getState()
     return (
-      state.selectedLocation.documentId === navigation.document.id &&
-      state.selectedLocation.documentVersionId === navigation.document.versionId &&
-      state.selectedLocation.pageId === navigation.pageId &&
+      sameDocumentLocation(state.selectedLocation, destination.location) &&
       state.fitPreference === 'page' &&
       state.zoom === 1
     )
   }
 
-  const clearResources = (navigation: PendingNavigation) => {
+  const clearResources = (navigation: PendingExternalAgentNavigation) => {
     if (navigation.timeout !== undefined) clearTimeout(navigation.timeout)
     if (navigation.abort) {
       navigation.abort.signal.removeEventListener(
@@ -179,20 +190,23 @@ export function createDocumentNavigator({
     }
   }
 
-  const finishWithError = (navigation: PendingNavigation, error: Error) => {
+  const finishWithError = (
+    navigation: PendingExternalAgentNavigation,
+    error: Error,
+  ) => {
     if (pending !== navigation) return
     pending = undefined
     clearResources(navigation)
-    requestViewerNavigation(activeFocusRequest)
+    requestDocumentDestination(activeDocumentFocus)
     navigation.reject(error)
   }
 
-  const finishSuperseded = (navigation: PendingNavigation) => {
+  const finishSuperseded = (navigation: PendingExternalAgentNavigation) => {
     if (pending !== navigation) return
     pending = undefined
     clearResources(navigation)
-    activeFocusRequest = undefined
-    requestViewerNavigation(undefined)
+    activeDocumentFocus = undefined
+    requestDocumentDestination(undefined)
     if (navigation.phase === 'rollback') {
       navigation.reject(navigation.error!)
     } else {
@@ -201,25 +215,28 @@ export function createDocumentNavigator({
   }
 
   const requestView = (
-    navigation: PendingNavigation,
-    view: VisibleDocumentView,
+    navigation: PendingExternalAgentNavigation,
+    view: VisibleDocumentDestination,
   ) => {
-    const requestBase: ViewerNavigationRequestBase = {
+    const requestBase: DocumentDestinationRequestBase = {
       id: ++nextRequestId,
       documentId: view.documentId,
       documentVersionId: view.documentVersionId,
       pageId: view.pageId,
     }
-    const request: ViewerNavigationRequest =
-      view.fit === 'region' && view.region
+    const request: DocumentDestinationRequest =
+      view.fit === 'region'
         ? { ...requestBase, fit: 'region', region: view.region }
-        : { ...requestBase, fit: 'page', zoom: 1 }
-    navigation.viewerRequestId = request.id
-    navigation.viewerRequest = request
-    requestViewerNavigation(request)
+        : { ...requestBase, fit: view.fit, zoom: view.zoom }
+    navigation.destinationRequestId = request.id
+    navigation.destinationRequest = request
+    requestDocumentDestination(request)
   }
 
-  const beginRecovery = (navigation: PendingNavigation, error: Error) => {
+  const beginRecovery = (
+    navigation: PendingExternalAgentNavigation,
+    error: Error,
+  ) => {
     if (pending !== navigation || navigation.phase === 'rollback') return
     if (navigation.timeout !== undefined) {
       clearTimeout(navigation.timeout)
@@ -227,9 +244,13 @@ export function createDocumentNavigator({
     }
     navigation.error = error
     navigation.phase = 'rollback'
-    visibleView = undefined
+    visibleDestination = undefined
 
-    const previous = navigation.previousView
+    workspaceStore.getState().restoreDocumentBrowsing(
+      navigation.previousBrowsing,
+    )
+
+    const previous = navigation.previousVisibleDestination
     if (!previous) {
       finishWithError(navigation, error)
       return
@@ -244,15 +265,13 @@ export function createDocumentNavigator({
       return
     }
 
-    workspaceStore.getState().selectDocument({
-      documentId: previous.documentId,
-      documentVersionId: previous.documentVersionId,
-      pageId: previous.pageId,
-    })
     requestView(navigation, previous)
   }
 
-  const resolveInput = (input: NavigateDocumentInput): ResolvedNavigation => {
+  const resolveInput = (
+    input: NavigateDocumentInput,
+    browsing: DocumentBrowsingSnapshot,
+  ): ResolvedDocumentDestination => {
     const document = documents.find(
       (candidate) => candidate.id === input.documentId,
     )
@@ -262,41 +281,82 @@ export function createDocumentNavigator({
       )
     }
 
-    const target: DocumentNavigationTarget = input.target ?? {
+    const destination: DocumentDestination = input.target ?? {
       type: 'document',
     }
-    if (target.type === 'block') {
-      const resolved = resolveCurrentBlock(document.id, target.blockId)
+    if (destination.type === 'block') {
+      const resolved = resolveCurrentBlock(document.id, destination.blockId)
       validateRegion(resolved.block.region)
       return {
         document,
-        pageId: resolved.page.id,
-        blockId: target.blockId,
+        location: documentLocation(document, resolved.page.id),
+        blockId: destination.blockId,
         region: resolved.block.region,
-        type: target.type,
+        type: destination.type,
       }
     }
-    const rememberedPageId = workspaceStore.getState().lastPageIdByDocument[
+    const rememberedPageId = browsing.lastPageIdByDocument[
       documentKey(document.id, document.versionId)
     ]
-    if (target.type === 'region') validateRegion(target.region)
-    const pageId = target.type === 'page' || target.type === 'region'
-      ? target.pageId
+    if (destination.type === 'region') validateRegion(destination.region)
+    const pageId = destination.type === 'page' || destination.type === 'region'
+      ? destination.pageId
       : document.pages.some((page) => page.id === rememberedPageId)
         ? rememberedPageId!
         : document.pages[0]!.id
     if (
-      (target.type === 'page' || target.type === 'region') &&
+      (destination.type === 'page' || destination.type === 'region') &&
       !document.pages.some((page) => page.id === pageId)
     ) {
       throw new Error('The page does not belong to the Project Document.')
     }
     return {
       document,
-      pageId,
-      type: target.type,
-      ...(target.type === 'region' ? { region: target.region } : {}),
+      location: documentLocation(document, pageId),
+      type: destination.type,
+      ...(destination.type === 'region' ? { region: destination.region } : {}),
     }
+  }
+
+  const takeSeniorProjectManagerControl = () => {
+    const documentFocus = visibleDestination?.fit === 'region'
+      ? visibleDestination
+      : undefined
+    if (pending) finishSuperseded(pending)
+    if (documentFocus) {
+      workspaceStore.getState().setFitPreference('page')
+      workspaceStore.getState().setZoom(documentFocus.zoom)
+    }
+    visibleDestination = undefined
+    activeDocumentFocus = undefined
+    requestDocumentDestination(undefined)
+  }
+
+  const seniorProjectManager: SeniorProjectManagerDocumentBrowsing = {
+    selectDocument(selection) {
+      takeSeniorProjectManagerControl()
+      workspaceStore.getState().selectDocument(selection)
+    },
+    selectPage(pageId) {
+      takeSeniorProjectManagerControl()
+      workspaceStore.getState().selectPage(pageId)
+    },
+    setFitPreference(fit) {
+      takeSeniorProjectManagerControl()
+      workspaceStore.getState().setFitPreference(fit)
+    },
+    setZoom(zoom) {
+      takeSeniorProjectManagerControl()
+      workspaceStore.getState().setZoom(zoom)
+    },
+    zoomIn() {
+      takeSeniorProjectManagerControl()
+      workspaceStore.getState().zoomIn()
+    },
+    zoomOut() {
+      takeSeniorProjectManagerControl()
+      workspaceStore.getState().zoomOut()
+    },
   }
 
   return {
@@ -305,15 +365,23 @@ export function createDocumentNavigator({
         pending,
         new Error('Document navigation was cancelled.'),
       )
-      visibleView = undefined
-      activeFocusRequest = undefined
-      requestViewerNavigation(undefined)
+      visibleDestination = undefined
+      activeDocumentFocus = undefined
+      requestDocumentDestination(undefined)
     },
 
     async navigate(input, context) {
-      const navigation = resolveInput(input)
-      if (matches(navigation, visibleView) && stateMatches(navigation)) {
-        return appliedResult(navigation, visibleView!)
+      const previousBrowsing = pending?.previousBrowsing ??
+        captureDocumentBrowsingSnapshot(workspaceStore.getState())
+      const previousVisibleDestination =
+        pending?.previousVisibleDestination ?? visibleDestination
+      const destination = resolveInput(input, previousBrowsing)
+      if (
+        !pending &&
+        matches(destination, visibleDestination) &&
+        stateMatches(destination)
+      ) {
+        return appliedResult(destination, visibleDestination!)
       }
 
       if (pending) finishSuperseded(pending)
@@ -321,17 +389,17 @@ export function createDocumentNavigator({
         throw new Error('Document navigation was cancelled.')
       }
 
-      const previousView = visibleView
-      visibleView = undefined
-      activeFocusRequest = undefined
+      visibleDestination = undefined
+      activeDocumentFocus = undefined
       return new Promise<DocumentNavigationResult>((resolve, reject) => {
-        const next: PendingNavigation = {
-          ...navigation,
+        const next: PendingExternalAgentNavigation = {
+          ...destination,
+          destinationRequestId: 0,
           phase: 'requested',
-          previousView,
+          previousBrowsing,
+          previousVisibleDestination,
           reject,
           resolve,
-          viewerRequestId: 0,
         }
         pending = next
         next.timeout = setTimeout(() => {
@@ -351,23 +419,26 @@ export function createDocumentNavigator({
         }
 
         workspaceStore.getState().selectDocument({
-          documentId: navigation.document.id,
-          documentVersionId: navigation.document.versionId,
-          pageId: navigation.pageId,
+          documentId: destination.location.documentId,
+          documentVersionId: destination.location.documentVersionId,
+          pageId: destination.location.pageId,
         })
-        requestView(next, {
-          documentId: navigation.document.id,
-          documentVersionId: navigation.document.versionId,
-          pageId: navigation.pageId,
-          fit: navigation.region ? 'region' : 'page',
-          ...(navigation.region ? { region: navigation.region } : {}),
-          zoom: 1,
-        })
+        requestView(
+          next,
+          destination.region
+            ? {
+                ...destination.location,
+                fit: 'region',
+                region: destination.region,
+                zoom: 1,
+              }
+            : { ...destination.location, fit: 'page', zoom: 1 },
+        )
       })
     },
 
     reportRenderError(requestId) {
-      if (!pending || pending.viewerRequestId !== requestId) return
+      if (!pending || pending.destinationRequestId !== requestId) return
       if (pending.phase === 'rollback') {
         finishWithError(pending, pending.error!)
         return
@@ -378,13 +449,20 @@ export function createDocumentNavigator({
       )
     },
 
-    reportVisibleView(view) {
-      visibleView = view
+    reportVisibleDestination(view) {
+      if (
+        view.requestId !== undefined &&
+        view.requestId !== pending?.destinationRequestId &&
+        view.requestId !== activeDocumentFocus?.id
+      ) return
+      visibleDestination = view
       const navigation = pending
-      if (!navigation || view.requestId !== navigation.viewerRequestId) return
+      if (!navigation || view.requestId !== navigation.destinationRequestId) {
+        return
+      }
       if (navigation.phase === 'rollback') {
-        activeFocusRequest = view.fit === 'region'
-          ? navigation.viewerRequest
+        activeDocumentFocus = view.fit === 'region'
+          ? navigation.destinationRequest
           : undefined
         finishWithError(navigation, navigation.error!)
         return
@@ -393,25 +471,36 @@ export function createDocumentNavigator({
 
       pending = undefined
       clearResources(navigation)
-      activeFocusRequest = navigation.region
-        ? navigation.viewerRequest
+      activeDocumentFocus = navigation.region
+        ? navigation.destinationRequest
         : undefined
-      requestViewerNavigation(activeFocusRequest)
+      requestDocumentDestination(activeDocumentFocus)
       navigation.resolve(appliedResult(navigation, view))
     },
 
-    takeHumanControl() {
-      const focusedView = visibleView?.fit === 'region' ? visibleView : undefined
-      if (pending) finishSuperseded(pending)
-      if (focusedView) {
-        workspaceStore.getState().setFitPreference('page')
-        workspaceStore.getState().setZoom(focusedView.zoom)
-      }
-      visibleView = undefined
-      activeFocusRequest = undefined
-      requestViewerNavigation(undefined)
-    },
+    seniorProjectManager,
+    takeSeniorProjectManagerControl,
   }
+}
+
+function documentLocation(
+  document: ProjectDocument,
+  pageId: string,
+): DocumentLocation {
+  return {
+    documentId: document.id,
+    documentVersionId: document.versionId,
+    pageId,
+  }
+}
+
+function sameDocumentLocation(
+  left: DocumentLocation,
+  right: DocumentLocation,
+) {
+  return left.documentId === right.documentId &&
+    left.documentVersionId === right.documentVersionId &&
+    left.pageId === right.pageId
 }
 
 function regionsEqual(

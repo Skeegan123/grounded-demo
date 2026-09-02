@@ -529,7 +529,7 @@ test('rapid intentional zoom coalesces obsolete replacement renders', async () =
   )
 })
 
-test('visible navigation acknowledgement is keyed to the current viewer request', async () => {
+test('visible Document Destination acknowledgement is keyed to the current request', async () => {
   const requests: RenderPageRequestWithResolve[] = []
   const renderer: PdfPageRenderer = {
     renderPage(request) {
@@ -543,12 +543,12 @@ test('visible navigation acknowledgement is keyed to the current viewer request'
   )!
   const firstPage = document.pages[0]!
   const secondPage = document.pages[1]!
-  const onVisibleViewChange = vi.fn()
+  const onVisibleDestinationChange = vi.fn()
   const view = render(
     <PdfPageViewer
       canMark={false}
       document={document}
-      navigationRequest={{
+      destinationRequest={{
         id: 1,
         documentId: document.id,
         documentVersionId: document.versionId,
@@ -557,7 +557,7 @@ test('visible navigation acknowledgement is keyed to the current viewer request'
         zoom: 1,
       }}
       onPlacePoint={() => {}}
-      onVisibleViewChange={onVisibleViewChange}
+      onVisibleDestinationChange={onVisibleDestinationChange}
       page={firstPage}
       points={[]}
       renderer={renderer}
@@ -570,7 +570,7 @@ test('visible navigation acknowledgement is keyed to the current viewer request'
     <PdfPageViewer
       canMark={false}
       document={document}
-      navigationRequest={{
+      destinationRequest={{
         id: 2,
         documentId: document.id,
         documentVersionId: document.versionId,
@@ -579,7 +579,7 @@ test('visible navigation acknowledgement is keyed to the current viewer request'
         zoom: 1,
       }}
       onPlacePoint={() => {}}
-      onVisibleViewChange={onVisibleViewChange}
+      onVisibleDestinationChange={onVisibleDestinationChange}
       page={secondPage}
       points={[]}
       renderer={renderer}
@@ -589,13 +589,13 @@ test('visible navigation acknowledgement is keyed to the current viewer request'
   await waitFor(() => expect(requests).toHaveLength(2))
   expect(requests[0]!.signal.aborted).toBe(true)
   act(() => requests[0]!.resolve())
-  expect(onVisibleViewChange).not.toHaveBeenCalled()
+  expect(onVisibleDestinationChange).not.toHaveBeenCalled()
 
   act(() => requests[1]!.resolve())
-  await waitFor(() => expect(onVisibleViewChange).toHaveBeenCalledWith(
+  await waitFor(() => expect(onVisibleDestinationChange).toHaveBeenCalledWith(
     expect.objectContaining({ pageId: secondPage.id, requestId: 2 }),
   ))
-  expect(onVisibleViewChange).not.toHaveBeenCalledWith(
+  expect(onVisibleDestinationChange).not.toHaveBeenCalledWith(
     expect.objectContaining({ requestId: 1 }),
   )
 })
@@ -632,12 +632,12 @@ test('Document Focus recomputes its effective zoom and remains acknowledged afte
     const page = document.pages.find((candidate) => candidate.id === 'sheet-a1.2')!
     const region = { left: 0.55, top: 0.2, width: 0.3, height: 0.25 }
     const onEffectiveZoomChange = vi.fn()
-    const onVisibleViewChange = vi.fn()
+    const onVisibleDestinationChange = vi.fn()
     render(
       <PdfPageViewer
         canMark={false}
         document={document}
-        navigationRequest={{
+        destinationRequest={{
           id: 47,
           documentId: document.id,
           documentVersionId: document.versionId,
@@ -647,7 +647,7 @@ test('Document Focus recomputes its effective zoom and remains acknowledged afte
         }}
         onEffectiveZoomChange={onEffectiveZoomChange}
         onPlacePoint={() => {}}
-        onVisibleViewChange={onVisibleViewChange}
+        onVisibleDestinationChange={onVisibleDestinationChange}
         page={page}
         points={[]}
         renderer={renderer}
@@ -656,7 +656,7 @@ test('Document Focus recomputes its effective zoom and remains acknowledged afte
       />,
     )
 
-    await waitFor(() => expect(onVisibleViewChange).toHaveBeenCalledWith(
+    await waitFor(() => expect(onVisibleDestinationChange).toHaveBeenCalledWith(
       expect.objectContaining({
         fit: 'region',
         region,
@@ -672,7 +672,7 @@ test('Document Focus recomputes its effective zoom and remains acknowledged afte
       .not.toBe(initialZoom))
     await waitFor(() => expect(globalThis.document.querySelector('.pdf-page-frame')
       ?.getAttribute('style')).not.toBe(initialTransform))
-    await waitFor(() => expect(onVisibleViewChange).toHaveBeenLastCalledWith(
+    await waitFor(() => expect(onVisibleDestinationChange).toHaveBeenLastCalledWith(
       expect.objectContaining({
         fit: 'region',
         region,
@@ -685,7 +685,7 @@ test('Document Focus recomputes its effective zoom and remains acknowledged afte
   }
 })
 
-test('reports render failure only for the matching viewer request', async () => {
+test('reports render failure only for the matching Document Destination request', async () => {
   const renderer: PdfPageRenderer = {
     async renderPage() {
       throw new Error('Renderer implementation detail.')
@@ -702,7 +702,7 @@ test('reports render failure only for the matching viewer request', async () => 
     <PdfPageViewer
       canMark={false}
       document={document}
-      navigationRequest={{
+      destinationRequest={{
         id: 12,
         documentId: document.id,
         documentVersionId: document.versionId,
@@ -723,7 +723,7 @@ test('reports render failure only for the matching viewer request', async () => 
   expect(onRenderError).toHaveBeenCalledTimes(1)
 })
 
-test('reports human takeover only after a real pan or zoom gesture', async () => {
+test('reports Senior Project Manager takeover only after a real pan or zoom gesture', async () => {
   const renderer: PdfPageRenderer = {
     async renderPage() {},
     prefetchPages() {},
@@ -733,13 +733,13 @@ test('reports human takeover only after a real pan or zoom gesture', async () =>
     'virginia-farmhouse-drawings-v1',
   )!
   const page = document.pages[0]!
-  const onHumanTakeover = vi.fn()
+  const onSeniorProjectManagerTakeover = vi.fn()
   const onZoomChange = vi.fn()
   render(
     <PdfPageViewer
       canMark={false}
       document={document}
-      onHumanTakeover={onHumanTakeover}
+      onSeniorProjectManagerTakeover={onSeniorProjectManagerTakeover}
       onPlacePoint={() => {}}
       onZoomChange={onZoomChange}
       page={page}
@@ -763,7 +763,7 @@ test('reports human takeover only after a real pan or zoom gesture', async () =>
     clientY: 10,
     pointerId: 1,
   })
-  expect(onHumanTakeover).not.toHaveBeenCalled()
+  expect(onSeniorProjectManagerTakeover).not.toHaveBeenCalled()
   fireEvent.pointerMove(viewer, {
     buttons: 1,
     clientX: 16,
@@ -776,7 +776,7 @@ test('reports human takeover only after a real pan or zoom gesture', async () =>
     clientY: 10,
     pointerId: 1,
   })
-  expect(onHumanTakeover).toHaveBeenCalledTimes(1)
+  expect(onSeniorProjectManagerTakeover).toHaveBeenCalledTimes(1)
 
   act(() => {
     viewer.dispatchEvent(new WheelEvent('wheel', {
@@ -787,7 +787,7 @@ test('reports human takeover only after a real pan or zoom gesture', async () =>
       deltaY: -20,
     }))
   })
-  expect(onHumanTakeover).toHaveBeenCalledTimes(2)
+  expect(onSeniorProjectManagerTakeover).toHaveBeenCalledTimes(2)
   expect(onZoomChange).toHaveBeenCalled()
 })
 

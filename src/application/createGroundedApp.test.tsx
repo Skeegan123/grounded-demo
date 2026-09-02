@@ -318,6 +318,31 @@ test('navigate_document restores the current-session page and preserves unfinish
     .toBeInTheDocument()
 })
 
+test('document-only navigation opens a never-before-opened Project Document on its first page', async () => {
+  const modelContext = createRecordingModelContext()
+  render(createGroundedApp({
+    databaseName: `grounded-document-first-page-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer: createTestPageRenderer(),
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+  })).resolves.toMatchObject({
+    status: 'applied',
+    document: { id: 'type-c-door-submittal' },
+    page: { id: 'door-submittal-page-1' },
+    type: 'document',
+    fit: 'page',
+    zoom: 1,
+  })
+  expectCurrentPage(/1, Submittal cover/)
+  expect(screen.getByLabelText('Rendered PDF page 1')).toBeVisible()
+})
+
 test('invalid navigate_document identities do not change the visible workbench', async () => {
   const user = userEvent.setup()
   const modelContext = createRecordingModelContext()
@@ -637,7 +662,7 @@ test('invalid Document Regions fail atomically at the public boundary', async ()
   expect(pageRenderer.renderPage).toHaveBeenCalledTimes(renderCount)
 })
 
-test('Document Focus survives idempotence, yields cleanly to humans, and is not restored after reload', async () => {
+test('Document Focus survives idempotence, yields cleanly to the Senior Project Manager, and is not restored after reload', async () => {
   const storage = window.sessionStorage
   const pageRenderer = createTestPageRenderer()
   const firstModelContext = createRecordingModelContext()
@@ -714,6 +739,64 @@ test('navigate_document restores the last visible page after a render failure', 
   expectCurrentPage(/A0\.0, Cover Page/)
   expect(screen.getByLabelText('Rendered PDF page A0.0')).toBeVisible()
   expect(screen.queryByText('Sensitive renderer details.')).not.toBeInTheDocument()
+})
+
+test('failed cross-document navigation restores remembered pages and the exact ordinary fit and zoom', async () => {
+  const pageRenderer: PdfPageRenderer = {
+    renderPage: vi.fn(async ({ canvas, height, pageNumber, url, width }) => {
+      if (url.includes('type-c') && pageNumber === 2) {
+        throw new Error('Sensitive renderer details.')
+      }
+      canvas.width = width
+      canvas.height = height
+    }),
+    prefetchPages() {},
+  }
+  const modelContext = createRecordingModelContext()
+  const user = userEvent.setup()
+  render(createGroundedApp({
+    databaseName: `grounded-navigation-cross-document-recovery-${crypto.randomUUID()}`,
+    modelContext,
+    pageRenderer,
+    sessionStorage: window.sessionStorage,
+    createId: createIds('session-1'),
+  }))
+
+  await waitForWebMcpReady()
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+  })).resolves.toMatchObject({ page: { id: 'door-submittal-page-1' } })
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'virginia-farmhouse-drawings',
+  })).resolves.toMatchObject({ page: { id: 'sheet-a0.0' } })
+
+  await user.click(screen.getByRole('button', { name: 'Fit width' }))
+  await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+  await waitFor(() => expect(screen.getByText('110%')).toBeInTheDocument())
+  const ordinaryCanvas = screen.getByLabelText('Rendered PDF page A0.0')
+  const ordinarySize = {
+    height: (ordinaryCanvas as HTMLCanvasElement).height,
+    width: (ordinaryCanvas as HTMLCanvasElement).width,
+  }
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+    target: { type: 'page', pageId: 'door-submittal-page-2' },
+  })).rejects.toThrow('The Project Document page could not be rendered.')
+
+  expectCurrentPage(/A0\.0, Cover Page/)
+  expect(screen.getByText('110%')).toBeInTheDocument()
+  const restoredCanvas = screen.getByLabelText('Rendered PDF page A0.0')
+  expect((restoredCanvas as HTMLCanvasElement).width).toBe(ordinarySize.width)
+  expect((restoredCanvas as HTMLCanvasElement).height).toBe(ordinarySize.height)
+
+  await expect(modelContext.executeTool('navigate_document', {
+    documentId: 'type-c-door-submittal',
+  })).resolves.toMatchObject({
+    status: 'applied',
+    page: { id: 'door-submittal-page-1' },
+  })
+  expectCurrentPage(/1, Submittal cover/)
 })
 
 test('navigate_document times out after 15 seconds and restores the last visible page', async () => {
@@ -810,7 +893,7 @@ test('caller cancellation restores the visible page and cannot apply late', asyn
   expectCurrentPage(/A0\.0, Cover Page/)
 })
 
-test('newer agent navigation supersedes an older call and owns visible completion', async () => {
+test('newer External Agent navigation supersedes an older call and owns visible completion', async () => {
   let oldRender: { resolve: () => void; signal: AbortSignal } | undefined
   const pageRenderer: PdfPageRenderer = {
     renderPage: vi.fn(({ canvas, height, pageNumber, signal, width }) => {
@@ -890,7 +973,7 @@ test.each([
   ['document selection', async (user: ReturnType<typeof userEvent.setup>) => {
     await chooseDocument(user, /Type C interior door product data/i)
   }],
-] as const)('human %s supersedes pending agent navigation', async (_name, takeOver) => {
+] as const)('Senior Project Manager %s supersedes pending External Agent navigation', async (_name, takeOver) => {
   const pageRenderer: PdfPageRenderer = {
     renderPage: vi.fn(({ canvas, height, pageNumber, width }) => {
       if (pageNumber === 6) return new Promise<void>(() => {})
@@ -903,7 +986,7 @@ test.each([
   const modelContext = createRecordingModelContext()
   const user = userEvent.setup()
   render(createGroundedApp({
-    databaseName: `grounded-navigation-human-${crypto.randomUUID()}`,
+    databaseName: `grounded-navigation-senior-project-manager-${crypto.randomUUID()}`,
     modelContext,
     pageRenderer,
     sessionStorage: window.sessionStorage,

@@ -40,8 +40,16 @@ function createNavigator(): DocumentNavigator {
     cancelPending: vi.fn(),
     navigate,
     reportRenderError: vi.fn(),
-    reportVisibleView: vi.fn(),
-    takeHumanControl: vi.fn(),
+    reportVisibleDestination: vi.fn(),
+    seniorProjectManager: {
+      selectDocument: vi.fn(),
+      selectPage: vi.fn(),
+      setFitPreference: vi.fn(),
+      setZoom: vi.fn(),
+      zoomIn: vi.fn(),
+      zoomOut: vi.fn(),
+    },
+    takeSeniorProjectManagerControl: vi.fn(),
   }
 }
 
