@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest'
 import { demoProject } from '../demoProject/demoProject'
 import drawingEvidence from './generated/virginia-farmhouse-drawings-v1.json'
-import supportingEvidence from './generated/type-c-door-submittal-v1.json'
+import supportingEvidence from './generated/door-package-submittal-v1.json'
+import windowEvidence from './generated/window-package-submittal-v1.json'
 import { createDocuments } from './documents'
 import type { PreparedEvidenceArtifact } from './preparedEvidence'
 
@@ -9,6 +10,7 @@ function clonedArtifacts() {
   return structuredClone([
     drawingEvidence,
     supportingEvidence,
+    windowEvidence,
   ]) as unknown as PreparedEvidenceArtifact[]
 }
 
@@ -25,7 +27,7 @@ function expectInvalidArtifacts(
   )
 }
 
-test('the Project Workspace catalog exposes both immutable document versions and every PDF page', () => {
+test('the Project Workspace catalog exposes all immutable document versions and every PDF page', () => {
   const documents = createDocuments()
   const catalog = documents.list()
 
@@ -55,9 +57,16 @@ test('the Project Workspace catalog exposes both immutable document versions and
       ],
     },
     {
-      id: 'type-c-door-submittal',
-      versionId: 'type-c-door-submittal-v1',
-      pageCount: 2,
+      id: 'door-package-submittal',
+      versionId: 'door-package-submittal-v1',
+      pageCount: 6,
+      namedSheetCount: 0,
+      inspectedPages: [],
+    },
+    {
+      id: 'window-package-submittal',
+      versionId: 'window-package-submittal-v1',
+      pageCount: 5,
       namedSheetCount: 0,
       inspectedPages: [],
     },
@@ -72,9 +81,9 @@ test('page inspection exposes ordered contract and product evidence with provena
     pageIds: ['sheet-a4.3'],
   })
   const productData = documents.inspectEvidence({
-    documentId: 'type-c-door-submittal',
-    documentVersionId: 'type-c-door-submittal-v1',
-    pageIds: ['door-submittal-page-2'],
+    documentId: 'door-package-submittal',
+    documentVersionId: 'door-package-submittal-v1',
+    pageIds: ['door-package-submittal-interior-product-data'],
   })
 
   const schedulePage = schedule.pages[0]!
@@ -173,7 +182,7 @@ test('page inspection exposes ordered contract and product evidence with provena
     figureClassification: 'search_hint',
     hasLowLevelOcr: false,
     productText: expect.stringMatching(
-      /Hollow-core flush wood door[\s\S]*24 in x 80 in[\s\S]*Hollow honeycomb core/i,
+      /Heritage interior door series[\s\S]*Solid engineered stave[\s\S]*24" x 80"[\s\S]*Qty 5/i,
     ),
   })
 })
@@ -228,7 +237,7 @@ test('block inspection keeps interpretation metadata without unrelated page OCR'
 
 test('current block resolution returns only location metadata for Document Evidence and Search Hints', () => {
   const documents = createDocuments()
-  const evidenceMatch = documents.search({ query: 'hollow honeycomb core' })
+  const evidenceMatch = documents.search({ query: 'solid engineered stave' })
     .matches[0]!
   const hintMatch = documents.search({
     query: 'first floor plan room layout utility coats WC',
@@ -245,10 +254,10 @@ test('current block resolution returns only location metadata for Document Evide
 
   expect(evidence).toEqual({
     document: expect.objectContaining({
-      id: 'type-c-door-submittal',
-      versionId: 'type-c-door-submittal-v1',
+      id: 'door-package-submittal',
+      versionId: 'door-package-submittal-v1',
     }),
-    page: expect.objectContaining({ id: 'door-submittal-page-2' }),
+    page: expect.objectContaining({ id: 'door-package-submittal-interior-product-data' }),
     block: {
       id: evidenceMatch.block.id,
       classification: 'document_evidence',
@@ -281,7 +290,7 @@ test('current block resolution is document-scoped and maps table-row matches to 
   )!
   typeCRow.region = { left: 0.55, top: 0.72, width: 0.25, height: 0.03 }
   const documents = createDocuments({ artifacts })
-  const submittalBlock = documents.search({ query: 'hollow honeycomb core' })
+  const submittalBlock = documents.search({ query: 'solid engineered stave' })
     .matches[0]!.block.id
   const tableRowMatch = documents.search({
     query: 'Type C 24 x 80 solid wood',
@@ -315,13 +324,13 @@ test('inspection rejects foreign document, page, and block identities plus empty
 
   expect(() => documents.inspectEvidence({
     documentId: 'virginia-farmhouse-drawings',
-    documentVersionId: 'type-c-door-submittal-v1',
+    documentVersionId: 'door-package-submittal-v1',
     pageIds: ['sheet-a4.3'],
   })).toThrow('The document version does not exist in this Project Workspace.')
   expect(() => documents.inspectEvidence({
     documentId: 'virginia-farmhouse-drawings',
     documentVersionId: 'virginia-farmhouse-drawings-v1',
-    pageIds: ['door-submittal-page-2'],
+    pageIds: ['door-package-submittal-interior-product-data'],
   })).toThrow('A requested page does not belong to the document version.')
   expect(() => documents.inspectEvidence({
     documentId: 'virginia-farmhouse-drawings',
@@ -410,32 +419,32 @@ test('project search finds the Type C contract row with concise linked evidence'
 
 test('project search finds submitted construction and keeps plan descriptions labeled as Search Hints', () => {
   const documents = createDocuments()
-  const model = documents.search({ query: 'BRD-HC2480-BIR' })
-  const construction = documents.search({ query: 'hollow honeycomb core' })
-  const fuzzyConstruction = documents.search({ query: 'hollw honeycomb core' })
+  const model = documents.search({ query: 'W-2480-P1' })
+  const construction = documents.search({ query: 'solid engineered stave' })
+  const fuzzyConstruction = documents.search({ query: 'solidd enginered stave' })
   const floorPlan = documents.search({
     query: 'first floor plan room layout utility coats WC',
   })
 
   expect(model.matches[0]).toMatchObject({
     rank: 1,
-    matchedTerms: ['brd-hc2480-bir'],
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
-    snippet: 'Model BRD-HC2480-BIR',
+    matchedTerms: ['w-2480-p1'],
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-schedule' },
+    snippet: 'C | 5 | 24" x 80" | Solid wood | 1-panel | Aged clear | Heritage W-2480-P1 | Interior',
     classification: 'document_evidence',
   })
   expect(construction.matches[0]).toMatchObject({
     rank: 1,
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
-    matchedTerms: ['hollow', 'honeycomb', 'core'],
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-interior-product-data' },
+    matchedTerms: ['solid', 'engineered', 'stave'],
     classification: 'document_evidence',
   })
   expect(fuzzyConstruction.matches[0]).toMatchObject({
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
-    matchedTerms: ['hollw', 'honeycomb', 'core'],
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-interior-product-data' },
+    matchedTerms: ['solidd', 'enginered', 'stave'],
   })
   expect(floorPlan.matches[0]).toMatchObject({
     rank: 1,
@@ -457,8 +466,8 @@ test('project search canonicalizes identifiers and dimensions, supports scope, a
   const scoped = documents.search({
     query: '24 x 80',
     scope: {
-      documentId: 'type-c-door-submittal',
-      documentVersionId: 'type-c-door-submittal-v1',
+      documentId: 'door-package-submittal',
+      documentVersionId: 'door-package-submittal-v1',
     },
   })
 
@@ -476,11 +485,11 @@ test('project search canonicalizes identifiers and dimensions, supports scope, a
     (match) => match.document.id === 'virginia-farmhouse-drawings',
   )).toBe(true)
   expect(compactDimension.matches.some(
-    (match) => match.document.id === 'type-c-door-submittal',
+    (match) => match.document.id === 'door-package-submittal',
   )).toBe(true)
   expect(scoped.matches.length).toBeGreaterThan(0)
   expect(scoped.matches.every(
-    (match) => match.document.id === 'type-c-door-submittal',
+    (match) => match.document.id === 'door-package-submittal',
   )).toBe(true)
   expect(documents.search({ query: 'the and of' })).toEqual({
     query: 'the and of',
@@ -562,12 +571,12 @@ test('startup rejects missing, duplicate, obsolete, stale, and mismatched artifa
 
 test('default runtime artifacts follow manifest versions and report a missing version', () => {
   const project = structuredClone(demoProject)
-  project.documents[1]!.versionId = 'type-c-door-submittal-v2'
+  project.documents[1]!.versionId = 'door-package-submittal-v3'
 
   expect(() => createDocuments({ project })).toThrow(
-    'Invalid prepared evidence for type-c-door-submittal-v2: the current document artifact is missing.',
+    'Invalid prepared evidence for door-package-submittal-v3: the current document artifact is missing.',
   )
   expect(() => createDocuments({ project })).toThrow(
-    'pnpm import:document-evidence --document type-c-door-submittal --export <parse-export.json>',
+    'pnpm import:document-evidence --document door-package-submittal --export <parse-export.json>',
   )
 })

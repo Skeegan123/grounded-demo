@@ -64,7 +64,7 @@ two lines.
 | Application tests | `src/application/createGroundedApp.test.tsx` | 676, 1076, 1089, 2171 | 4 | Navigation takeover, database slug, and queue behavior names |
 | Viewer tests | `src/documents/PdfPageViewer.test.tsx` | 788 | 1 | Pan and zoom takeover behavior name |
 | Contract docs | `docs/webmcp-point-set-contract.md` | 22, 196, 203, 206, 208-209, 210, 225-226, 236, 263, 320 | 10 | Assistance, navigation ownership, recovery, references, and submission |
-| Demo docs | `docs/type-c-submittal-review-demo.md` | 7, 10, 16, 82, 96, 107, 108, 159-160 | 8 | Prompt, workflow, tool copy, and example result |
+| Demo docs | `docs/door-package-submittal-review-demo.md` | 7, 10, 16, 20, 61, 71, 78, 91-92, 96, 104-106, 139, 142-144, 147 | 19 | Prompt, workflow, tool copy, and example result |
 | Research docs | `docs/research/browser-document-ingestion.md` | 36, 131, 145 | 3 | Viewer authority, compute location, and implementation recommendation |
 | ADR | `docs/adr/0001-agent-document-navigation.md` | 5, 7 | 2 | Human takeover and navigation supersession |
 | Search docs | `docs/document-search.md` | 48 | 1 | Human authority over visual interpretation |

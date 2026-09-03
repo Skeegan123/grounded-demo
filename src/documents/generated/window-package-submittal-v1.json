@@ -1,0 +1,2742 @@
+{
+  "schemaVersion": 2,
+  "document": {
+    "id": "window-package-submittal",
+    "versionId": "window-package-submittal-v1",
+    "kind": "submittal_product_data",
+    "title": "Virginia Farmhouse window package submittal"
+  },
+  "source": {
+    "fingerprint": "66cd6786c3d20e924f14adb8f9091cf7dba7158ae9a45a815f45f04ea61238a0",
+    "byteSize": 15418,
+    "pageCount": 5
+  },
+  "provenance": {
+    "provider": "reducto",
+    "importerVersion": "grounded-reducto-importer-2",
+    "sourceFingerprint": "66cd6786c3d20e924f14adb8f9091cf7dba7158ae9a45a815f45f04ea61238a0",
+    "verified": {
+      "parseExportSha256": "63f6cc226501e358abc8537acd28adf917def5aab34b0cdbc49be9c2be0bb063",
+      "model": "r-1",
+      "modelSource": "usage.usage_breakdown.parse_model"
+    },
+    "maintainerDeclaredParseSettings": {
+      "chunking": "disabled",
+      "embeddingOptimization": false,
+      "returnedImages": false,
+      "tableOutputFormat": "html",
+      "agenticPass": false,
+      "returnedOcrData": true
+    }
+  },
+  "pages": [
+    {
+      "page": {
+        "id": "window-package-submittal-cover",
+        "label": "1",
+        "number": 1,
+        "title": "Submittal cover",
+        "width": 792,
+        "height": 612,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-a608b15a2aff21b995cd36a9",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Commonwealth Window & Millwork logo, with “CWM” in a gold rounded square beside the company name.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.049,
+            "width": 0.16,
+            "height": 0.06
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-a2d4ce44187150d363ebfda6",
+          "order": 1,
+          "sourceType": "Section Header",
+          "content": "<b>SUBMITTAL PACKAGE</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.211,
+            "width": 0.111,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-76a026c4d1b8bcca1679e77d",
+          "order": 2,
+          "sourceType": "Title",
+          "content": "<b>Window package</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.041,
+            "top": 0.247,
+            "width": 0.329,
+            "height": 0.052
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-1f2293828eed64203e3503dd",
+          "order": 3,
+          "sourceType": "Text",
+          "content": "Type 1 and Type 2 double-hung units",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.313,
+            "width": 0.272,
+            "height": 0.019
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-fd996a425ef8dec8fb0e5974",
+          "order": 4,
+          "sourceType": "Text",
+          "content": "A4.3 window schedule | 12 units | shutters excluded",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.357,
+            "width": 0.261,
+            "height": 0.013
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-9e2a71e95bdb0f84f5af66a7",
+          "order": 5,
+          "sourceType": "Figure",
+          "content": "Side-by-side product illustrations of two double-hung window models: Type 1, labeled 30\" x 60\", and Type 2, labeled 24\" x 48\".",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.677,
+            "top": 0.356,
+            "width": 0.265,
+            "height": 0.405
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-3a252178a9e28e07ae9bcdfc",
+          "order": 6,
+          "sourceType": "Key Value",
+          "content": "<b>PROJECT</b>\n<b>Virginia Farmhouse</b>\n<b>PACKAGE</b>\n<b>08 52 00 - Wood Windows</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.04,
+            "top": 0.747,
+            "width": 0.135,
+            "height": 0.119
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-32b71fe05df961dbf4e415fe",
+          "order": 7,
+          "sourceType": "Key Value",
+          "content": "<b>PREPARED FOR</b>\nRidgeway Residential Builders\n<b>SUBMITTAL</b>\n<b>CWM-08-5200-001 | REV 0</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.267,
+            "top": 0.747,
+            "width": 0.149,
+            "height": 0.119
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-9929ca9c3383aa0204233c94",
+          "order": 8,
+          "sourceType": "Key Value",
+          "content": "<b>SUPPLIER</b>\nCommonwealth Window & Millwork\n<b>ISSUE DATE</b>\n<b>September 2, 2026</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.494,
+            "top": 0.747,
+            "width": 0.172,
+            "height": 0.119
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-d98b6d872811394b717c58d8",
+          "order": 9,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE SUBMITTAL | REVIEW DRAFT | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.969,
+            "width": 0.388,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-89b0698debd673138e6f767b",
+          "order": 10,
+          "sourceType": "Footer",
+          "content": "PAGE 1 OF 5",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.907,
+            "top": 0.969,
+            "width": 0.05,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": []
+    },
+    {
+      "page": {
+        "id": "window-package-submittal-schedule",
+        "label": "2",
+        "number": 2,
+        "title": "Coordinated window schedule",
+        "width": 792,
+        "height": 612,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-5208001b1f7676c9701ca375",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Commonwealth Window & Millwork logo, with “CWM” in a gold rounded square beside the company name.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.044,
+            "width": 0.16,
+            "height": 0.06
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-52b3e838140c23bd7b28319b",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nTRANSMITTAL AND SUBMITTED SCHEDULE",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.77,
+            "top": 0.057,
+            "width": 0.187,
+            "height": 0.028
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-416e886ca305f0e91c7c89e2",
+          "order": 2,
+          "sourceType": "Section Header",
+          "content": "<b>PACKAGE CONTROL</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.181,
+            "width": 0.09,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-55f6ca6001f05e2013b53448",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>Coordinated window schedule</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.21,
+            "width": 0.401,
+            "height": 0.025
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-f6a686ab73f532005d36248c",
+          "order": 4,
+          "sourceType": "Text",
+          "content": "Totals reconcile to the project plans. Configurations match A4.3.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.254,
+            "width": 0.321,
+            "height": 0.014
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-49f232cf65338cd06158a6b1",
+          "order": 5,
+          "sourceType": "Key Value",
+          "content": "<b>12</b> <b>TOTAL UNITS</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.294,
+            "width": 0.21,
+            "height": 0.094
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-2e843ce71c7d191f7a295723",
+          "order": 6,
+          "sourceType": "Key Value",
+          "content": "<b>7</b> <b>TYPE 1</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.265,
+            "top": 0.294,
+            "width": 0.21,
+            "height": 0.094
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-f7f6bad0450fd2dd81a55f17",
+          "order": 7,
+          "sourceType": "Key Value",
+          "content": "<b>5</b> <b>TYPE 2</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.487,
+            "top": 0.294,
+            "width": 0.21,
+            "height": 0.094
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-884f727975ebc46e9574f1b0",
+          "order": 8,
+          "sourceType": "Key Value",
+          "content": "<b>2</b> <b>WINDOW TYPES</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.709,
+            "top": 0.294,
+            "width": 0.21,
+            "height": 0.094
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-2d29de6fa98dc7bc593e848f",
+          "order": 9,
+          "sourceType": "Table",
+          "content": "<table><tr><th>MARK</th><th>QTY</th><th>UNIT SIZE</th><th>MATERIAL</th><th>OPERATION</th><th>LITE PATTERN</th><th>MAKE / MODEL</th></tr><tr><td>1</td><td>7</td><td>30\" x 60\"</td><td>Composite</td><td>Double hung</td><td>2/2 SDL</td><td>Marvin / Ultimate DH</td></tr><tr><td>2</td><td>5</td><td>24\" x 48\"</td><td>Composite</td><td>Double hung</td><td>2/2 SDL</td><td>Marvin / Ultimate DH</td></tr><tr><td>TOTAL</td><td>12</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.042,
+            "top": 0.421,
+            "width": 0.809,
+            "height": 0.164
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-299f6a78114c8e87c6507570",
+          "order": 10,
+          "sourceType": "Section Header",
+          "content": "<b>SCOPE INCLUDED</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.06,
+            "top": 0.621,
+            "width": 0.073,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-fddf029a628ec9b1e720352c",
+          "order": 11,
+          "sourceType": "Text",
+          "content": "Twelve factory-assembled double-hung window units in the two scheduled sizes, with 2/2\nsimulated divided lites and insect screens. Verify field conditions before order release.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.06,
+            "top": 0.645,
+            "width": 0.369,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-63f6437674429bd00c4e7826",
+          "order": 12,
+          "sourceType": "Section Header",
+          "content": "<b>SCOPE EXCLUDED</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.522,
+            "top": 0.621,
+            "width": 0.076,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-0fe1f9fc1456635dbcc5a260",
+          "order": 13,
+          "sourceType": "Text",
+          "content": "Optional louvered shutters, shutter dogs, exterior 2x6 casing, subsills, 2x6 aprons, wall flashing,\nsealants, and interior trim are not part of this package.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.522,
+            "top": 0.645,
+            "width": 0.395,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-4b7ed09fc5da431ba8c54efc",
+          "order": 14,
+          "sourceType": "Section Header",
+          "content": "<b>DRAWING REFERENCES</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.063,
+            "top": 0.78,
+            "width": 0.098,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-8ed0dcba4378af2a0bff1eed",
+          "order": 15,
+          "sourceType": "Text",
+          "content": "<b>A1.2</b>\n<b>First Floor Plan</b>\nQuantity coordination",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.062,
+            "top": 0.815,
+            "width": 0.084,
+            "height": 0.071
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-1c086d1d23eb849a13c75bdb",
+          "order": 16,
+          "sourceType": "Text",
+          "content": "<b>A1.3</b>\n<b>Second Floor Plan</b>\nQuantity coordination",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.353,
+            "top": 0.815,
+            "width": 0.083,
+            "height": 0.071
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-8a5c7aa6dd05207d5b387fc8",
+          "order": 17,
+          "sourceType": "Text",
+          "content": "<b>A4.3</b>\n<b>Doors & Windows</b>\nSizes, operation, 2/2 SDL, make/model",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.643,
+            "top": 0.815,
+            "width": 0.154,
+            "height": 0.071
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-e72a7fdc5879f660411b994b",
+          "order": 18,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE SUBMITTAL | REVIEW DRAFT | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.971,
+            "width": 0.382,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-3d7523d5894e2ce16e9b8d04",
+          "order": 19,
+          "sourceType": "Footer",
+          "content": "CWM-08-5200-001 | REV 0 | PAGE 2 OF 5",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.802,
+            "top": 0.971,
+            "width": 0.155,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [
+        {
+          "id": "row-c167b50a04c97fd730b8f642",
+          "parentBlockId": "block-2d29de6fa98dc7bc593e848f",
+          "rowIndex": 0,
+          "text": "MARK | QTY | UNIT SIZE | MATERIAL | OPERATION | LITE PATTERN | MAKE / MODEL",
+          "cells": [
+            {
+              "text": "MARK",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "QTY",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "UNIT SIZE",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATERIAL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "OPERATION",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "LITE PATTERN",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MAKE / MODEL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.421,
+            "width": 0.809,
+            "height": 0.164
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-9cefe417c1b50365c0529582",
+          "parentBlockId": "block-2d29de6fa98dc7bc593e848f",
+          "rowIndex": 1,
+          "text": "1 | 7 | 30\" x 60\" | Composite | Double hung | 2/2 SDL | Marvin / Ultimate DH",
+          "cells": [
+            {
+              "text": "1",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "7",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "30\" x 60\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Double hung",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2/2 SDL",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Marvin / Ultimate DH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.421,
+            "width": 0.809,
+            "height": 0.164
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-29c9a0a73f2e61bf0da4077a",
+          "parentBlockId": "block-2d29de6fa98dc7bc593e848f",
+          "rowIndex": 2,
+          "text": "2 | 5 | 24\" x 48\" | Composite | Double hung | 2/2 SDL | Marvin / Ultimate DH",
+          "cells": [
+            {
+              "text": "2",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "5",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "24\" x 48\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Double hung",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2/2 SDL",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Marvin / Ultimate DH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.421,
+            "width": 0.809,
+            "height": 0.164
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-8c0ac0f197314dafc1399c3f",
+          "parentBlockId": "block-2d29de6fa98dc7bc593e848f",
+          "rowIndex": 3,
+          "text": "TOTAL | 12 | - | - | - | - | -",
+          "cells": [
+            {
+              "text": "TOTAL",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "12",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "-",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "-",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "-",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "-",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "-",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.421,
+            "width": 0.809,
+            "height": 0.164
+          },
+          "classification": "document_evidence"
+        }
+      ]
+    },
+    {
+      "page": {
+        "id": "window-package-submittal-type-1",
+        "label": "3",
+        "number": 3,
+        "title": "Type 1 product data",
+        "width": 792,
+        "height": 612,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-ac52d2eb21bb5d80f64b6e05",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Commonwealth Window & Millwork logo, with “CWM” in a gold rounded square.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.044,
+            "width": 0.046,
+            "height": 0.06
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-19512471ad39f62fe9ccaf27",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>COMMONWEALTH</b>\nWINDOW & MILLWORK",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.099,
+            "top": 0.058,
+            "width": 0.102,
+            "height": 0.032
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-f467fc02ae177ba6935924a2",
+          "order": 2,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nPRODUCT DATA | TYPE 1",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.85,
+            "top": 0.057,
+            "width": 0.106,
+            "height": 0.029
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-4fe0e2f0bb004465478b99a5",
+          "order": 3,
+          "sourceType": "Section Header",
+          "content": "<b>WINDOW TYPE 1</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.181,
+            "width": 0.072,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-404a71addfefd4bec1d44f52",
+          "order": 4,
+          "sourceType": "Title",
+          "content": "<b>30\" x 60\" double-hung unit</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.207,
+            "width": 0.354,
+            "height": 0.034
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-04836506061f81f42861e80a",
+          "order": 5,
+          "sourceType": "Text",
+          "content": "Marvin Ultimate DH | Qty 7 | 2/2 simulated divided lites",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.254,
+            "width": 0.274,
+            "height": 0.013
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-3177a3bcca1699850b5753c3",
+          "order": 6,
+          "sourceType": "Figure",
+          "content": "Schematic elevation diagram of a 30\" x 60\" double-hung window with a 2/2 simulated divided-lite pattern. The window is labeled 30\" nominal width and 60\" nominal height, with a 1 marker and a note that the elevation is schematic and not to scale for rough-opening dimensions.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.29,
+            "width": 0.31,
+            "height": 0.538
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-12694c49690403d9cd039348",
+          "order": 7,
+          "sourceType": "Section Header",
+          "content": "<b>SUBMITTED CONFIGURATION</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.407,
+            "top": 0.322,
+            "width": 0.119,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-46155d9e5c7bc146e610e0b8",
+          "order": 8,
+          "sourceType": "Table",
+          "content": "<table><tr><th>MARK</th><th>QUANTITY</th><th>SIZE</th><th>OPERATION</th></tr><tr><td><b>1</b></td><td><b>7</b></td><td><b>30\" x 60\"</b></td><td><b>Double hung</b></td></tr><tr><th>MATERIAL</th><th>LITES</th><th>MAKE / MODEL</th><th>SCREEN</th></tr><tr><td><b>Composite</b></td><td><b>2/2 simulated divided lites</b></td><td><b>Marvin / Ultimate DH</b></td><td><b>Insect screen</b></td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-1c5721e0483f13bb345096b1",
+          "order": 9,
+          "sourceType": "Section Header",
+          "content": "<b>PACKAGE QUANTITY</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.406,
+            "top": 0.588,
+            "width": 0.085,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-9c919b2a82aef55d16a72ccc",
+          "order": 10,
+          "sourceType": "Text",
+          "content": "<b>7</b> SCHEDULED UNITS",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.405,
+            "top": 0.636,
+            "width": 0.123,
+            "height": 0.028
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-5455effef1d9c4770909cd31",
+          "order": 11,
+          "sourceType": "Section Header",
+          "content": "<b>ARCHITECTURAL TRIM</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.699,
+            "top": 0.588,
+            "width": 0.092,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-f85ac2a20e7a52a33b89416f",
+          "order": 12,
+          "sourceType": "Text",
+          "content": "Coordinate 2x6 exterior casing, subsill, and 2x6 apron\nshown on A4.3. These trim pieces are by others and are\nnot included with the factory window unit.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.699,
+            "top": 0.613,
+            "width": 0.236,
+            "height": 0.043
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-c79e1bdc07cc8a879d173eb2",
+          "order": 13,
+          "sourceType": "Section Header",
+          "content": "<b>ORDER RELEASE HOLD POINT</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.407,
+            "top": 0.752,
+            "width": 0.124,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-3a5f5f87be2881804d3cb34e",
+          "order": 14,
+          "sourceType": "Text",
+          "content": "Verify each rough opening, wall thickness, sill condition, jamb depth, interior return, exterior trim depth, egress applicability,\nand final finish selections before fabrication.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.407,
+            "top": 0.771,
+            "width": 0.515,
+            "height": 0.026
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-cddbc6a31a9c842715c61072",
+          "order": 15,
+          "sourceType": "Text",
+          "content": "<b>COMPLIANCE: SIZE, QUANTITY, OPERATION, LITE PATTERN, MATERIAL, AND BASIS-OF-DESIGN MATCH A4.3.</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.059,
+            "top": 0.885,
+            "width": 0.488,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-9dc36fa64976459f0922bb02",
+          "order": 16,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE SUBMITTAL | REVIEW DRAFT | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.971,
+            "width": 0.382,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-035c499da6ffa6f5e4e92ad2",
+          "order": 17,
+          "sourceType": "Footer",
+          "content": "CWM-08-5200-001 | REV 0 | PAGE 3 OF 5",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.802,
+            "top": 0.971,
+            "width": 0.155,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [
+        {
+          "id": "row-5c587d66fda6ec234f31f19e",
+          "parentBlockId": "block-46155d9e5c7bc146e610e0b8",
+          "rowIndex": 0,
+          "text": "MARK | QUANTITY | SIZE | OPERATION",
+          "cells": [
+            {
+              "text": "MARK",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "QUANTITY",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "SIZE",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "OPERATION",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-969e121b5d837fef94f86093",
+          "parentBlockId": "block-46155d9e5c7bc146e610e0b8",
+          "rowIndex": 1,
+          "text": "1 | 7 | 30\" x 60\" | Double hung",
+          "cells": [
+            {
+              "text": "1",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "7",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "30\" x 60\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Double hung",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-600bf1ddcba6e9d324ec1114",
+          "parentBlockId": "block-46155d9e5c7bc146e610e0b8",
+          "rowIndex": 2,
+          "text": "MATERIAL | LITES | MAKE / MODEL | SCREEN",
+          "cells": [
+            {
+              "text": "MATERIAL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "LITES",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MAKE / MODEL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "SCREEN",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-7922f00db74a15420802b243",
+          "parentBlockId": "block-46155d9e5c7bc146e610e0b8",
+          "rowIndex": 3,
+          "text": "Composite | 2/2 simulated divided lites | Marvin / Ultimate DH | Insect screen",
+          "cells": [
+            {
+              "text": "Composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2/2 simulated divided lites",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Marvin / Ultimate DH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Insect screen",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        }
+      ]
+    },
+    {
+      "page": {
+        "id": "window-package-submittal-type-2",
+        "label": "4",
+        "number": 4,
+        "title": "Type 2 product data",
+        "width": 792,
+        "height": 612,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-c1df505f0ac51c6087356c87",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Commonwealth Window & Millwork logo, with a gold “CWM” monogram beside the company name.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.044,
+            "width": 0.16,
+            "height": 0.06
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-68e6379a07a17f5811714987",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nPRODUCT DATA | TYPE 2",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.85,
+            "top": 0.057,
+            "width": 0.107,
+            "height": 0.029
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-ca05fb67e6b14a7399d29c73",
+          "order": 2,
+          "sourceType": "Section Header",
+          "content": "<b>WINDOW TYPE 2</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.181,
+            "width": 0.073,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-81f8315594cdf745784aabaf",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>24\" x 48\" double-hung unit</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.208,
+            "width": 0.355,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-4188b665ff9a2d4f40bc43ae",
+          "order": 4,
+          "sourceType": "Text",
+          "content": "Marvin Ultimate DH | Qty 5 | 2/2 simulated divided lites",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.254,
+            "width": 0.274,
+            "height": 0.013
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-b878a173284a89c309546a82",
+          "order": 5,
+          "sourceType": "Figure",
+          "content": "Schematic elevation diagram of a 24 × 48-inch double-hung window with a 2/2 simulated divided-lite pattern.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.112,
+            "top": 0.365,
+            "width": 0.135,
+            "height": 0.358
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-e3d71b36a94fc9155d44f6f1",
+          "order": 6,
+          "sourceType": "Text",
+          "content": "Elevation diagram is schematic. Do not scale for rough-opening\ndimensions.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.078,
+            "top": 0.762,
+            "width": 0.24,
+            "height": 0.024
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-0413e9b52961cd9136f748bc",
+          "order": 7,
+          "sourceType": "Section Header",
+          "content": "<b>SUBMITTED CONFIGURATION</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.407,
+            "top": 0.322,
+            "width": 0.119,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-e9430033028ed7976422dd43",
+          "order": 8,
+          "sourceType": "Table",
+          "content": "<table><tr><th>MARK</th><th>QUANTITY</th><th>SIZE</th><th>OPERATION</th></tr><tr><td><b>2</b></td><td><b>5</b></td><td><b>24\" x 48\"</b></td><td><b>Double hung</b></td></tr><tr><th>MATERIAL</th><th>LITES</th><th>MAKE / MODEL</th><th>SCREEN</th></tr><tr><td><b>Composite</b></td><td><b>2/2 simulated divided lites</b></td><td><b>Marvin / Ultimate DH</b></td><td><b>Insect screen</b></td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-2e07790fb69e0491d5b593e4",
+          "order": 9,
+          "sourceType": "Section Header",
+          "content": "<b>PACKAGE QUANTITY</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.406,
+            "top": 0.588,
+            "width": 0.085,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-3931d6932a3c4aa2acb5ab42",
+          "order": 10,
+          "sourceType": "Text",
+          "content": "<b>5</b> SCHEDULED UNITS",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.406,
+            "top": 0.637,
+            "width": 0.122,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-14ea65422558fe1df27db7ba",
+          "order": 11,
+          "sourceType": "Section Header",
+          "content": "<b>ARCHITECTURAL TRIM</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.699,
+            "top": 0.588,
+            "width": 0.092,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-d859d8b20e5ac8742d868f40",
+          "order": 12,
+          "sourceType": "Text",
+          "content": "Coordinate 2x6 exterior casing, subsill, and 2x6 apron\nshown on A4.3. These trim pieces are by others and are\nnot included with the factory window unit.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.699,
+            "top": 0.613,
+            "width": 0.236,
+            "height": 0.043
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-61f38a0f80256f64774d6c3c",
+          "order": 13,
+          "sourceType": "Section Header",
+          "content": "<b>ORDER RELEASE HOLD POINT</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.407,
+            "top": 0.752,
+            "width": 0.124,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-cfc70e6ecb83b2254b90eba3",
+          "order": 14,
+          "sourceType": "Text",
+          "content": "Verify each rough opening, wall thickness, sill condition, jamb depth, interior return, exterior trim depth, egress applicability,\nand final finish selections before fabrication.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.407,
+            "top": 0.77,
+            "width": 0.515,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-4b48b8b52ec81e495ba7153b",
+          "order": 15,
+          "sourceType": "Text",
+          "content": "<b>COMPLIANCE: SIZE, QUANTITY, OPERATION, LITE PATTERN, MATERIAL, AND BASIS-OF-DESIGN MATCH A4.3.</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.059,
+            "top": 0.885,
+            "width": 0.488,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-cbe031517e8f143982b9eda2",
+          "order": 16,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE SUBMITTAL | REVIEW DRAFT | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.971,
+            "width": 0.382,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-2cdada0fa756232797e2aada",
+          "order": 17,
+          "sourceType": "Footer",
+          "content": "CWM-08-5200-001 | REV 0 | PAGE 4 OF 5",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.802,
+            "top": 0.971,
+            "width": 0.155,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [
+        {
+          "id": "row-dd3aa046ab635046d75de95a",
+          "parentBlockId": "block-e9430033028ed7976422dd43",
+          "rowIndex": 0,
+          "text": "MARK | QUANTITY | SIZE | OPERATION",
+          "cells": [
+            {
+              "text": "MARK",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "QUANTITY",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "SIZE",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "OPERATION",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-498b0abcda5a7f04ca8b3b36",
+          "parentBlockId": "block-e9430033028ed7976422dd43",
+          "rowIndex": 1,
+          "text": "2 | 5 | 24\" x 48\" | Double hung",
+          "cells": [
+            {
+              "text": "2",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "5",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "24\" x 48\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Double hung",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-7de98f95f4d7b82fb4d54790",
+          "parentBlockId": "block-e9430033028ed7976422dd43",
+          "rowIndex": 2,
+          "text": "MATERIAL | LITES | MAKE / MODEL | SCREEN",
+          "cells": [
+            {
+              "text": "MATERIAL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "LITES",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MAKE / MODEL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "SCREEN",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-b878b10932ea7ff551531f3b",
+          "parentBlockId": "block-e9430033028ed7976422dd43",
+          "rowIndex": 3,
+          "text": "Composite | 2/2 simulated divided lites | Marvin / Ultimate DH | Insect screen",
+          "cells": [
+            {
+              "text": "Composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2/2 simulated divided lites",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Marvin / Ultimate DH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Insect screen",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.403,
+            "top": 0.362,
+            "width": 0.477,
+            "height": 0.131
+          },
+          "classification": "document_evidence"
+        }
+      ]
+    },
+    {
+      "page": {
+        "id": "window-package-submittal-coordination",
+        "label": "5",
+        "number": 5,
+        "title": "Coordination, installation, and closeout",
+        "width": 792,
+        "height": 612,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-8a95fabb8203be9f1095236c",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Commonwealth Window & Millwork logo, with a gold “CWM” monogram beside the company name.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.044,
+            "width": 0.159,
+            "height": 0.06
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-87eb70cab2234dae48fb07ed",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nCOORDINATION AND REVIEW RECORD",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.789,
+            "top": 0.057,
+            "width": 0.168,
+            "height": 0.028
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-39ca35fee82ee83b64aab7b8",
+          "order": 2,
+          "sourceType": "Section Header",
+          "content": "<b>PACKAGE SUMMARY</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.181,
+            "width": 0.092,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-90994e5ea3a597d3dc0d0ee4",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>Coordination, installation, and closeout</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.209,
+            "width": 0.522,
+            "height": 0.03
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-0d4875cf446251333085e05f",
+          "order": 4,
+          "sourceType": "Text",
+          "content": "Window-only package. No shutters are submitted.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.042,
+            "top": 0.252,
+            "width": 0.25,
+            "height": 0.016
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-051be6de225e3dcff523530a",
+          "order": 5,
+          "sourceType": "Table",
+          "content": "<table><tr><th>REQUIREMENT</th><th>DRAWING BASIS</th><th>SUBMITTED</th><th>STATUS</th></tr><tr><td>Type 1 quantity</td><td>Coordinated plan count</td><td>7 total</td><td>MATCH</td></tr><tr><td>Type 2 quantity</td><td>Coordinated plan count</td><td>5 total</td><td>MATCH</td></tr><tr><td>Sizes</td><td>Type 1: 30\" x 60\" / Type 2: 24\" x 48\"</td><td>Same</td><td>MATCH</td></tr><tr><td>Operation</td><td>Double hung</td><td>Double hung</td><td>MATCH</td></tr><tr><td>Lite pattern</td><td>2/2 lites</td><td>2/2 simulated divided lites</td><td>MATCH</td></tr><tr><td>Make / model</td><td>Marvin / Ultimate DH</td><td>Marvin / Ultimate DH</td><td>MATCH</td></tr><tr><td>Optional shutters</td><td>Shown separately on A4.3</td><td>Excluded</td><td>N/A</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-18e0bff5f06f9055b888d716",
+          "order": 6,
+          "sourceType": "Section Header",
+          "content": "<b>INSTALLATION COORDINATION</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.06,
+            "top": 0.675,
+            "width": 0.126,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-cb1a7583529a52622a0322b9",
+          "order": 7,
+          "sourceType": "Text",
+          "content": "Set units plumb, level, square, and within the manufacturer's published installation tolerances.\nIntegrate sill pan and perimeter flashing with the wall weather barrier. Use compatible\nlow-expansion foam and sealants. Protect factory finishes and glazing through closeout.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.06,
+            "top": 0.699,
+            "width": 0.393,
+            "height": 0.045
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-3fd1fa2d39ea67a68397fb02",
+          "order": 8,
+          "sourceType": "Section Header",
+          "content": "<b>CLOSEOUT DELIVERABLES</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.512,
+            "top": 0.675,
+            "width": 0.111,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-3fc9ff3b53a6fcabfeafa9ee",
+          "order": 9,
+          "sourceType": "Text",
+          "content": "Provide the approved window schedule, final order acknowledgment, installation instructions, care\ninformation, warranty documentation, and a record of approved substitutions or field changes. Record\nverified rough-opening dimensions before fabrication release.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.512,
+            "top": 0.699,
+            "width": 0.425,
+            "height": 0.045
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-0bcc3b6fa32b26dddd8faad9",
+          "order": 10,
+          "sourceType": "Section Header",
+          "content": "<b>SUBMITTAL REVIEW</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.06,
+            "top": 0.862,
+            "width": 0.113,
+            "height": 0.011
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-bec41937d317cddd14121b5f",
+          "order": 11,
+          "sourceType": "Key Value",
+          "content": "Reviewed | Reviewed as noted | Revise and resubmit\nReviewer: <empty>\nDate: <empty>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.056,
+            "top": 0.882,
+            "width": 0.802,
+            "height": 0.022
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-639201891396e60c39165c02",
+          "order": 12,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE SUBMITTAL | REVIEW DRAFT | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.043,
+            "top": 0.971,
+            "width": 0.382,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-4a504b733e8b1dc29c4e090b",
+          "order": 13,
+          "sourceType": "Footer",
+          "content": "CWM-08-5200-001 | REV 0 | PAGE 5 OF 5",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.802,
+            "top": 0.971,
+            "width": 0.155,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [
+        {
+          "id": "row-24e4db91da1424f69968799a",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 0,
+          "text": "REQUIREMENT | DRAWING BASIS | SUBMITTED | STATUS",
+          "cells": [
+            {
+              "text": "REQUIREMENT",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "DRAWING BASIS",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "SUBMITTED",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "STATUS",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-c576ccd190923d5065f30fdc",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 1,
+          "text": "Type 1 quantity | Coordinated plan count | 7 total | MATCH",
+          "cells": [
+            {
+              "text": "Type 1 quantity",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Coordinated plan count",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "7 total",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATCH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-61b3a376549700332438a639",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 2,
+          "text": "Type 2 quantity | Coordinated plan count | 5 total | MATCH",
+          "cells": [
+            {
+              "text": "Type 2 quantity",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Coordinated plan count",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "5 total",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATCH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-5588ff09c611ca87fbac0689",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 3,
+          "text": "Sizes | Type 1: 30\" x 60\" / Type 2: 24\" x 48\" | Same | MATCH",
+          "cells": [
+            {
+              "text": "Sizes",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Type 1: 30\" x 60\" / Type 2: 24\" x 48\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Same",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATCH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-64a9709819a11989266011b9",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 4,
+          "text": "Operation | Double hung | Double hung | MATCH",
+          "cells": [
+            {
+              "text": "Operation",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Double hung",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Double hung",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATCH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-4be1e0354e0fdb5c017504c5",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 5,
+          "text": "Lite pattern | 2/2 lites | 2/2 simulated divided lites | MATCH",
+          "cells": [
+            {
+              "text": "Lite pattern",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2/2 lites",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2/2 simulated divided lites",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATCH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-46f9d176dfee7fbbe93b2871",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 6,
+          "text": "Make / model | Marvin / Ultimate DH | Marvin / Ultimate DH | MATCH",
+          "cells": [
+            {
+              "text": "Make / model",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Marvin / Ultimate DH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Marvin / Ultimate DH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATCH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-52b8e1d40dc0d71fb0c325fd",
+          "parentBlockId": "block-051be6de225e3dcff523530a",
+          "rowIndex": 7,
+          "text": "Optional shutters | Shown separately on A4.3 | Excluded | N/A",
+          "cells": [
+            {
+              "text": "Optional shutters",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Shown separately on A4.3",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Excluded",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "N/A",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.042,
+            "top": 0.327,
+            "width": 0.809,
+            "height": 0.31
+          },
+          "classification": "document_evidence"
+        }
+      ]
+    }
+  ]
+}

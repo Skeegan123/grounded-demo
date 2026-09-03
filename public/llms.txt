@@ -12,4 +12,4 @@ The public demo covers one Type C door Submittal Review. External Agents use six
 ## Documentation
 
 - [WebMCP contract](https://raw.githubusercontent.com/Skeegan123/grounded-demo/main/docs/webmcp-point-set-contract.md): Review the eight public tools, their inputs, outputs, limits, and recovery behavior.
-- [Type C Submittal Review demo](https://raw.githubusercontent.com/Skeegan123/grounded-demo/main/docs/type-c-submittal-review-demo.md): Follow the tested demo workflow and judge checklist.
+- [Door Package Submittal Review demo](https://raw.githubusercontent.com/Skeegan123/grounded-demo/main/docs/door-package-submittal-review-demo.md): Follow the tested demo workflow and judge checklist.

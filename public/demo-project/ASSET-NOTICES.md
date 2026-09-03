@@ -20,16 +20,30 @@ Required attribution:
 
 Any crop, annotation, conversion, or other derivative of the drawing set must identify its changes and remain under CC BY-SA 3.0.
 
-## Type C interior door submittal
+## Complete door package submittal
 
-- File: `type-c-door-submittal.pdf`
+- File: `door-package-submittal.pdf`
 - Creator: Grounded
 - Source: Synthetic test data created for this Demo Project fixture
 - License: CC0 1.0 Universal
 - License text: https://creativecommons.org/publicdomain/zero/1.0/
-- Created: August 28, 2026
-- SHA-256: `b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658`
-- Byte size: 4,557
-- Page count: 2
+- Created: September 2, 2026
+- SHA-256: `4320e6676e48a6d4701c5ed3e029a685d46d401ad39665414f7ac0a9354c7334`
+- Byte size: 3,205,731
+- Page count: 6
 
-Blue Ridge Doorworks, its model number, and all product claims in this document are fictional. The document is not for procurement, installation, or construction.
+Blue Ridge Doorworks, its model numbers, and all product claims in this document are fictional. The document is not for procurement, installation, or construction.
+
+## Window package submittal
+
+- File: `window-package-submittal.pdf`
+- Creator: Grounded
+- Source: Synthetic test data created for this Demo Project fixture
+- License: CC0 1.0 Universal
+- License text: https://creativecommons.org/publicdomain/zero/1.0/
+- Created: September 2, 2026
+- SHA-256: `66cd6786c3d20e924f14adb8f9091cf7dba7158ae9a45a815f45f04ea61238a0`
+- Byte size: 15,418
+- Page count: 5
+
+Commonwealth Window & Millwork is fictional. The document is not for procurement, installation, or construction. Marvin and Ultimate are referenced only as the drawing-set basis of design; no affiliation or endorsement is claimed.

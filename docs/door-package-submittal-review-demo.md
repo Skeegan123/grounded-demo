@@ -1,4 +1,4 @@
-# Type C Submittal Review demo
+# Door package submittal review demo
 
 This is the repeatable goal prompt tested with ChatGPT's in-app browser on
 August 30, 2026:
@@ -34,46 +34,31 @@ Context adapter:
 
 1. `get_project_workspace`
 2. `list_project_documents`
-3. `search_project_documents` for the submitted product and contract requirement
-4. `inspect_document_evidence` for the matched submittal blocks
+3. `search_project_documents` for the submitted Type C schedule row, contract
+   requirement, and both floor plans
+4. `inspect_document_evidence` for the matched submittal schedule
 5. `inspect_document_evidence` for the matched A4.3 door-schedule table
-6. `inspect_document_evidence` for the matched A1.2 floor-plan Search Hint
-7. `create_assistance_request` with A1.2 as the Point Set target, A4.3 and the
-   two submittal pages as supporting references, and A1.2 as the recommended
-   page
+6. `inspect_document_evidence` for the matched A1.2 and A1.3 floor-plan Search
+   Hints
+7. `create_assistance_request` with A1.2 and A1.3 as Point Set targets, A4.3
+   and the six-page submittal as supporting references, and both floor plans
+   as recommended pages
 8. `get_project_workspace` after reload to recover the latest completed
    request ID and state
 9. `get_assistance_request` with that recovered ID
 
 The repeatable searches are:
 
-- `hollow honeycomb core` for the submitted construction;
+- `Heritage W-2480-P1 Interior` for the submitted Type C schedule row;
 - `Type C 24 x 80 solid wood` for the A4.3 schedule requirement;
-- `first floor plan room layout utility coats WC` for the A1.2 Search Hint.
+- `first floor plan room layout utility coats WC` for the A1.2 Search Hint;
+- `second floor plan main bedroom stair hall bathroom` for the A1.3 Search Hint.
 
 This is a tested path through six workflow tools. Separate application tests
 exercise `navigate_document`, and focused tests exercise `get_grounded_help`
 through the same public adapter. None of these paths is a required workflow or
 a claim about a third-party client. An
 External Agent may inspect other relevant pages or change the order.
-
-## Historical supported-client sequence
-
-ChatGPT's in-app browser rehearsed the earlier Type C flow on August 30, 2026.
-That client discovered and exercised the then-current five-tool surface:
-
-1. `get_project_workspace`
-2. `list_project_documents`
-3. `inspect_document_text` for the two submittal pages, A4.3, and A1.2
-4. `create_assistance_request`
-5. `get_assistance_request`
-
-`inspect_document_text` was later replaced by `inspect_document_evidence`, and
-`search_project_documents` was added later. The historical run therefore does
-not establish client execution of those two current contracts. On September 2,
-2026, no supported third-party WebMCP client was available in the implementation
-environment, so the current eight-tool surface was not manually rehearsed or
-claimed there.
 
 ## Current public tool descriptions
 
@@ -112,20 +97,20 @@ The current application registers these descriptions:
 
 ## Current automated result
 
-Search located a 24 by 80 inch hollow-core flush submitted door and a 24 by 80
-inch solid-wood, one-panel Type C contract requirement. Inspection returned the
-complete Document Evidence for both matches. The request
-asked the Human Reviewer to mark every affected Type C opening on A1.2.
-The Human Reviewer marked WC, Utility, and Coats and submitted one
-final three-point Professional Response.
+Search located the submitted Type C schedule row with quantity 5 and the
+24-by-80-inch solid-wood, one-panel Type C contract requirement. It also
+located the A1.2 and A1.3 floor-plan Search Hints. Inspection returned the
+complete Document Evidence for both schedule matches. The request asked the
+Human Reviewer to mark every Type C opening on both floor plans. The Human
+Reviewer marked three openings on each floor and submitted one six-point
+Professional Response.
 
 After reload, `get_project_workspace` recovered the completed request ID and
 its `answered` state. `get_assistance_request` then returned the immutable
-drawing version, three A1.2 page references with normalized coordinates, a
-computed count of three, creation and submission timestamps, and the overall
-note. The tracer derives a revise-and-resubmit disposition because the proposed
-hollow-core flush construction does not meet the solid-wood, one-panel contract
-requirement at the three marked openings.
+drawing version, six page references with normalized coordinates, a computed
+count of six, creation and submission timestamps, and the overall note. The
+tracer derives a revise-and-resubmit disposition because the submittal lists
+five Type C doors while the two floor plans contain six.
 
 The historical August 30 create-to-retrieve portion took about one minute in
 the local deployment-equivalent supported-client run. No timing is claimed for
@@ -152,10 +137,10 @@ returned; narrow the selectors and retry. The full contract is in
   header says **WebMCP ready**.
 - Start recording before sending the goal prompt above.
 - Let the External Agent inspect both PDFs and create the Assistance Request.
-- In Current Assistance, verify the target is A1.2 and the supporting references
-  include A4.3 and the two submittal pages.
-- Review A1.2, place the Point Set requested by the External Agent using your
-  professional judgment, and submit the Professional Response.
+- In Current Assistance, verify the targets are A1.2 and A1.3 and the
+  supporting references include A4.3 and the six-page submittal.
+- Review both floor plans, place the Point Set requested by the External Agent
+  using your professional judgment, and submit the Professional Response.
 - Reload the page to prove the Demo Session and Professional Response persist.
 - Send the resume prompt if the client does not continue on its own.
 - Confirm the workspace snapshot recovers the completed request ID and state.

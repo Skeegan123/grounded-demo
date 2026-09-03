@@ -131,9 +131,9 @@ test('a Point Set request carries supporting document references into the queue'
     recommendedPageIds: ['sheet-a1.2'],
     supportingDocumentReferences: [
       {
-        documentId: 'type-c-door-submittal',
-        documentVersionId: 'type-c-door-submittal-v1',
-        pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+        documentId: 'door-package-submittal',
+        documentVersionId: 'door-package-submittal-v1',
+        pageIds: ['door-package-submittal-cover', 'door-package-submittal-interior-product-data'],
       },
     ],
   })
@@ -143,9 +143,9 @@ test('a Point Set request carries supporting document references into the queue'
       id: 'request-1',
       supportingDocumentReferences: [
         {
-          documentId: 'type-c-door-submittal',
-          documentVersionId: 'type-c-door-submittal-v1',
-          pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+          documentId: 'door-package-submittal',
+          documentVersionId: 'door-package-submittal-v1',
+          pageIds: ['door-package-submittal-cover', 'door-package-submittal-interior-product-data'],
         },
       ],
     }),
@@ -194,9 +194,9 @@ test('the public create tool accepts every collection maximum and the empty reco
   await expect(modelContext.executeTool('create_assistance_request', {
     question: 'Use every drawing page as supporting context.',
     responseType: 'point_set',
-    documentId: 'type-c-door-submittal',
-    documentVersionId: 'type-c-door-submittal-v1',
-    recommendedPageIds: ['door-submittal-page-1'],
+    documentId: 'door-package-submittal',
+    documentVersionId: 'door-package-submittal-v1',
+    recommendedPageIds: ['door-package-submittal-cover'],
     supportingDocumentReferences: [{
       documentId: drawing.id,
       documentVersionId: drawing.versionId,
@@ -207,11 +207,11 @@ test('the public create tool accepts every collection maximum and the empty reco
   const maximumReferences = Array.from(
     { length: ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT },
     (_, index) => ({
-      documentId: 'type-c-door-submittal',
-      documentVersionId: 'type-c-door-submittal-v1',
+      documentId: 'door-package-submittal',
+      documentVersionId: 'door-package-submittal-v1',
       pageIds: [index % 2 === 0
-        ? 'door-submittal-page-1'
-        : 'door-submittal-page-2'],
+        ? 'door-package-submittal-cover'
+        : 'door-package-submittal-interior-product-data'],
     }),
   )
   await expect(modelContext.executeTool('create_assistance_request', {
@@ -368,14 +368,14 @@ test('the public create tool rejects duplicate supporting document versions at t
     recommendedPageIds: [],
     supportingDocumentReferences: [
       {
-        documentId: 'type-c-door-submittal',
-        documentVersionId: 'type-c-door-submittal-v1',
-        pageIds: ['door-submittal-page-1'],
+        documentId: 'door-package-submittal',
+        documentVersionId: 'door-package-submittal-v1',
+        pageIds: ['door-package-submittal-cover'],
       },
       {
-        documentId: 'type-c-door-submittal',
-        documentVersionId: 'type-c-door-submittal-v1',
-        pageIds: ['door-submittal-page-2'],
+        documentId: 'door-package-submittal',
+        documentVersionId: 'door-package-submittal-v1',
+        pageIds: ['door-package-submittal-interior-product-data'],
       },
     ],
   })).rejects.toThrow(

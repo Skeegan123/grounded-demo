@@ -14,9 +14,9 @@ const requestInput = {
   recommendedPageIds: ['sheet-a1.2'],
   supportingDocumentReferences: [
     {
-      documentId: 'type-c-door-submittal',
-      documentVersionId: 'type-c-door-submittal-v1',
-      pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+      documentId: 'door-package-submittal',
+      documentVersionId: 'door-package-submittal-v1',
+      pageIds: ['door-package-submittal-schedule', 'door-package-submittal-interior-product-data'],
     },
   ],
 } as const
@@ -90,8 +90,8 @@ test('get_project_workspace returns the fresh Demo Session snapshot without chan
       id: 'demo-virginia-farmhouse',
       title: 'Virginia Farmhouse Demo Project',
       description:
-        'A Project Workspace for reviewing Type C interior door product data against the contract drawings.',
-      documentCount: 2,
+        'A Project Workspace for reviewing door and window package submittals against the contract drawings.',
+      documentCount: 3,
     },
     documentBrowsing: {
       selectedDocument: {
@@ -141,8 +141,8 @@ test('get_project_workspace recovers current browsing and Assistance state acros
   }))
 
   await waitForWebMcpReady()
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
-  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
+  await choosePage(user, /^4 Heritage interior door product data$/)
   await firstModelContext.executeTool('create_assistance_request', {
     question: 'Confirm whether the submitted door construction complies.',
     responseType: 'text',
@@ -157,10 +157,10 @@ test('get_project_workspace recovers current browsing and Assistance state acros
   expect(pendingSnapshot).toMatchObject({
     documentBrowsing: {
       selectedDocument: {
-        id: 'type-c-door-submittal',
-        versionId: 'type-c-door-submittal-v1',
+        id: 'door-package-submittal',
+        versionId: 'door-package-submittal-v1',
       },
-      selectedPage: { id: 'door-submittal-page-2' },
+      selectedPage: { id: 'door-package-submittal-interior-product-data' },
     },
     assistance: {
       pendingCount: 2,
@@ -181,7 +181,7 @@ test('get_project_workspace recovers current browsing and Assistance state acros
   expect(screen.getByText(
     'Confirm whether the submitted door construction complies.',
   )).toBeInTheDocument()
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
 
   firstRender.unmount()
   const reloadedModelContext = createRecordingModelContext()
@@ -206,11 +206,11 @@ test('get_project_workspace recovers current browsing and Assistance state acros
     id: 'request-1',
     state: 'pending',
   })
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
 
   await user.type(
     screen.getByLabelText('Text response'),
-    'The hollow-core submitted construction does not comply.',
+    'The submitted Type C quantity needs field verification.',
   )
   await user.click(screen.getByRole('button', { name: 'Submit Text Response' }))
   await screen.findByText(requestInput.question)
@@ -311,7 +311,7 @@ test('the workbench opens searchable document and page overlays without changing
   await user.type(documentSearch, 'fictional')
   expect(
     within(documentsPanel).getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
+      name: /Virginia Farmhouse complete door package submittal/i,
     }),
   ).toBeInTheDocument()
   expect(
@@ -348,13 +348,13 @@ test('the workbench opens searchable document and page overlays without changing
   )
   await user.click(
     within(documentsPanel).getByRole('button', {
-      name: /Type C interior door product data and review cover/i,
+      name: /Virginia Farmhouse complete door package submittal/i,
     }),
   )
   expect(screen.queryByRole('dialog', { name: 'Choose a document' }))
     .not.toBeInTheDocument()
   expect(screen.getByRole('heading', {
-    name: 'Type C interior door product data and review cover',
+    name: 'Virginia Farmhouse complete door package submittal',
   })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: /Current page:/ }))
@@ -362,13 +362,13 @@ test('the workbench opens searchable document and page overlays without changing
   const pageSearch = within(pagePanel).getByRole('searchbox', {
     name: 'Search pages',
   })
-  await user.type(pageSearch, 'Hollow-core')
+  await user.type(pageSearch, 'Heritage')
   await user.click(
     within(pagePanel).getByRole('option', {
-      name: /^2 Hollow-core flush wood door product data$/,
+      name: /^4 Heritage interior door product data$/,
     }),
   )
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
 })
 
 test('the workbench stops page navigation at boundaries and resets direct navigation to Fit page', async () => {
@@ -507,12 +507,12 @@ test('navigate_document restores the current-session page and preserves unfinish
   await screen.findByText('1 point')
 
   await expect(modelContext.executeTool('navigate_document', {
-    documentId: 'type-c-door-submittal',
-    target: { type: 'page', pageId: 'door-submittal-page-2' },
+    documentId: 'door-package-submittal',
+    target: { type: 'page', pageId: 'door-package-submittal-interior-product-data' },
   })).resolves.toMatchObject({
     status: 'applied',
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-interior-product-data' },
     type: 'page',
     fit: 'page',
     zoom: 1,
@@ -553,11 +553,11 @@ test('document-only navigation opens a never-before-opened Project Document on i
 
   await waitForWebMcpReady()
   await expect(modelContext.executeTool('navigate_document', {
-    documentId: 'type-c-door-submittal',
+    documentId: 'door-package-submittal',
   })).resolves.toMatchObject({
     status: 'applied',
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-1' },
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-cover' },
     type: 'document',
     fit: 'page',
     zoom: 1,
@@ -685,7 +685,7 @@ test('navigate_document resolves Document Evidence and Search Hint blocks throug
 
   await waitForWebMcpReady()
   const sourceSearch = await modelContext.executeTool('search_project_documents', {
-    query: 'hollow honeycomb core',
+    query: 'solid engineered stave',
     limit: 1,
   }) as {
     matches: Array<{
@@ -712,8 +712,8 @@ test('navigate_document resolves Document Evidence and Search Hint blocks throug
   expect(sourceResult).toEqual({
     status: 'applied',
     document: {
-      id: 'type-c-door-submittal',
-      versionId: 'type-c-door-submittal-v1',
+      id: 'door-package-submittal',
+      versionId: 'door-package-submittal-v1',
     },
     page: { id: source.page.id },
     type: 'block',
@@ -722,7 +722,7 @@ test('navigate_document resolves Document Evidence and Search Hint blocks throug
     region: source.region,
     zoom: expect.any(Number),
   })
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
 
   const hintResult = await modelContext.executeTool('navigate_document', {
     documentId: hint.document.id,
@@ -774,7 +774,7 @@ test('block navigation rejects missing and foreign IDs atomically and preserves 
   await waitForWebMcpReady()
   const submittalSearch = await modelContext.executeTool(
     'search_project_documents',
-    { query: 'hollow honeycomb core', limit: 1 },
+    { query: 'solid engineered stave', limit: 1 },
   ) as {
     matches: Array<{ block: { id: string } }>
   }
@@ -1190,7 +1190,7 @@ test('render-failure rollback does not restore a dismissed Document Focus outlin
 test('failed cross-document navigation restores remembered pages and the exact ordinary fit and zoom', async () => {
   const pageRenderer: PdfPageRenderer = {
     renderPage: vi.fn(async ({ canvas, height, pageNumber, url, width }) => {
-      if (url.includes('type-c') && pageNumber === 2) {
+      if (url.includes('door-package') && pageNumber === 4) {
         throw new Error('Sensitive renderer details.')
       }
       canvas.width = width
@@ -1210,8 +1210,8 @@ test('failed cross-document navigation restores remembered pages and the exact o
 
   await waitForWebMcpReady()
   await expect(modelContext.executeTool('navigate_document', {
-    documentId: 'type-c-door-submittal',
-  })).resolves.toMatchObject({ page: { id: 'door-submittal-page-1' } })
+    documentId: 'door-package-submittal',
+  })).resolves.toMatchObject({ page: { id: 'door-package-submittal-cover' } })
   await expect(modelContext.executeTool('navigate_document', {
     documentId: 'virginia-farmhouse-drawings',
   })).resolves.toMatchObject({ page: { id: 'sheet-a0.0' } })
@@ -1226,8 +1226,8 @@ test('failed cross-document navigation restores remembered pages and the exact o
   }
 
   await expect(modelContext.executeTool('navigate_document', {
-    documentId: 'type-c-door-submittal',
-    target: { type: 'page', pageId: 'door-submittal-page-2' },
+    documentId: 'door-package-submittal',
+    target: { type: 'page', pageId: 'door-package-submittal-interior-product-data' },
   })).rejects.toThrow('The Project Document page could not be rendered.')
 
   expectCurrentPage(/A0\.0, Cover Page/)
@@ -1237,10 +1237,10 @@ test('failed cross-document navigation restores remembered pages and the exact o
   expect((restoredCanvas as HTMLCanvasElement).height).toBe(ordinarySize.height)
 
   await expect(modelContext.executeTool('navigate_document', {
-    documentId: 'type-c-door-submittal',
+    documentId: 'door-package-submittal',
   })).resolves.toMatchObject({
     status: 'applied',
-    page: { id: 'door-submittal-page-1' },
+    page: { id: 'door-package-submittal-cover' },
   })
   expectCurrentPage(/1, Submittal cover/)
 })
@@ -1417,7 +1417,7 @@ test.each([
     await user.click(screen.getByRole('button', { name: 'Next' }))
   }],
   ['document selection', async (user: ReturnType<typeof userEvent.setup>) => {
-    await chooseDocument(user, /Type C interior door product data/i)
+    await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
   }],
 ] as const)('User %s supersedes pending External Agent navigation', async (_name, takeOver) => {
   const pageRenderer: PdfPageRenderer = {
@@ -1560,14 +1560,14 @@ test('an External Agent retrieves stable Point Numbers for a multi-page Point Se
     .closest('aside')!
   expect(
     within(currentAssistance).getByText(
-      'Type C interior door product data and review cover',
+      'Virginia Farmhouse complete door package submittal',
     ),
   ).toBeInTheDocument()
   expect(within(currentAssistance).getByRole('button', {
-    name: 'Open supporting page 1: Submittal cover',
+    name: 'Open supporting page 2: Submitted door schedule',
   })).toBeInTheDocument()
   expect(within(currentAssistance).getByRole('button', {
-    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+    name: 'Open supporting page 4: Heritage interior door product data',
   })).toBeInTheDocument()
   expect(within(currentAssistance).queryByText('FIFO work rail'))
     .not.toBeInTheDocument()
@@ -1830,26 +1830,41 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     project: {
       id: 'demo-virginia-farmhouse',
       title: 'Virginia Farmhouse Demo Project',
-      documentCount: 2,
+      documentCount: 3,
     },
   })
-  expect(catalog.documents).toHaveLength(2)
+  expect(catalog.documents).toHaveLength(3)
 
   const search = async (query: string) => modelContext.executeTool(
     'search_project_documents',
     { query },
   ) as Promise<{ matches: SearchMatch[] }>
-  const productMatch = (await search('hollow honeycomb core')).matches[0]!
+  const productMatch = (await search('Heritage W-2480-P1 Interior')).matches[0]!
   const contractMatch = (await search('Type C 24 x 80 solid wood')).matches[0]!
   const planMatch = (
     await search('first floor plan room layout utility coats WC')
   ).matches[0]!
+  const secondPlanMatch = (
+    await search('second floor plan main bedroom stair hall bathroom')
+  ).matches[0]!
 
   expect(productMatch).toMatchObject({
     rank: 1,
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-schedule' },
+    block: { type: 'Table' },
     classification: 'document_evidence',
+    tableRow: {
+      cells: [
+        { text: 'C' },
+        { text: '5' },
+        { text: '24" x 80"' },
+        { text: 'Solid wood' },
+        { text: '1-panel' },
+        { text: 'Aged clear' },
+        { text: 'Heritage W-2480-P1 | Interior' },
+      ],
+    },
   })
   expect(contractMatch).toMatchObject({
     rank: 1,
@@ -1872,6 +1887,13 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     rank: 1,
     document: { id: 'virginia-farmhouse-drawings' },
     page: { id: 'sheet-a1.2', sheetNumber: 'A1.2' },
+    block: { type: 'Figure' },
+    classification: 'search_hint',
+  })
+  expect(secondPlanMatch).toMatchObject({
+    rank: 1,
+    document: { id: 'virginia-farmhouse-drawings' },
+    page: { id: 'sheet-a1.3', sheetNumber: 'A1.3' },
     block: { type: 'Figure' },
     classification: 'search_hint',
   })
@@ -1900,19 +1922,36 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
       blockIds: [planMatch.block.id],
     },
   ) as Inspection
-  const productContent = productInspection.pages
-    .flatMap((page) => page.blocks.map((block) => block.content))
-    .join(' ')
+  const secondPlanInspection = await modelContext.executeTool(
+    'inspect_document_evidence',
+    {
+      documentId: secondPlanMatch.document.id,
+      documentVersionId: secondPlanMatch.document.versionId,
+      blockIds: [secondPlanMatch.block.id],
+    },
+  ) as Inspection
+  const submittedTypeCRow = productInspection.pages
+    .flatMap((page) => page.tableRows)
+    .find((row) => row.cells[0]?.text === 'C')!
   const typeCRow = contractInspection.pages
     .flatMap((page) => page.tableRows)
     .find((row) => row.cells[0]?.text === 'C')!
   const inspectedPlanHint = planInspection.pages
     .flatMap((page) => page.blocks)
     .find((block) => block.id === planMatch.block.id)!
+  const inspectedSecondPlanHint = secondPlanInspection.pages
+    .flatMap((page) => page.blocks)
+    .find((block) => block.id === secondPlanMatch.block.id)!
 
-  expect(productContent).toContain('Model BRD-HC2480-BIR')
-  expect(productContent).toContain('24 in x 80 in')
-  expect(productContent).toContain('Hollow honeycomb core')
+  expect(submittedTypeCRow.cells.map((cell) => cell.text)).toEqual([
+    'C',
+    '5',
+    '24" x 80"',
+    'Solid wood',
+    '1-panel',
+    'Aged clear',
+    'Heritage W-2480-P1 | Interior',
+  ])
   expect(typeCRow.cells.map((cell) => cell.text)).toEqual([
     'C',
     '24"x80"',
@@ -1926,6 +1965,11 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     classification: 'search_hint',
     content: expect.stringContaining('utility, coats, and WC'),
   })
+  expect(inspectedSecondPlanHint).toMatchObject({
+    sourceType: 'Figure',
+    classification: 'search_hint',
+    content: expect.stringContaining('main bedroom, stair hall, bathroom'),
+  })
 
   const submittalDocument = catalog.documents.find(
     (document) =>
@@ -1933,11 +1977,11 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
       document.versionId === productMatch.document.versionId,
   )!
   const request = await modelContext.executeTool('create_assistance_request', {
-    question: 'Mark every affected Type C opening on the first-floor plan.',
+    question: 'Mark every Type C opening on the first- and second-floor plans.',
     responseType: 'point_set',
     documentId: planMatch.document.id,
     documentVersionId: planMatch.document.versionId,
-    recommendedPageIds: [planMatch.page.id],
+    recommendedPageIds: [planMatch.page.id, secondPlanMatch.page.id],
     supportingDocumentReferences: [
       {
         documentId: contractMatch.document.id,
@@ -1957,15 +2001,16 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     createdAt: '2030-01-02T03:04:05.000Z',
   })
 
-  await screen.findByText('Mark every affected Type C opening on the first-floor plan.')
+  await screen.findByText('Mark every Type C opening on the first- and second-floor plans.')
   const currentAssistance = screen
     .getByRole('heading', { name: 'Current Assistance' })
     .closest('aside')!
   expect(within(currentAssistance).getByText('A1.2')).toBeInTheDocument()
+  expect(within(currentAssistance).getByText('A1.3')).toBeInTheDocument()
   expect(within(currentAssistance).getAllByText('Virginia Farmhouse drawing set'))
     .toHaveLength(2)
   expect(within(currentAssistance).getByText(
-    'Type C interior door product data and review cover',
+    'Virginia Farmhouse complete door package submittal',
   )).toBeInTheDocument()
   expect(within(currentAssistance).getByRole('button', {
     name: 'Open supporting page A4.3: Doors & Windows',
@@ -1974,7 +2019,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     name: 'Open supporting page 1: Submittal cover',
   })).toBeInTheDocument()
   expect(within(currentAssistance).getByRole('button', {
-    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+    name: 'Open supporting page 4: Heritage interior door product data',
   })).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', {
@@ -1999,9 +2044,31 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
   fireEvent.click(drawingPage, { clientX: 50, clientY: 60 })
   fireEvent.click(drawingPage, { clientX: 80, clientY: 40 })
   await screen.findByText('3 points')
+  await user.click(screen.getByRole('button', {
+    name: 'Open A1.3: 2nd Floor Plan',
+  }))
+  const secondDrawingPage = await screen.findByLabelText('Drawing page A1.3')
+  Object.defineProperty(secondDrawingPage, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  })
+  fireEvent.click(secondDrawingPage, { clientX: 25, clientY: 25 })
+  fireEvent.click(secondDrawingPage, { clientX: 55, clientY: 55 })
+  fireEvent.click(secondDrawingPage, { clientX: 75, clientY: 75 })
+  await screen.findByText('6 points')
   await user.type(
     screen.getByLabelText('Overall note optional'),
-    'WC, Utility, and Coats each have one affected Type C opening.',
+    'Three Type C openings occur on each floor, for six total.',
   )
   await user.click(screen.getByRole('button', { name: 'Submit Point Set' }))
   await screen.findByText('No pending Assistance Requests')
@@ -2057,7 +2124,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
   expect(retrieved).toEqual({
     id: request.id,
     state: 'answered',
-    question: 'Mark every affected Type C opening on the first-floor plan.',
+    question: 'Mark every Type C opening on the first- and second-floor plans.',
     createdAt: '2030-01-02T03:04:05.000Z',
     professionalResponse: {
       type: 'point_set',
@@ -2084,18 +2151,34 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
           x: 0.8,
           y: 0.4,
         },
+        {
+          pointNumber: 4,
+          page: { id: secondPlanMatch.page.id, label: 'A1.3', number: 7 },
+          x: 0.25,
+          y: 0.25,
+        },
+        {
+          pointNumber: 5,
+          page: { id: secondPlanMatch.page.id, label: 'A1.3', number: 7 },
+          x: 0.55,
+          y: 0.55,
+        },
+        {
+          pointNumber: 6,
+          page: { id: secondPlanMatch.page.id, label: 'A1.3', number: 7 },
+          x: 0.75,
+          y: 0.75,
+        },
       ],
-      count: 3,
-      note: 'WC, Utility, and Coats each have one affected Type C opening.',
+      count: 6,
+      note: 'Three Type C openings occur on each floor, for six total.',
       submittedAt: '2030-01-02T03:04:05.000Z',
     },
   })
 
-  const requiredConstruction = typeCRow.cells.map((cell) => cell.text)
+  const submittedQuantity = Number(submittedTypeCRow.cells[1]?.text)
   const disposition =
-    productContent.includes('Hollow honeycomb core') &&
-    requiredConstruction.includes('SOLID WOOD') &&
-    retrieved.professionalResponse.count > 0
+    submittedQuantity !== retrieved.professionalResponse.count
       ? 'revise and resubmit'
       : 'no demonstrated mismatch'
   expect(disposition).toBe('revise and resubmit')
@@ -2246,8 +2329,8 @@ test('Start over creates an isolated Demo Session and clears transient workspace
   )
 
   await waitForWebMcpReady()
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
-  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
+  await choosePage(user, /^4 Heritage interior door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
@@ -2261,7 +2344,7 @@ test('Start over creates an isolated Demo Session and clears transient workspace
     .toBeInTheDocument()
   expectCurrentPage(/A0\.0, Cover Page/)
   expect(screen.getByText('100%')).toBeInTheDocument()
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
   expectCurrentPage(/1, Submittal cover/)
   expect(JSON.parse(window.sessionStorage.getItem(DEMO_SESSION_STORAGE_KEY)!))
     .toEqual(expect.objectContaining({ sessionId: 'session-2' }))
@@ -2285,13 +2368,13 @@ test('Document Browsing restores each document location and reloads the current 
 
   await screen.findByText('No pending Assistance Requests')
   await choosePage(user, /^A4\.3 Doors & Windows$/)
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
-  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
+  await choosePage(user, /^4 Heritage interior door product data$/)
 
   await chooseDocument(user, /Virginia Farmhouse drawing set/i)
   expectCurrentPage(/A4\.3, Doors & Windows/)
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
+  expectCurrentPage(/4, Heritage interior door product data/)
   await user.click(screen.getByRole('button', { name: 'Fit width' }))
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   expect(screen.getByText('110%')).toBeInTheDocument()
@@ -2307,9 +2390,9 @@ test('Document Browsing restores each document location and reloads the current 
   )
 
   expect(await screen.findByRole('heading', {
-    name: 'Type C interior door product data and review cover',
+    name: 'Virginia Farmhouse complete door package submittal',
   })).toBeInTheDocument()
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Fit width' }))
     .not.toHaveAttribute('aria-pressed')
@@ -2329,17 +2412,17 @@ test('an Assistance Request leaves Document Browsing in place until a target pag
   )
 
   await waitForWebMcpReady()
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
-  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
+  await choosePage(user, /^4 Heritage interior door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
 
   await modelContext.executeTool('create_assistance_request', requestInput)
   await screen.findByText(requestInput.question)
 
   expect(screen.getByRole('heading', {
-    name: 'Type C interior door product data and review cover',
+    name: 'Virginia Farmhouse complete door package submittal',
   })).toBeInTheDocument()
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
   expect(screen.getByText('110%')).toBeInTheDocument()
 
   await user.click(screen.getByRole('button', {
@@ -2469,14 +2552,14 @@ test('External Agent document search and inspection leave the visible workspace 
   }
   expect(markerPosition).toEqual({ left: '40%', top: '60%' })
 
-  await chooseDocument(user, /Type C interior door product data and review cover/i)
-  await choosePage(user, /^2 Hollow-core flush wood door product data$/)
+  await chooseDocument(user, /Virginia Farmhouse complete door package submittal/i)
+  await choosePage(user, /^4 Heritage interior door product data$/)
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
   await user.type(screen.getByLabelText('Overall note optional'), 'Keep this draft')
 
   const visibleState = () => ({
     document: screen.getByRole('heading', {
-      name: 'Type C interior door product data and review cover',
+      name: 'Virginia Farmhouse complete door package submittal',
     }).textContent,
     page: screen.getByRole('button', { name: /Current page:/ })
       .getAttribute('aria-label'),
@@ -2491,8 +2574,8 @@ test('External Agent document search and inspection leave the visible workspace 
   })
   const beforeSearch = visibleState()
   expect(beforeSearch).toEqual({
-    document: 'Type C interior door product data and review cover',
-    page: 'Current page: 2, Hollow-core flush wood door product data',
+    document: 'Virginia Farmhouse complete door package submittal',
+    page: 'Current page: 4, Heritage interior door product data',
     zoom: '110%',
     assistanceTab: { name: 'Current 1', selected: 'true' },
     pointCount: '1 point',
@@ -2704,14 +2787,14 @@ test('supporting references preserve the Point Set draft and returning to the ta
   await user.click(screen.getByRole('button', { name: 'Zoom in' }))
 
   await user.click(screen.getByRole('button', {
-    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+    name: 'Open supporting page 4: Heritage interior door product data',
   }))
   expect(screen.getByRole('heading', {
-    name: 'Type C interior door product data and review cover',
+    name: 'Virginia Farmhouse complete door package submittal',
   })).toBeInTheDocument()
-  expectCurrentPage(/2, Hollow-core flush wood door product data/)
+  expectCurrentPage(/4, Heritage interior door product data/)
   expect(screen.getByText('100%')).toBeInTheDocument()
-  expect(screen.getByLabelText('Drawing page 2')).toHaveAttribute('role', 'group')
+  expect(screen.getByLabelText('Drawing page 4')).toHaveAttribute('role', 'group')
   expect(screen.getByText(requestInput.question)).toBeInTheDocument()
   expect(screen.getByText('1 point')).toBeInTheDocument()
 

@@ -472,15 +472,11 @@ create and pending-read calls, observed the visible point submission, reloaded
 the page, and retrieved the answered response with its document version, page
 identity, normalized coordinates, count, and timestamps intact.
 
-The complete Type C review client run on the same date discovered and exercised
-the then-current three document tools: `get_project_workspace`,
-`list_project_documents`, and the since-replaced `inspect_document_text`. It
-also exercised both Assistance tools. That historical five-tool run identified
-the hollow-core versus solid-wood mismatch, created one request with structured
-supporting references, and retrieved the final three-point response after
-reload. It is evidence for that historical surface, not a claim that the client
-executed the later `search_project_documents` or
-`inspect_document_evidence` contracts.
+An earlier client run exercised the then-current three document tools:
+`get_project_workspace`, `list_project_documents`, and the since-replaced
+`inspect_document_text`. It also exercised both Assistance tools. That run is
+evidence for the historical surface, not a claim that the client executed the
+later `search_project_documents` or `inspect_document_evidence` contracts.
 
 The current automated document-to-Assistance tracer exercises six workflow
 tools, including a second `get_project_workspace` call after reload to recover
@@ -490,4 +486,4 @@ same recording Model Context adapter. On September 2, 2026, no
 supported third-party WebMCP client was available in the implementation
 environment, so no new manual eight-tool client rehearsal was performed or
 claimed. The current tracer sequence and the reusable client checklist are in
-[`type-c-submittal-review-demo.md`](type-c-submittal-review-demo.md).
+[`door-package-submittal-review-demo.md`](door-package-submittal-review-demo.md).

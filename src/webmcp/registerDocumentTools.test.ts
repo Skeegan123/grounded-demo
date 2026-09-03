@@ -142,7 +142,8 @@ test('an External Agent discovers documents and inspects page or block evidence'
   }).toEqual({
     catalog: [
       { id: 'virginia-farmhouse-drawings', pageCount: 25 },
-      { id: 'type-c-door-submittal', pageCount: 2 },
+      { id: 'door-package-submittal', pageCount: 6 },
+      { id: 'window-package-submittal', pageCount: 5 },
     ],
     pageInspection: {
       provenance: {
@@ -468,7 +469,7 @@ test('an External Agent searches concise cross-document evidence before inspecti
     }>
   }
   const product = await modelContext.executeTool('search_project_documents', {
-    query: 'BRD-HC2480-BIR',
+    query: 'W-2480-P1',
   }) as typeof contract
   const searchTool = modelContext.getTool('search_project_documents')
 
@@ -517,9 +518,9 @@ test('an External Agent searches concise cross-document evidence before inspecti
   expect(contract.matches).toHaveLength(2)
   expect(product.matches[0]).toMatchObject({
     rank: 1,
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
-    snippet: 'Model BRD-HC2480-BIR',
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-schedule' },
+    snippet: 'C | 5 | 24" x 80" | Solid wood | 1-panel | Aged clear | Heritage W-2480-P1 | Interior',
     classification: 'document_evidence',
   })
   expect(searchTool?.annotations).toEqual({
@@ -563,17 +564,17 @@ test('search tolerates ordinary query differences without weakening exact preced
       ...(limit === undefined ? {} : { limit }),
     }) as Promise<SearchResult>
 
-  const fuzzy = await search('honycomb interior dor core')
-  const repeatedFuzzy = await search('honycomb interior dor core')
+  const fuzzy = await search('enginered interior dor core')
+  const repeatedFuzzy = await search('enginered interior dor core')
   const reorderedPlural = await search('wood-solid, Type C doors: 24" x 80"')
-  const exactProduct = await search('BRD-HC2480-BIR')
+  const exactProduct = await search('W-2480-P1')
   const exactSheet = await search('A4.3')
 
   expect(repeatedFuzzy).toEqual(fuzzy)
   expect(fuzzy.matches).toContainEqual(expect.objectContaining({
-    document: expect.objectContaining({ id: 'type-c-door-submittal' }),
-    page: expect.objectContaining({ id: 'door-submittal-page-2' }),
-    matchedTerms: expect.arrayContaining(['honycomb', 'interior', 'core']),
+    document: expect.objectContaining({ id: 'door-package-submittal' }),
+    page: expect.objectContaining({ id: 'door-package-submittal-interior-product-data' }),
+    matchedTerms: expect.arrayContaining(['enginered', 'interior', 'core']),
     classification: 'document_evidence',
   }))
   expect(reorderedPlural.matches[0]).toMatchObject({
@@ -596,10 +597,10 @@ test('search tolerates ordinary query differences without weakening exact preced
   })
   expect(exactProduct.matches[0]).toMatchObject({
     rank: 1,
-    matchedTerms: ['brd-hc2480-bir'],
-    document: { id: 'type-c-door-submittal' },
-    page: { id: 'door-submittal-page-2' },
-    snippet: 'Model BRD-HC2480-BIR',
+    matchedTerms: ['w-2480-p1'],
+    document: { id: 'door-package-submittal' },
+    page: { id: 'door-package-submittal-schedule' },
+    snippet: 'C | 5 | 24" x 80" | Solid wood | 1-panel | Aged clear | Heritage W-2480-P1 | Interior',
   })
   expect(exactSheet.matches[0]).toMatchObject({
     rank: 1,

@@ -63,7 +63,7 @@ Vitest without browser WebMCP support.
 
 The tested goal prompt, resume prompt, historical client behavior, and current
 automated tool sequence are recorded in
-[`docs/type-c-submittal-review-demo.md`](docs/type-c-submittal-review-demo.md).
+[`docs/door-package-submittal-review-demo.md`](docs/door-package-submittal-review-demo.md).
 
 ## Run locally
 
@@ -118,7 +118,7 @@ checks PDF.js rendering plus Point Set alignment on Sheet A1.2.
    Grounded.
 2. Confirm the header says **WebMCP ready**.
 3. Give the External Agent the goal prompt in
-   [`docs/type-c-submittal-review-demo.md`](docs/type-c-submittal-review-demo.md).
+   [`docs/door-package-submittal-review-demo.md`](docs/door-package-submittal-review-demo.md).
 4. Submit the Point Set in Current Assistance, reload the page, then use the
    documented resume prompt.
 5. Confirm the agent retrieves the Professional Response and recommends revise
@@ -133,9 +133,9 @@ checklist. It describes observed client behavior, not a scripted agent result.
 
 The replaceable Demo Project manifest lives in
 `src/demoProject/demoProjectManifest.json`. It points to the unchanged 25-page
-Virginia Farmhouse drawing set and the two-page fictional Type C door submittal
-in `public/demo-project/`. Their creator, source, license, retrieval details,
-checksums, byte sizes, and page counts are recorded in
+Virginia Farmhouse drawing set, the six-page fictional door package submittal,
+and the five-page fictional window package submittal in `public/demo-project/`.
+Their creator, source, license, retrieval details, checksums, byte sizes, and page counts are recorded in
 `public/demo-project/ASSET-NOTICES.md`.
 
 One schema version 2 Document Evidence artifact is committed for each immutable

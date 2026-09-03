@@ -49,8 +49,12 @@ pnpm import:document-evidence \
   --export .reducto/virginia-farmhouse-drawings.json
 
 pnpm import:document-evidence \
-  --document type-c-door-submittal \
-  --export .reducto/type-c-door-submittal.json
+  --document door-package-submittal \
+  --export .reducto/door-package-submittal.json
+
+pnpm import:document-evidence \
+  --document window-package-submittal \
+  --export .reducto/window-package-submittal.json
 ```
 
 The command resolves the current immutable document version from the manifest.

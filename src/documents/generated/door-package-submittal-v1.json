@@ -1,0 +1,3166 @@
+{
+  "schemaVersion": 2,
+  "document": {
+    "id": "door-package-submittal",
+    "versionId": "door-package-submittal-v1",
+    "kind": "submittal_product_data",
+    "title": "Virginia Farmhouse complete door package submittal"
+  },
+  "source": {
+    "fingerprint": "4320e6676e48a6d4701c5ed3e029a685d46d401ad39665414f7ac0a9354c7334",
+    "byteSize": 3205731,
+    "pageCount": 6
+  },
+  "provenance": {
+    "provider": "reducto",
+    "importerVersion": "grounded-reducto-importer-2",
+    "sourceFingerprint": "4320e6676e48a6d4701c5ed3e029a685d46d401ad39665414f7ac0a9354c7334",
+    "verified": {
+      "parseExportSha256": "fdb50ed147a146dc97b32850b4c2259334ce663ad02769c311fbcd3d9a086cd9",
+      "model": "r-1",
+      "modelSource": "usage.usage_breakdown.parse_model"
+    },
+    "maintainerDeclaredParseSettings": {
+      "chunking": "disabled",
+      "embeddingOptimization": false,
+      "returnedImages": false,
+      "tableOutputFormat": "html",
+      "agenticPass": false,
+      "returnedOcrData": true
+    }
+  },
+  "pages": [
+    {
+      "page": {
+        "id": "door-package-submittal-cover",
+        "label": "1",
+        "number": 1,
+        "title": "Submittal cover",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-0ef478c82bf6acc48b7a99fb",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Blue Ridge Doorworks logo, with “BRD” inside a white circle and the company name in white on a dark blue background.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.049,
+            "width": 0.147,
+            "height": 0.046
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-a9ba712ee6f829a3dc27a5e8",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>FOR REVIEW</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.797,
+            "top": 0.052,
+            "width": 0.134,
+            "height": 0.026
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-fc5789ae39ea790b67d15234",
+          "order": 2,
+          "sourceType": "Section Header",
+          "content": "SUBMITTAL PACKAGE",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.173,
+            "width": 0.192,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-5331977f8c2e34574e3c6abd",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>Complete door package</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.204,
+            "width": 0.572,
+            "height": 0.035
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-b4b69730ec4fad8c635e7313",
+          "order": 4,
+          "sourceType": "Text",
+          "content": "Exterior and interior door assemblies | Types A through D",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.25,
+            "width": 0.498,
+            "height": 0.015
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-c2a4738aa0e9377e44e1a3db",
+          "order": 5,
+          "sourceType": "Figure",
+          "content": "Product photo of four door assemblies: two white doors with different window configurations, followed by two brown paneled doors.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.29,
+            "width": 0.863,
+            "height": 0.367
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-3d3494dca5c5a80dda133d6c",
+          "order": 6,
+          "sourceType": "Key Value",
+          "content": "PROJECT\nVirginia Farmhouse",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.066,
+            "top": 0.732,
+            "width": 0.127,
+            "height": 0.034
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-b341c77df69d49b14f0675d1",
+          "order": 7,
+          "sourceType": "Key Value",
+          "content": "PREPARED FOR\nRidgeway Residential Builders",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.377,
+            "top": 0.732,
+            "width": 0.195,
+            "height": 0.034
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-a34f532a9a84851891fe0236",
+          "order": 8,
+          "sourceType": "Key Value",
+          "content": "PACKAGE\n08 10 00 - Doors and Frames",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.687,
+            "top": 0.732,
+            "width": 0.189,
+            "height": 0.034
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-31b320bfda8b39c5fdcbaac0",
+          "order": 9,
+          "sourceType": "Text",
+          "content": "Drawing references: A1.2 First Floor Plan | A1.3 Second Floor Plan | A4.3 Doors & Windows",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.826,
+            "width": 0.5,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-8ae8c1f5100db3585a142b99",
+          "order": 10,
+          "sourceType": "Text",
+          "content": "Prepared by Blue Ridge Doorworks | Asheville, North Carolina",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.846,
+            "width": 0.336,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-d582c569819f4db44a40ad44",
+          "order": 11,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE PRODUCT DATA | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.943,
+            "width": 0.438,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-1e8bbf378a76a3284c3e47f8",
+          "order": 12,
+          "sourceType": "Footer",
+          "content": "PAGE 1 OF 6",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.866,
+            "top": 0.943,
+            "width": 0.065,
+            "height": 0.006
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": []
+    },
+    {
+      "page": {
+        "id": "door-package-submittal-schedule",
+        "label": "2",
+        "number": 2,
+        "title": "Submitted door schedule",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-a29a4b8a4006fd264e1ba783",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Blue Ridge Doorworks logo, with “BRD” inside a white circle and the company name in white on a dark blue background.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.028,
+            "width": 0.106,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-b0262df40574dcdfdf3816f7",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.748,
+            "top": 0.023,
+            "width": 0.182,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-2455de3f6e7927a8995abad3",
+          "order": 2,
+          "sourceType": "Header",
+          "content": "SUBMITTAL TRANSMITTAL AND SUBMITTED DOOR SCHEDULE",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.585,
+            "top": 0.043,
+            "width": 0.346,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-8ec96ecacb3a72a31e11324b",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>PACKAGE OVERVIEW</b>\n<b>Submittal transmittal</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.103,
+            "width": 0.292,
+            "height": 0.026
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-604c2f088d94a290f201ffd9",
+          "order": 4,
+          "sourceType": "Key Value",
+          "content": "<b>SUBMITTAL ID</b>: SUB-08-1000-001\n<b>REVISION</b>: 0 - Initial review\n<b>ISSUE DATE</b>: September 2, 2026\n<b>SUBMITTED BY</b>: Ridgeway Residential Builders\n<b>SUPPLIER</b>: Blue Ridge Doorworks\n<b>SUBMITTED UNITS</b>: 11 door leaves",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.17,
+            "width": 0.862,
+            "height": 0.104
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-6251f1aade77b69b6ac8d645",
+          "order": 5,
+          "sourceType": "Section Header",
+          "content": "<b>Submitted door schedule</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.301,
+            "width": 0.235,
+            "height": 0.011
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-ef203a8adf1ce2bc8ab94a68",
+          "order": 6,
+          "sourceType": "Text",
+          "content": "Verify rough openings before release to fabrication",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.667,
+            "top": 0.302,
+            "width": 0.264,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-51cfe0f4693875067e0b5995",
+          "order": 7,
+          "sourceType": "Table",
+          "content": "<table><tr><th>MARK</th><th>QTY</th><th>SIZE</th><th>MATERIAL</th><th>LITE / STYLE</th><th>FINISH</th><th>MODEL / REMARKS</th></tr><tr><td><b>A</b></td><td><b>1</b></td><td>36\" x 84\"</td><td>Composite</td><td>3/3 clear lites</td><td>Warm white</td><td>Summit E-3684-A | Front</td></tr><tr><td><b>B</b></td><td><b>1</b></td><td>36\" x 84\"</td><td>Composite</td><td>2 x 1 clear lites</td><td>Warm white</td><td>Summit E-3684-B | Back</td></tr><tr><td><b>C</b></td><td><b>5</b></td><td>24\" x 80\"</td><td>Solid wood</td><td>1-panel</td><td>Aged clear</td><td>Heritage W-2480-P1 | Interior</td></tr><tr><td><b>D</b></td><td><b>4</b></td><td>30\" x 80\"</td><td>Solid wood</td><td>5-panel</td><td>Aged clear</td><td>Heritage W-3080-P5 | Interior</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.068,
+            "top": 0.317,
+            "width": 0.863,
+            "height": 0.214
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-cec839c989c8a5b29e9b004b",
+          "order": 8,
+          "sourceType": "Section Header",
+          "content": "<b>Package includes</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.092,
+            "top": 0.587,
+            "width": 0.122,
+            "height": 0.012
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-da8b8048e53e37357840970d",
+          "order": 9,
+          "sourceType": "Text",
+          "content": "Submitted door schedule; product data for Summit exterior doors\nand Heritage interior doors; frame, glazing, finish, storage,\ninstallation, and warranty information.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.092,
+            "top": 0.619,
+            "width": 0.36,
+            "height": 0.034
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-32e8d83d5798a8ee75c348a9",
+          "order": 10,
+          "sourceType": "Section Header",
+          "content": "<b>Contractor review</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.526,
+            "top": 0.589,
+            "width": 0.124,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-7944f05f247e33ff311c0671",
+          "order": 11,
+          "sourceType": "Key Value",
+          "content": "<unchecked> Reviewed\n<unchecked> Reviewed as noted\n<unchecked> Revise and resubmit\nReviewer / date: <empty>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.52,
+            "top": 0.611,
+            "width": 0.393,
+            "height": 0.064
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-1dc14b1099d7478600c28969",
+          "order": 12,
+          "sourceType": "Section Header",
+          "content": "<b>Revision log</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.718,
+            "width": 0.097,
+            "height": 0.012
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-318f152f17c29ce4160fa225",
+          "order": 13,
+          "sourceType": "Table",
+          "content": "<table><tr><th>REV</th><th>DATE</th><th>DESCRIPTION</th><th>PREPARED BY</th></tr><tr><td>0</td><td>09/02/2026</td><td>Initial coordinated door package</td><td>M. Carter</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.067,
+            "top": 0.752,
+            "width": 0.864,
+            "height": 0.062
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-a5b1d0a63e83397e2263ff87",
+          "order": 14,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE PRODUCT DATA | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.971,
+            "width": 0.444,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-2b8327a869a615e216d2f02b",
+          "order": 15,
+          "sourceType": "Footer",
+          "content": "SUB-08-1000-001 | REV 0 | PAGE 2 OF 6",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.729,
+            "top": 0.971,
+            "width": 0.202,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [
+        {
+          "id": "row-b31c916d63584fceb958e2e8",
+          "parentBlockId": "block-51cfe0f4693875067e0b5995",
+          "rowIndex": 0,
+          "text": "MARK | QTY | SIZE | MATERIAL | LITE / STYLE | FINISH | MODEL / REMARKS",
+          "cells": [
+            {
+              "text": "MARK",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "QTY",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "SIZE",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MATERIAL",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "LITE / STYLE",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "FINISH",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "MODEL / REMARKS",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.068,
+            "top": 0.317,
+            "width": 0.863,
+            "height": 0.214
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-f89aacdc21c338fb6ecb4f3d",
+          "parentBlockId": "block-51cfe0f4693875067e0b5995",
+          "rowIndex": 1,
+          "text": "A | 1 | 36\" x 84\" | Composite | 3/3 clear lites | Warm white | Summit E-3684-A | Front",
+          "cells": [
+            {
+              "text": "A",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "1",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "36\" x 84\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "3/3 clear lites",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Warm white",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Summit E-3684-A | Front",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.068,
+            "top": 0.317,
+            "width": 0.863,
+            "height": 0.214
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-0ba02371b278a4dc9aba2178",
+          "parentBlockId": "block-51cfe0f4693875067e0b5995",
+          "rowIndex": 2,
+          "text": "B | 1 | 36\" x 84\" | Composite | 2 x 1 clear lites | Warm white | Summit E-3684-B | Back",
+          "cells": [
+            {
+              "text": "B",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "1",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "36\" x 84\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2 x 1 clear lites",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Warm white",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Summit E-3684-B | Back",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.068,
+            "top": 0.317,
+            "width": 0.863,
+            "height": 0.214
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-54253e0f11e9991a558d9dba",
+          "parentBlockId": "block-51cfe0f4693875067e0b5995",
+          "rowIndex": 3,
+          "text": "C | 5 | 24\" x 80\" | Solid wood | 1-panel | Aged clear | Heritage W-2480-P1 | Interior",
+          "cells": [
+            {
+              "text": "C",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "5",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "24\" x 80\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Solid wood",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "1-panel",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Aged clear",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Heritage W-2480-P1 | Interior",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.068,
+            "top": 0.317,
+            "width": 0.863,
+            "height": 0.214
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-6ccca53d3dd4f3f3f4040fad",
+          "parentBlockId": "block-51cfe0f4693875067e0b5995",
+          "rowIndex": 4,
+          "text": "D | 4 | 30\" x 80\" | Solid wood | 5-panel | Aged clear | Heritage W-3080-P5 | Interior",
+          "cells": [
+            {
+              "text": "D",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "4",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "30\" x 80\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Solid wood",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "5-panel",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Aged clear",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Heritage W-3080-P5 | Interior",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.068,
+            "top": 0.317,
+            "width": 0.863,
+            "height": 0.214
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-ef886ef96db8c5ff9fbe02f9",
+          "parentBlockId": "block-318f152f17c29ce4160fa225",
+          "rowIndex": 0,
+          "text": "REV | DATE | DESCRIPTION | PREPARED BY",
+          "cells": [
+            {
+              "text": "REV",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "DATE",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "DESCRIPTION",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "PREPARED BY",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.067,
+            "top": 0.752,
+            "width": 0.864,
+            "height": 0.062
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-26d866fedb41b29a869bf1da",
+          "parentBlockId": "block-318f152f17c29ce4160fa225",
+          "rowIndex": 1,
+          "text": "0 | 09/02/2026 | Initial coordinated door package | M. Carter",
+          "cells": [
+            {
+              "text": "0",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "09/02/2026",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Initial coordinated door package",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "M. Carter",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.067,
+            "top": 0.752,
+            "width": 0.864,
+            "height": 0.062
+          },
+          "classification": "document_evidence"
+        }
+      ]
+    },
+    {
+      "page": {
+        "id": "door-package-submittal-exterior-product-data",
+        "label": "3",
+        "number": 3,
+        "title": "Summit exterior door product data",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-7fda6b02fdb82701f21e6f5f",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Blue Ridge Doorworks logo, with “BRD” inside a white circle and the company name in white on a dark blue background.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.028,
+            "width": 0.106,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-7489ce9f37acf4311c6132e4",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nPRODUCT DATA | SUMMIT EXTERIOR SERIES",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.68,
+            "top": 0.023,
+            "width": 0.251,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-86db3e17772f68971d801bc0",
+          "order": 2,
+          "sourceType": "Title",
+          "content": "<b>TYPES A AND B</b>\n<b>Summit exterior door series</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.103,
+            "width": 0.39,
+            "height": 0.026
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-72e995c1c5852e8f773d6632",
+          "order": 3,
+          "sourceType": "Text",
+          "content": "Factory-finished composite entry assemblies with insulated glazing and integral weather seals",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.163,
+            "width": 0.576,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-a4b299e35e33495b0b8cbb3a",
+          "order": 4,
+          "sourceType": "Figure",
+          "content": "Front-entry door diagram for Type A, showing a tall glazed panel with a 2×3 grid of clear tempered insulated glass above two solid lower panels.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.204,
+            "width": 0.317,
+            "height": 0.354
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-dc66338cce371d82987f98bb",
+          "order": 5,
+          "sourceType": "Figure",
+          "content": "Back-entry door diagram for Type B, showing a tall glazed panel with two clear tempered insulated glass lites above a large solid lower panel.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.404,
+            "top": 0.204,
+            "width": 0.317,
+            "height": 0.354
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-9f36ccefd6348f0e7cd5453e",
+          "order": 6,
+          "sourceType": "Section Header",
+          "content": "<b>Series data</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.741,
+            "top": 0.219,
+            "width": 0.087,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-be1049daed74ad48f0b78af1",
+          "order": 7,
+          "sourceType": "Key Value",
+          "content": "LEAF: 1-3/4\" composite skin\nCORE: High-density insulated core\nFRAME: Composite, rot-resistant\nGLAZING: Tempered insulated glass\nTYPE A LITES: 3/3 clear SDL\nTYPE B LITES: 2 x 1 clear\nU-FACTOR: 0.27 whole assembly\nFINISH: BRD-01 Warm White\nHARDWARE: Dark bronze prep\nSWING: As shown on floor plans",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.741,
+            "top": 0.247,
+            "width": 0.19,
+            "height": 0.291
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-00acae7be6dda02d238c9fa2",
+          "order": 8,
+          "sourceType": "Section Header",
+          "content": "<b>Submitted configurations</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.591,
+            "width": 0.217,
+            "height": 0.014
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-46712c11cd90ddb219b942a9",
+          "order": 9,
+          "sourceType": "Key Value",
+          "content": "TYPE A 36\" x 84\" | Model E-3684-A | Qty 1",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.622,
+            "width": 0.414,
+            "height": 0.03
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-d34ccf5d8ce6354a69070783",
+          "order": 10,
+          "sourceType": "Key Value",
+          "content": "TYPE B 36\" x 84\" | Model E-3684-B | Qty 1",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.498,
+            "top": 0.622,
+            "width": 0.414,
+            "height": 0.03
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-607011ddb47b7b60f42047ed",
+          "order": 11,
+          "sourceType": "Section Header",
+          "content": "<b>Glazing and weathering</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.683,
+            "width": 0.174,
+            "height": 0.011
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-8cc3b98fe41e230bd5a578aa",
+          "order": 12,
+          "sourceType": "Text",
+          "content": "Insulated glazing uses clear tempered safety glass with exterior-applied simulated divided-lite bars. Factory weatherstrip includes compression jamb seals, adjustable sweep, and thermally broken aluminum sill. Seal perimeter joints with compatible exterior-grade sealant.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.715,
+            "width": 0.383,
+            "height": 0.044
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-122625cfc49aaca38450b63f",
+          "order": 13,
+          "sourceType": "Section Header",
+          "content": "<b>Finish and care</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.513,
+            "top": 0.683,
+            "width": 0.114,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-bcd938156dfe7fb4e975c904",
+          "order": 14,
+          "sourceType": "Text",
+          "content": "Warm White is a low-sheen factory coating. Touch up exposed fasteners and minor handling damage with BRD repair finish. Do not clean glazing or coated surfaces with abrasive pads, solvents, or alkaline masonry wash.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.512,
+            "top": 0.715,
+            "width": 0.401,
+            "height": 0.032
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-ca1120603ff53aad01597379",
+          "order": 15,
+          "sourceType": "Section Header",
+          "content": "<b>FABRICATION HOLD POINT</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.088,
+            "top": 0.81,
+            "width": 0.153,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-00effe4467d524c37e6059df",
+          "order": 16,
+          "sourceType": "Text",
+          "content": "Field verify rough opening, handing, sill condition, exterior trim depth, and hardware preparation before release. Supplier dimensions are nominal leaf sizes. Coordinate final unit dimensions with approved shop drawings.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.088,
+            "top": 0.835,
+            "width": 0.808,
+            "height": 0.021
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-d88f3d9d92804873cc912823",
+          "order": 17,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE PRODUCT DATA | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.971,
+            "width": 0.444,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-32d36fdd177e88a40551a9d7",
+          "order": 18,
+          "sourceType": "Footer",
+          "content": "SUB-08-1000-001 | REV 0 | PAGE 3 OF 6",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.729,
+            "top": 0.971,
+            "width": 0.202,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": []
+    },
+    {
+      "page": {
+        "id": "door-package-submittal-interior-product-data",
+        "label": "4",
+        "number": 4,
+        "title": "Heritage interior door product data",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-0dfbc48c5bf87ecd63ba026a",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Blue Ridge Doorworks logo, with “BRD” inside a white circle and the company name in white on a dark blue background.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.028,
+            "width": 0.106,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-744912f20c58349aa819cc29",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nPRODUCT DATA | HERITAGE INTERIOR SERIES",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.67,
+            "top": 0.023,
+            "width": 0.261,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-76fedcd1bb982f7a863e531d",
+          "order": 2,
+          "sourceType": "Title",
+          "content": "<b>TYPES C AND D</b>\n<b>Heritage interior door series</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.103,
+            "width": 0.393,
+            "height": 0.029
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-33b39b8b12f8565eedcf7a25",
+          "order": 3,
+          "sourceType": "Text",
+          "content": "Salvaged-look birch doors with solid engineered wood cores and aged clear finish",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.163,
+            "width": 0.502,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-6896e642474434d8e5912341",
+          "order": 4,
+          "sourceType": "Figure",
+          "content": "Product illustration of a Type C one-panel Heritage interior door, with a single tall rectangular panel, dark bronze prep hardware, and a blue “ONE PANEL” label.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.201,
+            "width": 0.317,
+            "height": 0.354
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-0739e0ef1c05491cf194649d",
+          "order": 5,
+          "sourceType": "Figure",
+          "content": "Product illustration of a Type D five-panel Heritage interior door, with five stacked rectangular panels, dark bronze prep hardware, and a blue “FIVE PANEL” label.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.404,
+            "top": 0.201,
+            "width": 0.317,
+            "height": 0.354
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-c5dc4d4dd53de4e68e407f27",
+          "order": 6,
+          "sourceType": "Section Header",
+          "content": "<b>Series data</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.741,
+            "top": 0.219,
+            "width": 0.087,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-de56e1343d73825f3fe7fa6c",
+          "order": 7,
+          "sourceType": "Key Value",
+          "content": "<b>THICKNESS</b> 1-3/8\"\n<b>CORE</b> Solid engineered stave\n<b>FACES</b> Plain-sliced birch veneer\n<b>RAILS</b> Solid wood, bonded\n<b>STILES</b> 1-3/8\" before trim\n<b>ADHESIVE</b> Type I moisture-resistant\n<b>RATING</b> Non-rated interior\n<b>FINISH</b> BRD-AC1 aged clear\n<b>HARDWARE</b> Dark bronze prep\n<b>WARRANTY</b> One year limited",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.74,
+            "top": 0.247,
+            "width": 0.191,
+            "height": 0.292
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-b5e6354126fd69f82523b55d",
+          "order": 8,
+          "sourceType": "Section Header",
+          "content": "<b>Submitted configurations</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.588,
+            "width": 0.218,
+            "height": 0.014
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-31afc881c987875154d0c879",
+          "order": 9,
+          "sourceType": "Key Value",
+          "content": "<b>TYPE C</b> 24\" x 80\" | Model W-2480-P1 | Qty 5",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.62,
+            "width": 0.413,
+            "height": 0.029
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-b861f8507f185a8fd14c5e78",
+          "order": 10,
+          "sourceType": "Key Value",
+          "content": "<b>TYPE D</b> 30\" x 80\" | Model W-3080-P5 | Qty 4",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.498,
+            "top": 0.62,
+            "width": 0.414,
+            "height": 0.029
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Key Value"
+          }
+        },
+        {
+          "id": "block-98373384ccd14b49195c17c1",
+          "order": 11,
+          "sourceType": "Section Header",
+          "content": "<b>Aged finish</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.68,
+            "width": 0.084,
+            "height": 0.013
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-384974de9acac04c509db971",
+          "order": 12,
+          "sourceType": "Text",
+          "content": "Select birch veneer for compatible tone within each room group. The aged\nclear finish retains small dents, softened edges, and natural color variation\nassociated with salvaged millwork. Seal both faces and every edge.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.713,
+            "width": 0.397,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-91226582a4d5ed90abe20252",
+          "order": 13,
+          "sourceType": "Section Header",
+          "content": "<b>Machining limits</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.513,
+            "top": 0.68,
+            "width": 0.12,
+            "height": 0.013
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-089bfd966cf1bf6b3a5ff777",
+          "order": 14,
+          "sourceType": "Text",
+          "content": "Factory machine for specified hardware where final handing is available.\nMaximum field trim is 1/8 inch at each stile, 1/4 inch at top rail, and 1/2\ninch at bottom rail. Reseal every cut edge before installation.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.513,
+            "top": 0.713,
+            "width": 0.386,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-ef38646a9eff6b0eb74efb5e",
+          "order": 15,
+          "sourceType": "Section Header",
+          "content": "<b>STORAGE REQUIREMENT</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.088,
+            "top": 0.809,
+            "width": 0.145,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-7a97506fc04ad5967179358d",
+          "order": 16,
+          "sourceType": "Text",
+          "content": "Store doors flat on level supports in a dry, ventilated interior space. Keep doors wrapped until the building is enclosed and wet work has dried. Do not\ninstall when relative humidity or temperature differs materially from expected occupied conditions.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.088,
+            "top": 0.834,
+            "width": 0.809,
+            "height": 0.021
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-ad7b0afd59d2ca7bf19b9c32",
+          "order": 17,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE PRODUCT DATA | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.971,
+            "width": 0.444,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-9f9b2d7032cad31d49f33788",
+          "order": 18,
+          "sourceType": "Footer",
+          "content": "SUB-08-1000-001 | REV 0 | PAGE 4 OF 6",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.729,
+            "top": 0.971,
+            "width": 0.202,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": []
+    },
+    {
+      "page": {
+        "id": "door-package-submittal-coordination",
+        "label": "5",
+        "number": 5,
+        "title": "Frames, hardware, and finishes",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-4a8db7c06f042741175de3ff",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Blue Ridge Doorworks logo, with “BRD” inside a white circle and the company name in white on a dark blue background.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.028,
+            "width": 0.106,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-e877890cbfb66185aa26dfa5",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.748,
+            "top": 0.023,
+            "width": 0.182,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-a28893af5b25db6697b7e857",
+          "order": 2,
+          "sourceType": "Header",
+          "content": "COORDINATION | FRAMES, HARDWARE, AND FINISHES",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.626,
+            "top": 0.042,
+            "width": 0.305,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-0b5603e1da5c670b17667891",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>FRAMES AND HARDWARE</b>\n<b>Opening coordination</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.103,
+            "width": 0.304,
+            "height": 0.03
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-a9d3d2a72a859dc39e99414e",
+          "order": 4,
+          "sourceType": "Section Header",
+          "content": "<b>Exterior frame assembly</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.092,
+            "top": 0.198,
+            "width": 0.209,
+            "height": 0.014
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-e24cac800ea2562215aee660",
+          "order": 5,
+          "sourceType": "Text",
+          "content": "Composite frame with matching head and jambs, integral compression weatherstrip, adjustable dark bronze threshold, corner seals, and applied exterior casing prepared for field flashing.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.091,
+            "top": 0.236,
+            "width": 0.341,
+            "height": 0.047
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-0ef4f65b5f714a5c9670e62c",
+          "order": 6,
+          "sourceType": "Table",
+          "content": "<table><tr><td>JAMB DEPTH</td><td>4-9/16\" nominal</td></tr><tr><td>CASING</td><td>2-1/4\" composite</td></tr><tr><td>THRESHOLD</td><td>ADA profile, dark bronze</td></tr><tr><td>FASTENERS</td><td>Corrosion-resistant</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.087,
+            "top": 0.331,
+            "width": 0.368,
+            "height": 0.134
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-0231ad69aa180b02862c8441",
+          "order": 7,
+          "sourceType": "Section Header",
+          "content": "<b>Interior frame coordination</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.533,
+            "top": 0.2,
+            "width": 0.228,
+            "height": 0.01
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-9635b95bd03ef17e027b9d4c",
+          "order": 8,
+          "sourceType": "Text",
+          "content": "Interior leaves are supplied without frames. Coordinate jamb species, casing profile, stop, clearances, and finish with project millwork. Confirm hinge locations before factory machining.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.532,
+            "top": 0.236,
+            "width": 0.356,
+            "height": 0.035
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-fc179781fc24dedb1ffa1278",
+          "order": 9,
+          "sourceType": "Table",
+          "content": "<table><tr><td>HEAD CLEARANCE</td><td>1/8\" typical</td></tr><tr><td>JAMB CLEARANCE</td><td>1/8\" each side</td></tr><tr><td>FLOOR CLEARANCE</td><td>3/4\" maximum</td></tr><tr><td>BEVEL</td><td>1/8\" in 2\" at lock edge</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.529,
+            "top": 0.331,
+            "width": 0.38,
+            "height": 0.134
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-b0a9095090fd01d4739489a9",
+          "order": 10,
+          "sourceType": "Section Header",
+          "content": "<b>Hardware preparation schedule</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.485,
+            "width": 0.293,
+            "height": 0.014
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-e36d4cfc0afb915f7af407d3",
+          "order": 11,
+          "sourceType": "Table",
+          "content": "<table><tr><th>TYPES</th><th>HINGES</th><th>LOCKSET</th><th>CLOSER</th><th>NOTES</th></tr><tr><td>A, B</td><td>3 at 4-1/2\"</td><td>Cylindrical</td><td>Not included</td><td>Weatherstrip and sweep included</td></tr><tr><td>C, D</td><td>3 at 3-1/2\"</td><td>Cylindrical</td><td>None</td><td>Coordinate privacy and passage sets</td></tr></table>",
+          "contentFormat": "html",
+          "region": {
+            "left": 0.067,
+            "top": 0.519,
+            "width": 0.864,
+            "height": 0.102
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Table"
+          }
+        },
+        {
+          "id": "block-1e8cab919619b2e33782d64a",
+          "order": 12,
+          "sourceType": "Section Header",
+          "content": "<b>Required field verification</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.092,
+            "top": 0.686,
+            "width": 0.189,
+            "height": 0.013
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-8aa3c52321fbaf4a22e1b49e",
+          "order": 13,
+          "sourceType": "Text",
+          "content": "Before fabrication, verify every rough opening, wall thickness, swing, handing, finished floor elevation, threshold support, exterior exposure, and hardware function. Report conflicts in writing. Do not scale this product data for construction dimensions.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.092,
+            "top": 0.72,
+            "width": 0.797,
+            "height": 0.021
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-55640d0882e4fd0787fe9e12",
+          "order": 14,
+          "sourceType": "Section Header",
+          "content": "<b>Finish samples</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.824,
+            "width": 0.112,
+            "height": 0.012
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-6c81d0eb0156e97031e0d2d0",
+          "order": 15,
+          "sourceType": "Figure",
+          "content": "Warm White finish sample swatch.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.852,
+            "width": 0.073,
+            "height": 0.044
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-511704f3c08f0d18913ee697",
+          "order": 16,
+          "sourceType": "Text",
+          "content": "BRD-01 Warm White",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.153,
+            "top": 0.871,
+            "width": 0.104,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-c2218707f4d635bf453df524",
+          "order": 17,
+          "sourceType": "Figure",
+          "content": "Clear Birch finish sample swatch.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.352,
+            "top": 0.852,
+            "width": 0.073,
+            "height": 0.044
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-612535e7bdf489752680f596",
+          "order": 18,
+          "sourceType": "Text",
+          "content": "BRD-CL1 Clear Birch",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.438,
+            "top": 0.871,
+            "width": 0.105,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-583252ec754563f664d3f3b4",
+          "order": 19,
+          "sourceType": "Figure",
+          "content": "Dark Bronze finish sample swatch.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.636,
+            "top": 0.852,
+            "width": 0.073,
+            "height": 0.044
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-335ae0627c6af28cb9d024a1",
+          "order": 20,
+          "sourceType": "Text",
+          "content": "BRD-DB Dark Bronze",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.722,
+            "top": 0.871,
+            "width": 0.107,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-a3e575a6cf4758aa58462ec6",
+          "order": 21,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE PRODUCT DATA | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.971,
+            "width": 0.444,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-b5af0be945ba4bf1a4958d81",
+          "order": 22,
+          "sourceType": "Footer",
+          "content": "SUB-08-1000-001 | REV 0 | PAGE 5 OF 6",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.729,
+            "top": 0.971,
+            "width": 0.202,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": [
+        {
+          "id": "row-baf7b0f94cc663c9b33046d3",
+          "parentBlockId": "block-0ef4f65b5f714a5c9670e62c",
+          "rowIndex": 0,
+          "text": "JAMB DEPTH | 4-9/16\" nominal",
+          "cells": [
+            {
+              "text": "JAMB DEPTH",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "4-9/16\" nominal",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.087,
+            "top": 0.331,
+            "width": 0.368,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-b6173aadb2739225d4c041c9",
+          "parentBlockId": "block-0ef4f65b5f714a5c9670e62c",
+          "rowIndex": 1,
+          "text": "CASING | 2-1/4\" composite",
+          "cells": [
+            {
+              "text": "CASING",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "2-1/4\" composite",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.087,
+            "top": 0.331,
+            "width": 0.368,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-842c793bb1376dcb234334c3",
+          "parentBlockId": "block-0ef4f65b5f714a5c9670e62c",
+          "rowIndex": 2,
+          "text": "THRESHOLD | ADA profile, dark bronze",
+          "cells": [
+            {
+              "text": "THRESHOLD",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "ADA profile, dark bronze",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.087,
+            "top": 0.331,
+            "width": 0.368,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-41a8fc1089c48631fd8cc31a",
+          "parentBlockId": "block-0ef4f65b5f714a5c9670e62c",
+          "rowIndex": 3,
+          "text": "FASTENERS | Corrosion-resistant",
+          "cells": [
+            {
+              "text": "FASTENERS",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Corrosion-resistant",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.087,
+            "top": 0.331,
+            "width": 0.368,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-0e6d8fbab6bc890626cb9d71",
+          "parentBlockId": "block-fc179781fc24dedb1ffa1278",
+          "rowIndex": 0,
+          "text": "HEAD CLEARANCE | 1/8\" typical",
+          "cells": [
+            {
+              "text": "HEAD CLEARANCE",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "1/8\" typical",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.529,
+            "top": 0.331,
+            "width": 0.38,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-8fb55703e7658301d1180b77",
+          "parentBlockId": "block-fc179781fc24dedb1ffa1278",
+          "rowIndex": 1,
+          "text": "JAMB CLEARANCE | 1/8\" each side",
+          "cells": [
+            {
+              "text": "JAMB CLEARANCE",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "1/8\" each side",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.529,
+            "top": 0.331,
+            "width": 0.38,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-637c994fbef528e314bb8f61",
+          "parentBlockId": "block-fc179781fc24dedb1ffa1278",
+          "rowIndex": 2,
+          "text": "FLOOR CLEARANCE | 3/4\" maximum",
+          "cells": [
+            {
+              "text": "FLOOR CLEARANCE",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "3/4\" maximum",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.529,
+            "top": 0.331,
+            "width": 0.38,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-cf758103ca3d579d72948d7e",
+          "parentBlockId": "block-fc179781fc24dedb1ffa1278",
+          "rowIndex": 3,
+          "text": "BEVEL | 1/8\" in 2\" at lock edge",
+          "cells": [
+            {
+              "text": "BEVEL",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "1/8\" in 2\" at lock edge",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.529,
+            "top": 0.331,
+            "width": 0.38,
+            "height": 0.134
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-0fdd47cafb32c54054185d7e",
+          "parentBlockId": "block-e36d4cfc0afb915f7af407d3",
+          "rowIndex": 0,
+          "text": "TYPES | HINGES | LOCKSET | CLOSER | NOTES",
+          "cells": [
+            {
+              "text": "TYPES",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "HINGES",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "LOCKSET",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "CLOSER",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "NOTES",
+              "header": true,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.067,
+            "top": 0.519,
+            "width": 0.864,
+            "height": 0.102
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-d4e1585aa54618883d72fa55",
+          "parentBlockId": "block-e36d4cfc0afb915f7af407d3",
+          "rowIndex": 1,
+          "text": "A, B | 3 at 4-1/2\" | Cylindrical | Not included | Weatherstrip and sweep included",
+          "cells": [
+            {
+              "text": "A, B",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "3 at 4-1/2\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Cylindrical",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Not included",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Weatherstrip and sweep included",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.067,
+            "top": 0.519,
+            "width": 0.864,
+            "height": 0.102
+          },
+          "classification": "document_evidence"
+        },
+        {
+          "id": "row-7130aa35858eb2759065c4df",
+          "parentBlockId": "block-e36d4cfc0afb915f7af407d3",
+          "rowIndex": 2,
+          "text": "C, D | 3 at 3-1/2\" | Cylindrical | None | Coordinate privacy and passage sets",
+          "cells": [
+            {
+              "text": "C, D",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "3 at 3-1/2\"",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Cylindrical",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "None",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            },
+            {
+              "text": "Coordinate privacy and passage sets",
+              "header": false,
+              "rowSpan": 1,
+              "columnSpan": 1
+            }
+          ],
+          "region": {
+            "left": 0.067,
+            "top": 0.519,
+            "width": 0.864,
+            "height": 0.102
+          },
+          "classification": "document_evidence"
+        }
+      ]
+    },
+    {
+      "page": {
+        "id": "door-package-submittal-installation",
+        "label": "6",
+        "number": 6,
+        "title": "Installation, warranty, and closeout",
+        "width": 612,
+        "height": 792,
+        "rotation": 0
+      },
+      "blocks": [
+        {
+          "id": "block-021bc3b1b0a1a58d5863696c",
+          "order": 0,
+          "sourceType": "Figure",
+          "content": "Blue Ridge Doorworks logo, with “BRD” inside a white circle and the company name in white on a dark blue background.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.067,
+            "top": 0.028,
+            "width": 0.106,
+            "height": 0.033
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "search_hint",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Figure"
+          }
+        },
+        {
+          "id": "block-98a0424191235d9f5424a6dc",
+          "order": 1,
+          "sourceType": "Header",
+          "content": "<b>VIRGINIA FARMHOUSE</b>\nINSTALLATION, WARRANTY, AND CLOSEOUT",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.681,
+            "top": 0.023,
+            "width": 0.25,
+            "height": 0.027
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Header"
+          }
+        },
+        {
+          "id": "block-692a8e9aa91fb28fa55fa38a",
+          "order": 2,
+          "sourceType": "Section Header",
+          "content": "<b>EXECUTION AND CLOSEOUT</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.104,
+            "width": 0.161,
+            "height": 0.007
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-58d2d375b5da299e44804075",
+          "order": 3,
+          "sourceType": "Title",
+          "content": "<b>Installation requirements</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.111,
+            "width": 0.348,
+            "height": 0.022
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Title"
+          }
+        },
+        {
+          "id": "block-d69542d860e22be0b52431f0",
+          "order": 4,
+          "sourceType": "List Item",
+          "content": "<b>1</b>\n<b>Delivery and storage</b>\nDeliver units in unopened protective wrapping. Inspect for transit damage on arrival. Store flat, level, dry, and out of direct sunlight. Keep exterior\nassemblies upright only when supported at head and sill.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.195,
+            "width": 0.84,
+            "height": 0.048
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "List Item"
+          }
+        },
+        {
+          "id": "block-90f57d5e754b0da59087244d",
+          "order": 5,
+          "sourceType": "List Item",
+          "content": "<b>2</b>\n<b>Opening verification</b>\nConfirm opening size, plumb, level, square, wall thickness, sill support, and finish clearances. Do not install into an opening that exceeds\nmanufacturer tolerance or contains active moisture.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.309,
+            "width": 0.797,
+            "height": 0.048
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "List Item"
+          }
+        },
+        {
+          "id": "block-c1ca5511852a9908b6acee8b",
+          "order": 6,
+          "sourceType": "List Item",
+          "content": "<b>3</b>\n<b>Exterior installation</b>\nSet frames plumb and square. Shim at hinges, strike, sill, and fastener locations. Flash sill and perimeter in sequence with the wall weather barrier.\nSeal interior and exterior perimeter joints.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.425,
+            "width": 0.851,
+            "height": 0.048
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "List Item"
+          }
+        },
+        {
+          "id": "block-f0a7a952b3bc5bfd42294bfa",
+          "order": 7,
+          "sourceType": "List Item",
+          "content": "<b>4</b>\n<b>Interior installation</b>\nAllow doors to acclimate in occupied-range conditions. Fit leaves for uniform clearances without binding. Reseal field cuts, install hardware without\nsplitting, and adjust operation before acceptance.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.54,
+            "width": 0.851,
+            "height": 0.048
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "List Item"
+          }
+        },
+        {
+          "id": "block-e442966aa0730f8ae48ae7c9",
+          "order": 8,
+          "sourceType": "List Item",
+          "content": "<b>5</b>\n<b>Protection and cleaning</b>\nProtect faces, edges, glazing, and finish from impact, moisture, paint, plaster, and masonry wash. Remove labels with manufacturer-approved\ncleaner. Replace damaged units that cannot be repaired invisibly.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.068,
+            "top": 0.654,
+            "width": 0.826,
+            "height": 0.049
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "List Item"
+          }
+        },
+        {
+          "id": "block-2a07bf5948b6a80af754f676",
+          "order": 9,
+          "sourceType": "Section Header",
+          "content": "<b>Limited warranty</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.092,
+            "top": 0.777,
+            "width": 0.125,
+            "height": 0.012
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-966f18b58f5de1c1fd3b0b4c",
+          "order": 10,
+          "sourceType": "Text",
+          "content": "One year from substantial completion against manufacturing defects\nin materials and workmanship. Warranty excludes improper storage,\nfield alteration beyond published limits, and uncontrolled moisture\nexposure.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.091,
+            "top": 0.806,
+            "width": 0.356,
+            "height": 0.044
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-b390491838b5ca4a4fb1145b",
+          "order": 11,
+          "sourceType": "Section Header",
+          "content": "<b>Closeout deliverables</b>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.526,
+            "top": 0.778,
+            "width": 0.16,
+            "height": 0.009
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Section Header"
+          }
+        },
+        {
+          "id": "block-fb1943eacf9d8b481b565120",
+          "order": 12,
+          "sourceType": "Text",
+          "content": "Provide approved schedule, finish touch-up material, care instructions,\nwarranty certificate, and final model list. Record approved substitutions\nand field changes in the closeout package.",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.525,
+            "top": 0.806,
+            "width": 0.369,
+            "height": 0.032
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-26fe38d8a98ab5abacfc228b",
+          "order": 13,
+          "sourceType": "Text",
+          "content": "<i>Technical values and product identities in this sample package are fictional and provided only for demonstration.</i>",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.89,
+            "width": 0.549,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Text"
+          }
+        },
+        {
+          "id": "block-776c355547f15bc955543d57",
+          "order": 14,
+          "sourceType": "Footer",
+          "content": "FICTIONAL SAMPLE PRODUCT DATA | NOT FOR PROCUREMENT OR CONSTRUCTION",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.069,
+            "top": 0.971,
+            "width": 0.444,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        },
+        {
+          "id": "block-7167d66406ae370f6fce42a6",
+          "order": 15,
+          "sourceType": "Footer",
+          "content": "SUB-08-1000-001 | REV 0 | PAGE 6 OF 6",
+          "contentFormat": "text",
+          "region": {
+            "left": 0.729,
+            "top": 0.971,
+            "width": 0.202,
+            "height": 0.008
+          },
+          "confidence": {
+            "level": "high",
+            "score": 1
+          },
+          "classification": "document_evidence",
+          "provenance": {
+            "provider": "reducto",
+            "sourceType": "Footer"
+          }
+        }
+      ],
+      "tableRows": []
+    }
+  ]
+}

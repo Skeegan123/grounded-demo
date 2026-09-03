@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "fixtureId": "virginia-farmhouse-type-c",
+  "fixtureId": "virginia-farmhouse-submittal-review",
   "fixtureStatus": "replaceable-test-fixture",
   "projectWorkspace": {
     "id": "demo-virginia-farmhouse",
     "title": "Virginia Farmhouse Demo Project",
-    "description": "A Project Workspace for reviewing Type C interior door product data against the contract drawings."
+    "description": "A Project Workspace for reviewing door and window package submittals against the contract drawings."
   },
   "documents": [
     {
@@ -54,25 +54,54 @@
       ]
     },
     {
-      "id": "type-c-door-submittal",
-      "versionId": "type-c-door-submittal-v1",
+      "id": "door-package-submittal",
+      "versionId": "door-package-submittal-v1",
       "kind": "submittal_product_data",
-      "title": "Type C interior door product data and review cover",
-      "description": "Two-page fictional product-data submittal",
+      "title": "Virginia Farmhouse complete door package submittal",
+      "description": "Six-page fictional door package submittal covering Types A through D",
       "file": {
-        "name": "type-c-door-submittal.pdf",
-        "url": "/demo-project/type-c-door-submittal.pdf",
-        "byteSize": 4557,
-        "sha256": "b8592a08c81af8605ed2994888213137bddac8d6e8c709be21318da93cb91658",
-        "pageCount": 2
+        "name": "door-package-submittal.pdf",
+        "url": "/demo-project/door-package-submittal.pdf",
+        "byteSize": 3205731,
+        "sha256": "4320e6676e48a6d4701c5ed3e029a685d46d401ad39665414f7ac0a9354c7334",
+        "pageCount": 6
       },
       "preparedEvidence": {
-        "parseExportSha256": "77cccf0646588ce5dc3e6da5a9608f15a22a2e13fac2fdb49053fda111791958",
+        "parseExportSha256": "fdb50ed147a146dc97b32850b4c2259334ce663ad02769c311fbcd3d9a086cd9",
         "requiredModel": "r-1"
       },
       "pages": [
-        { "id": "door-submittal-page-1", "label": "1", "number": 1, "title": "Submittal cover", "width": 612, "height": 792, "rotation": 0 },
-        { "id": "door-submittal-page-2", "label": "2", "number": 2, "title": "Hollow-core flush wood door product data", "width": 612, "height": 792, "rotation": 0 }
+        { "id": "door-package-submittal-cover", "label": "1", "number": 1, "title": "Submittal cover", "width": 612, "height": 792, "rotation": 0 },
+        { "id": "door-package-submittal-schedule", "label": "2", "number": 2, "title": "Submitted door schedule", "width": 612, "height": 792, "rotation": 0 },
+        { "id": "door-package-submittal-exterior-product-data", "label": "3", "number": 3, "title": "Summit exterior door product data", "width": 612, "height": 792, "rotation": 0 },
+        { "id": "door-package-submittal-interior-product-data", "label": "4", "number": 4, "title": "Heritage interior door product data", "width": 612, "height": 792, "rotation": 0 },
+        { "id": "door-package-submittal-coordination", "label": "5", "number": 5, "title": "Frames, hardware, and finishes", "width": 612, "height": 792, "rotation": 0 },
+        { "id": "door-package-submittal-installation", "label": "6", "number": 6, "title": "Installation, warranty, and closeout", "width": 612, "height": 792, "rotation": 0 }
+      ]
+    },
+    {
+      "id": "window-package-submittal",
+      "versionId": "window-package-submittal-v1",
+      "kind": "submittal_product_data",
+      "title": "Virginia Farmhouse window package submittal",
+      "description": "Five-page fictional window package submittal covering Types 1 and 2",
+      "file": {
+        "name": "window-package-submittal.pdf",
+        "url": "/demo-project/window-package-submittal.pdf",
+        "byteSize": 15418,
+        "sha256": "66cd6786c3d20e924f14adb8f9091cf7dba7158ae9a45a815f45f04ea61238a0",
+        "pageCount": 5
+      },
+      "preparedEvidence": {
+        "parseExportSha256": "63f6cc226501e358abc8537acd28adf917def5aab34b0cdbc49be9c2be0bb063",
+        "requiredModel": "r-1"
+      },
+      "pages": [
+        { "id": "window-package-submittal-cover", "label": "1", "number": 1, "title": "Submittal cover", "width": 792, "height": 612, "rotation": 0 },
+        { "id": "window-package-submittal-schedule", "label": "2", "number": 2, "title": "Coordinated window schedule", "width": 792, "height": 612, "rotation": 0 },
+        { "id": "window-package-submittal-type-1", "label": "3", "number": 3, "title": "Type 1 product data", "width": 792, "height": 612, "rotation": 0 },
+        { "id": "window-package-submittal-type-2", "label": "4", "number": 4, "title": "Type 2 product data", "width": 792, "height": 612, "rotation": 0 },
+        { "id": "window-package-submittal-coordination", "label": "5", "number": 5, "title": "Coordination, installation, and closeout", "width": 792, "height": 612, "rotation": 0 }
       ]
     }
   ]

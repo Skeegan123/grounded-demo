@@ -438,8 +438,19 @@ function scoreRecord(
 
   const primaryPhrase = containsPhrase(record.primaryText, query)
   const headerPhrase = containsPhrase(record.headerText, query)
+  const exactPageReference = terms.every((term) =>
+    record.pageReferenceTokens.has(term.canonical),
+  )
   if (primaryPhrase) score += 1200
   if (headerPhrase) score += 900
+  if (exactPageReference) score += 2000
+
+  if (exactPageReference) {
+    for (const term of terms) {
+      matched.add(term.canonical)
+      exactMatched.add(term.canonical)
+    }
+  }
 
   for (const term of terms) {
     if (record.primaryTokens.has(term.canonical)) {
@@ -521,6 +532,7 @@ function scoreRecord(
     singleFuzzyMatch.similarity >= SINGLE_FUZZY_MIN_SIMILARITY &&
     (tokenFrequencies.get(singleFuzzyMatch.token) ?? 0) <= UNCOMMON_TOKEN_MAX_RECORDS
   const qualifies =
+    exactPageReference ||
     primaryPhrase ||
     exactIdentifier ||
     (lexicalExactMatched.size > 0 && totalCoverage >= MIN_EXACT_SIGNAL_COVERAGE) ||
@@ -530,7 +542,9 @@ function scoreRecord(
     uncommonSingleFuzzy
 
   if (!qualifies) return undefined
-  const matchClass = primaryPhrase || exactIdentifier
+  const matchClass = exactPageReference
+    ? 0
+    : primaryPhrase || exactIdentifier
     ? 1
     : exactCoverage === 1
       ? 2

@@ -738,15 +738,15 @@ test('constrained workbenches keep request actions by the canvas and open suppor
   await expect(strip.getByText('Point Set, 1 marked')).toBeVisible()
 
   await page.getByRole('button', {
-    name: 'Open supporting page 2: Hollow-core flush wood door product data',
+    name: 'Open supporting page 4: Heritage interior door product data',
   }).click()
   await expect(page.getByRole('heading', {
-    name: 'Type C interior door product data and review cover',
+    name: 'Virginia Farmhouse complete door package submittal',
   })).toBeVisible()
   await expect(page.getByRole('button', {
-    name: /Current page: 2, Hollow-core flush wood door product data/,
+    name: /Current page: 4, Heritage interior door product data/,
   })).toBeVisible()
-  await expect(page.getByLabel('Drawing page 2')).toHaveAttribute('role', 'group')
+  await expect(page.getByLabel('Drawing page 4')).toHaveAttribute('role', 'group')
   await expect(strip.getByText('Point Set, 1 marked')).toBeVisible()
 
   await strip.getByRole('button', { name: 'Return to A1.2' }).click()
@@ -871,9 +871,9 @@ async function createPointSetRequest(page: import('@playwright/test').Page) {
       documentVersionId: 'virginia-farmhouse-drawings-v1',
       recommendedPageIds: ['sheet-a1.2'],
       supportingDocumentReferences: [{
-        documentId: 'type-c-door-submittal',
-        documentVersionId: 'type-c-door-submittal-v1',
-        pageIds: ['door-submittal-page-1', 'door-submittal-page-2'],
+        documentId: 'door-package-submittal',
+        documentVersionId: 'door-package-submittal-v1',
+        pageIds: ['door-package-submittal-schedule', 'door-package-submittal-interior-product-data'],
       }],
     })
   })
