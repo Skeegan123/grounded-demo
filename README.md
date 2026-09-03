@@ -32,9 +32,8 @@ Grounded exposes exactly eight WebMCP tools. The application-level registration
 test in `src/application/webmcpRegistration.test.tsx` is the inventory source of
 truth:
 
-- One read-only help tool: `get_grounded_help` returns a short overview with a
-  link to the optional `use-grounded` workflow skill, or focused guidance for
-  one exact Grounded tool name.
+- One read-only help tool: `get_grounded_help` returns a short overview or
+  focused guidance for one exact Grounded tool name.
 - Four read-only document tools: `get_project_workspace` returns project,
   Document Browsing, and resumable Assistance state. The other three list
   Project Documents, search them, and inspect selected evidence.

@@ -17,7 +17,6 @@ test('returns compact overall Grounded help with no parameter', async () => {
     guidance: string[]
     summary: string
     tools: Array<{ name: string; purpose: string }>
-    workflowGuide: { url: string; useWhen: string }
   }
 
   expect(result.summary).toContain('construction questions')
@@ -32,10 +31,6 @@ test('returns compact overall Grounded help with no parameter', async () => {
     'get_assistance_request',
   ]
   expect(result.tools.map(({ name }) => name)).toEqual(toolNames)
-  expect(result.workflowGuide).toEqual({
-    url: '/.well-known/agent-skills/use-grounded/SKILL.md',
-    useWhen: 'Read before multi-document, visual, or Human Reviewer-assisted work.',
-  })
   expect(result.guidance).toEqual(expect.arrayContaining([
     expect.stringContaining('Search Hints locate content'),
     expect.stringContaining('Assistance Request'),

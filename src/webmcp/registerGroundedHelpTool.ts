@@ -86,10 +86,6 @@ const toolHelp: Record<GroundedToolName, ToolHelp> = {
 const overview = {
   summary:
     'Grounded lets External Agents and Human Reviewers resolve construction questions tied to Project Documents.',
-  workflowGuide: {
-    url: '/.well-known/agent-skills/use-grounded/SKILL.md',
-    useWhen: 'Read before multi-document, visual, or Human Reviewer-assisted work.',
-  },
   tools: (Object.keys(toolHelp) as GroundedToolName[]).map((name) => ({
     name,
     purpose: toolHelp[name].purpose,

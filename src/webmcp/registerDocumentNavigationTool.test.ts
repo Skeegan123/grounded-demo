@@ -84,6 +84,7 @@ test('registers a strict non-read-only document and page navigation contract', a
 
   expect({
     annotations: tool?.annotations,
+    description: tool?.description,
     rootAdditionalProperties: schema.additionalProperties,
     required: schema.required,
     documentId: schema.properties.documentId,
@@ -101,11 +102,13 @@ test('registers a strict non-read-only document and page navigation contract', a
       readOnlyHint: false,
       untrustedContentHint: true,
     },
+    description:
+      'Navigate the visible Document Browsing workbench to a Project Document destination. Navigation changes the visible view and returns no visual analysis. Use table or schedule blocks for written values. Use figure, elevation, diagram, or detail blocks for appearance, geometry, and configuration. For a direct visual comparison, navigate to each exact visual block in turn and inspect the rendered view after each call. Use a page only for whole-sheet context. Block and region targets fit and briefly outline the resolved area without selecting or annotating it.',
     rootAdditionalProperties: false,
     required: ['documentId'],
     documentId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
     targetDescription:
-      'Optional Document Destination. Use page for whole-sheet context, block for a known schedule row, diagram, note, or detail, and region for an exact normalized area. Omit to show the document\'s current page.',
+      'Optional Document Destination. Use page for whole-sheet context, block for a known table, figure, elevation, diagram, note, or detail, and region for an exact normalized area without a stable block ID. Match the destination to the needed evidence: tables for written facts and visual blocks for appearance. Omit to show the document\'s current page.',
     targetVariants: [
       {
         additionalProperties: false,

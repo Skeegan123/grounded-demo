@@ -84,12 +84,14 @@ The current application registers these descriptions:
   obvious isolated difference may be reported as an External Agent observation.
   Ask a Human Reviewer to confirm uncertainty and always use one for
   interpreting drawings, symbols, linework, measurements, or counts."
-- `navigate_document`: "Navigate the visible Document Browsing workbench to the
-  current Project Document, page, semantic block, or normalized Document
-  Region. Use a page for whole-sheet context. Prefer a block when search or
-  inspection found a schedule row, diagram, note, or detail relevant to the
-  current visual comparison. Block and region targets fit and transiently
-  outline the resolved region without selecting or annotating it."
+- `navigate_document`: "Navigate the visible Document Browsing workbench to a
+  Project Document destination. Navigation changes the visible view and
+  returns no visual analysis. Use table or schedule blocks for written values.
+  Use figure, elevation, diagram, or detail blocks for appearance, geometry,
+  and configuration. For a direct visual comparison, navigate to each exact
+  visual block in turn and inspect the rendered view after each call. Use a
+  page only for whole-sheet context. Block and region targets fit and briefly
+  outline the resolved area without selecting or annotating it."
 - `create_assistance_request`: "Use when one count-based, uncertain visual, or
   professional judgment remains. Create a separate request for each count type
   or visual comparison. Before requesting direct visual confirmation, navigate
