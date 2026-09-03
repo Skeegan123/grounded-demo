@@ -71,6 +71,7 @@ test('registers a strict non-read-only document and page navigation contract', a
     properties: {
       documentId: { minLength: number; maxLength: number }
       target: {
+        description: string
         anyOf: Array<{
           additionalProperties: boolean
           properties: Record<string, Record<string, unknown>>
@@ -86,6 +87,7 @@ test('registers a strict non-read-only document and page navigation contract', a
     rootAdditionalProperties: schema.additionalProperties,
     required: schema.required,
     documentId: schema.properties.documentId,
+    targetDescription: schema.properties.target.description,
       targetVariants: schema.properties.target.anyOf.map((variant) => ({
         additionalProperties: variant.additionalProperties,
         required: variant.required,
@@ -102,6 +104,8 @@ test('registers a strict non-read-only document and page navigation contract', a
     rootAdditionalProperties: false,
     required: ['documentId'],
     documentId: expect.objectContaining({ minLength: 1, maxLength: 200 }),
+    targetDescription:
+      'Optional Document Destination. Use page for whole-sheet context, block for a known schedule row, diagram, note, or detail, and region for an exact normalized area. Omit to show the document\'s current page.',
     targetVariants: [
       {
         additionalProperties: false,

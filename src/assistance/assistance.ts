@@ -11,7 +11,8 @@ import {
 } from '../demoSession/demoSession'
 
 export const ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT = 200
-export const ASSISTANCE_QUESTION_CHARACTER_LIMIT = 4_000
+export const ASSISTANCE_QUESTION_CHARACTER_LIMIT = 240
+export const ASSISTANCE_CONTEXT_CHARACTER_LIMIT = 2_000
 export const ASSISTANCE_RECOMMENDED_PAGE_LIMIT = 25
 export const ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT = 10
 export const ASSISTANCE_SUPPORTING_PAGE_LIMIT = 25
@@ -19,6 +20,7 @@ export const DEMO_SESSION_PENDING_ASSISTANCE_LIMIT = 25
 
 export interface CreatePointSetAssistanceRequest {
   question: string
+  context?: string
   responseType: 'point_set'
   documentId: string
   documentVersionId: string
@@ -28,6 +30,7 @@ export interface CreatePointSetAssistanceRequest {
 
 export interface CreateTextAssistanceRequest {
   question: string
+  context?: string
   responseType: 'text'
 }
 
@@ -61,12 +64,14 @@ export type AssistanceResult =
       id: string
       state: 'pending'
       question: string
+      context?: string
       createdAt: string
     }
   | {
       id: string
       state: 'answered'
       question: string
+      context?: string
       createdAt: string
       professionalResponse:
         | {
@@ -93,6 +98,7 @@ export type AssistanceResult =
       id: string
       state: 'declined'
       question: string
+      context?: string
       createdAt: string
       professionalResponse: {
         type: 'declined'
@@ -111,6 +117,7 @@ export interface AssistanceRequestState {
   state: 'pending' | 'answered' | 'declined'
   responseType: 'point_set' | 'text'
   question: string
+  context?: string
   createdAt: string
 }
 
@@ -285,6 +292,7 @@ export function createAssistance(options: AssistanceOptions) {
       state: responseByRequestId.get(request.id)?.state ?? 'pending',
       responseType: request.responseType,
       question: request.question,
+      ...(request.context ? { context: request.context } : {}),
       createdAt: request.createdAt,
     }))
   }
@@ -421,6 +429,7 @@ export function createAssistance(options: AssistanceOptions) {
         id: request.id,
         state: 'pending',
         question: request.question,
+        ...(request.context ? { context: request.context } : {}),
         createdAt: request.createdAt,
       }
     }
@@ -430,6 +439,7 @@ export function createAssistance(options: AssistanceOptions) {
         id: request.id,
         state: 'declined',
         question: request.question,
+        ...(request.context ? { context: request.context } : {}),
         createdAt: request.createdAt,
         professionalResponse: {
           type: 'declined',
@@ -444,6 +454,7 @@ export function createAssistance(options: AssistanceOptions) {
         id: request.id,
         state: 'answered',
         question: request.question,
+        ...(request.context ? { context: request.context } : {}),
         createdAt: request.createdAt,
         professionalResponse: {
           type: 'text',
@@ -469,6 +480,7 @@ export function createAssistance(options: AssistanceOptions) {
       id: request.id,
       state: 'answered',
       question: request.question,
+      ...(request.context ? { context: request.context } : {}),
       createdAt: request.createdAt,
       professionalResponse: {
         type: 'point_set',
@@ -505,6 +517,14 @@ function validateCreateRequest(input: CreateAssistanceRequest) {
   if (input.question.length > ASSISTANCE_QUESTION_CHARACTER_LIMIT) {
     throw new Error(
       `An Assistance question can have at most ${ASSISTANCE_QUESTION_CHARACTER_LIMIT.toLocaleString('en-US')} characters.`,
+    )
+  }
+  if (
+    input.context &&
+    input.context.length > ASSISTANCE_CONTEXT_CHARACTER_LIMIT
+  ) {
+    throw new Error(
+      `Assistance context can have at most ${ASSISTANCE_CONTEXT_CHARACTER_LIMIT.toLocaleString('en-US')} characters.`,
     )
   }
   if (input.responseType !== 'point_set') return

@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox'
 import {
   ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT,
+  ASSISTANCE_CONTEXT_CHARACTER_LIMIT,
   ASSISTANCE_QUESTION_CHARACTER_LIMIT,
   ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
   ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT,
@@ -21,11 +22,19 @@ const AssistanceQuestion = Type.String({
   maxLength: ASSISTANCE_QUESTION_CHARACTER_LIMIT,
   pattern: '\\S',
   description:
-    'One focused construction judgment or clarification for the Human Reviewer.',
+    'One short request for exactly one judgment about one category or condition. For comparison or counting, name one exact type or item. Put background and provisional assessment in context.',
 })
 
+const AssistanceContext = Type.Optional(Type.String({
+  minLength: 1,
+  maxLength: ASSISTANCE_CONTEXT_CHARACTER_LIMIT,
+  pattern: '\\S',
+  description:
+    'Optional evidence, expected or reference values, the External Agent\'s provisional visual assessment, and the exact uncertainty to confirm. Do not add another question or required action.',
+}))
+
 const RESPONSE_TYPE_DESCRIPTION =
-  'Use point_set when the response should identify marked document locations; use text for a plain-text response.'
+  'Use point_set for one homogeneous set of marked locations. Every point has the same meaning and count is aggregate. Do not ask the Human Reviewer to classify points or mark multiple types; create separate requests. Use text for a plain-text response.'
 
 const SupportingDocumentReference = Type.Object(
   {
@@ -51,6 +60,7 @@ const SupportingDocumentReference = Type.Object(
 const CreatePointSetAssistanceRequestInput = Type.Object(
   {
     question: AssistanceQuestion,
+    context: AssistanceContext,
     responseType: Type.Literal('point_set', {
       description: RESPONSE_TYPE_DESCRIPTION,
     }),
@@ -66,7 +76,7 @@ const CreatePointSetAssistanceRequestInput = Type.Object(
       maxItems: ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
       uniqueItems: true,
       description:
-        'Suggested starting pages for review, not a restriction on where the final response may point.',
+        'Suggested starting pages for review, not a restriction on the response. For counting, include only non-overlapping source views where each physical instance appears once; do not combine plans and elevations.',
     }),
     supportingDocumentReferences: Type.Optional(
       Type.Array(SupportingDocumentReference, {
@@ -83,6 +93,7 @@ const CreatePointSetAssistanceRequestInput = Type.Object(
 const CreateTextAssistanceRequestInput = Type.Object(
   {
     question: AssistanceQuestion,
+    context: AssistanceContext,
     responseType: Type.Literal('text', {
       description: RESPONSE_TYPE_DESCRIPTION,
     }),
@@ -114,7 +125,7 @@ export function registerAssistanceTools(
       name: 'create_assistance_request',
       title: 'Create an Assistance Request',
       description:
-        'Queue one Assistance Request requiring a Point Set or text response from a Human Reviewer. For a Point Set, include references to other immutable documents that support the requested judgment. Returns immediately with the durable request identity.',
+        'Use when one count-based, uncertain visual, or professional judgment remains. Create a separate request for each count type or visual comparison. Before requesting direct visual confirmation, navigate to and inspect the exact blocks, then put the External Agent\'s provisional assessment in context. This adds only a local Demo Session work item, contacts no one outside the Project Workspace, and needs no separate confirmation when the user requested Human Reviewer involvement.',
       schema: CreateAssistanceRequestInput,
       readOnly: false,
       includeValidationIssueMessage: true,

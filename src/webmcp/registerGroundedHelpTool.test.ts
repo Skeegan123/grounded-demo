@@ -17,6 +17,7 @@ test('returns compact overall Grounded help with no parameter', async () => {
     guidance: string[]
     summary: string
     tools: Array<{ name: string; purpose: string }>
+    workflowGuide: { url: string; useWhen: string }
   }
 
   expect(result.summary).toContain('construction questions')
@@ -31,9 +32,15 @@ test('returns compact overall Grounded help with no parameter', async () => {
     'get_assistance_request',
   ]
   expect(result.tools.map(({ name }) => name)).toEqual(toolNames)
+  expect(result.workflowGuide).toEqual({
+    url: '/.well-known/agent-skills/use-grounded/SKILL.md',
+    useWhen: 'Read before multi-document, visual, or Human Reviewer-assisted work.',
+  })
   expect(result.guidance).toEqual(expect.arrayContaining([
     expect.stringContaining('Search Hints locate content'),
     expect.stringContaining('Assistance Request'),
+    expect.stringContaining('obvious isolated visual difference'),
+    expect.stringContaining('non-overlapping source views'),
   ]))
   expect(new TextEncoder().encode(JSON.stringify(result)).byteLength)
     .toBeLessThanOrEqual(1_500)
@@ -58,7 +65,7 @@ test('returns focused help for one exact tool name', async () => {
     purpose: 'Locate prepared-content matches across Project Documents.',
     input: 'A query, with an optional document/version scope and result limit.',
     result: 'Ranked matches with stable document, page, block, and region references.',
-    next: 'Inspect matched evidence before using it to support a claim. Search Hints only locate content.',
+    next: 'Inspect matched evidence before using it to support a claim. For a visual comparison, navigate to the exact returned blocks and inspect them.',
   })
   await expect(modelContext.executeTool('get_grounded_help', {
     tool: 'get_project_workspace',
@@ -101,6 +108,10 @@ test('publishes a closed optional tool selector and rejects other inputs', async
     readOnlyHint: true,
     untrustedContentHint: true,
   })
+  expect(helpTool?.description).toContain(
+    'Use when starting a Grounded review',
+  )
+  expect(helpTool?.description).toContain('Human Reviewer handoff criteria')
   await expect(modelContext.executeTool('get_grounded_help', {
     tool: 'unknown_tool',
   })).rejects.toThrow('Invalid input at /tool.')

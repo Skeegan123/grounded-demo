@@ -53,7 +53,10 @@ const NavigateDocumentInput = Type.Object(
         },
         { additionalProperties: false },
       ),
-    ])),
+    ], {
+      description:
+        'Optional Document Destination. Use page for whole-sheet context, block for a known schedule row, diagram, note, or detail, and region for an exact normalized area. Omit to show the document\'s current page.',
+    })),
   },
   { additionalProperties: false },
 )
@@ -67,7 +70,7 @@ export function registerDocumentNavigationTool(
     name: 'navigate_document',
     title: 'Navigate to a Project Document destination',
     description:
-      'Navigate the visible Document Browsing workbench to the current Project Document, one stable page, one semantic block, or one normalized Document Region. Block and region navigation transiently fit and outline the complete resolved region without highlighting, selecting, or annotating it; the command returns only after the destination is visibly rendered and fitted.',
+      'Navigate the visible Document Browsing workbench to the current Project Document, page, semantic block, or normalized Document Region. Use a page for whole-sheet context. Prefer a block when search or inspection found a schedule row, diagram, note, or detail relevant to the current visual comparison. Block and region targets fit and transiently outline the resolved region without selecting or annotating it.',
     schema: NavigateDocumentInput,
     readOnly: false,
     includeValidationIssueMessage: true,

@@ -42,8 +42,13 @@ application path is locked independently by
 Tool: `get_grounded_help`
 
 Call the tool with `{}` for a short overview of Grounded, its eight registered
-tools, and the evidence and Human Reviewer boundaries. To get focused help,
-pass one exact registered tool name:
+tools, the evidence and Human Reviewer boundaries, and the optional
+`use-grounded` workflow guide at
+`/.well-known/agent-skills/use-grounded/SKILL.md`. The guide expands the compact
+tool contracts with visual-inspection, Assistance, and bounded-polling
+procedures. The tool descriptions and current help response remain authoritative
+when a client does not read the guide. To get focused help, pass one exact
+registered tool name:
 
 ```json
 { "tool": "search_project_documents" }
@@ -55,6 +60,11 @@ tool's purpose, input summary, result summary, and a useful next step. The tool
 is read-only, uses only app-authored static text, and changes no Project
 Workspace, Document Browsing, or Assistance state. Overview and focused results
 remain within 1,500 UTF-8 bytes.
+
+The same skill is listed in `/.well-known/agent-skills/index.json` with a SHA-256
+digest. Grounded also advertises that index through the deployed site's
+`service-desc` Link header. Clients may use either discovery route; neither is
+required for the eight WebMCP tools to work.
 
 ## Get the Project Workspace
 
@@ -119,7 +129,10 @@ document's current immutable `versionId`; callers cannot provide or select a
 
 Omitting `target` opens the Project Document at its most recently visited page
 in the current Demo Session, falling back to its first page. An explicit target
-is one of three strict shapes. A page target is:
+is one of three strict shapes. Use a page target for whole-sheet context. Prefer
+a block target when search or inspection returned the schedule row, diagram,
+note, or detail needed for a focused visual comparison. Use a region target for
+an exact normalized area that has no stable block ID. A page target is:
 
 ```json
 {
@@ -325,16 +338,28 @@ Input fields:
 
 | Field | Shape |
 | --- | --- |
-| `question` | non-blank string, at most 4,000 characters |
+| `question` | one non-blank judgment request, at most 240 characters |
+| `context` | optional non-blank evidence, reference values, provisional assessment, and uncertainty, at most 2,000 characters |
 | `responseType` | literal `point_set` or `text` |
 | `documentId` | non-empty string of at most 200 characters, required for Point Set |
 | `documentVersionId` | non-empty string of at most 200 characters, required for Point Set |
 | `recommendedPageIds` | required array of at most 25 unique identifiers; the array may be empty |
 | `supportingDocumentReferences` | optional array of at most 10 immutable document-version references |
 
-An Assistance Request with a text response type contains only `question` and
-`responseType`. Both discriminated shapes reject additional fields. The tool is annotated with
-`readOnlyHint: false` and `untrustedContentHint: true`.
+An Assistance Request with a text response type contains `question`, optional
+`context`, and `responseType`. Both discriminated shapes reject additional
+fields. The tool is annotated with `readOnlyHint: false` and
+`untrustedContentHint: true` because it changes the local Demo Session queue.
+It does not contact or notify anyone outside the Project Workspace. When the
+user requested Human Reviewer involvement, relevant requests do not require a
+separate confirmation.
+
+Each request asks for exactly one judgment. A Point Set is homogeneous: every
+point has the same meaning and `count` is the aggregate for that one category or
+condition. It cannot classify marks by type. Each count or visual comparison
+therefore needs its own request for one exact type or item. Counting requests
+use non-overlapping source views where each physical instance appears once;
+they do not combine plans and elevations.
 
 Supporting references give the Human Reviewer the documents that
 informed the request without changing the Point Set target. Each reference has
@@ -367,8 +392,9 @@ Tool: `get_assistance_request`
 The input is exactly one non-empty `id` of at most 200 characters. The tool is annotated with
 `readOnlyHint: true` and `untrustedContentHint: true`.
 
-A pending result includes `id`, `state`, `question`, and `createdAt`. An answered
-Point Set adds this final response:
+A pending result includes `id`, `state`, `question`, optional `context`, and
+`createdAt`. Answered and declined results preserve the same optional context.
+An answered Point Set adds this final response:
 
 ```json
 {

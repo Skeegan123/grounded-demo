@@ -185,7 +185,7 @@ export function AssistancePanel({
               <div className="request-meta">
                 <span>Locked · {index + 2} in line</span>
               </div>
-              <p className="question">{request.question}</p>
+              <RequestPrompt request={request} />
               <small>{responseTypeName(request)} response</small>
             </article>
           )) : (
@@ -204,7 +204,7 @@ export function AssistancePanel({
               <div className="request-meta">
                 <span>{result.state === 'answered' ? 'Answered' : 'Declined'}</span>
               </div>
-              <p className="question">{result.question}</p>
+              <RequestPrompt request={result} />
               <CompletedResponse
                 isViewingPointSet={viewedPointSetId === result.id}
                 onTogglePointSet={() => onTogglePointSet(result)}
@@ -253,7 +253,7 @@ function CurrentRequestCard(props: CurrentRequestCardProps) {
       <div className="request-meta">
         <span>Pending</span>
       </div>
-      <p className="question">{current.question}</p>
+      <RequestPrompt request={current} />
       {current.responseType === 'point_set'
         ? <PointSetResponseForm {...props} current={current} />
         : <TextResponseForm {...props} />}
@@ -293,6 +293,21 @@ function CurrentRequestCard(props: CurrentRequestCardProps) {
           <strong>{props.pending.length - 1} waiting</strong>
           <span>Next: {props.pending[1]!.question}</span>
         </div>
+      )}
+    </div>
+  )
+}
+
+function RequestPrompt({
+  request,
+}: {
+  request: { question: string; context?: string }
+}) {
+  return (
+    <div className="request-prompt">
+      <p className="question">{request.question}</p>
+      {request.context && (
+        <p className="request-context">{request.context}</p>
       )}
     </div>
   )

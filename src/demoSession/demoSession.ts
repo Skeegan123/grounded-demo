@@ -24,6 +24,7 @@ interface AssistanceRequestRecordBase {
   id: string
   sessionId: string
   question: string
+  context?: string
   createdAt: string
   queuePosition: number
 }

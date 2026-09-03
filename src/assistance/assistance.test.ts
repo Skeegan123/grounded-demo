@@ -1,12 +1,14 @@
 import { expect, test } from 'vitest'
 import {
   ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT,
+  ASSISTANCE_CONTEXT_CHARACTER_LIMIT,
   ASSISTANCE_QUESTION_CHARACTER_LIMIT,
   ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
   ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT,
   ASSISTANCE_SUPPORTING_PAGE_LIMIT,
   DEMO_SESSION_PENDING_ASSISTANCE_LIMIT,
   createAssistance,
+  type CreateAssistanceRequest,
   type CreatePointSetAssistanceRequest,
 } from './assistance'
 import { DemoSessionDatabase } from '../demoSession/demoSession'
@@ -273,7 +275,7 @@ test('the domain rejects bounded Assistance input without modifying the queue', 
   const before = await assistance.listPending()
 
   const rejectedInputs: Array<{
-    input: CreatePointSetAssistanceRequest | { question: string; responseType: 'text' }
+    input: CreateAssistanceRequest
     message: string
   }> = [
     {
@@ -281,7 +283,15 @@ test('the domain rejects bounded Assistance input without modifying the queue', 
         question: 'q'.repeat(ASSISTANCE_QUESTION_CHARACTER_LIMIT + 1),
         responseType: 'text',
       },
-      message: 'An Assistance question can have at most 4,000 characters.',
+      message: 'An Assistance question can have at most 240 characters.',
+    },
+    {
+      input: {
+        question: 'Confirm the Type C count.',
+        context: 'c'.repeat(ASSISTANCE_CONTEXT_CHARACTER_LIMIT + 1),
+        responseType: 'text',
+      },
+      message: 'Assistance context can have at most 2,000 characters.',
     },
     {
       input: {

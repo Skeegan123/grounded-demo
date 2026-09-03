@@ -530,7 +530,23 @@ test('an External Agent searches concise cross-document evidence before inspecti
   expect(searchTool?.description).toContain('does not answer the question')
   expect(searchTool?.description).toContain('inspect_document_evidence')
   expect(searchTool?.description).toContain('Search Hints cannot support a claim')
-  expect(searchTool?.description).toContain('requires the Human Reviewer')
+  expect(searchTool?.description).toContain(
+    'navigate to the exact blocks and inspect them',
+  )
+  expect(searchTool?.description).toContain(
+    'measurements, or counts requires the Human Reviewer',
+  )
+
+  const inspectionTool = modelContext.getTool('inspect_document_evidence')
+  expect(inspectionTool?.description).toContain(
+    'obvious isolated difference may be reported as an External Agent observation',
+  )
+  expect(inspectionTool?.description).toContain(
+    'navigate to the exact relevant blocks and inspect them first',
+  )
+  expect(inspectionTool?.description).toContain(
+    'always use one for interpreting drawings, symbols, linework, measurements, or counts',
+  )
 
   controller.abort()
 })

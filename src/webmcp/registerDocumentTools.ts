@@ -112,7 +112,7 @@ export function registerDocumentTools(
       name: 'search_project_documents',
       title: 'Search Project Workspace documents',
       description:
-        'Locate concise prepared-content matches across immutable Project Workspace documents. Search locates evidence and does not answer the question; follow a match with inspect_document_evidence for full context. Search Hints cannot support a claim, and visual interpretation, selection, measurement, or counting requires the Human Reviewer.',
+        'Locate concise prepared-content matches across immutable Project Workspace documents. Search does not answer the question; follow matches with inspect_document_evidence before relying on them. For a direct visual comparison, navigate to the exact blocks and inspect them. Search Hints cannot support a claim; interpreting drawings, symbols, linework, measurements, or counts requires the Human Reviewer.',
       schema: SearchProjectDocumentsInput,
       readOnly: true,
       execute: (input) => documents.search(input),
@@ -121,7 +121,7 @@ export function registerDocumentTools(
       name: 'inspect_document_evidence',
       title: 'Inspect prepared Document Evidence',
       description:
-        'Inspect prepared page evidence or selected blocks from one immutable document version without changing the visible workspace. Page results include semantic blocks, table rows, and their normalized regions; browser artifacts do not ship word-level OCR. Results distinguish source-derived Document Evidence from generated Search Hints, which can locate content but cannot support a claim by themselves.',
+        'Inspect prepared evidence from one immutable document version without changing the visible workspace. Results include semantic blocks, table rows, and normalized regions. For a direct visual comparison, navigate to the exact relevant blocks and inspect them first. An obvious isolated difference may be reported as an External Agent observation. Ask a Human Reviewer to confirm uncertainty and always use one for interpreting drawings, symbols, linework, measurements, or counts.',
       schema: InspectDocumentEvidenceInput,
       readOnly: true,
       includeValidationIssueMessage: true,

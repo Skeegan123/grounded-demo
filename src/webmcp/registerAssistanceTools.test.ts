@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import {
   ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT,
+  ASSISTANCE_CONTEXT_CHARACTER_LIMIT,
   ASSISTANCE_QUESTION_CHARACTER_LIMIT,
   ASSISTANCE_RECOMMENDED_PAGE_LIMIT,
   ASSISTANCE_SUPPORTING_DOCUMENT_LIMIT,
@@ -37,12 +38,25 @@ test('Assistance tool input schemas distinguish the response target from support
   )) as RegisteredInputSchema
   const pointSet = createSchema.anyOf?.[0]
   const text = createSchema.anyOf?.[1]
+  const createTool = modelContext.getTool('create_assistance_request')
   const supportingReference =
     pointSet?.properties?.supportingDocumentReferences?.items
 
+  expect(createTool?.description).toContain(
+    'one count-based, uncertain visual, or professional judgment',
+  )
+  expect(createTool?.description).toContain(
+    'separate request for each count type or visual comparison',
+  )
+  expect(createTool?.description).toContain('local Demo Session work item')
+  expect(createTool?.description).toContain('needs no separate confirmation')
+  expect(createTool?.description).toContain('provisional assessment in context')
+
   expect({
     pointSetQuestion: pointSet?.properties?.question?.description,
+    pointSetContext: pointSet?.properties?.context?.description,
     textQuestion: text?.properties?.question?.description,
+    textContext: text?.properties?.context?.description,
     pointSetResponseType: pointSet?.properties?.responseType?.description,
     textResponseType: text?.properties?.responseType?.description,
     targetDocumentId: pointSet?.properties?.documentId?.description,
@@ -59,19 +73,23 @@ test('Assistance tool input schemas distinguish the response target from support
     requestId: getSchema.properties?.id?.description,
   }).toEqual({
     pointSetQuestion:
-      'One focused construction judgment or clarification for the Human Reviewer.',
+      'One short request for exactly one judgment about one category or condition. For comparison or counting, name one exact type or item. Put background and provisional assessment in context.',
+    pointSetContext:
+      'Optional evidence, expected or reference values, the External Agent\'s provisional visual assessment, and the exact uncertainty to confirm. Do not add another question or required action.',
     textQuestion:
-      'One focused construction judgment or clarification for the Human Reviewer.',
+      'One short request for exactly one judgment about one category or condition. For comparison or counting, name one exact type or item. Put background and provisional assessment in context.',
+    textContext:
+      'Optional evidence, expected or reference values, the External Agent\'s provisional visual assessment, and the exact uncertainty to confirm. Do not add another question or required action.',
     pointSetResponseType:
-      'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+      'Use point_set for one homogeneous set of marked locations. Every point has the same meaning and count is aggregate. Do not ask the Human Reviewer to classify points or mark multiple types; create separate requests. Use text for a plain-text response.',
     textResponseType:
-      'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+      'Use point_set for one homogeneous set of marked locations. Every point has the same meaning and count is aggregate. Do not ask the Human Reviewer to classify points or mark multiple types; create separate requests. Use text for a plain-text response.',
     targetDocumentId:
       'The immutable document ID on which a returned Point Set should be placed.',
     targetDocumentVersionId:
       'The immutable document version on which a returned Point Set should be placed.',
     recommendedPageIds:
-      'Suggested starting pages for review, not a restriction on where the final response may point.',
+      'Suggested starting pages for review, not a restriction on the response. For counting, include only non-overlapping source views where each physical instance appears once; do not combine plans and elevations.',
     supportingDocumentReferences:
       'Immutable document and page references that support the judgment, distinct from the Point Set target document.',
     supportingDocumentId: 'The immutable supporting evidence document ID.',
@@ -175,6 +193,7 @@ test('the public create tool accepts every collection maximum and the empty reco
 
   await expect(modelContext.executeTool('create_assistance_request', {
     question: 'q'.repeat(ASSISTANCE_QUESTION_CHARACTER_LIMIT),
+    context: 'c'.repeat(ASSISTANCE_CONTEXT_CHARACTER_LIMIT),
     responseType: 'text',
   })).resolves.toMatchObject({ id: 'request-1' })
   await expect(modelContext.executeTool('create_assistance_request', {
@@ -247,6 +266,9 @@ test('the public tools reject every immediately-above limit without echoing inpu
   const oversizedQuestion = `private-${'q'.repeat(
     ASSISTANCE_QUESTION_CHARACTER_LIMIT - 'private-'.length + 1,
   )}`
+  const oversizedContext = `private-${'c'.repeat(
+    ASSISTANCE_CONTEXT_CHARACTER_LIMIT - 'private-'.length + 1,
+  )}`
   const oversizedIdentifier = `private-${'i'.repeat(
     ASSISTANCE_IDENTIFIER_CHARACTER_LIMIT - 'private-'.length + 1,
   )}`
@@ -264,8 +286,17 @@ test('the public tools reject every immediately-above limit without echoing inpu
   }> = [
     {
       input: { question: oversizedQuestion, responseType: 'text' },
-      error: 'Expected string length less or equal to 4000.',
+      error: 'Expected string length less or equal to 240.',
       payload: oversizedQuestion,
+    },
+    {
+      input: {
+        question: 'Bound this request.',
+        context: oversizedContext,
+        responseType: 'text',
+      },
+      error: 'Expected string length less or equal to 2000.',
+      payload: oversizedContext,
     },
     {
       input: { ...validPointSetInput, documentId: oversizedIdentifier },
@@ -402,6 +433,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
     'create_assistance_request',
     {
       question: 'Mark the Type C openings.',
+      context: 'The schedule expects five Type C openings across A1.2 and A1.3.',
       responseType: 'point_set',
       documentId: 'virginia-farmhouse-drawings',
       documentVersionId: 'virginia-farmhouse-drawings-v1',
@@ -457,16 +489,24 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
               question: {
                 type: 'string',
                 minLength: 1,
-                maxLength: 4000,
+                maxLength: 240,
                 pattern: '\\S',
                 description:
-                  'One focused construction judgment or clarification for the Human Reviewer.',
+                  'One short request for exactly one judgment about one category or condition. For comparison or counting, name one exact type or item. Put background and provisional assessment in context.',
+              },
+              context: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 2000,
+                pattern: '\\S',
+                description:
+                  'Optional evidence, expected or reference values, the External Agent\'s provisional visual assessment, and the exact uncertainty to confirm. Do not add another question or required action.',
               },
               responseType: {
                 const: 'point_set',
                 type: 'string',
                 description:
-                  'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+                  'Use point_set for one homogeneous set of marked locations. Every point has the same meaning and count is aggregate. Do not ask the Human Reviewer to classify points or mark multiple types; create separate requests. Use text for a plain-text response.',
               },
               documentId: {
                 type: 'string',
@@ -487,7 +527,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
                 maxItems: 25,
                 uniqueItems: true,
                 description:
-                  'Suggested starting pages for review, not a restriction on where the final response may point.',
+                  'Suggested starting pages for review, not a restriction on the response. For counting, include only non-overlapping source views where each physical instance appears once; do not combine plans and elevations.',
                 items: {
                   type: 'string',
                   minLength: 1,
@@ -553,16 +593,24 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
               question: {
                 type: 'string',
                 minLength: 1,
-                maxLength: 4000,
+                maxLength: 240,
                 pattern: '\\S',
                 description:
-                  'One focused construction judgment or clarification for the Human Reviewer.',
+                  'One short request for exactly one judgment about one category or condition. For comparison or counting, name one exact type or item. Put background and provisional assessment in context.',
+              },
+              context: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 2000,
+                pattern: '\\S',
+                description:
+                  'Optional evidence, expected or reference values, the External Agent\'s provisional visual assessment, and the exact uncertainty to confirm. Do not add another question or required action.',
               },
               responseType: {
                 const: 'text',
                 type: 'string',
                 description:
-                  'Use point_set when the response should identify marked document locations; use text for a plain-text response.',
+                  'Use point_set for one homogeneous set of marked locations. Every point has the same meaning and count is aggregate. Do not ask the Human Reviewer to classify points or mark multiple types; create separate requests. Use text for a plain-text response.',
               },
             },
             required: ['question', 'responseType'],
@@ -598,12 +646,14 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
           id: 'request-1',
           state: 'pending',
           question: 'Mark the Type C openings.',
+          context: 'The schedule expects five Type C openings across A1.2 and A1.3.',
           createdAt: '2030-01-02T03:04:05.000Z',
         },
         answered: {
           id: 'request-1',
           state: 'answered',
           question: 'Mark the Type C openings.',
+          context: 'The schedule expects five Type C openings across A1.2 and A1.3.',
           createdAt: '2030-01-02T03:04:05.000Z',
           professionalResponse: {
             type: 'point_set',

@@ -1978,6 +1978,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
   )!
   const request = await modelContext.executeTool('create_assistance_request', {
     question: 'Mark every Type C opening on the first- and second-floor plans.',
+    context: 'The submitted schedule lists five Type C openings. Mark only Type C so the returned count is directly comparable.',
     responseType: 'point_set',
     documentId: planMatch.document.id,
     documentVersionId: planMatch.document.versionId,
@@ -2002,6 +2003,9 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
   })
 
   await screen.findByText('Mark every Type C opening on the first- and second-floor plans.')
+  expect(screen.getByText(
+    'The submitted schedule lists five Type C openings. Mark only Type C so the returned count is directly comparable.',
+  )).toHaveClass('request-context')
   const currentAssistance = screen
     .getByRole('heading', { name: 'Current Assistance' })
     .closest('aside')!
@@ -2106,6 +2110,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     id: string
     state: string
     question: string
+    context?: string
     createdAt: string
     professionalResponse: {
       type: string
@@ -2125,6 +2130,7 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
     id: request.id,
     state: 'answered',
     question: 'Mark every Type C opening on the first- and second-floor plans.',
+    context: 'The submitted schedule lists five Type C openings. Mark only Type C so the returned count is directly comparable.',
     createdAt: '2030-01-02T03:04:05.000Z',
     professionalResponse: {
       type: 'point_set',
@@ -2182,6 +2188,11 @@ test('the public Type C journey reaches a revise-and-resubmit disposition', asyn
       ? 'revise and resubmit'
       : 'no demonstrated mismatch'
   expect(disposition).toBe('revise and resubmit')
+
+  await user.click(screen.getByRole('tab', { name: /Done/ }))
+  expect(await screen.findByText(
+    'The submitted schedule lists five Type C openings. Mark only Type C so the returned count is directly comparable.',
+  )).toHaveClass('request-context')
 })
 
 test('reopening a submitted Point Set starts on its earliest marked document page', async () => {

@@ -46,4 +46,8 @@ results. Search returns rank and matched query terms, never the private score.
 Generated figure descriptions, synopses, and tags remain `search_hint` in both
 search and inspection. They can locate a likely plan, detail, schedule, or
 figure, but they cannot support a claim. The Human Reviewer retains
-visual interpretation, selection, measurement, and counting.
+interpretation of drawings, symbols, and linework, along with selection,
+measurement, and counting. For a direct comparison of isolated visual
+configurations, the External Agent first navigates to and inspects the exact
+blocks. It may report an obvious isolated difference as its own observation;
+uncertainty goes to the Human Reviewer.
