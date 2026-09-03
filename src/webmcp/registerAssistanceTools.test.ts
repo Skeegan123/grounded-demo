@@ -17,6 +17,7 @@ interface RegisteredInputSchema {
   description?: string
   items?: RegisteredInputSchema
   properties?: Record<string, RegisteredInputSchema>
+  type?: string
 }
 
 test('Assistance tool input schemas distinguish the response target from supporting evidence', async () => {
@@ -42,6 +43,7 @@ test('Assistance tool input schemas distinguish the response target from support
   const supportingReference =
     pointSet?.properties?.supportingDocumentReferences?.items
 
+  expect(createSchema.type).toBe('object')
   expect(createTool?.description).toContain(
     'one count-based, uncertain visual, or professional judgment',
   )
@@ -482,6 +484,7 @@ test('the recording adapter locks the initial Point Set tool contract', async ()
       name: 'create_assistance_request',
       annotations: { readOnlyHint: false, untrustedContentHint: true },
       inputSchema: {
+        type: 'object',
         anyOf: [
           {
             type: 'object',

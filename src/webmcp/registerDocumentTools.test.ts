@@ -7,6 +7,7 @@ interface RegisteredInputSchema {
   anyOf?: RegisteredInputSchema[]
   description?: string
   properties?: Record<string, RegisteredInputSchema>
+  type?: string
 }
 
 test('document tool input schemas explain how to provide search and inspection inputs', async () => {
@@ -27,6 +28,7 @@ test('document tool input schemas explain how to provide search and inspection i
   const pageInspection = inspectionSchema.anyOf?.[0]
   const blockInspection = inspectionSchema.anyOf?.[1]
 
+  expect(inspectionSchema.type).toBe('object')
   expect({
     query: searchSchema.properties?.query?.description,
     scope: searchSchema.properties?.scope?.description,

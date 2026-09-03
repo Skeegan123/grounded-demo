@@ -47,7 +47,6 @@ interface AppProps {
   modelContext?: ModelContextAdapter
   onStartOver: () => void
   pageRenderer: PdfPageRenderer
-  sessionId: string
   workspaceStore: ReturnType<typeof createWorkspaceStore>
 }
 
@@ -72,7 +71,6 @@ function App({
   modelContext,
   onStartOver,
   pageRenderer,
-  sessionId,
   workspaceStore,
 }: AppProps) {
   const registrationAttempt = useMemo(
@@ -428,7 +426,6 @@ function App({
           <div className="session-status">
             <span className={`status-dot status-${registration}`} aria-hidden="true" />
             <span>{statusCopy}</span>
-            <code>{sessionId.slice(0, 8)}</code>
           </div>
           <button
             aria-expanded={!assistanceCollapsed}

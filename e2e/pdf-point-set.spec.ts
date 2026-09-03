@@ -837,6 +837,34 @@ async function expectOutlineMatchesRegion(
   expect(outlineBounds.height).toBeCloseTo(canvasBounds.height * region.height, 0)
 }
 
+test('desktop Assistance scrolls without growing the document viewer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await installRecordedTools(page)
+  await page.goto('/')
+  await createLongTextRequest(page)
+
+  const assistancePane = page.locator('.assistance-pane')
+  await expect(page.getByRole('heading', { name: 'Current Assistance' }))
+    .toBeVisible()
+  await expect.poll(() => page.evaluate(() => ({
+    clientHeight: document.documentElement.clientHeight,
+    scrollHeight: document.documentElement.scrollHeight,
+  }))).toEqual({ clientHeight: 900, scrollHeight: 900 })
+  await expect.poll(() => assistancePane.evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    overflowY: getComputedStyle(element).overflowY,
+    scrollHeight: element.scrollHeight,
+  }))).toEqual(expect.objectContaining({
+    clientHeight: 823,
+    overflowY: 'auto',
+  }))
+  expect(await assistancePane.evaluate((element) => (
+    element.scrollHeight > element.clientHeight
+  ))).toBe(true)
+})
+
 async function installRecordedTools(page: import('@playwright/test').Page) {
   await page.addInitScript(() => {
     const tools = new Map<string, { execute: (input: unknown) => Promise<unknown> }>()
@@ -850,6 +878,24 @@ async function installRecordedTools(page: import('@playwright/test').Page) {
           tools.set(tool.name, tool)
         },
       },
+    })
+  })
+}
+
+async function createLongTextRequest(page: import('@playwright/test').Page) {
+  await page.waitForFunction(() => (
+    window as Window & { __groundedTools?: Map<string, unknown> }
+  ).__groundedTools?.has('create_assistance_request'))
+  await page.evaluate(async () => {
+    const tool = (
+      window as Window & {
+        __groundedTools: Map<string, { execute: (input: unknown) => Promise<unknown> }>
+      }
+    ).__groundedTools.get('create_assistance_request')!
+    await tool.execute({
+      question: 'Does the proposed door package comply with the project requirements?',
+      context: 'Review the proposed product, specification criteria, fire-rating notes, accessibility constraints, hardware coordination, finish requirements, dimensional compatibility, installation conditions, substitutions, warranty requirements, closeout obligations, and every discrepancy that needs follow-up. '.repeat(4),
+      responseType: 'text',
     })
   })
 }

@@ -224,6 +224,15 @@ code {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.workspace-grid:not(.is-constrained) {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.workspace-grid:not(.is-constrained) .assistance-pane {
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .workspace-grid.is-constrained {
   height: auto;
   min-height: calc(100svh - 77px);
@@ -1284,8 +1293,7 @@ a:focus-visible {
     padding-inline: 14px;
   }
 
-  .workspace-header p,
-  .session-status code {
+  .workspace-header p {
     display: none;
   }
 

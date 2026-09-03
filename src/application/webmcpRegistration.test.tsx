@@ -112,6 +112,7 @@ test('reports ready only after the shared attempt registers all eight tools', as
 
   await act(async () => harness.resolve(TOOL_NAMES.at(-1)!))
   await screen.findByText('WebMCP ready')
+  expect(screen.queryByText('session-1')).not.toBeInTheDocument()
   expect(harness.modelContext.getToolNames().sort()).toEqual(TOOL_NAMES)
   await expect(harness.modelContext.executeTool(
     'get_project_workspace',

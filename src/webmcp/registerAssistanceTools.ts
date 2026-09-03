@@ -104,7 +104,7 @@ const CreateTextAssistanceRequestInput = Type.Object(
 const CreateAssistanceRequestInput = Type.Union([
   CreatePointSetAssistanceRequestInput,
   CreateTextAssistanceRequestInput,
-])
+], { type: 'object' })
 
 const GetAssistanceRequestInput = Type.Object(
   {

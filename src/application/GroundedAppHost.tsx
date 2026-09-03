@@ -75,7 +75,6 @@ export function GroundedAppHost({
       modelContext={modelContext}
       onStartOver={startOver}
       pageRenderer={pageRenderer}
-      sessionId={sessionId}
       workspaceStore={session.workspaceStore}
     />
   )

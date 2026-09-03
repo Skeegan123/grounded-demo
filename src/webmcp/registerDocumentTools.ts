@@ -89,6 +89,7 @@ const InspectDocumentEvidenceInput = Type.Union(
       { additionalProperties: false },
     ),
   ],
+  { type: 'object' },
 )
 
 export function registerDocumentTools(
