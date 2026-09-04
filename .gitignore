@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 artifacts/lighthouse/
+artifacts/demo-rough-cut/
 dist-ssr
 playwright-report
 test-results

@@ -56,10 +56,8 @@ is read-only, uses only app-authored static text, and changes no Project
 Workspace, Document Browsing, or Assistance state. Overview and focused results
 remain within 1,500 UTF-8 bytes.
 
-Separately, the optional `use-grounded` skill remains listed in
-`/.well-known/agent-skills/index.json` with a SHA-256 digest. Grounded advertises
-that index through the deployed site's `service-desc` Link header. The help tool
-does not reference or ask clients to load the skill.
+The registered tool schemas and `get_grounded_help` response provide the public
+usage guidance. Grounded does not require a separately discovered Agent Skill.
 
 ## Get the Project Workspace
 
@@ -74,7 +72,7 @@ input rejects additional fields. A fresh Demo Session returns:
     "id": "demo-virginia-farmhouse",
     "title": "Virginia Farmhouse Demo Project",
     "description": "A Project Workspace for reviewing Type C interior door product data against the contract drawings.",
-    "documentCount": 2
+    "documentCount": 3
   },
   "documentBrowsing": {
     "selectedDocument": {

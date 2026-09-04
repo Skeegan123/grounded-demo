@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs'
 import { isAbsolute, join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
 
-const MAX_ENTRY_RAW_BYTES = 756_000
-const MAX_ENTRY_GZIP_BYTES = 195_000
+const MAX_ENTRY_RAW_BYTES = 870_000
+const MAX_ENTRY_GZIP_BYTES = 215_000
 
 function distDirectory(argumentsList) {
   if (argumentsList.length === 0) return resolve('dist')

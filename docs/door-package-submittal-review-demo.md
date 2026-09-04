@@ -166,8 +166,9 @@ judgment. `supportingDocumentReferences` now accepts immutable document-version
 and page identities, and Current Assistance displays them for the Human
 Reviewer.
 
-No Demo Project-specific skill or hidden workflow was needed.
+The workflow uses the registered WebMCP tools and does not depend on a separately
+discovered Agent Skill or hidden workflow.
 
-Normal runtime reads the two committed prepared artifacts offline. Reducto is
+Normal runtime reads the three committed prepared artifacts offline. Reducto is
 used only for the one-time Studio exports and local import. The demo needs no
 Reducto account, API key, Parse job, result URL, or network request at runtime.
