@@ -1,13 +1,18 @@
-## Agent skills
+# Working in the public Grounded demo
 
-### Issue tracker
+Read `CONTEXT.md` before changing domain language. Review the decisions under
+`docs/adr/` before changing document navigation behavior.
 
-Issues and specs are tracked in GitHub Issues for `Skeegan123/Grounded`. See `docs/agents/issue-tracker.md`.
+Use pnpm 10.26.0 with Node.js 22 or later. Before submitting a change, run:
 
-### Triage labels
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm bundle:check
+```
 
-Triage uses the five default labels. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-This repo uses the single-context layout. See `docs/agents/domain.md`.
+Do not edit files under `src/documents/generated/` by hand. Regenerate prepared
+Document Evidence with the importer documented in
+`docs/document-evidence-import.md`.
